@@ -7,16 +7,18 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // UI, editorial headings, and tabular data each have a distinct role.
-        sans: ['Segoe UI', 'Carlito', 'sans-serif'],
-        ui: ['Segoe UI', 'Carlito', 'sans-serif'],
-        display: ['Playfair Display', 'Georgia', 'serif'],
-        cinzel: ['Cinzel', 'serif'],
-        playfair: ['Playfair Display', 'Georgia', 'serif'],
-        lore: ['Alice', 'Georgia', 'serif'],
-        alice: ['Alice', 'Georgia', 'serif'],
-        script: ['Great Vibes', 'Cookie', 'cursive'],
-        mono: ['Cascadia Code', 'Consolas', 'monospace'],
+        // Unified Times New Roman across all applications and surfaces.
+        sans: ['"Times New Roman"', 'Times', 'Georgia', 'serif'],
+        serif: ['"Times New Roman"', 'Times', 'Georgia', 'serif'],
+        ui: ['"Times New Roman"', 'Times', 'Georgia', 'serif'],
+        body: ['"Times New Roman"', 'Times', 'Georgia', 'serif'],
+        display: ['"Times New Roman"', 'Times', 'Georgia', 'serif'],
+        cinzel: ['"Times New Roman"', 'Times', 'Georgia', 'serif'],
+        playfair: ['"Times New Roman"', 'Times', 'Georgia', 'serif'],
+        lore: ['"Times New Roman"', 'Times', 'Georgia', 'serif'],
+        alice: ['"Times New Roman"', 'Times', 'Georgia', 'serif'],
+        script: ['"Times New Roman"', 'Times', 'Georgia', 'serif'],
+        mono: ['"Times New Roman"', 'Times', 'Georgia', 'serif'],
       },
       colors: {
         // 3.1 Global OS Base — Luminous "Celestial Night" (Zero Muddy Blacks)

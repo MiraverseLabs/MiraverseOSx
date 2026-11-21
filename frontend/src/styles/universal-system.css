@@ -48,15 +48,20 @@ html[data-mira-density=comfortable] {
   --os-titlebar-height: 48px;
 }
 html body { font-family: var(--font-body); }
-html .mira-desktop .desktop-menubar { height: var(--os-titlebar-height); font-family: var(--font-ui); }
+html .mira-desktop .desktop-menubar { height: var(--os-titlebar-height); font-family: var(--font-body); }
 .os-window__body { font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
 .os-window:fullscreen { inset: 0 !important; width: 100vw !important; height: 100dvh !important; transform: none !important; border: 0; border-radius: 0; }
-/* Keep profile choices, code, and technical logs independent of the prose default. */
-.os-window__body :where(p, blockquote, dd, li, [contenteditable=true]):not(:where(.mai-space-root *, .font-mono *, pre *, code *, .font-mono, pre, code, [data-record-kind=technical] *)) {
+/* Unified Times New Roman typography across all applications, including MAI.SPACE. */
+.os-window__body,
+.os-window__body :where(*),
+.mai-space-root,
+.mai-space-root :where(*),
+.app-drawer,
+.app-drawer :where(*) {
   font-family: var(--font-body);
 }
-.os-window :where(button, input, select, nav, [role=tablist], label),
-.os-window__titlebar { font-family: var(--font-ui); }
+.os-window :where(button, input, select, textarea, nav, [role=tablist], label),
+.os-window__titlebar { font-family: var(--font-body); }
 .os-window :where(pre, code, kbd, samp, .font-mono) { font-family: var(--font-mono); }
 html .mira-desktop .os-window[data-app] .os-window__titlebar {
   height: var(--os-titlebar-height);

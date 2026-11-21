@@ -41,7 +41,7 @@
 .dock-utilities .mai-dock { position: static; }
 .dock-utilities .mai-panel { position: absolute; bottom: calc(100% + 12px); right: 0; width: min(384px, calc(100vw - 32px)); max-height: calc(100dvh - 160px); overflow-y: auto; }
 .dock-utilities .dock-phone .assignment-call-badge { right: -1px; top: 0; }
-.taskbar-tooltip { position: fixed; z-index: 99999; transform: translate(-50%, -100%); padding: 6px 10px; background: #f7f5fa; color: #39234f; border: 1px solid #d9cde4; border-radius: 6px; box-shadow: 0 4px 16px #13091e28; font: 11px/1.4 system-ui; white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+.taskbar-tooltip { position: fixed; z-index: 99999; transform: translate(-50%, -100%); padding: 6px 10px; background: #f7f5fa; color: #39234f; border: 1px solid #d9cde4; border-radius: 6px; box-shadow: 0 4px 16px #13091e28; font: 11px/1.4 var(--font-body); white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
 
 @media (max-width: 900px) {
   .desktop-taskbar { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; left: 12px; right: 12px; }

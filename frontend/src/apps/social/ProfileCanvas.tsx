@@ -102,7 +102,7 @@ export default function ProfileCanvas({ layout, owner = 'you', editing = false, 
 
   const start = (e: React.PointerEvent, m: Module, resize: boolean) => { if (e.button !== 0) return; e.preventDefault(); e.stopPropagation(); onSelect?.(m.id); e.currentTarget.setPointerCapture(e.pointerId); drag.current = { x: e.clientX, y: e.clientY, module: { ...m }, resize }; };
   const move = (e: React.PointerEvent) => { const d = drag.current; if (!d) return; const x = e.clientX - d.x, y = e.clientY - d.y; onGeometry?.(d.module.id, d.resize ? { w: d.module.w + x, h: d.module.h + y } : { x: d.module.x + x, y: d.module.y + y }); };
-  const style = { '--ms-page-bg': layout.background, '--ms-page-surface': layout.surface, '--ms-page-text': layout.color, '--ms-page-accent': layout.accent, '--ms-page-border': `${layout.border}px`, '--ms-bar-text': layout.theme === 'glitter' ? '#32142e' : '#fff', fontFamily: layout.font } as React.CSSProperties;
+  const style = { '--ms-page-bg': layout.background, '--ms-page-surface': layout.surface, '--ms-page-text': layout.color, '--ms-page-accent': layout.accent, '--ms-page-border': `${layout.border}px`, '--ms-bar-text': layout.theme === 'glitter' ? '#32142e' : '#fff', fontFamily: "'Times New Roman', Times, Georgia, serif" } as React.CSSProperties;
   const starter = makeLayout(layout.theme);
   const classic = !editing && layout.modules.length === starter.modules.length && layout.modules.every((m, i) => ['kind', 'x', 'y', 'w', 'h', 'hidden'].every(k => m[k] === starter.modules[i][k]));
   const height = Math.max(800, ...layout.modules.filter(m => !m.hidden).map(m => m.y + m.h + 30));

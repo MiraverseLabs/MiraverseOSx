@@ -34,14 +34,14 @@ export type SocialWorld = {
 };
 export const PEOPLE = getProfiles();
 export const THEMES = {
-  lavender: { name: 'Classic Lavender', background: '#e6dff3', surface: '#fffaff', color: '#302343', accent: '#73549a', font: 'Georgia, serif', texture: 'stars' },
-  glitter: { name: 'Glitter After Dark', background: '#201325', surface: '#361c36', color: '#fff0fa', accent: '#ff8bc7', font: 'Trebuchet MS, sans-serif', texture: 'stars' },
-  blue: { name: 'Classic Blue', background: '#dce8f2', surface: '#f7fbff', color: '#21384f', accent: '#38688e', font: 'Verdana, sans-serif', texture: 'grid' },
-  rose: { name: 'Daydream Rose', background: '#f5deeb', surface: '#fff8fc', color: '#55334d', accent: '#a84377', font: 'Georgia, serif', texture: 'flowers' },
-  pine: { name: 'Garden Journal', background: '#dce5db', surface: '#f8faf1', color: '#293e35', accent: '#406d54', font: 'Georgia, serif', texture: 'none' },
+  lavender: { name: 'Classic Lavender', background: '#e6dff3', surface: '#fffaff', color: '#302343', accent: '#73549a', font: "'Times New Roman', Times, Georgia, serif", texture: 'stars' },
+  glitter: { name: 'Glitter After Dark', background: '#201325', surface: '#361c36', color: '#fff0fa', accent: '#ff8bc7', font: "'Times New Roman', Times, Georgia, serif", texture: 'stars' },
+  blue: { name: 'Classic Blue', background: '#dce8f2', surface: '#f7fbff', color: '#21384f', accent: '#38688e', font: "'Times New Roman', Times, Georgia, serif", texture: 'grid' },
+  rose: { name: 'Daydream Rose', background: '#f5deeb', surface: '#fff8fc', color: '#55334d', accent: '#a84377', font: "'Times New Roman', Times, Georgia, serif", texture: 'flowers' },
+  pine: { name: 'Garden Journal', background: '#dce5db', surface: '#f8faf1', color: '#293e35', accent: '#406d54', font: "'Times New Roman', Times, Georgia, serif", texture: 'none' },
 };
 export const KINDS: ModuleKind[] = ['about', 'music', 'friends', 'photos', 'blogs', 'guestbook', 'interests', 'decoration', 'widget'];
-export const FONT_OPTIONS = ['Georgia, serif', 'Verdana, sans-serif', 'Trebuchet MS, sans-serif', 'Courier New, monospace'];
+export const FONT_OPTIONS = ["'Times New Roman', Times, Georgia, serif"];
 export const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
 const limit = (value: any, max = 2000) => typeof value === 'string' ? value.slice(0, max) : '';
 const ids = (values: any) => Array.isArray(values) ? [...new Set<string>(values.filter(v => typeof v === 'string' && PEOPLE.some(p => p.id === v)))] : [];

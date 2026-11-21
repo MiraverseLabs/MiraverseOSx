@@ -51,7 +51,7 @@
   overflow: hidden;
   color: #162241;
   background: linear-gradient(180deg, #f8f9fc, #eff1f7);
-  font-family: Commissioner, "Segoe UI", sans-serif;
+  font-family: var(--font-body);
 }
 
 .app-toolbar {
@@ -82,7 +82,7 @@
 .app-toolbar__title {
   overflow: hidden;
   color: #19264f;
-  font-family: "Yeseva One", Georgia, serif;
+  font-family: var(--font-body);
   font-size: 13px;
   line-height: 1.2;
   text-overflow: ellipsis;
@@ -93,7 +93,7 @@
   margin-top: 2px;
   overflow: hidden;
   color: #68728b;
-  font-family: Commissioner, "Segoe UI", sans-serif;
+  font-family: var(--font-body);
   font-size: 10px;
   line-height: 1.2;
   letter-spacing: 0.1em;

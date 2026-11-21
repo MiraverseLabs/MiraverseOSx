@@ -8,10 +8,10 @@
   /* ==========================================================================
      1. MASTER TYPOGRAPHY VARIABLES (§2)
      ========================================================================== */
-  --font-display: 'Playfair Display', 'Georgia', serif;
-  --font-ui: 'Segoe UI', 'Carlito', system-ui, -apple-system, sans-serif;
+  --font-display: 'Times New Roman', Times, Georgia, serif;
+  --font-ui: 'Times New Roman', Times, Georgia, serif;
   --font-body: 'Times New Roman', Times, Georgia, serif;
-  --font-mono: 'Cascadia Code', 'Consolas', monospace;
+  --font-mono: 'Times New Roman', Times, Georgia, serif;
 
   --mira-ink: #24324b;
   --mira-muted: #606b80;
@@ -22,8 +22,8 @@
   --mira-lilac-soft: #ede7f5;
   --mira-sage: #377668;
   --mira-shadow: 0 24px 80px #0b142838, 0 4px 14px #0b142814;
-  --font-lore: 'Alice', 'Georgia', serif;
-  --font-script: 'Great Vibes', 'Cookie', cursive;
+  --font-lore: 'Times New Roman', Times, Georgia, serif;
+  --font-script: 'Times New Roman', Times, Georgia, serif;
 
   /* Bootstrap 5.3 Typography Bridge */
   --bs-body-font-family: var(--font-ui);

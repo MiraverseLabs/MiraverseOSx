@@ -3,7 +3,7 @@
   --pn-accent:#6c527f; --pn-soft:#eeebf0; --pn-brand:#302a3b; --pn-badge:#665375;
   --pn-on-brand:#f4f0f8; --pn-brand-detail:#c5b5d4; --pn-brand-line:#645970;
   height:100%; overflow:auto; container-type:inline-size; background:var(--pn-paper);
-  color:var(--pn-ink); font:14px/1.6 'Segoe UI',system-ui,sans-serif; scroll-behavior:auto;
+  color:var(--pn-ink); font:14px/1.6 'Times New Roman',Times,Georgia,serif; scroll-behavior:auto;
 }
 .pulse-news :is(h1,h2,h3) { color:var(--pn-ink); }
 .pulse-news p { font-family:inherit; }

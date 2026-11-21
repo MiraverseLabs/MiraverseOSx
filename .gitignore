@@ -39,3 +39,16 @@ frontend/storybook-static/
 frontend/playwright-report/
 frontend/test-results/
 output/vite-compatibility/
+
+# Disposable local previews, build snapshots, and verification logs
+/.codex-preview-build/
+/output/*-build/
+/output/character-audit/build-*/
+/output/*.log
+/output/character-audit/*.log
+/tmp/pdfs/*-review.png
+
+# Tool caches
+**/.vite/
+**/.cache/
+*.tsbuildinfo

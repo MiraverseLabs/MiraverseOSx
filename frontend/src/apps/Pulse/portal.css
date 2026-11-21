@@ -2,7 +2,7 @@
   --pp-paper:#f5f6f8; --pp-panel:#fff; --pp-sidebar:#eceef2; --pp-ink:#242a35;
   --pp-muted:#636c7c; --pp-line:#dce0e7; --pp-accent:#66518f; --pp-soft:#e8e1f2; --pp-hover:#f0edf6;
   display:flex; height:100%; min-height:0; overflow:hidden; container-type:inline-size;
-  background:var(--pp-paper); color:var(--pp-ink); font:14px/1.5 'Segoe UI',system-ui,sans-serif;
+  background:var(--pp-paper); color:var(--pp-ink); font:14px/1.5 'Times New Roman',Times,Georgia,serif;
 }
 .pulse-portal :is(h1,h2,h3,p,button) { font-family:inherit; color:inherit; }
 .pulse-portal * { box-sizing:border-box; }
