@@ -42,7 +42,7 @@ const ARCHETYPE_OPTIONS: { id: CharacterArchetype; label: string; badge: string;
   },
   {
     id: 'cyacademy',
-    label: 'Cyacademy Scholar',
+    label: 'Cyberium Academy Scholar',
     badge: 'Academic',
     desc: 'Student or researcher in SpellForge, PRISM resonance, and Vector Housing.'
   },
@@ -75,7 +75,7 @@ const OFFICIAL_DOC_CARDS = [
   { id: 6, title: 'Residency & Housing', subtitle: 'Municipal Domicile Form', category: 'Housing Authority', color: 'border-emerald-500/40 bg-emerald-950/30 text-emerald-300' },
   { id: 7, title: 'Physical ID Sheet', subtitle: 'Biometrics & Marks', category: 'Forensic Physical', color: 'border-cyan-500/40 bg-cyan-950/30 text-cyan-300' },
   { id: 8, title: 'Medical Summary', subtitle: 'Faith Medical Group Chart', category: 'Faith Medical', color: 'border-teal-500/40 bg-teal-950/30 text-teal-300' },
-  { id: 9, title: 'Education & Service', subtitle: 'Cyacademy & WORKNET', category: 'Academic / Career', color: 'border-yellow-500/40 bg-yellow-950/30 text-yellow-300' },
+  { id: 9, title: 'Education & Service', subtitle: 'Cyberium Academy & WORKNET', category: 'Academic / Career', color: 'border-yellow-500/40 bg-yellow-950/30 text-yellow-300' },
 ];
 
 export default function RegistryWorkspaceApp() {
@@ -577,7 +577,7 @@ export default function RegistryWorkspaceApp() {
                   className="w-full rounded-lg bg-white border border-slate-300 px-2 py-1 text-[11px] text-slate-800 focus:outline-none focus:border-amber-500"
                 >
                   <option value="ALL">All Institutions</option>
-                  <option value="Cyacademy">Cyacademy</option>
+                  <option value="Cyberium Academy">Cyberium Academy</option>
                   <option value="Faith Medical">Faith Medical</option>
                   <option value="DGA">DGAOS / TRACE</option>
                   <option value="Orynvell">Orynvell Archives</option>
@@ -834,7 +834,7 @@ export default function RegistryWorkspaceApp() {
                       {[
                         { id: 'overview', label: 'Identity & Biometrics', icon: Fingerprint },
                         { id: 'ancestry', label: 'Ancestry & Resonance', icon: Sparkles },
-                        { id: 'institutions', label: 'Faith Med / Cyacademy / DGA', icon: Building },
+                        { id: 'institutions', label: 'Faith Med / Cyberium Academy / DGA', icon: Building },
                         { id: 'relationships', label: `Relationships (${activePerson.relationshipIds?.length || 0})`, icon: Users },
                         { id: 'documents', label: `Official Documents (9)`, icon: FileText },
                         { id: 'edit', label: 'Edit Profile', icon: Edit3 },
@@ -1071,12 +1071,12 @@ export default function RegistryWorkspaceApp() {
                           </div>
                         </div>
 
-                        {/* Cyacademy & Housing */}
+                        {/* Cyberium Academy & Housing */}
                         <div className="bg-white border border-indigo-200 shadow-xs rounded-xl p-4 flex flex-col justify-between space-y-3">
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
                               <span className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
-                                <GraduationCap size={15} /> Cyacademy & Housing
+                                <GraduationCap size={15} /> Cyberium Academy & Housing
                               </span>
                               <span className="text-[10px] font-mono bg-indigo-950 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30">
                                 MIRROR / HOMECRAFT
@@ -1261,7 +1261,7 @@ export default function RegistryWorkspaceApp() {
                                   onChange={(e) => setRelType(e.target.value)}
                                   className="w-full rounded-lg bg-white border border-slate-300 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500"
                                 >
-                                  <option value="Research Partner">Research Partner (Cyacademy)</option>
+                                  <option value="Research Partner">Research Partner (Cyberium Academy)</option>
                                   <option value="Attending Clinician">Attending Clinician (Faith Medical)</option>
                                   <option value="Patient">Patient (Faith Medical)</option>
                                   <option value="Forensic Colleague">Forensic Colleague (DGAOS / TRACE)</option>
@@ -2000,7 +2000,7 @@ export default function RegistryWorkspaceApp() {
                     },
                     {
                       appId: 'passport' as const,
-                      title: 'Cyacademy & Housing (MIRROR & HOMECRAFT)',
+                      title: 'Cyberium Academy & Housing (MIRROR & HOMECRAFT)',
                       badge: 'ACADEMIC & HOUSING',
                       icon: GraduationCap,
                       color: 'border-indigo-500/40',

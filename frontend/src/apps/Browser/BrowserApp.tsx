@@ -1,3 +1,4 @@
+import AcademicPortal from '../academic/AcademicPortal';
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import SearchHome from './SearchHome';
 import { NEWS_SITE } from './news/newsSite';
@@ -102,6 +103,8 @@ function ContentFrame({ url, openTab, navigateTab, openService }: any) {
     if (domain === 'royalhistory.mer' || domain === 'royalhistory.aure' || domain === 'royalhistory') return <RoyalHistoryPortal />;
     if (domain === 'faithmed.aure') return <FaithMedPortal />;
     if (domain === 'dga.gov' || domain === 'dga.gov.aure') return <DGAPortal />;
+    if (domain === 'dawn.edu') return <AcademicPortal key="dawn" institution="dawn" website/>;
+    if (domain === 'cyberium.edu') return <AcademicPortal key="cyberium" institution="cyberium" website/>;
     if (domain === 'cyacademy.edu' || domain === 'cyacademy.edu.aure' || domain === 'cyacademy.aure') return <CyacademyPortal />;
     if (domain === 'records.orynvell.gov') return <OrynvellRecordsPortal />;
     if (domain === 'bank.aure' || domain === 'finance.oryn.gov' || domain === 'finance.mer') return <BankPortal />;
@@ -201,7 +204,7 @@ export default function BrowserApp() {
     const currentUrl = activeTab.url || '';
     const isAureSuite = currentUrl.includes('auresuite.aure');
     const isOnion = currentUrl.includes('.onion') || currentUrl.includes('vectornet.aure');
-    const isVerifiedCivic = currentUrl.includes('.gov') || currentUrl.includes('bank.aure') || currentUrl.includes('faithmed.aure') || currentUrl.includes('cyacademy.edu');
+    const isVerifiedCivic = currentUrl.includes('.gov') || currentUrl.includes('bank.aure') || currentUrl.includes('faithmed.aure') || currentUrl.includes('cyacademy.edu') || currentUrl.includes('cyberium.edu') || currentUrl.includes('dawn.edu');
 
     return (
         <div className="versenet-browser">

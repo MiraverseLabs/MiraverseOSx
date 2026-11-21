@@ -80,7 +80,7 @@ export const APPS: AppMetadata[] = [
     category: 'Communication',   
     dev: 'FAC_NETRUNNERS',   
     version: '2.9.7', 
-    primary: 'Dual-pane instant messaging chat mesh on one side and encrypted Cyacademy/Career inbox on the other', 
+    primary: 'Dual-pane instant messaging chat mesh on one side and encrypted Cyberium Academy/Career inbox on the other',
     lore: 'Dual-pane communication hub featuring real-time IM alongside a formal encrypted email inbox for academic/career dispatches.' 
   },
   { 
@@ -129,14 +129,14 @@ export const APPS: AppMetadata[] = [
   },
   { 
     id: 'campus',     
-    title: 'CAMPUS // Cyacademy Registrar', 
-    formName: 'Cyacademy Registrar Node',
+    title: 'CAMPUS // Cyberium Academy Registrar',
+    formName: 'Cyberium Academy Registrar Node',
     accessType: 'Academic Portal',
     category: 'Scholastic',      
     dev: 'FAC_CYACADEMY',    
     version: '1.8.0', 
-    primary: 'Cyacademy student portal tracking academic timelines, course modules, GPA & club rosters', 
-    lore: 'Cyacademy student portal that tracks academic timelines, course modules, current GPA, active club memberships, and faculty alerts.' 
+    primary: 'Cyberium Academy student portal tracking academic timelines, course modules, GPA & club rosters',
+    lore: 'Cyberium Academy student portal that tracks academic timelines, course modules, current GPA, active club memberships, and faculty alerts.'
   },
   { 
     id: 'files',      

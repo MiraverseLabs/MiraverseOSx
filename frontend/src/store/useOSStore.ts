@@ -1,3 +1,5 @@
+import { createAcademicActions, recordAcademicCompilation, type AcademicActions } from './academicActions';
+import { emptyAcademics } from '../gameplay/Academics';
 import { createBrowserActions } from './browserActions';
 import { createSocialActions, type SocialActions } from './socialActions';
 import { grantLocalCredentials, isLocalWorld } from '../gameplay/localCredentials';
@@ -59,7 +61,7 @@ export interface OSWindow {
   [key: string]: any;
 }
 
-export interface OSStoreState extends AssignmentFlowActions, ProgressionActions, VersenetActions, SiteActions, BroadStreetActions, SocialActions {
+export interface OSStoreState extends AcademicActions, AssignmentFlowActions, ProgressionActions, VersenetActions, SiteActions, BroadStreetActions, SocialActions {
   isLoggedIn: boolean;
   isSanctuary: boolean;
   toggleSanctuary: () => void;
@@ -549,6 +551,7 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
   // Gameplay State Lane (Cross-App Progression & Mechanics)
   // ------------------------------------------------------------------
   gameplay: {
+    academics: emptyAcademics(),
     sessions: {},
     activeGameId: null,
     prismCorruptionLevel: 14.8,
@@ -633,7 +636,7 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
         bulletinPosts: [
           { id: 1, author: 'Odd Della Robbia', time: '12m ago', content: 'Who replaced the cafeteria synth-juice with cryogenic coolant? My mouth is glowing blue.', likes: 14 },
           { id: 2, author: 'Jeremie Belpois', time: '34m ago', content: 'Observing unusual spectral noise in the Sub-Conduit frequency band (88.2 MHz). Keep your firewall up.', likes: 29 },
-          { id: 3, author: 'Elisabeth Delmas (Sissi)', time: '1h ago', content: 'Reminder: Cycademy Gala dress code is strictly Silver & Obsidian. Do not embarrass us.', likes: 8 },
+          { id: 3, author: 'Elisabeth Delmas (Sissi)', time: '1h ago', content: 'Reminder: Cyberium Academy Gala dress code is strictly Silver & Obsidian. Do not embarrass us.', likes: 8 },
           { id: 4, author: 'Aelita Schaeffer', time: '3h ago', content: 'The melody in the Veil towers sounds like a pre-Collapse lullaby...', likes: 45 },
         ],
       },
@@ -709,9 +712,9 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
       worldEvents: [
         { id: 'EVT-MAR6', name: 'Founding Day Protocol (March 6)', monthReq: 'March', active: true, desc: 'Unlocks Orynvell archives, coronation lore, ceremonial quests, and hidden AETHERCORE records.', reward: 'Orynvell Key + 500 Credits' },
         { id: 'EVT-FLUX', name: 'Aura Flux Outbreak', monthReq: 'July', active: true, desc: 'Faith Medical diagnostic emergency. Triage student aura profiles and collect recovery materials.', reward: 'Faith Medical Commendation + 300 XP' },
-        { id: 'EVT-HACK', name: 'Cyacademy Netrunner Hackathon', monthReq: 'All', active: true, desc: 'Competitive coding event with Credit prizes, Programming XP, and rare exploit tools.', reward: '400 Credits + Rare Exploit' },
+        { id: 'EVT-HACK', name: 'Cyberium Academy Netrunner Hackathon', monthReq: 'All', active: true, desc: 'Competitive coding event with Credit prizes, Programming XP, and rare exploit tools.', reward: '400 Credits + Rare Exploit' },
         { id: 'EVT-LEAK', name: 'Purge Archive Leak', monthReq: 'November', active: true, desc: 'Lightborn genealogy history leak. Encrypted files appear in Central Library archives.', reward: 'Lineage Fragment #09' },
-        { id: 'EVT-EXCH', name: 'Regional Exchange Week', monthReq: 'September', active: true, desc: 'Delegates from Fross, Lumia, Marlowe, Brisland, and Kaji visit Cyacademy.', reward: 'Regional Reputation Boost' }
+        { id: 'EVT-EXCH', name: 'Regional Exchange Week', monthReq: 'September', active: true, desc: 'Delegates from Fross, Lumia, Marlowe, Brisland, and Kaji visit Cyberium Academy.', reward: 'Regional Reputation Boost' }
       ],
       activities: missionsData,
       appRanks: {
@@ -822,7 +825,7 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
     }));
     get().addSkillXP('Research', 25);
     get().addSkillXP('Programming', 20);
-    return { ok: true, message: `Completed 2 hours of Cyacademy Syntax coursework (-${staminaCost} Stamina). +${xpGain} Academic XP gained!` };
+    return { ok: true, message: `Completed 2 hours of Cyberium Academy Syntax coursework (-${staminaCost} Stamina). +${xpGain} Academic XP gained!` };
   },
 
   purchaseHousingUpgrade: (upgradeId, cost, bitCost = 0) => {
@@ -893,6 +896,7 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
       };
     }),
 
+  ...createAcademicActions(set, get),
   ...createWorknetActions(set, get),
   ...createFieldActions(set, get),
   ...createBroadStreetActions(set, get),
@@ -952,6 +956,7 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
           },
         },
       }));
+      recordAcademicCompilation(set, get);
       get().addSkillXP('Spellcasting', 35);
       get().recordWorldEvent({
         category: 'veil',
@@ -979,6 +984,7 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
           },
         },
       }));
+      recordAcademicCompilation(set, get);
       get().addSkillXP('Spellcasting', 15);
       return {
         ok: true,

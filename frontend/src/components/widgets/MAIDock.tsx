@@ -171,7 +171,7 @@ export default function MAIDock() {
               </div>
             ) : (
               <div className="mb-3 rounded-xl border border-purple-500/20 bg-purple-950/40 p-3 text-xs text-purple-200/90 leading-relaxed font-sans">
-                Welcome, citizen. Ask me about Aureline Year 1000 lore, Queen Ashara's decrees, onboarding forms (`.osform`), or type <span className="font-mono text-pink-300 font-bold">"open Cycademy"</span>.
+                Welcome, citizen. Ask me about Aureline Year 1000 lore, Queen Ashara's decrees, onboarding forms (`.osform`), or type <span className="font-mono text-pink-300 font-bold">"open Cyberium Academy"</span>.
               </div>
             )}
 

@@ -52,8 +52,8 @@ export const MOCK_DOCUMENTS: Record<string, MockDocument> = {
       ],
       formFields: [
         { id: 'residentName', label: 'Citizen Legal Handle', type: 'text', placeholder: 'e.g. Cipher-01' },
-        { id: 'assignedHouse', label: 'Cyacademy House Affiliation', type: 'select', options: ['Vertex (Strategists)', 'Vector (Innovators)', 'Anchor (Guardians)', 'Pulse (Connectors)'] },
-        { id: 'districtPlacement', label: 'Initial District', type: 'select', options: ['Glassline District', 'Lumen Market', 'Cyacademy Campus', 'Faith Medical Campus'] },
+        { id: 'assignedHouse', label: 'Cyberium Academy House Affiliation', type: 'select', options: ['Vertex (Strategists)', 'Vector (Innovators)', 'Anchor (Guardians)', 'Pulse (Connectors)'] },
+        { id: 'districtPlacement', label: 'Initial District', type: 'select', options: ['Glassline District', 'Lumen Market', 'Cyberium Academy Campus', 'Faith Medical Campus'] },
         { id: 'agreeTerms', label: 'I acknowledge the terms of the Aureline System Governance', type: 'checkbox' }
       ]
     }

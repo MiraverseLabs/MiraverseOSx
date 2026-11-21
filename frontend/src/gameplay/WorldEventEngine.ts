@@ -58,7 +58,7 @@ export interface InvestigationCaseDefinition {
   title: string;
   subjectMaid: string;
   subjectName: string;
-  institution: 'Faith Medical & TRACE' | 'DGAOS & WorkNet' | 'Cyacademy & Archive';
+  institution: 'Faith Medical & TRACE' | 'DGAOS & WorkNet' | 'Cyberium Academy & Archive';
   symptomOrAnomaly: string;
   availableEvidence: CaseEvidenceItem[];
   requiredEvidenceIds: string[];
@@ -838,7 +838,7 @@ export const CAREER_TRACK_SPECS: Record<string, CareerTrackSpec> = {
         id: 'arch-scholarly-credential',
         label: 'Academic Scholarship & Library Certification',
         pathwayType: 'institutional',
-        description: 'Advance through Cyacademy coursework, Research skill, and Royal Archive reputation.',
+        description: 'Advance through Cyberium Academy coursework, Research skill, and Royal Archive reputation.',
         isMet: (player, targetRank) => {
           const resLvl = player?.skills?.Research?.level ?? 1;
           const archRep = player?.reputation?.archive ?? 30;

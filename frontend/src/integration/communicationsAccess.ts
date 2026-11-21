@@ -1,7 +1,8 @@
 import type { AureMailAccount } from '../data/commsData';
 
 export const ORGANIZATIONS = [
-  { id: 'cyacademy', name: 'Cyacademy', domain: 'cyacademy.edu', type: 'academic' },
+  { id: 'cyacademy', name: 'Cyberium Academy', domain: 'cyacademy.edu', type: 'academic' },
+  { id: 'dawn', name: 'Dawn University', domain: 'dawn.edu', type: 'academic' },
   { id: 'dga', name: 'Department of Global Affairs', domain: 'dga.gov', type: 'institutional' },
   { id: 'medical', name: 'Faith Medical Group', domain: 'faithmed.aure', type: 'institutional' },
   { id: 'archivist', name: 'Royal Archives', domain: 'archives.orynvell.gov', type: 'work' },
@@ -46,6 +47,7 @@ export const CHANNEL_ORGANIZATIONS: Record<string, string | null> = {
   'dga-bulletins': null,
   'glassline-district': null,
   'cyacademy-core': 'cyacademy',
+  'dawn-common-room': 'dawn',
   'faith-medical-hub': 'medical',
   'squad-ops-ironspire': 'dga',
   'subconduit-sweep': 'dga',

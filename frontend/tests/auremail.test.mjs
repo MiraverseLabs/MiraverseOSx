@@ -129,7 +129,7 @@ test('saved attachments appear once in File Explorer with source links and no ob
   const restored = (await fresh()).getState();
   const files = savedMailFiles(restored.emails, restored.savedAttachmentIds);
   assert.equal(files.length, 1); assert.equal(files[0].dir, '/downloads/auremail');
-  assert.equal(files[0].mailId, 'MSG-001'); assert.match(files[0].body, /Cyacademy/);
+  assert.equal(files[0].mailId, 'MSG-001'); assert.match(files[0].body, /Cyberium Academy/);
   for (const key of ['assignmentId','mockKey','amount','xp','isReward']) assert.equal(files[0][key], undefined);
   restored.requestMailMessage(files[0].mailId);
   assert.equal(store.getState().mailRequest, undefined);

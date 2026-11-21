@@ -1,3 +1,4 @@
+import AcademicPortal from '../academic/AcademicPortal';
 import React, { useState } from 'react';
 import { 
     Activity, Shield, Building, FileText, Landmark, Truck, Eye, 
@@ -403,8 +404,8 @@ export function DGAPortal() {
     const citizenRegistry = [
         { name: 'Director Vane', maid: 'MAID-0010-DIR', dept: 'Executive Council & Municipal Intelligence', clearance: 'Tier 3 (Master)', status: 'ACTIVE DIRECTIVES LEAD' },
         { name: 'Agent Mara Thorne', maid: 'MAID-0492-OPS', dept: 'DGA Tactical & TRACE Forensic Bureau', clearance: 'Tier 2 (High Clearance)', status: 'BROAD STREET LEAD AGENT' },
-        { name: 'Jeremie Belpois', maid: 'MAID-7721-CYC', dept: 'Cyacademy Compiler Lab 4', clearance: 'Tier 2 (Academic Auth)', status: 'DIAGNOSTIC ADVISOR' },
-        { name: 'Aelita Schaeffer', maid: 'MAID-7722-CYC', dept: 'Cyacademy Research / Node Liaison', clearance: 'Tier 2 (Academic Auth)', status: 'SUBTERRANEAN CONTACT' },
+        { name: 'Jeremie Belpois', maid: 'MAID-7721-CYC', dept: 'Cyberium Academy Compiler Lab 4', clearance: 'Tier 2 (Academic Auth)', status: 'DIAGNOSTIC ADVISOR' },
+        { name: 'Aelita Schaeffer', maid: 'MAID-7722-CYC', dept: 'Cyberium Academy Research / Node Liaison', clearance: 'Tier 2 (Academic Auth)', status: 'SUBTERRANEAN CONTACT' },
         { name: 'Dr. Sharon Voss', maid: 'MAID-3391-MED', dept: 'Faith Medical & Deep Telemetry', clearance: 'Tier 2 (Clinical Auth)', status: 'PRISM CHIEF RESEARCHER' },
         { name: 'Dr. Franz Hopper', maid: 'MAID-0001-ARCH', dept: 'Pre-Collapse Network Architect', clearance: 'Tier 3 (Classified)', status: 'HISTORICAL ARCHIVE SEAL' },
     ];
@@ -553,45 +554,10 @@ export function DGAPortal() {
 }
 
 // ==========================================
-// 3. Cycademy Academic Portal (cyacademy.edu)
+// 3. Cyberium Academy Academic Portal (cyacademy.edu)
 // ==========================================
 export function CyacademyPortal() {
-    return (
-        <div className="p-6 space-y-6 bg-[#FAFBFD] min-h-full text-slate-800 font-sans select-none">
-            <CitizenAureIdBar portalName="Cycademy Academic Portal" />
-
-            <header className="flex items-center justify-between border-b border-purple-100 pb-4">
-                <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold shadow-xs">
-                        <Building size={22} />
-                    </div>
-                    <div>
-                        <h1 className="text-xl font-bold text-slate-900">Cycademy of Sciences</h1>
-                        <p className="text-xs text-purple-600 font-mono">Academic Portal & Student Registry • cyacademy.edu</p>
-                    </div>
-                </div>
-            </header>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 border border-purple-200 bg-white rounded-xl space-y-2 shadow-xs">
-                    <h3 className="text-xs font-bold text-purple-900 uppercase">Faculty Roster</h3>
-                    <div className="text-xs font-mono text-slate-700 space-y-1">
-                        <div>• Dean Cassian Rook (Cybernetics & Orientation)</div>
-                        <div>• Prof. Archmage Hex (Algorithmic Spellcraft)</div>
-                        <div>• Dr. Franz Hopper (Pre-Collapse Virtual Dimensions)</div>
-                    </div>
-                </div>
-                <div className="p-4 border border-slate-200 bg-white rounded-xl space-y-2 shadow-xs">
-                    <h3 className="text-xs font-bold text-slate-700 uppercase">Compiler Lab 4 Directory</h3>
-                    <div className="text-xs font-mono text-slate-700 space-y-1">
-                        <div>• Jeremie Belpois (Signal Engineering & Decryption)</div>
-                        <div>• Aelita Schaeffer (Code Weaver & Node Custodian)</div>
-                        <div>• Ulrich Stern & Odd Della Robbia (Field Testing)</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
+    return <AcademicPortal institution="cyberium" website/>;
 }
 
 // ==========================================

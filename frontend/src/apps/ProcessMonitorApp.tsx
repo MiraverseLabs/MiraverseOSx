@@ -8,7 +8,7 @@ export interface SystemProcess {
     pid: number;
     name: string;
     description: string;
-    origin: string; // 'System' | 'Cyacademy' | 'DGA' | 'Transit' | 'PRISM' | 'AETHERCORE'
+    origin: string; // 'System' | 'Cyberium Academy' | 'DGA' | 'Transit' | 'PRISM' | 'AETHERCORE'
     cpuUsage: number;
     memoryMb: number;
     isCorrupted: boolean;
@@ -19,7 +19,7 @@ export interface SystemProcess {
 
 const INITIAL_PROCESSES: SystemProcess[] = [
     { id: 'p1', pid: 104, name: 'net_relay.sys', description: 'Municipal Mesh Network Link Driver', origin: 'System', cpuUsage: 1.2, memoryMb: 34.5, isCorrupted: false, isQuarantined: false, threatLevel: 'Safe' },
-    { id: 'p2', pid: 218, name: 'cyacademy_sync.daemon', description: 'Student Telemetry & Syllabus Router', origin: 'Cyacademy', cpuUsage: 0.8, memoryMb: 48.2, isCorrupted: false, isQuarantined: false, threatLevel: 'Safe' },
+    { id: 'p2', pid: 218, name: 'cyacademy_sync.daemon', description: 'Student Telemetry & Syllabus Router', origin: 'Cyberium Academy', cpuUsage: 0.8, memoryMb: 48.2, isCorrupted: false, isQuarantined: false, threatLevel: 'Safe' },
     { id: 'p3', pid: 342, name: 'faith_telemetry.service', description: 'Patient Bio-Aura Vital Monitor Hook', origin: 'System', cpuUsage: 2.1, memoryMb: 62.0, isCorrupted: false, isQuarantined: false, threatLevel: 'Safe' },
     { id: 'p4', pid: 409, name: 'dga_warden_scan.node', description: 'Directive 14-B Civic Compliance Sentinel', origin: 'DGA', cpuUsage: 4.5, memoryMb: 112.4, isCorrupted: false, isQuarantined: false, threatLevel: 'Safe' },
     { id: 'p5', pid: 512, name: 'prism_subconduit_bleed.hex', description: 'Unregistered Supercomputer Memory Hook', origin: 'PRISM', cpuUsage: 18.4, memoryMb: 340.1, isCorrupted: true, isQuarantined: false, threatLevel: 'Critical' },

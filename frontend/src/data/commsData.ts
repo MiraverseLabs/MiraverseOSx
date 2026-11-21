@@ -121,14 +121,14 @@ export const LEGACY_PLAYER_EMAIL_ACCOUNTS: AureMailAccount[] = [
   {
     id: 'acc-academic',
     address: 'scholar@cyacademy.edu',
-    label: 'Cyacademy Academic Mail',
+    label: 'Cyberium Academy Academic Mail',
     accountType: 'academic',
-    institution: 'Cyacademy University',
+    institution: 'Cyberium Academy',
     roleLabel: 'Enrolled Scholar',
     maid: 'MAID-OR-00481926',
     verified: true,
     status: 'active',
-    signature: 'Cyacademy Student Systems · Academic Relay',
+    signature: 'Cyberium Academy Student Systems · Academic Relay',
   },
   {
     id: 'acc-work',
@@ -179,13 +179,13 @@ export const AUREMAIL_DIRECTORY: AureMailDirectoryContact[] = [
   // Institutional Bureaus & Desks
   {
     id: 'dir-cyacademy-reg',
-    name: 'Cyacademy Registration Office',
+    name: 'Cyberium Academy Registration Office',
     address: 'registrar@cyacademy.edu',
     category: 'institution',
     accountType: 'institutional',
     role: 'Academic Registrar & Enrollment',
-    institution: 'Cyacademy University',
-    faction: 'Cyacademy Admin',
+    institution: 'Cyberium Academy',
+    faction: 'Cyberium Academy Admin',
     maid: 'MAID-OR-00000101',
     requiredClearance: 1,
     verified: true,
@@ -193,13 +193,13 @@ export const AUREMAIL_DIRECTORY: AureMailDirectoryContact[] = [
   },
   {
     id: 'dir-cyacademy-housing',
-    name: 'Cyacademy Residential Services',
+    name: 'Cyberium Academy Residential Services',
     address: 'housing@cyacademy.edu',
     category: 'institution',
     accountType: 'institutional',
     role: 'Residential & Housing Operations',
-    institution: 'Cyacademy Residential Services',
-    faction: 'Cyacademy Admin',
+    institution: 'Cyberium Academy Residential Services',
+    faction: 'Cyberium Academy Admin',
     maid: 'MAID-OR-00000102',
     requiredClearance: 1,
     verified: true,
@@ -292,12 +292,12 @@ export const INITIAL_EMAILS: EmailItem[] = [
   {
     id: 'MSG-001',
     threadId: 'THR-001',
-    sender: 'Cyacademy Registration Office',
+    sender: 'Cyberium Academy Registration Office',
     senderAddress: 'registrar@cyacademy.edu',
     senderMaid: 'MAID-OR-00000101',
     recipient: 'Player Scholar',
     recipientAddress: 'scholar@cyacademy.edu',
-    faction: 'Cyacademy Admin',
+    faction: 'Cyberium Academy Admin',
     subject: 'Welcome to MIRAVERSEOSX',
     time: '08:00 AM',
     timestamp: '2026-03-06T08:00:00.000Z',
@@ -324,7 +324,7 @@ export const INITIAL_EMAILS: EmailItem[] = [
         previewText: 'Official enrollment record linked to MAID-OR-00481926. Opening or saving this file does not grant currency.',
         targetApp: 'docstudio',
         version: 'v1.0-canonical',
-        provenance: 'Signed by Cyacademy Registration Office · MAID-OR-00000101',
+        provenance: 'Signed by Cyberium Academy Registration Office · MAID-OR-00000101',
       },
       {
         id: 'att-reg-grant',
@@ -336,13 +336,13 @@ export const INITIAL_EMAILS: EmailItem[] = [
         xp: 50,
         claimed: false,
         previewTitle: 'Verified Orientation Stipend Grant (+₡100 / +50 XP)',
-        previewText: 'One-time verified institutional arrival stipend issued by the Cyacademy Bursar.',
+        previewText: 'One-time verified institutional arrival stipend issued by the Cyberium Academy Bursar.',
         provenance: 'Verified Bursar Disbursement #CYA-GRANT-001',
       },
     ],
     body: `Welcome, player.
     
-Your provisional Cyacademy registration has been received. Your record currently contains no verified credits, no active contacts, no declared career track, no reputation standing, and no confirmed housing beyond temporary placement.
+Your provisional Cyberium Academy registration has been received. Your record currently contains no verified credits, no active contacts, no declared career track, no reputation standing, and no confirmed housing beyond temporary placement.
 
 This is expected. MIRAVERSEOSX begins from a clean state so every player builds their identity through choices, work, study, relationships, and discovery.
 
@@ -385,12 +385,12 @@ You can view all incoming messages in the Combined Inbox, switch to an individua
   {
     id: 'MSG-003',
     threadId: 'THR-003',
-    sender: 'Cyacademy Residential Services',
+    sender: 'Cyberium Academy Residential Services',
     senderAddress: 'housing@cyacademy.edu',
     senderMaid: 'MAID-OR-00000102',
     recipient: 'Player Scholar',
     recipientAddress: 'scholar@cyacademy.edu',
-    faction: 'Cyacademy Admin',
+    faction: 'Cyberium Academy Admin',
     subject: 'Housing Assignment: Unit 4B Access Pending',
     time: '08:10 AM',
     timestamp: '2026-03-06T08:10:00.000Z',
@@ -416,7 +416,7 @@ You can view all incoming messages in the Combined Inbox, switch to an individua
         previewText: 'Digital keycard schedule for Unit 4B in HOMECRAFT. Inspect or save to your Vault.',
         targetApp: 'housing',
         version: 'v1.0',
-        provenance: 'Signed by Cyacademy Residential Services',
+        provenance: 'Signed by Cyberium Academy Residential Services',
       },
       {
         id: 'att-housing-stipend',
@@ -555,12 +555,12 @@ As you build trust, clearance, and institutional standing, additional contacts i
   {
     id: 'MSG-007',
     threadId: 'THR-007',
-    sender: 'Cyacademy Student Systems',
+    sender: 'Cyberium Academy Student Systems',
     senderAddress: 'systems@cyacademy.edu',
     senderMaid: 'MAID-OR-00000101',
     recipient: 'Player Scholar',
     recipientAddress: 'scholar@cyacademy.edu',
-    faction: 'Cyacademy Admin',
+    faction: 'Cyberium Academy Admin',
     subject: 'Chronicle & Notice Board Access Granted',
     time: '08:30 AM',
     timestamp: '2026-03-06T08:30:00.000Z',
@@ -589,7 +589,7 @@ As you build trust, clearance, and institutional standing, additional contacts i
     senderMaid: 'MAID-OR-00010201',
     recipient: 'Player Scholar',
     recipientAddress: 'scholar@cyacademy.edu',
-    faction: 'Cyacademy Faculty',
+    faction: 'Cyberium Academy Faculty',
     subject: 'Orientation Schedule: Day One & Dean’s Fellowship',
     time: '08:35 AM',
     timestamp: '2026-03-06T08:35:00.000Z',
@@ -612,7 +612,7 @@ As you build trust, clearance, and institutional standing, additional contacts i
         amount: 0,
         xp: 0,
         claimed: false,
-        previewTitle: 'Cyacademy Day One Orientation Syllabus',
+        previewTitle: 'Cyberium Academy Day One Orientation Syllabus',
         previewText: 'Official orientation itinerary and restricted-zone safety briefing.',
         targetApp: 'docstudio',
         version: 'v1.0',
@@ -632,7 +632,7 @@ As you build trust, clearance, and institutional standing, additional contacts i
         provenance: 'Authorized by Dean Cassian Rook · Voucher #ROOK-200',
       },
     ],
-    body: `Player, welcome to Cyacademy. 
+    body: `Player, welcome to Cyberium Academy.
 
 Your first day is simple: confirm registration, activate Aura Passport, check your housing assignment, review the Notice Board, and attend orientation. 
 
@@ -651,7 +651,7 @@ Dean of Students`,
     senderMaid: 'MAID-OR-00010203',
     recipient: 'Player Citizen',
     recipientAddress: 'citizen@auremail.aure',
-    faction: 'Cyacademy Admin',
+    faction: 'Cyberium Academy Admin',
     subject: 'Subterranean Lab Harmonic Readings',
     time: '09:10 AM',
     timestamp: '2026-03-06T09:10:00.000Z',

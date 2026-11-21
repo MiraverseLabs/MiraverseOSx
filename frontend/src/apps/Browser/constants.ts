@@ -20,6 +20,8 @@ export interface SampleArchive {
 }
 
 export const PORTALS: Record<string, PortalInfo> = {
+    'cyberium.edu': { title: 'Cyberium Academy', category: 'Academic Portal', icon: Building, accent: 'purple', domain: 'cyberium.edu' },
+    'dawn.edu': { title: 'Dawn University', category: 'Academic Portal', icon: Building, accent: 'amber', domain: 'dawn.edu' },
     'dispatch.mer': { title: 'The Meridion Dispatch', category: 'News Headlines Civic Health Economy Culture', icon: Newspaper, accent: 'purple', domain: 'dispatch.mer' },
     'companion.aure': { title: 'Aureline Companion', category: 'Dogs Cats Companions Community Profiles Enquiries', icon: Globe, accent: 'purple', domain: 'companion.aure' },
     'gardenreview.aure': { title: 'Glassline Garden Review', category: 'Plants Garden Visitors Community Profiles', icon: Building, accent: 'purple', domain: 'gardenreview.aure' },
@@ -31,7 +33,7 @@ export const PORTALS: Record<string, PortalInfo> = {
     'royalhistory.mer': { title: 'Royal Historic Society', category: 'Restricted Archive', icon: BookOpen, accent: 'cyan', domain: 'royalhistory.mer' },
     'faithmed.aure': { title: 'Faith Medical Group', category: 'Medical Intranet', icon: Activity, accent: 'emerald', domain: 'faithmed.aure' },
     'dga.gov': { title: 'Department of Global Affairs', category: 'Global Affairs', icon: Shield, accent: 'blue', domain: 'dga.gov' },
-    'cyacademy.edu': { title: 'Cycademy of Sciences', category: 'Academic Portal', icon: Building, accent: 'purple', domain: 'cyacademy.edu' },
+    'cyacademy.edu': { title: 'Cyberium Academy', category: 'Academic Portal', icon: Building, accent: 'purple', domain: 'cyacademy.edu' },
     'records.orynvell.gov': { title: 'Orynvell Public Records', category: 'Legal & Deeds', icon: FileText, accent: 'amber', domain: 'records.orynvell.gov' },
     'bank.aure': { title: 'First Orynvell Bank & Treasury', category: 'Financial Portal', icon: Landmark, accent: 'indigo', domain: 'bank.aure' },
     'shipping.aure': { title: 'CargoTrack Logistics', category: 'Cargo & Logistics', icon: Truck, accent: 'orange', domain: 'shipping.aure' },
@@ -43,7 +45,7 @@ export const PORTALS: Record<string, PortalInfo> = {
 export const SAMPLE_ARCHIVES: SampleArchive[] = [
     { id: 'ARC-001', title: 'Pre-Collapse AETHERCORE Blueprint Fragment', address: 'records.orynvell.gov/deeds/aethercore-01', type: 'Archive', excerpt: 'Deep energy resonance maps indicating AETHERCORE subterranean conduit lines under the Old Factory Ward.' },
     { id: 'ARC-002', title: 'Purge-Era Student Genealogy Index', address: 'cyacademy.edu/archives/lineage-index', type: 'Archive', excerpt: 'Classified records detailing Lightborn lineage bloodlines and hereditary Veil sensitivities.' },
-    { id: 'ARC-003', title: 'PRISM Cult Signal Intercept #88', address: 'dga.gov/intercepts/prism-88', type: 'Security Log', excerpt: 'Intercepted frequency wave containing corrupted binary runes targeting Cycademy node gateways.' },
+    { id: 'ARC-003', title: 'PRISM Cult Signal Intercept #88', address: 'dga.gov/intercepts/prism-88', type: 'Security Log', excerpt: 'Intercepted frequency wave containing corrupted binary runes targeting Cyberium Academy node gateways.' },
     { id: 'ARC-004', title: 'Clinical Study: Veilwilt & Sunspire Fever', address: 'faithmed.aure/research/veilwilt-study', type: 'Medical Report', excerpt: 'Telemetry analysis showing direct correlation between elemental spell strain and aura corruption.' },
     { id: 'ARC-005', title: 'Wire Transfer Audit: Account #0994-AURA', address: 'bank.aure/transfers/audit-994', type: 'Financial Record', excerpt: 'Traced wire transfer of 50,000 ₡ to offshore vector address.' },
     { id: 'ARC-006', title: 'Package Manifest #CG-8821 (Dangerous Goods)', address: 'shipping.aure/manifests/cg-8821', type: 'Logistics Manifest', excerpt: 'Cargo manifest listing unrefined mana crystals bound for Sector 3 Warehouse.' },

@@ -90,7 +90,7 @@ function buildHybridReplyForContact(
     const attachments: EmailAttachment[] = [];
 
     if (contact.id === 'dir-cyacademy-reg' || contact.address === 'registrar@cyacademy.edu') {
-      replyBody = `Automated & Clerk-Verified Response — Cyacademy Registration Office:
+      replyBody = `Automated & Clerk-Verified Response — Cyberium Academy Registration Office:
 
 We have received your transmission regarding "${cleanSubj}" from ${fromAccount.address}.
 ${
@@ -101,7 +101,7 @@ ${
 
 — Office of the Registrar (Seal #CYA-101)`;
     } else if (contact.id === 'dir-cyacademy-housing' || contact.address === 'housing@cyacademy.edu') {
-      replyBody = `Cyacademy Residential Services — Unit 4B Operations Desk:
+      replyBody = `Cyberium Academy Residential Services — Unit 4B Operations Desk:
 
 Your housing correspondence ("${cleanSubj}") has been recorded against Suite 4B.
 ${
@@ -161,7 +161,7 @@ ${
     : 'System diagnostics look clean on my end. Let me know if you need a packet trace or decryption assist!'
 }
 
-— Jeremie Belpois (Cyacademy Lab 4)`;
+— Jeremie Belpois (Cyberium Academy Lab 4)`;
     } else if (contact.npcKey === 'voss') {
       replyBody = `Colleague,
 
@@ -375,8 +375,9 @@ export const useCommsStore = create<CommsState>()(
       ],
 
       tier1Channels: [
+        { id: 'dawn-common-room', name: 'Dawn University Common Room', desc: 'Civic scholarship, natural science, and arcane humanities.' },
         { id: 'glassline-district', name: 'Glassline Resident Hub', desc: 'Civic forum for Glassline District residents.' },
-        { id: 'cyacademy-core', name: 'Cyacademy Labs & Core', desc: 'Student discussion channel for tech & lab studies.' },
+        { id: 'cyacademy-core', name: 'Cyberium Academy Labs & Core', desc: 'Student discussion channel for tech & lab studies.' },
         { id: 'faith-medical-hub', name: 'Faith Medical Triage Network', desc: 'Patient telemetry and intake discussion.' }
       ],
 
@@ -392,7 +393,7 @@ export const useCommsStore = create<CommsState>()(
       ],
 
       directs: [
-        { id: 'dm:voss', name: 'Dr. Voss', npcKey: 'voss', title: 'Cyacademy Senior Researcher' },
+        { id: 'dm:voss', name: 'Dr. Voss', npcKey: 'voss', title: 'Cyberium Academy Senior Researcher' },
         { id: 'dm:riven', name: 'Riven', npcKey: 'riven', title: 'Netrunner Specialist' },
         { id: 'dm:odd', name: 'Odd', npcKey: 'odd', title: 'Student Tactician' },
         { id: 'dm:aelita', name: 'Aelita', npcKey: 'aelita', title: 'Core Specialist' },

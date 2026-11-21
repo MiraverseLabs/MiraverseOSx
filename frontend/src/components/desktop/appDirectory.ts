@@ -85,7 +85,7 @@ export const PROTOCOLS: ProtocolItem[] = [
     id: 'housing',
     code: 'HOMECRAFT',
     name: 'HOMECRAFT // Housing',
-    sector: 'Orynvell & Cyacademy Housing',
+    sector: 'Orynvell & Cyberium Academy Housing',
     icon: Home,
     clearance: 'Resident Clearance',
     aetherTrace: 'AT-0x0289',
@@ -118,7 +118,7 @@ export const PROTOCOLS: ProtocolItem[] = [
     clearance: 'Encrypted Netmesh',
     aetherTrace: 'AT-0x0412',
     flux: '28.0 MHz',
-    desc: 'Dual-pane instant messaging mesh, encrypted Cycademy student channels, and priority career dispatches.',
+    desc: 'Dual-pane instant messaging mesh, encrypted Cyberium Academy student channels, and priority career dispatches.',
     color: 'text-emerald-800',
     bg: 'bg-emerald-50',
     border: 'border-emerald-300'
@@ -217,12 +217,12 @@ export const PROTOCOLS: ProtocolItem[] = [
   {
     id: 'campus',
     code: 'CAMPUS',
-    name: 'CAMPUS // Cycademy Network',
-    sector: 'Cycademy of Sciences',
+    name: 'CAMPUS // Academic Network',
+    sector: 'Cyberium Academy',
     clearance: 'Student Enrollment',
     aetherTrace: 'AT-0x0218',
     flux: '19.4 MHz',
-    desc: 'Student registry, academic faculty roster, course syllabus archives, and institutional portals.',
+    desc: 'Cyberium Academy and Dawn University: courses, projects, transcripts, and registrar services.',
     color: 'text-blue-900',
     bg: 'bg-blue-50',
     border: 'border-blue-300'

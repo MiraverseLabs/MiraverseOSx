@@ -6,5 +6,6 @@ export function copyProfile(value: unknown): any {
     if (Object.keys(value).length === 1 && Object.hasOwn(value, '$characterUndefined') && (value as any).$characterUndefined === true) return undefined;
     return Object.fromEntries(Object.entries(value).map(([key,item]) => [key,copyProfile(item)]));
   }
+  if (typeof value === 'string') return value.replace(/Cyacademy|Cycademy(?: of Sciences)?/g, 'Cyberium Academy').replace('Cyberium Academy of Sciences', 'Cyberium Academy').replace('Cyberium Academy University', 'Cyberium Academy');
   return value;
 }

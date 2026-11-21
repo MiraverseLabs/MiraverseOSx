@@ -54,19 +54,19 @@ const DEFAULT_CITIZEN: CitizenRecord = {
   affinity: 'Violet · knowledge / illusion / memory',
   faction: 'Aureline Civic & Academic Network',
   home: 'Aureline, Orynvell',
-  lore: 'Descendant of ancient Northwake cryo-weavers; enrolled in Cyacademy advanced resonance curriculum.',
+  lore: 'Descendant of ancient Northwake cryo-weavers; enrolled in Cyberium Academy advanced resonance curriculum.',
   category: 'Student / academy',
-  affiliation: 'Cyacademy Central Campus',
+  affiliation: 'Cyberium Academy Central Campus',
   occupation: 'Research Apprentice / Resonance Analyst',
   clearance: 'General Civic Access · Academic Clearance II',
   aura: 'Calibrated Harmonic Tier III',
   medical: 'Faith Medical Group · intake verified',
-  residency: 'Cyacademy Vector Housing 4B · Verified Residence',
+  residency: 'Cyberium Academy Vector Housing 4B · Verified Residence',
   history: 'Routine civil registration completed at intake; transferred from Northwake regional enclave.',
   status: 'ACTIVE / VERIFIED',
   links: 'Coordinates academic study group at Aureline Library; holds valid regional transit pass.',
-  relationships: 'Known associate of Cyacademy faculty',
-  household: 'Cyacademy Vector Housing Suite 4B',
+  relationships: 'Known associate of Cyberium Academy faculty',
+  household: 'Cyberium Academy Vector Housing Suite 4B',
   timeline: 'Origin: Northwake, Fross; residing in Aureline since Year 24',
   biometricSeed: 'MAID-OR-00481926'
 };
@@ -80,7 +80,7 @@ const DOCUMENT_TABS = [
   { id: 6, title: 'Residency Record', subtitle: 'Municipal Domicile Form', icon: Building, color: 'text-emerald-400' },
   { id: 7, title: 'Physical ID Sheet', subtitle: 'Forensic Biometrics & Marks', icon: Eye, color: 'text-cyan-400' },
   { id: 8, title: 'Medical Summary', subtitle: 'Faith Medical Group Summary', icon: HeartPulse, color: 'text-teal-400' },
-  { id: 9, title: 'Education / Service', subtitle: 'Cyacademy & WORKNET', icon: GraduationCap, color: 'text-yellow-400' },
+  { id: 9, title: 'Education / Service', subtitle: 'Cyberium / Dawn / WORKNET', icon: GraduationCap, color: 'text-yellow-400' },
 ];
 
 export default function DocumentStudioApp() {
@@ -90,6 +90,7 @@ export default function DocumentStudioApp() {
   const [zoomScale, setZoomScale] = useState<number>(100);
   const [isPortraitModalOpen, setIsPortraitModalOpen] = useState(false);
   const [issuanceNotice, setIssuanceNotice] = useState<string | null>(null);
+  const academicRecords = useOSStore(s => s.gameplay.academics);
   const osPlayer = useOSStore(s => s.gameplay.player);
   const osIdentity = useOSStore(s => s.gameplay.identity);
   const isLoggedIn = useOSStore(s => s.isLoggedIn);

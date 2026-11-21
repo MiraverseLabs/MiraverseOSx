@@ -178,7 +178,7 @@ export const INSTITUTIONAL_REGISTRY: Record<WorkplaceStationId, InstitutionalThe
     ],
     routineDuties: [
       { id: 'rd-fin-1', title: 'Daily Roll 400 Series Reconciliation', frequency: 'Daily Shift', estUnits: 1, description: 'Reconcile municipal credit outlays against registered citizen receipts.', rewardDesc: '+35 ₢ · +20 Career XP' },
-      { id: 'rd-fin-2', title: 'Scholarship Routing Verification', frequency: 'Twice Weekly', estUnits: 1, description: 'Validate that Cyacademy tuition subsidies match student enrollment rosters.', rewardDesc: '+30 ₢ · +15 Career XP' }
+      { id: 'rd-fin-2', title: 'Scholarship Routing Verification', frequency: 'Twice Weekly', estUnits: 1, description: 'Validate that Cyberium Academy tuition subsidies match student enrollment rosters.', rewardDesc: '+30 ₢ · +15 Career XP' }
     ],
     externalApps: [
       { id: 'finance', title: 'Finance Terminal', description: 'Ledgers, balances, currency rates, and account management.', appId: 'finance' },
@@ -578,7 +578,7 @@ export const INITIAL_DELEGATION_TASKS: DelegationTask[] = [
     title: 'Regional Grant Roll Balancing',
     requiredRole: 'Senior Ledger Analyst',
     estUnits: 2,
-    description: 'Reconcile scholarship stipends disbursed to Cyacademy against student rosters.',
+    description: 'Reconcile scholarship stipends disbursed to Cyberium Academy against student rosters.',
     rewardDesc: '+40 Department Merit · +25 ₢',
     minCompetence: 80
   },

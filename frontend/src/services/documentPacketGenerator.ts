@@ -1,3 +1,5 @@
+import { useOSStore } from '../store/useOSStore';
+import { academicSummary, gradeLabel, type AcademicState } from '../gameplay/Academics';
 /**
  * MIRAVERSE OS x — Nine-Document Packet Generator (§7 & §15.4)
  * Produces individual standalone print-ready HTML documents and complete combined multi-page
@@ -5,6 +7,7 @@
  */
 
 export interface CitizenRecord {
+  id?: string;
   name: string;
   dob: string;
   place: string;
@@ -806,16 +809,19 @@ export function renderMedicalSummaryHtml(citizen: CitizenRecord): string {
 }
 
 /**
- * 9. Education & Employment Record (Cyacademy & WORKNET)
+ * 9. Education & Employment Record (Cyberium Academy & WORKNET)
  */
 export function renderEducationEmploymentHtml(citizen: CitizenRecord): string {
+  const academic: AcademicState | undefined = useOSStore.getState().gameplay.academics;
+  const records = [citizen.id, citizen.maid, citizen.record, citizen.legacyRecord].map(id => id && academic?.records[id]).find(Boolean) || {};
+  const transcript = academicSummary(records).map(({school, courses, credits, certificates}) => `<section style="margin:12px 0"><strong>${escapeHtml(school.name)}</strong><p>${credits} earned credits</p>${courses.length ? `<table style="width:100%;font-size:11px;border-collapse:collapse"><thead><tr><th style="text-align:left">Course</th><th>Status</th><th>Grade</th><th>Credits</th></tr></thead><tbody>${courses.map(c => `<tr><td style="padding:5px 0">${escapeHtml(c.title)}</td><td style="text-align:center">${records[c.id].completedAt ? 'Passed' : records[c.id].status === 'withdrawn' ? 'Withdrawn' : 'In progress'}</td><td style="text-align:center">${gradeLabel(records[c.id].bestScore)}${records[c.id].bestScore !== null ? ` (${records[c.id].bestScore}%)` : ''}</td><td style="text-align:center">${records[c.id].completedAt ? 3 : 0}</td></tr>`).join('')}</tbody></table>` : '<p>No recorded coursework.</p>'}${certificates.map(name => `<p>Track certificate: ${escapeHtml(name)}</p>`).join('')}</section>`).join('');
   return `
     <div class="doc-page" style="background:#FFFFFF;">
-      <div class="watermark">CYACADEMY / WORKNET</div>
+      <div class="watermark">CAMPUS / WORKNET</div>
       
       <!-- Header -->
       <div style="border-bottom:2px solid #2C2849;padding-bottom:14px;margin-bottom:24px;">
-        <div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;color:#C5AB78;font-weight:700;">CYACADEMY REGISTRAR · WORKNET CAREER SERVICES</div>
+        <div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;color:#C5AB78;font-weight:700;">CAMPUS REGISTRAR · WORKNET CAREER SERVICES</div>
         <div style="font-family:'Cinzel',serif;font-size:22px;font-weight:800;color:#2C2849;margin:6px 0;">ACADEMIC &amp; EMPLOYMENT SERVICE RECORD</div>
         <div style="font-size:10px;color:#718096;text-transform:uppercase;font-weight:600;">INSTITUTIONAL ACCREDITATION &amp; CAREER PROFILE</div>
       </div>
@@ -831,12 +837,7 @@ export function renderEducationEmploymentHtml(citizen: CitizenRecord): string {
         <div style="font-family:'Cinzel',serif;font-weight:700;color:#2C2849;font-size:13px;border-bottom:1px solid #E2E8F0;padding-bottom:6px;margin-bottom:10px;">
           1. ACADEMIC ENROLLMENT &amp; QUALIFICATIONS
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;line-height:1.6;">
-          <div>Institution: <strong>Cyacademy Central Campus, Aureline</strong></div>
-          <div>Academic House: <strong>${escapeHtml(citizen.category.includes('student') ? 'Active Trainee' : 'Completed Curriculum')}</strong></div>
-          <div>Specialization / Talents: <strong>${escapeHtml(citizen.abilities)}</strong></div>
-          <div>Aura Calibration: <strong>Certified Standard</strong></div>
-        </div>
+        ${transcript}
       </div>
 
       <!-- Professional Service Section -->

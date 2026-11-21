@@ -105,7 +105,7 @@ export default function MeridionLandingPage({ onSignIn, onEnroll, onDirectLaunch
           {[
             {
               id: 'cycademy',
-              title: 'Cycademy Student Houses',
+              title: 'Cyberium Academy Student Houses',
               icon: BookOpen,
               desc: 'Four historic student houses (Seraphima, Obsidian, Voss, Lightborn) dedicated to spellcraft, cybernetics, and strategy.',
             },

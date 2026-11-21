@@ -300,7 +300,7 @@ function MailWorkspace() {
       if (activeFolder === 'starred' && !starredEmailIds.includes(mail.id)) return false;
       if (
         activeFolder === 'official' &&
-        !/DGA|Governance|Faith|Cyacademy|Bureau|Housing|Finance|Safety|Registrar|Services|Dean/i.test(
+        !/DGA|Governance|Faith|Cyberium Academy|Bureau|Housing|Finance|Safety|Registrar|Services|Dean/i.test(
           `${mail.sender} ${mail.faction}`
         )
       ) {
@@ -745,7 +745,7 @@ function MailWorkspace() {
                   (m) =>
                     !archivedEmailIds.includes(m.id) &&
                     !trashedEmailIds.includes(m.id) &&
-                    /DGA|Faith|Cyacademy|Bureau|Housing|Registrar|Services|Dean/i.test(`${m.sender} ${m.faction}`)
+                    /DGA|Faith|Cyberium Academy|Bureau|Housing|Registrar|Services|Dean/i.test(`${m.sender} ${m.faction}`)
                 ).length,
               },
               {

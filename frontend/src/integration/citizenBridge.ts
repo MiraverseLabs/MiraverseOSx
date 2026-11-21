@@ -5,7 +5,7 @@
  * - Meridion Identity Registry (AURA / MAID)
  * - Official Document Studio (9-Document Packet)
  * - Faith Medical Group (MEDSTAT & WORKNET Clinical Triage)
- * - Cyacademy (MIRROR Profile, Housing & Academic Records)
+ * - Cyberium Academy (MIRROR Profile, Housing & Academic Records)
  * - DGAOS & TRACE Forensic Workstation
  */
 
@@ -107,7 +107,8 @@ export async function getCanonicalCitizens(): Promise<CanonicalPerson[]> {
  */
 export async function lookupCitizenAuthoritative(query: string): Promise<LookupResult> {
   await MaidIdentityService.ensureDefaultPopulationSeeded();
-  return await MaidIdentityService.lookupPerson(query);
+  const exact = (await MaidIdentityService.getAllPersons()).find(person => person.id === query);
+  return await MaidIdentityService.lookupPerson(exact?.maid || exact?.legacyRecord || query);
 }
 
 /**
@@ -230,7 +231,7 @@ export async function syncFaithMedicalUpdate(
 }
 
 /**
- * Synchronizes a Cyacademy / Housing / Career update back to the citizen's canonical MAID record.
+ * Synchronizes a Cyberium Academy / Housing / Career update back to the citizen's canonical MAID record.
  */
 export async function syncCyacademyOrCivicUpdate(
   citizenIdOrMaid: string,
@@ -250,14 +251,17 @@ export async function syncCyacademyOrCivicUpdate(
   const p = lookup.person;
   const stamp = new Date().toISOString().slice(0, 10);
 
-  const res = await MaidIdentityService.updatePerson(p.maid || p.id, {
+  const academicOnly = civicUpdate.academicNote && !Object.keys(civicUpdate).some(key => key !== 'academicNote');
+  const res = academicOnly
+    ? await MaidIdentityService.appendAcademicSummary(p.id, civicUpdate.academicNote!)
+    : await MaidIdentityService.updatePerson(p.maid || p.id, {
     affiliation: civicUpdate.affiliation || p.affiliation,
     occupation: civicUpdate.occupation || p.occupation,
     clearance: civicUpdate.clearance || p.clearance,
     residency: civicUpdate.residency || p.residency,
     household: civicUpdate.household || p.household,
     history: civicUpdate.academicNote
-      ? `${p.history} | [${stamp}] Cyacademy/Civic sync: ${civicUpdate.academicNote}`
+      ? `${p.history} | [${stamp}] CAMPUS/Civic sync: ${civicUpdate.academicNote}`
       : p.history
   });
 
@@ -265,7 +269,7 @@ export async function syncCyacademyOrCivicUpdate(
     try {
       useOSStore.getState().recordWorldEvent({
         category: 'civic',
-        institution: 'Cyacademy / CitizenBridge',
+        institution: 'CAMPUS / CitizenBridge',
         citizenMaid: p.maid || p.id,
         title: `Civic & Academic Sync: ${p.name}`,
         summary: civicUpdate.academicNote || `Updated civic affiliation/residency for ${p.name} (${p.maid || p.id}).`,

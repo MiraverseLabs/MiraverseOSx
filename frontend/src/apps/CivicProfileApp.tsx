@@ -27,7 +27,7 @@ const SKILL_ICONS = {
 const SKILL_DESCRIPTIONS = {
   Programming: { unlocks: 'New terminal commands, developer tools, NPC apps', raised: 'Coding 101, Programming Club, terminal usage' },
   Networking: { unlocks: 'New network locations, connection speeds, hidden servers', raised: 'Network Architecture class, Cyber Defense Team' },
-  Spellcasting: { unlocks: 'Advanced protocol spells, improved spell accuracy and range', raised: 'Spell Society, Cyacademy magic practice, Spell Theory class' },
+  Spellcasting: { unlocks: 'Advanced protocol spells, improved spell accuracy and range', raised: 'Spell Society, Cyberium Academy magic practice, Spell Theory class' },
   Engineering: { unlocks: 'Hardware upgrades, Robotics Club content, system modification', raised: 'Engineering elective, Robotics Club' },
   Communication: { unlocks: 'Richer NPC dialogue options, gift mechanics, persuasion paths', raised: 'Comms Portal use, social DMs, relationship deepening' },
   Creativity: { unlocks: 'Theme creation, in-OS software development, widget creation', raised: 'Art Club, Interface Weaving class, Publish tab' },
@@ -612,7 +612,7 @@ export default function CivicProfileApp() {
                 <h3 className="text-xs font-bold text-[#1d2650] uppercase tracking-wider flex items-center gap-2">
                   <Zap size={15} className="text-[#5f6ab0]" /> Core Citizen Skills & Proficiencies
                 </h3>
-                <p className="text-[11px] text-slate-500">Advance your core academic, technical, and resonance skills across Cyacademy and WORKNET.</p>
+                <p className="text-[11px] text-slate-500">Advance your core academic, technical, and resonance skills across Cyberium Academy and WORKNET.</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -669,7 +669,7 @@ export default function CivicProfileApp() {
               <div className="rounded-3xl border border-slate-300 bg-white p-5 shadow-xs flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h3 className="text-xs font-bold text-[#1d2650] flex items-center gap-1.5">
-                    <Home size={15} className="text-[#5f6ab0]" /> Housing: {selectedMaidPerson?.household || (player?.houseAffiliation ? 'Cyacademy Vector Housing Suite 4B' : 'Provisional Citizen Housing')}
+                    <Home size={15} className="text-[#5f6ab0]" /> Housing: {selectedMaidPerson?.household || (player?.houseAffiliation ? 'Cyberium Academy Vector Housing Suite 4B' : 'Provisional Citizen Housing')}
                   </h3>
                   <p className="text-[11px] text-slate-500 mt-0.5">
                     Housing Comfort Rating: <span className="font-bold text-emerald-700">{player?.roomComfort ?? player?.dormComfort ?? 50}% (+15% XP Multiplier)</span>

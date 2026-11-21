@@ -123,7 +123,7 @@ export function resolveAuraActor(override?: { player?: any; identity?: any; isLo
     registrar: 'Orynvell Civic Registrar',
     dga: 'DGA / TRACE Authorized Investigator',
     medical: 'Faith Medical Clinical Officer',
-    academic: 'Cyacademy Academic Officer',
+    academic: 'Cyberium Academy Academic Officer',
     citizen: 'Standard Citizen Access',
   };
 

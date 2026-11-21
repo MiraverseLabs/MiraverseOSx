@@ -1,3 +1,4 @@
+import AcademicProjectDesk from './academic/AcademicProjectDesk';
 import React, { useEffect, useState } from 'react';
 import { useOSStore } from '../store/useOSStore';
 import { WORK_DEFINITIONS } from '../gameplay/ActivityEngine';
@@ -16,6 +17,7 @@ export type WorkplaceStationId =
   | 'questnotice';
 
 export default function JobWorkstationApp() {
+  const [academicProjects, setAcademicProjects] = useState(false);
   const [station, setStation] = useState<WorkplaceStationId>('dga');
   const [tab, setTab] = useState<WorknetTabId>('overview');
   const [entryRevision, setEntryRevision] = useState(0);
@@ -27,6 +29,7 @@ export default function JobWorkstationApp() {
   // Handle explicit section requests from OS or other apps
   useEffect(() => {
     if (!workspaceRequest) return;
+    setAcademicProjects(workspaceRequest.section === 'academic-projects');
     if (workspaceRequest.section === 'assignment' && selectedOpportunity) {
       const def = WORK_DEFINITIONS[selectedOpportunity];
       if (def) setStation((( { medical: 'faithmed', archivist: 'archives' } as Record<string, string>)[def.track] || def.track) as WorkplaceStationId);
@@ -52,6 +55,7 @@ export default function JobWorkstationApp() {
 
   // A saved journal selection is history; explicit assignment requests open its reader.
 
+  if (academicProjects) return <><button onClick={() => setAcademicProjects(false)}>Return to WORKNET</button><AcademicProjectDesk workspace="worknet"/></>;
   return (
     <WorknetApp
       initialRevision={entryRevision}

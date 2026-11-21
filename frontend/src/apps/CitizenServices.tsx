@@ -10,7 +10,7 @@ export default function CitizenServices() {
     { id: 'vitals', label: 'Health services', detail: 'Review your condition and available care in Vitals.', icon: Activity },
     { id: 'housing', label: 'Residence', detail: 'Manage your home through HOMECRAFT.', icon: Home },
     { id: 'jobs', label: 'Work & applications', detail: 'Follow opportunities, assignments, and employment records in WORKNET.', icon: Briefcase },
-    { id: 'campus', label: 'Education', detail: 'Open Cyacademy for academic services and magic practice.', icon: GraduationCap },
+    { id: 'campus', label: 'Education', detail: 'Open Cyberium Academy for academic services and magic practice.', icon: GraduationCap },
   ];
   return <section className="citizen-services" aria-label="Citizen services">
     <p className="citizen-boundary">Your gateway to civic life. Each institution keeps its own records and handles its own services.</p>

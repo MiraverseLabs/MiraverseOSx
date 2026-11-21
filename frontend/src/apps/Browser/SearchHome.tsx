@@ -12,6 +12,7 @@ export interface SearchHomeProps {
 }
 
 const PORTAL_ICONS: Record<string, React.ElementType> = {
+  cyberium: Building, dawn: Building,
   dispatch: Newspaper,
   auresuite: Sparkles,
   bank: Landmark,

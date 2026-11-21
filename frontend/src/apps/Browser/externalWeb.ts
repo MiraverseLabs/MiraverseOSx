@@ -1,7 +1,7 @@
 // Keep remote pages outside the fictional network, including its historical aliases.
 const INTERNAL_HOSTS = new Set([
   'versenet', 'search.aure', 'services.aure', 'worknet.aure', 'fieldnotes.aure',
-  'civinet', 'questnotice', 'royalhistory', 'dga.gov', 'cyacademy.edu',
+  'civinet', 'questnotice', 'royalhistory', 'dga.gov', 'cyacademy.edu', 'cyberium.edu', 'dawn.edu',
   'records.orynvell.gov', 'finance.oryn.gov', 'mai.space',
 ]);
 

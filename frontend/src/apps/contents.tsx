@@ -18,7 +18,7 @@ export const APPS = [
   { id: 'housing', title: 'HOMECRAFT // Housing', icon: Home, category: 'Personal Apps' },
   { id: 'finance', title: 'ORYN // Treasury & Crypto Ledger', icon: Shield, category: 'Personal Apps' },
   { id: 'vitals', title: 'VITALS // Bio-Aura Matrix', icon: Activity, category: 'Personal Apps' },
-  { id: 'campus', title: 'CAMPUS // Cycademy Network', icon: BookOpen, category: 'Civic Subsystems' },
+  { id: 'campus', title: 'CAMPUS // Cyberium Academy Network', icon: BookOpen, category: 'Civic Subsystems' },
   { id: 'browser', title: 'VERSENET // Browser', icon: Globe, category: 'Versenet Web' },
   { id: 'mail', title: 'AureMail Mailbox', icon: Mail, category: 'Communication' },
   { id: 'comms', title: 'COMMS // Institutional Network', icon: MessageSquare, category: 'Workplace Portals' },

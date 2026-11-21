@@ -54,7 +54,7 @@ const phoneApps = [
   { id: "phone", color: "blue", label: "Phone", icon: Phone },
   { id: "passport", color: "jade", label: "Citizen Hub", icon: UserCheck },
   { id: "missions", color: "jade", label: "Missions", icon: ShieldCheck },
-  { id: "spellforge", color: "violet", label: "Cyacademy", icon: Flame },
+  { id: "spellforge", color: "violet", label: "Cyberium Academy", icon: Flame },
   { id: "evidence", color: "sand", label: "Evidence", icon: Pin },
   { id: "media", color: "slate", label: "Media", icon: Music },
   { id: "emergency", color: "rose", label: "Emergency", icon: AlertOctagon },
@@ -351,7 +351,7 @@ export default function PhoneWidget({ onClose }: { onClose?: () => void }) {
                     {(phoneOpportunities.length ? phoneOpportunities : OPPORTUNITIES.slice(0, 3)).map(item => <PhonePanel key={item.id} className="phone-stack"><small className="phone-muted">{item.kind}</small><h3>{item.title}</h3><p>{item.description}</p><PhoneButton onClick={() => { useOSStore.getState().openAssignment(item.id); onClose?.(); }}>Open in WorkNet</PhoneButton></PhonePanel>)}
                   </>
                 )}
-                {activeScreen === "spellforge" && <PhonePanel className="phone-stack"><h3>Cyacademy magic practice</h3><p>Continue your magical learning and workbench practice in the academy workspace.</p><PhoneButton tone="primary" onClick={() => { useOSStore.getState().openAppWorkspace('campus', 'magic'); onClose?.(); }}>Open magic practice</PhoneButton></PhonePanel>}
+                {activeScreen === "spellforge" && <PhonePanel className="phone-stack"><h3>Cyberium Academy magic practice</h3><p>Continue your magical learning and workbench practice in the academy workspace.</p><PhoneButton tone="primary" onClick={() => { useOSStore.getState().openAppWorkspace('campus', 'magic'); onClose?.(); }}>Open magic practice</PhoneButton></PhonePanel>}
                 {activeScreen === "evidence" && (
                   <>
                     {evidenceItems.map((item) => (

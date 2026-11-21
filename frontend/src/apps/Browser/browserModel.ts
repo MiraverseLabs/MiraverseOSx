@@ -13,6 +13,8 @@ export interface InGamePortal {
 }
 
 export const IN_GAME_PORTALS: InGamePortal[] = [
+  { id: 'cyberium', name: 'Cyberium Academy', domain: 'cyberium.edu', url: 'https://cyberium.edu', category: 'Academic Research', description: 'Cybernetics, spell engineering, and signal systems. Free enrollment, practical projects, and academic transcripts.', badge: 'ACADEMIC' },
+  { id: 'dawn', name: 'Dawn University', domain: 'dawn.edu', url: 'https://dawn.edu', category: 'Academic Research', description: 'Civic studies, natural sciences, and arcane humanities. Explore Dawn Court and enroll in self-paced courses.', badge: 'ACADEMIC' },
   { 
     id: 'auresuite', 
     name: 'AureSuite Cloud', 
@@ -69,7 +71,7 @@ export const IN_GAME_PORTALS: InGamePortal[] = [
   },
   { 
     id: 'cyacademy', 
-    name: 'Cycademy of Sciences', 
+    name: 'Cyberium Academy',
     domain: 'cyacademy.edu', 
     url: 'https://cyacademy.edu', 
     category: 'Academic Research', 
@@ -160,7 +162,7 @@ export function browserTitle(url: string): string {
       'worknet.aure': 'WorkNet',
       'shipping.aure': 'CargoTrack Logistics',
       'vectornet.aure': 'VectorNet Underground',
-      'cyacademy.edu': 'Cycademy of Sciences',
+      'cyacademy.edu': 'Cyberium Academy',
       'records.orynvell.gov': 'Orynvell Public Records',
       'royalhistory.mer': 'Royal Historic Society',
       'mai.space': 'MAI Space Social',

@@ -1,3 +1,4 @@
+import { INSTITUTIONS, COURSES } from '../../gameplay/Academics';
 import { READING_TOPICS } from './readingTopics';
 export interface TopicPack {
   id: string;
@@ -15,6 +16,7 @@ export interface TopicPack {
 
 export const TOPIC_PACKS: TopicPack[] = [
   ...READING_TOPICS,
+  { id: 'dawn', label: 'Dawn University', aliases: ['dawn', 'dawn university', 'dawn.edu'], publisher: 'Dawn University Academic Senate', headline: 'Civic scholarship, natural inquiry, and arcane humanities', introduction: INSTITUTIONS[1].description, paragraphs: [INSTITUTIONS[1].campus, 'Visit dawn.edu for free dual enrollment, self-paced lessons, assessments, projects, and transcripts.'], guide: 'Begin your studies', steps: ['Link your MAID citizen identity.', 'Choose an introductory course.', 'Complete three lessons, pass the assessment, and verify your project.'], places: ['Dawn Court', 'Concord Reading Hall', 'Aether Conservatory'], related: 'cyacademy' },
   {
     id: 'aureline',
     label: 'Aureline — Capital Realm',
@@ -156,7 +158,7 @@ export const TOPIC_PACKS: TopicPack[] = [
     introduction: 'The geographic and metaphysical pivot of Meridion, where all seven realms converge around the enigmatic Aethercore.',
     paragraphs: [
       'At the epicenter of the continent floats the Nexus Singularity: a rotating lattice of crystalline structures and pre-Collapse energy conduits suspended above a boundless spatial rift.',
-      'Theoretical physicists from Cyacademy and high-ranking DGA researchers monitor the Aethercore round-the-clock. Time and space dilate near the core perimeter, creating localized temporal echoes and harmonic frequency shifts.',
+      'Theoretical physicists from Cyberium Academy and high-ranking DGA researchers monitor the Aethercore round-the-clock. Time and space dilate near the core perimeter, creating localized temporal echoes and harmonic frequency shifts.',
       'Access to the inner Nexus is strictly restricted to Level 3 clearance holders and licensed spatial researchers. The secrets of how the realms stay aligned are believed to reside within the Core Singularity matrix.'
     ],
     guide: 'Nexus Perimeter Observation Standards',
@@ -215,24 +217,24 @@ export const TOPIC_PACKS: TopicPack[] = [
   },
   {
     id: 'cyacademy',
-    label: 'Cybernetic Academy of Meridion (Cycademy)',
-    aliases: ['cyacademy', 'cycademy', 'school', 'academy', 'spellforge', 'belpois', 'schaeffer', 'jeremie', 'aelita', 'hopper'],
-    publisher: 'Cycademy Academic & Research Senate',
+    label: 'Cyberium Academy',
+    aliases: ['cyberium', 'cyberium academy', 'cyberium.edu', 'cyacademy', 'cycademy', 'school', 'academy', 'spellforge', 'belpois', 'schaeffer', 'jeremie', 'aelita', 'hopper'],
+    publisher: 'Cyberium Academy Academic & Research Senate',
     headline: 'Excellence in Spell Engineering, Cybernetics, and Virtual Systems',
     introduction: 'The leading academic institution dedicated to algorithmic spellcraft, cognitive cybernetics, and advanced machine architecture.',
     paragraphs: [
-      'Situated within the scenic Academic Quad, Cyacademy trains scholars, spellwrights, and system engineers. Renowned facilities include the high-performance Compiler Lab 4, overseen by prodigy Jeremie Belpois and research associate Aelita Schaeffer.',
+      'Situated within the scenic Academic Quad, Cyberium Academy trains scholars, spellwrights, and system engineers. Renowned facilities include the high-performance Compiler Lab 4, overseen by prodigy Jeremie Belpois and research associate Aelita Schaeffer.',
       'The academy developed SpellForge—the proprietary development environment for compiling modular arcane algorithms such as Firewall.mod and Routing.mod.',
-      'Historical archives at Cycademy document the foundational research of Dr. Franz Hopper on multi-dimensional virtual spaces and quantum telecommunication conduits.'
+      'Historical archives at Cyberium Academy document the foundational research of Dr. Franz Hopper on multi-dimensional virtual spaces and quantum telecommunication conduits.'
     ],
     guide: 'Academic Enrollment and Lab Access Guidelines',
     steps: [
-      'Submit academic transcripts and entrance aptitude assessments to the registrar.',
+      'Link your MAID identity and enroll in introductory courses for free.',
       'Complete safety orientation before operating high-voltage spell compiling equipment.',
       'Test custom arcane code in simulation mode prior to live network deployment.',
       'Collaborate with peer researchers in open discussion forums and coding symposiums.'
     ],
-    places: ['Academic Quadrangle', 'Compiler Lab 4', 'Cycademy Library of Computation'],
+    places: ['Academic Quadrangle', 'Compiler Lab 4', 'Cyberium Academy Library of Computation'],
     related: 'technology'
   },
   {

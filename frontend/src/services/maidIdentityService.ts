@@ -373,7 +373,7 @@ export function buildVerifiedEmailAccountsForPerson(person: Partial<CanonicalPer
       address: person.email,
       accountType: isAcademic ? 'academic' : isDga || isMedical || isCrown ? 'institutional' : 'work',
       institution: isAcademic
-        ? 'Cyacademy of Sciences'
+        ? 'Cyberium Academy'
         : isMedical
         ? 'Faith Medical Group'
         : isDga
@@ -395,7 +395,7 @@ export function buildVerifiedEmailAccountsForPerson(person: Partial<CanonicalPer
       accounts.push({
         address: addr,
         accountType: 'academic',
-        institution: 'Cyacademy of Sciences',
+        institution: 'Cyberium Academy',
         roleLabel: person.occupation || 'Academic Scholar',
         verified: true,
         status: 'active',
@@ -861,6 +861,19 @@ export class MaidIdentityService {
   /**
    * Updates a saved person without changing their permanent MAID.
    */
+  public static async appendAcademicSummary(citizenId: string, summary: string): Promise<{ success: boolean; person?: CanonicalPerson; error?: string }> {
+    const list = await this.getAllPersons();
+    const person = list.find(p => p.id === citizenId || p.maid === citizenId || p.legacyRecord === citizenId);
+    const actor = resolveAuraActor();
+    const self = person && (actor.canonicalPersonId === person.id || actor.citizenId === person.maid || actor.citizenId === person.legacyRecord);
+    if (!person || !actor.isLoggedIn || (!self && !actor.roles.includes('admin') && !actor.roles.includes('registrar'))) return { success: false, error: 'Academic summary access denied.' };
+    if (!summary.trim()) return { success: false, error: 'Academic summary is empty.' };
+    if ((person.history || '').includes(summary)) return { success: true, person };
+    const updated = { ...person, history: `${person.history || ''} | [${new Date().toISOString().slice(0, 10)}] CAMPUS academic summary: ${summary}` };
+    await saveCanonicalList(list.map(p => p.id === person.id ? updated : p));
+    return { success: true, person: updated };
+  }
+
   public static async updatePerson(
     maidOrId: string, 
     updates: Partial<Omit<CanonicalPerson, 'id' | 'maid' | 'registrationRegionCode' | 'legacyAliases'>>,
@@ -1083,9 +1096,9 @@ export class MaidIdentityService {
         history: 'Registered Orynvell resident in good standing; completed municipal biometric calibration.'
       },
       cyacademy: {
-        storyMode: 'Cyacademy Scholar',
+        storyMode: 'Cyberium Academy Scholar',
         category: 'Student / academy',
-        affiliation: 'Cyacademy Central Campus',
+        affiliation: 'Cyberium Academy Central Campus',
         occupation: pick(['Senior Resonance Fellow', 'SpellForge Protocol Researcher', 'Aethercore Syntax Scholar', 'Arcane Telemetry Apprentice']),
         clearance: 'General Civic Access · Academic Clearance II',
         species: pick(['Frostborn', 'Lightborn · Seraphic', 'Luminary', 'Humanoid · Celestial']),
@@ -1095,10 +1108,10 @@ export class MaidIdentityService {
         affinity: pick(['Violet · knowledge / illusion / memory', 'Indigo · syntax / arcane logic', 'Silver · starlight / precision']),
         home: 'Aureline, Orynvell',
         place: pick(['Northwake, Fross', 'Aureline Upper Sanctum, Orynvell', 'Kaji High Grounds']),
-        medical: 'Faith Medical Group · Cyacademy student aura clearance verified',
-        residency: 'Cyacademy Vector Housing, Suite 4B · Verified Residence',
-        household: 'Cyacademy Vector Housing Suite 4B',
-        history: 'Enrolled at Cyacademy of Sciences; active contributor to SpellForge and Mirror telemetry protocols.'
+        medical: 'Faith Medical Group · Cyberium Academy student aura clearance verified',
+        residency: 'Cyberium Academy Vector Housing, Suite 4B · Verified Residence',
+        household: 'Cyberium Academy Vector Housing Suite 4B',
+        history: 'Enrolled at Cyberium Academy; active contributor to SpellForge and Mirror telemetry protocols.'
       },
       faithmed: {
         storyMode: 'Faith Medical Clinician',
@@ -1231,7 +1244,7 @@ export class MaidIdentityService {
 
   /**
    * Seeds the canonical population database with interconnected Meridion citizens
-   * across Cyacademy, Faith Medical, DGAOS/TRACE, and Orynvell Civic Archives if empty.
+   * across Cyberium Academy, Faith Medical, DGAOS/TRACE, and Orynvell Civic Archives if empty.
    */
   public static async ensureDefaultPopulationSeeded(): Promise<CanonicalPerson[]> {
     const existing = await loadStoredCanonicalList();
