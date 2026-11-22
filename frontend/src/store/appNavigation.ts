@@ -11,7 +11,6 @@ const LEGACY_DESTINATIONS: Record<string, AppDestination> = {
   board: { appId: 'jobs', section: 'notices' },
   chronicle: { appId: 'jobs', section: 'notices' },
   questnotice: { appId: 'jobs', section: 'civic-jobs' },
-  spellforge: { appId: 'campus', section: 'magic' },
   serviceDirectory: { appId: 'browser', section: 'services' },
 };
 export const isRetiredDesktopApp = (id: unknown): id is string => typeof id === 'string' && Object.hasOwn(LEGACY_DESTINATIONS, id);

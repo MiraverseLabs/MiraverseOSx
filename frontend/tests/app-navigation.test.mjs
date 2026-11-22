@@ -18,7 +18,6 @@ const destinations = [
   ['board', 'jobs', 'notices'],
   ['chronicle', 'jobs', 'notices'],
   ['questnotice', 'jobs', 'civic-jobs'],
-  ['spellforge', 'campus', 'magic'],
   ['serviceDirectory', 'browser', 'services'],
 ];
 let sequence = 0;
@@ -85,8 +84,8 @@ test('string aliases and custom window IDs cannot recreate retired app content',
   storage(); const store = await fresh();
   store.getState().toggleApp('traceForensics');
   store.getState().toggleApp({ id: 'old-trace-popout', contentKey: 'traceForensics' });
-  store.getState().addWindow({ id: 'old-spell-popout', contentKey: 'spellforge' });
-  assert.deepEqual(store.getState().windows.map(window => window.id), ['dgaos', 'campus']);
+  store.getState().addWindow({ id: 'old-board-popout', contentKey: 'board' });
+  assert.deepEqual(store.getState().windows.map(window => window.id), ['dgaos', 'jobs']);
 });
 
 test('repeated section requests survive stale consumption and refocus a minimized owner', async () => {
@@ -109,11 +108,13 @@ test('repeated section requests survive stale consumption and refocus a minimize
 test('old shortcuts migrate in order, merge duplicate owners and preserve appearance', () => {
   const preferences = restoreDesktopPreferences({ themeId: 'pine', shortcutIds: ['traceForensics', 'dgaos', 'board', 'spellforge', 'serviceDirectory', 'questnotice', 'maispace'] });
   assert.equal(preferences.themeId, 'pine');
-  assert.deepEqual(preferences.shortcutIds, ['dgaos', 'jobs', 'campus', 'browser', 'maispace']);
+  assert.deepEqual(preferences.shortcutIds, ['dgaos', 'jobs', 'spellforge', 'browser', 'maispace']);
   assert.equal(preferences.layoutVersion, 1);
   for (const [id] of destinations) assert.equal(DESKTOP_APP_IDS.includes(id), false);
   assert.ok(DESKTOP_APP_IDS.includes('maispace'));
   assert.ok(DESKTOP_APP_IDS.includes('pulse'));
+  assert.ok(DESKTOP_APP_IDS.includes('study'));
+  assert.ok(DESKTOP_APP_IDS.includes('spellforge'));
 });
 
 test('consolidated navigation preserves saved progress and external records, with no runtime requests persisted', async () => {
@@ -143,7 +144,7 @@ test('consolidated navigation preserves saved progress and external records, wit
   assert.deepEqual(reloaded.getState().gameplay, saved.state.gameplay);
   assert.equal(reloaded.getState().wallpaper, '/saved-wallpaper.png');
   assert.equal(reloaded.getState().desktopPreferences.themeId, 'autumn');
-  assert.deepEqual(reloaded.getState().desktopPreferences.shortcutIds, ['jobs', 'dgaos', 'campus']);
+  assert.deepEqual(reloaded.getState().desktopPreferences.shortcutIds, ['jobs', 'dgaos', 'spellforge']);
   assert.deepEqual(Object.keys(reloaded.getState().desktopPreferences.layouts), ['everyday', 'personal', 'work']);
   assert.deepEqual(reloaded.getState().windows, []);
   assert.deepEqual(reloaded.getState().workspaceRequests, {});

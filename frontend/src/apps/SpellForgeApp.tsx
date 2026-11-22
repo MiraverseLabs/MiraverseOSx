@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useOSStore } from '../store/useOSStore';
+import AcademicProjectDesk from './academic/AcademicProjectDesk';
 import {
   Sparkles, Shield, Flame, Droplets, Wind, Moon, Sun, Zap, Lock, Layers
 } from 'lucide-react';
@@ -89,7 +90,8 @@ export default function SpellForgeApp() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#FAFBFD] text-slate-800 font-sans select-none overflow-hidden">
+    <div className="flex flex-col h-full bg-[#FAFBFD] text-slate-800 font-sans select-none overflow-auto">
+      <AcademicProjectDesk workspace="compiler" />
       {/* Top Header Toolbar */}
       <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200 shadow-xs">
         <div className="flex items-center gap-3">

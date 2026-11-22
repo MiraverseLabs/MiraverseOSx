@@ -1,0 +1,183 @@
+/* Cyberium Academy (cyberium.edu) — High-Tech Polytechnic & Signal Lab Theme */
+.edu-cyberium {
+  --edu-bg: #f4f7fb;
+  --edu-surface: #ffffff;
+  --edu-surface-alt: #ebf1f8;
+  --edu-ink: #0f172a;
+  --edu-muted: #475569;
+  --edu-accent: #0284c7;
+  --edu-accent-soft: #e0f2fe;
+  --edu-on-accent: #ffffff;
+  --edu-border: #cbd5e1;
+  --edu-strip-bg: #070b14;
+  --edu-strip-ink: #94a3b8;
+  --edu-radius: 6px;
+  --edu-btn-radius: 5px;
+  --edu-display-font: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --edu-body-font: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+.cyb-header {
+  background: linear-gradient(135deg, #0b1120 0%, #162039 60%, #1d1538 100%);
+  color: #f8fafc;
+  padding: 22px 28px 0;
+  border-bottom: 2px solid #38bdf8;
+}
+
+.cyb-header-top {
+  max-width: 1160px;
+  margin: 0 auto 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.cyb-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+}
+
+.cyb-hex-seal {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  background: rgba(56, 189, 248, 0.14);
+  border: 2px solid #38bdf8;
+  color: #38bdf8;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 800;
+  font-size: 16px;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.25);
+}
+
+.cyb-brand h1 {
+  font-family: var(--edu-display-font);
+  font-size: 24px;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.cyb-brand-sub {
+  display: block;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  color: #7dd3fc;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cyb-telemetry {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+}
+
+.cyb-telemetry span {
+  padding: 5px 10px;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: rgba(15, 23, 42, 0.7);
+  color: #bae6fd;
+  border-radius: 4px;
+}
+
+.cyb-nav {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.cyb-nav button {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #cbd5e1;
+  padding: 11px 15px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cyb-nav button:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cyb-nav button[aria-pressed='true'] {
+  color: #38bdf8;
+  border-bottom-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.cyb-hero {
+  background:
+    radial-gradient(circle at 85% 20%, rgba(124, 58, 237, 0.28), transparent 45%),
+    linear-gradient(125deg, #0f172a 0%, #172554 100%);
+  color: #f8fafc;
+  padding: 36px 32px;
+  border-radius: 8px;
+  border: 1px solid #1e3a8a;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+}
+
+.cyb-hero h2 {
+  font-family: var(--edu-display-font);
+  font-size: clamp(28px, 4.4cqw, 46px);
+  line-height: 1.1;
+  margin: 10px 0 14px;
+}
+
+.cyb-hero p {
+  color: #cbd5e1;
+  font-size: 14.5px;
+  line-height: 1.7;
+  max-width: 600px;
+}
+
+.cyb-hero-panel {
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 6px;
+  padding: 18px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cyb-hero-panel strong {
+  color: #38bdf8;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.cyb-hero-stat {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed rgba(148, 163, 184, 0.25);
+  padding-bottom: 6px;
+}
+
+@container (max-width: 720px) {
+  .cyb-hero {
+    grid-template-columns: 1fr;
+    padding: 24px 20px;
+  }
+}

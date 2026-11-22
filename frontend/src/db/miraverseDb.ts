@@ -129,14 +129,25 @@ export const APPS: AppMetadata[] = [
   },
   { 
     id: 'campus',     
-    title: 'CAMPUS // Cyberium Academy Registrar',
-    formName: 'Cyberium Academy Registrar Node',
+    title: 'CAMPUS // Academic Registrar',
+    formName: 'Meridion Academic Registrar & Advising Hub',
     accessType: 'Academic Portal',
     category: 'Scholastic',      
     dev: 'FAC_CYACADEMY',    
-    version: '1.8.0', 
-    primary: 'Cyberium Academy student portal tracking academic timelines, course modules, GPA & club rosters',
-    lore: 'Cyberium Academy student portal that tracks academic timelines, course modules, current GPA, active club memberships, and faculty alerts.'
+    version: '2.0.0', 
+    primary: 'Unified Student IDs, GPA, degree audits, official transcripts, and registrar records across Cyberium Academy, Dawn University & Regent Hall',
+    lore: 'Central higher-education registrar connecting Cyberium Academy, Dawn University, and Regent Hall.'
+  },
+  { 
+    id: 'study',     
+    title: 'AureLearn // Student LMS',
+    formName: 'AureLearn Coursework & Examination Platform',
+    accessType: 'Learning Management System',
+    category: 'Scholastic',      
+    dev: 'FAC_CYACADEMY',    
+    version: '1.0.0', 
+    primary: 'Course modules, syllabi, assessments, gradebook, and practical lab handoffs across all enrolled institutions',
+    lore: 'Unified student learning workspace for completing lectures, exams, and lab submissions.'
   },
   { 
     id: 'files',      

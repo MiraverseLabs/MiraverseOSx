@@ -1,5 +1,5 @@
 import { useOSStore } from '../store/useOSStore';
-import { academicSummary, gradeLabel, type AcademicState } from '../gameplay/Academics';
+import { academicSummary, calculateGpa, getAdmissionRecord, gradeLabel, type AcademicState } from '../gameplay/Academics';
 /**
  * MIRAVERSE OS x — Nine-Document Packet Generator (§7 & §15.4)
  * Produces individual standalone print-ready HTML documents and complete combined multi-page
@@ -813,8 +813,16 @@ export function renderMedicalSummaryHtml(citizen: CitizenRecord): string {
  */
 export function renderEducationEmploymentHtml(citizen: CitizenRecord): string {
   const academic: AcademicState | undefined = useOSStore.getState().gameplay.academics;
-  const records = [citizen.id, citizen.maid, citizen.record, citizen.legacyRecord].map(id => id && academic?.records[id]).find(Boolean) || {};
-  const transcript = academicSummary(records).map(({school, courses, credits, certificates}) => `<section style="margin:12px 0"><strong>${escapeHtml(school.name)}</strong><p>${credits} earned credits</p>${courses.length ? `<table style="width:100%;font-size:11px;border-collapse:collapse"><thead><tr><th style="text-align:left">Course</th><th>Status</th><th>Grade</th><th>Credits</th></tr></thead><tbody>${courses.map(c => `<tr><td style="padding:5px 0">${escapeHtml(c.title)}</td><td style="text-align:center">${records[c.id].completedAt ? 'Passed' : records[c.id].status === 'withdrawn' ? 'Withdrawn' : 'In progress'}</td><td style="text-align:center">${gradeLabel(records[c.id].bestScore)}${records[c.id].bestScore !== null ? ` (${records[c.id].bestScore}%)` : ''}</td><td style="text-align:center">${records[c.id].completedAt ? 3 : 0}</td></tr>`).join('')}</tbody></table>` : '<p>No recorded coursework.</p>'}${certificates.map(name => `<p>Track certificate: ${escapeHtml(name)}</p>`).join('')}</section>`).join('');
+  const citizenKey = [citizen.id, citizen.maid, citizen.record, citizen.legacyRecord].find(id => id && (academic?.records?.[id] || academic?.admissions?.[id])) || citizen.id || null;
+  const records = (citizenKey && academic?.records?.[citizenKey]) || {};
+  const cumulativeGpa = calculateGpa(records);
+  const transcript = academicSummary(records).map(({school, courses, credits, certificates, gpa, degrees, standing}) => {
+    const admission = getAdmissionRecord(academic, citizenKey, school.id);
+    const idLine = admission ? ` · Student ID: ${escapeHtml(admission.studentId)}` : '';
+    const gpaLine = gpa !== null ? ` · GPA ${gpa.toFixed(2)} (${escapeHtml(standing)})` : '';
+    return `<section style="margin:12px 0"><strong>${escapeHtml(school.name)}</strong><p>${credits} earned credits${gpaLine}${idLine}</p>${courses.length ? `<table style="width:100%;font-size:11px;border-collapse:collapse"><thead><tr><th style="text-align:left">Code</th><th style="text-align:left">Course</th><th>Status</th><th>Grade</th><th>Credits</th></tr></thead><tbody>${courses.map(c => `<tr><td style="padding:5px 0">${escapeHtml(c.code)}</td><td style="padding:5px 0">${escapeHtml(c.title)}</td><td style="text-align:center">${records[c.id].completedAt ? 'Passed' : records[c.id].status === 'withdrawn' ? 'Withdrawn' : 'In progress'}</td><td style="text-align:center">${gradeLabel(records[c.id].bestScore)}${records[c.id].bestScore !== null ? ` (${records[c.id].bestScore}%)` : ''}</td><td style="text-align:center">${records[c.id].completedAt ? c.credits : 0}</td></tr>`).join('')}</tbody></table>` : '<p>No recorded coursework.</p>'}${certificates.map(name => `<p>Track certificate: ${escapeHtml(name)}</p>`).join('')}${degrees.map(title => `<p><strong>Conferred credential:</strong> ${escapeHtml(title)}</p>`).join('')}</section>`;
+  }).join('');
+  const gpaBanner = cumulativeGpa !== null ? `<p style="margin:0 0 10px;font-weight:700;color:#2C2849;">Cumulative Academic GPA: ${cumulativeGpa.toFixed(2)}</p>` : '';
   return `
     <div class="doc-page" style="background:#FFFFFF;">
       <div class="watermark">CAMPUS / WORKNET</div>
@@ -837,6 +845,7 @@ export function renderEducationEmploymentHtml(citizen: CitizenRecord): string {
         <div style="font-family:'Cinzel',serif;font-weight:700;color:#2C2849;font-size:13px;border-bottom:1px solid #E2E8F0;padding-bottom:6px;margin-bottom:10px;">
           1. ACADEMIC ENROLLMENT &amp; QUALIFICATIONS
         </div>
+        ${gpaBanner}
         ${transcript}
       </div>
 

@@ -18,7 +18,9 @@ export const APPS = [
   { id: 'housing', title: 'HOMECRAFT // Housing', icon: Home, category: 'Personal Apps' },
   { id: 'finance', title: 'ORYN // Treasury & Crypto Ledger', icon: Shield, category: 'Personal Apps' },
   { id: 'vitals', title: 'VITALS // Bio-Aura Matrix', icon: Activity, category: 'Personal Apps' },
-  { id: 'campus', title: 'CAMPUS // Cyberium Academy Network', icon: BookOpen, category: 'Civic Subsystems' },
+  { id: 'campus', title: 'CAMPUS // Academic Registrar', icon: BookOpen, category: 'Education' },
+  { id: 'study', title: 'AureLearn // Student LMS', icon: Bookmark, category: 'Education' },
+  { id: 'spellforge', title: 'SpellForge // Protocol Lab', icon: Sparkles, category: 'Education' },
   { id: 'browser', title: 'VERSENET // Browser', icon: Globe, category: 'Versenet Web' },
   { id: 'mail', title: 'AureMail Mailbox', icon: Mail, category: 'Communication' },
   { id: 'comms', title: 'COMMS // Institutional Network', icon: MessageSquare, category: 'Workplace Portals' },
@@ -49,6 +51,8 @@ const JobWorkstationApp = lazy(() => import('./JobWorkstationApp'));
 const FinanceTerminal = lazy(() => import('./FinanceTerminal'));
 const VitalsApp = lazy(() => import('./VitalsApp'));
 const CampusApp = lazy(() => import('./CampusApp'));
+const StudyApp = lazy(() => import('./StudyApp'));
+const SpellForgeApp = lazy(() => import('./SpellForgeApp'));
 const FieldOperationsApp = lazy(() => import('./FieldOperations/FieldOperationsApp'));
 
 // Sleek loading fallback for lazy-loaded apps
@@ -177,6 +181,8 @@ export const CONTENTS = {
   vitals: withSuspense(VitalsApp, 'VITALS Monitor'),
   vault: withSuspense(CivicProfileApp, 'VAULT Storage'),
   campus: withSuspense(CampusApp, 'CAMPUS Registrar'),
+  study: withSuspense(StudyApp, 'AureLearn Student LMS'),
+  spellforge: withSuspense(SpellForgeApp, 'SpellForge Lab'),
   pulse: withSuspense(PulseApp, 'Pulse Network'),
   maispace: withSuspense(MaiSpaceApp, 'mai.space'),
   terminal: TerminalApp,

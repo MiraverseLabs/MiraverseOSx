@@ -1,0 +1,469 @@
+/* Shared layout primitives for MiraverseOSx .edu sites.
+   Each institution stylesheet overrides all colors, typography, borders, and hero architecture. */
+.edu-shell {
+  min-height: 100%;
+  overflow: auto;
+  container-type: inline-size;
+  background: var(--edu-bg, #f8fafc);
+  color: var(--edu-ink, #1e293b);
+  font-family: var(--edu-body-font, 'Plus Jakarta Sans', system-ui, sans-serif);
+}
+
+.edu-network-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 7px 24px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  background: var(--edu-strip-bg, #0f172a);
+  color: var(--edu-strip-ink, #cbd5e1);
+}
+
+.edu-network-strip > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.edu-network-links {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.edu-network-links a {
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.78;
+}
+
+.edu-network-links a:hover,
+.edu-network-links a[aria-current='page'] {
+  opacity: 1;
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+.edu-main {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 28px 28px 48px;
+}
+
+.edu-section {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.edu-eyebrow {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--edu-accent, #4f46e5);
+}
+
+.edu-mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.edu-page-header h2,
+.edu-syllabus-head h2 {
+  font-family: var(--edu-display-font, Georgia, serif);
+  font-size: clamp(26px, 3.6cqw, 38px);
+  line-height: 1.15;
+  margin: 6px 0 8px;
+}
+
+.edu-page-header p,
+.edu-card p,
+.edu-syllabus p {
+  font-size: 13.5px;
+  line-height: 1.7;
+  margin: 6px 0;
+  color: var(--edu-muted, #475569);
+}
+
+.edu-banner {
+  padding: 12px 16px;
+  border-radius: var(--edu-radius, 8px);
+  font-size: 13px;
+  line-height: 1.5;
+  border: 1px solid var(--edu-border, #cbd5e1);
+}
+
+.edu-banner-info {
+  background: var(--edu-surface-alt, #eef2ff);
+  color: var(--edu-ink, #1e293b);
+}
+
+.edu-banner-status {
+  background: var(--edu-accent-soft, #e0e7ff);
+  border-color: var(--edu-accent, #4f46e5);
+  color: var(--edu-ink, #1e293b);
+  font-weight: 600;
+}
+
+.edu-card,
+.edu-admitted-card,
+.edu-syllabus {
+  background: var(--edu-surface, #ffffff);
+  border: 1px solid var(--edu-border, #e2e8f0);
+  border-radius: var(--edu-radius, 10px);
+  padding: 22px;
+}
+
+.edu-card h3,
+.edu-card h4 {
+  font-family: var(--edu-display-font, Georgia, serif);
+  margin: 6px 0 8px;
+  line-height: 1.25;
+}
+
+.edu-card h3 {
+  font-size: 20px;
+}
+
+.edu-card h4 {
+  font-size: 17px;
+}
+
+.edu-card-earned {
+  border-color: var(--edu-accent, #4f46e5);
+  box-shadow: inset 0 0 0 1px var(--edu-accent, #4f46e5);
+}
+
+.edu-card-meta {
+  font-size: 12px;
+  color: var(--edu-muted, #64748b);
+  margin: 10px 0 12px;
+}
+
+.edu-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 18px;
+}
+
+.edu-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+  gap: 18px;
+}
+
+.edu-two-col {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.edu-subblock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.edu-subblock > h3 {
+  font-family: var(--edu-display-font, Georgia, serif);
+  font-size: 22px;
+  margin: 4px 0;
+}
+
+.edu-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.edu-btn-primary,
+.edu-btn-secondary,
+.edu-btn-link,
+.edu-filter-bar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: var(--edu-btn-radius, 7px);
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, transform 120ms ease;
+}
+
+.edu-btn-primary {
+  background: var(--edu-accent, #4f46e5);
+  color: var(--edu-on-accent, #ffffff);
+  border: 1px solid var(--edu-accent, #4f46e5);
+}
+
+.edu-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.edu-btn-secondary {
+  background: var(--edu-surface, #ffffff);
+  color: var(--edu-ink, #1e293b);
+  border: 1px solid var(--edu-border, #cbd5e1);
+}
+
+.edu-btn-secondary:hover:not(:disabled) {
+  border-color: var(--edu-accent, #4f46e5);
+  background: var(--edu-surface-alt, #f1f5f9);
+}
+
+.edu-btn-link {
+  background: transparent;
+  border: none;
+  padding: 4px 0;
+  color: var(--edu-accent, #4f46e5);
+}
+
+.edu-btn-link:hover {
+  text-decoration: underline;
+}
+
+.edu-shell button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.edu-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.edu-filter-bar button {
+  background: var(--edu-surface, #ffffff);
+  color: var(--edu-ink, #1e293b);
+  border: 1px solid var(--edu-border, #cbd5e1);
+  padding: 7px 12px;
+  font-size: 12px;
+}
+
+.edu-filter-bar button[aria-pressed='true'] {
+  background: var(--edu-accent, #4f46e5);
+  color: var(--edu-on-accent, #ffffff);
+  border-color: var(--edu-accent, #4f46e5);
+}
+
+.edu-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.edu-form label,
+.edu-program-switcher label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.edu-shell select,
+.edu-shell textarea,
+.edu-shell input {
+  background: var(--edu-input-bg, #ffffff);
+  color: var(--edu-ink, #0f172a);
+  border: 1px solid var(--edu-border, #cbd5e1);
+  border-radius: 6px;
+  padding: 9px 11px;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.edu-checklist {
+  margin: 8px 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.edu-admitted-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--edu-accent, #4f46e5);
+  margin-bottom: 14px;
+}
+
+.edu-id-grid,
+.edu-syllabus-meta,
+.edu-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  padding: 14px;
+  border-radius: 8px;
+  background: var(--edu-surface-alt, #f1f5f9);
+  border: 1px solid var(--edu-border, #e2e8f0);
+  margin: 12px 0 16px;
+}
+
+.edu-meta-label {
+  display: block;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--edu-muted, #64748b);
+  margin-bottom: 3px;
+}
+
+.edu-kpi strong {
+  font-size: 20px;
+}
+
+.edu-program-switcher {
+  max-width: 460px;
+  margin-bottom: 16px;
+}
+
+.edu-course-top,
+.edu-course-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.edu-code-pill {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: var(--edu-accent-soft, #e0e7ff);
+  color: var(--edu-accent, #4f46e5);
+}
+
+.edu-credit-pill,
+.edu-status-chip {
+  font-size: 11.5px;
+  color: var(--edu-muted, #64748b);
+  font-weight: 600;
+}
+
+.edu-syllabus-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.edu-syllabus-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.edu-prereq-warn {
+  font-size: 11.5px;
+  color: #b45309;
+  font-weight: 600;
+}
+
+.edu-module-list {
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 10px 0 0;
+}
+
+.edu-faculty-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--edu-accent, #4f46e5);
+  margin-bottom: 6px;
+}
+
+.edu-faculty-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--edu-muted, #475569);
+  margin: 10px 0;
+}
+
+.edu-faculty-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.edu-advising-tip {
+  margin: 10px 0 14px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--edu-accent, #4f46e5);
+  background: var(--edu-surface-alt, #f1f5f9);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.edu-progress-bar {
+  height: 7px;
+  border-radius: 99px;
+  background: var(--edu-surface-alt, #e2e8f0);
+  overflow: hidden;
+  margin: 10px 0 6px;
+}
+
+.edu-progress-bar > div {
+  height: 100%;
+  background: var(--edu-accent, #4f46e5);
+}
+
+.edu-progress-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.edu-earned-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--edu-accent, #4f46e5);
+}
+
+.edu-footer {
+  border-top: 1px solid var(--edu-border, #e2e8f0);
+  padding: 20px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--edu-muted, #64748b);
+}
+
+@container (max-width: 720px) {
+  .edu-two-col {
+    grid-template-columns: 1fr;
+  }
+  .edu-main {
+    padding: 18px 16px 36px;
+  }
+  .edu-syllabus-actions {
+    align-items: flex-start;
+  }
+}

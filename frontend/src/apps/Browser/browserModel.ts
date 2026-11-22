@@ -1,4 +1,5 @@
 import { NEWS_SITE } from './news/newsSite';
+import { eduPageTitle } from './edu/eduRouter';
 export const BROWSER_HOME = 'https://versenet.aure';
 export const MAX_BROWSER_TABS = 8;
 
@@ -13,8 +14,9 @@ export interface InGamePortal {
 }
 
 export const IN_GAME_PORTALS: InGamePortal[] = [
-  { id: 'cyberium', name: 'Cyberium Academy', domain: 'cyberium.edu', url: 'https://cyberium.edu', category: 'Academic Research', description: 'Cybernetics, spell engineering, and signal systems. Free enrollment, practical projects, and academic transcripts.', badge: 'ACADEMIC' },
-  { id: 'dawn', name: 'Dawn University', domain: 'dawn.edu', url: 'https://dawn.edu', category: 'Academic Research', description: 'Civic studies, natural sciences, and arcane humanities. Explore Dawn Court and enroll in self-paced courses.', badge: 'ACADEMIC' },
+  { id: 'cyberium', name: 'Cyberium Academy', domain: 'cyberium.edu', url: 'https://cyberium.edu', category: 'Academic Research', description: 'Cybernetics, spell engineering, and signal systems. Polytechnic admissions, Compiler Lab 4, and academic transcripts.', badge: 'ACADEMIC' },
+  { id: 'dawn', name: 'Dawn University', domain: 'dawn.edu', url: 'https://dawn.edu', category: 'Academic Research', description: 'Collegiate university in Dawnson, Aureline: civic studies, natural sciences, and arcane humanities.', badge: 'ACADEMIC' },
+  { id: 'regent', name: 'Regent Hall', domain: 'regenthall.edu', url: 'https://regenthall.edu', category: 'Academic Research', description: 'Royal education across all eight realms, sovereign diplomacy, and the exclusive Empress Track.', badge: 'ACADEMIC' },
   { 
     id: 'auresuite', 
     name: 'AureSuite Cloud', 
@@ -150,6 +152,8 @@ export function browserTitle(url: string): string {
   try {
     const parsed = new URL(url);
     if (parsed.hostname === NEWS_SITE.domain) return parsed.pathname === '/saved' ? `Saved stories · ${NEWS_SITE.name}` : parsed.pathname.startsWith('/article/') ? `Article · ${NEWS_SITE.name}` : NEWS_SITE.name;
+    const eduTitle = eduPageTitle(url);
+    if (eduTitle) return eduTitle;
     const siteNames: Record<string, string> = { 
       'companion.aure': 'Aureline Companion', 
       'gardenreview.aure': 'Glassline Garden Review', 

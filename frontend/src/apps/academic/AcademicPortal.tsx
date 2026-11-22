@@ -7,12 +7,67 @@ import '../../styles/apps/academics.css';
 
 export function AcademicTranscript({ citizen }: { citizen: string | null }) {
   const academics = useOSStore(s => s.gameplay.academics as AcademicState | undefined);
-  const records = citizen ? academics?.records[citizen] || {} : {};
-  return <div className="academic-transcript">{academicSummary(records).map(({ school, courses, credits, certificates }) => <section key={school.id}>
-    <h3>{school.name}</h3><p>{credits} earned credits · {certificates.length} track certificates</p>
-    {courses.length ? <div className="academic-table-wrap"><table><thead><tr><th>Course</th><th>Status</th><th>Grade</th><th>Credits</th></tr></thead><tbody>{courses.map(c => <tr key={c.id}><td>{c.title}</td><td>{records[c.id].completedAt ? 'Passed' : records[c.id].status === 'withdrawn' ? 'Withdrawn' : 'In progress'}</td><td>{gradeLabel(records[c.id].bestScore)} {records[c.id].bestScore !== null ? `(${records[c.id].bestScore}%)` : ''}</td><td>{records[c.id].completedAt ? 3 : 0}</td></tr>)}</tbody></table></div> : <p>No recorded coursework.</p>}
-    {certificates.map(name => <p className="academic-certificate" key={name}>Track certificate · {name}</p>)}
-  </section>)}</div>;
+  const records = citizen ? academics?.records?.[citizen] || {} : {};
+  return (
+    <div className="academic-transcript">
+      {academicSummary(records).map(({ school, courses, credits, certificates, gpa, degrees, standing }) => (
+        <section key={school.id}>
+          <h3>{school.name}</h3>
+          <p>
+            {credits} earned credits · {certificates.length} track certificates
+            {gpa !== null ? ` · GPA ${gpa.toFixed(2)} (${standing})` : ''}
+          </p>
+          {courses.length ? (
+            <div className="academic-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>Course</th>
+                    <th>Status</th>
+                    <th>Grade</th>
+                    <th>Credits</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {courses.map(c => (
+                    <tr key={c.id}>
+                      <td>{c.code}</td>
+                      <td>{c.title}</td>
+                      <td>
+                        {records[c.id].completedAt
+                          ? 'Passed'
+                          : records[c.id].status === 'withdrawn'
+                            ? 'Withdrawn'
+                            : 'In progress'}
+                      </td>
+                      <td>
+                        {gradeLabel(records[c.id].bestScore)}
+                        {records[c.id].bestScore !== null ? ` (${records[c.id].bestScore}%)` : ''}
+                      </td>
+                      <td>{records[c.id].completedAt ? c.credits : 0}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p>No recorded coursework.</p>
+          )}
+          {certificates.map(name => (
+            <p className="academic-certificate" key={name}>
+              Track certificate · {name}
+            </p>
+          ))}
+          {degrees.map(title => (
+            <p className="academic-certificate" key={title}>
+              Conferred credential · {title}
+            </p>
+          ))}
+        </section>
+      ))}
+    </div>
+  );
 }
 
 export default function AcademicPortal({ institution = 'cyberium', website = false }: { institution?: InstitutionId; website?: boolean }) {

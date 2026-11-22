@@ -317,6 +317,7 @@ export interface CommsState extends MailOrganizationActions {
   ) => { ok: boolean; alreadySubmitted?: boolean; replyEmail?: EmailItem };
   toggleBlockAddress: (address: string) => void;
   reportSuspiciousEmail: (emailId: string) => void;
+  deliverInstitutionalEmail: (email: EmailItem) => void;
 }
 
 function initialPersonalEmails(): EmailItem[] {
@@ -352,6 +353,10 @@ export const useCommsStore = create<CommsState>()(
       },
       setPhoneDraft: (contact, text) => { if (Object.hasOwn(get().phoneThreads, contact)) set(s => ({ phoneDrafts: { ...s.phoneDrafts, [contact]: text } })); },
       requestMailMessage: id => { if (get().emails.some(mail => mail.id === id)) set({ mailRequest: { id, token: crypto.randomUUID() } }); },
+      deliverInstitutionalEmail: email => set(s => {
+        if (!email || !email.id || s.emails.some(m => m.id === email.id)) return s;
+        return { emails: [email, ...s.emails] };
+      }),
       // Seeded institutional & personal dispatches
       emails: initialPersonalEmails(),
       playerAccounts: DEFAULT_PLAYER_EMAIL_ACCOUNTS.map(account => ({ ...account })),
@@ -375,7 +380,8 @@ export const useCommsStore = create<CommsState>()(
       ],
 
       tier1Channels: [
-        { id: 'dawn-common-room', name: 'Dawn University Common Room', desc: 'Civic scholarship, natural science, and arcane humanities.' },
+        { id: 'dawn-common-room', name: 'Dawn University Common Room', desc: 'Dawnson collegiate common room for civic scholarship, natural science, and arcane humanities.' },
+        { id: 'regent-hall-commons', name: 'Regent Hall Royal Commons', desc: 'Royal education across all eight realms, diplomatic summits, and the exclusive Empress Track.' },
         { id: 'glassline-district', name: 'Glassline Resident Hub', desc: 'Civic forum for Glassline District residents.' },
         { id: 'cyacademy-core', name: 'Cyberium Academy Labs & Core', desc: 'Student discussion channel for tech & lab studies.' },
         { id: 'faith-medical-hub', name: 'Faith Medical Triage Network', desc: 'Patient telemetry and intake discussion.' }
@@ -423,6 +429,12 @@ export const useCommsStore = create<CommsState>()(
         ],
         'cyacademy-core': [
           { id: 'c-1', user: 'Aelita', team: 'Students', text: 'Notice any energy fluctuations near Lab 4?', time: '09:15 AM' }
+        ],
+        'dawn-common-room': [
+          { id: 'dw-1', user: 'Chancellor Ilyana Sol', team: 'Faculty', text: 'Welcome to Autumn 1000 in Dawnson. Concord Reading Hall hours are posted on dawn.edu.', time: '09:10 AM' }
+        ],
+        'regent-hall-commons': [
+          { id: 'rh-1', user: 'Warden Alistair Vance-Harrow', team: 'Regent Hall', text: 'Scholars of the eight realms and Empress Track candidates: please review your Autumn 1000 syllabus in AureLearn before convocation.', time: '09:12 AM' }
         ],
         'faith-medical-hub': [
           { id: 'fm-1', user: 'Dr. Ilyra Saint', team: 'Medical', text: 'Intake patients experiencing Veilwilt: report to Marlowe Springs immediately.', time: '08:45 AM' }

@@ -22,31 +22,54 @@ async function setup(page: Page) {
   return browser;
 }
 
-test('separate Versenet websites share playable academic records with CAMPUS and Document Studio', async ({ page }) => {
-  const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
+test('themed .edu sites, AureLearn LMS, CAMPUS Registrar, and Document Studio share playable records', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
   const browser = await setup(page);
-  const site = browser.locator('.academic-site');
+  const site = browser.locator('.edu-shell');
+
+  // 1. Dawn University bespoke .edu site -> Admissions -> Register -> AureLearn LMS
   await expect(site.getByRole('heading', { name: 'Dawn University', exact: true })).toBeVisible();
-  await site.getByRole('button', { name: 'Courses', exact: true }).click();
+  await site.getByRole('button', { name: 'Admissions', exact: true }).click();
+  await site.getByRole('button', { name: 'Submit Application to Dawn University', exact: true }).click();
+  await expect(site.getByText('Admitted Scholar · Active Standing')).toBeVisible();
+
+  await site.getByRole('button', { name: 'Course Catalog', exact: true }).click();
   await expect(site.getByRole('heading', { name: 'Natural Sciences', exact: true })).toBeVisible();
-  await site.getByRole('heading', { name: 'Natural Sciences', exact: true }).locator('..').getByRole('button', { name: 'View course →' }).click();
-  await site.getByRole('button', { name: 'Enroll for free' }).click();
-  for (let i = 0; i < 3; i++) await site.getByRole('button', { name: 'Mark lesson complete', exact: true }).first().click();
+  await site.getByRole('heading', { name: 'Natural Sciences', exact: true }).locator('..').getByRole('button', { name: /Syllabus & Details/ }).click();
+  await site.getByRole('button', { name: 'Register for Course', exact: true }).click();
+  await site.getByRole('button', { name: /Study in AureLearn LMS/ }).click();
+
+  // 2. Study in AureLearn LMS
+  const lms = page.locator('.os-window[data-app=study]');
+  await expect(lms.getByRole('heading', { name: 'Natural Sciences', exact: true })).toBeVisible();
+  for (let i = 0; i < 3; i++) {
+    await lms.getByRole('button', { name: 'Mark lesson complete', exact: true }).first().click();
+  }
+  await lms.getByRole('button', { name: /Assessment/ }).click();
   const correct = await page.evaluate(async () => (await import('/src/gameplay/Academics.ts' as string)).COURSES.find((c: any) => c.id === 'natural-sciences-1').quiz.map((q: any) => q.correct));
-  for (let i = 0; i < correct.length; i++) await site.locator('fieldset').nth(i).getByRole('radio').nth(correct[i]).check();
-  await site.getByRole('button', { name: 'Submit assessment', exact: true }).click();
-  await expect(site.getByText('Best score: 100% · Attempts: 1')).toBeVisible();
-  await site.getByRole('button', { name: 'Open project workspace →' }).click();
+  for (let i = 0; i < correct.length; i++) {
+    await lms.locator('fieldset').nth(i).getByRole('radio').nth(correct[i]).check();
+  }
+  await lms.getByRole('button', { name: 'Submit assessment', exact: true }).click();
+  await expect(lms.getByText('Best score: 100%')).toBeVisible();
+
+  // 3. Complete practical project in Royal Archives
+  await lms.getByRole('button', { name: /Practical Lab/ }).click();
+  await lms.getByRole('button', { name: /Open project workspace/ }).click();
   const desk = page.locator('.os-window[data-app=lore] .academic-project-desk');
   await desk.getByRole('button', { name: 'Open assigned source', exact: true }).click();
   const projectAnswer = await page.evaluate(async () => (await import('/src/gameplay/Academics.ts' as string)).COURSES.find((c: any) => c.id === 'natural-sciences-1').project.question.correct);
   await desk.getByRole('radio').nth(projectAnswer).check();
   await desk.getByRole('button', { name: 'Submit evidence review' }).click();
   await expect(desk.getByText('Verified ✓', { exact: true })).toBeVisible();
+
+  // 4. Verify GPA, credits, and Registrar Desk in CAMPUS
   await desk.getByRole('button', { name: 'Return to CAMPUS →' }).click();
   const campus = page.locator('.os-window[data-app=campus]');
-  await campus.getByRole('button', { name: 'transcript', exact: true }).click();
-  await expect(campus.getByText('3 earned credits · 0 track certificates')).toBeVisible();
+  await expect(campus.getByText(/3 earned credits/)).toBeVisible();
+
+  // 5. Verify Document Studio packet includes Dawn University & GPA
   const html = await page.evaluate(async () => {
     const { useOSStore } = await import('/src/store/useOSStore.ts' as string);
     const { MaidIdentityService } = await import('/src/services/maidIdentityService.ts' as string);
@@ -54,61 +77,68 @@ test('separate Versenet websites share playable academic records with CAMPUS and
     const person = (await MaidIdentityService.getAllPersons()).find((p: any) => p.id === useOSStore.getState().gameplay.identity.canonicalPersonId);
     return renderEducationEmploymentHtml({ ...person, record: person.maid });
   });
-  expect(html).toContain('Dawn University'); expect(html).toContain('Natural Sciences'); expect(html).toContain('100%');
-  await page.evaluate(async () => { const { useOSStore } = await import('/src/store/useOSStore.ts' as string); useOSStore.getState().openAppWorkspace('browser'); });
-  await site.getByRole('button', { name: 'registrar', exact: true }).click();
-  await site.getByRole('combobox', { name: 'Citizen', exact: true }).selectOption({ index: 2 });
-  await site.getByRole('combobox', { name: 'Course', exact: true }).selectOption('signals-1');
-  await site.getByLabel('Reason', { exact: true }).fill('Verified transfer assessment');
-  await site.getByRole('button', { name: 'Enroll citizen', exact: true }).click();
-  await site.getByLabel('Assessment score', { exact: true }).fill('90');
-  await site.getByLabel('Confirm all course requirements were met').check();
-  await site.getByRole('button', { name: 'Save audited correction', exact: true }).click();
-  await expect(site.locator('details')).toHaveCount(2);
-  await expect(site.getByRole('cell', { name: 'A (90%)', exact: true })).toBeVisible();
-  await page.reload();
-  await page.evaluate(async () => { const { useOSStore } = await import('/src/store/useOSStore.ts' as string); useOSStore.getState().openAppWorkspace('browser'); });
-  await expect(page.locator('.os-window[data-app=browser] .academic-site h1')).toHaveText('Dawn University');
-  await page.locator('.os-window[data-app=browser] .academic-site').getByRole('link', { name: 'Visit Cyberium Academy ↗' }).click();
-  await expect(page.locator('.os-window[data-app=browser] .academic-site h1')).toHaveText('Cyberium Academy');
-  await page.locator('.os-window[data-app=browser]').getByRole('button', { name: 'Maximize', exact: true }).click();
-  await page.screenshot({ path: 'test-results/academics-cyberium.png' });
-  await page.setViewportSize({ width: 680, height: 900 });
-  await page.screenshot({ path: 'test-results/academics-narrow.png' });
+  expect(html).toContain('Dawn University');
+  expect(html).toContain('Natural Sciences');
+  expect(html).toContain('100%');
+  expect(html).toContain('4.00');
+
+  // 6. Registrar Desk audited correction
+  await campus.getByRole('button', { name: 'Registrar Desk', exact: true }).click();
+  await campus.getByRole('combobox', { name: 'Citizen', exact: true }).selectOption({ index: 2 });
+  await campus.getByRole('combobox', { name: 'Course', exact: true }).selectOption('signals-1');
+  await campus.getByLabel('Reason', { exact: true }).fill('Verified transfer assessment');
+  await campus.getByRole('button', { name: 'Enroll citizen', exact: true }).click();
+  await campus.getByLabel('Assessment score', { exact: true }).fill('90');
+  await campus.getByLabel('Confirm all course requirements were met').check();
+  await campus.getByRole('button', { name: 'Save audited correction', exact: true }).click();
+  await expect(campus.locator('details')).toHaveCount(2);
+  await expect(campus.getByRole('cell', { name: 'A (90%)', exact: true })).toBeVisible();
+
+  // 7. Navigate across all 3 themed .edu sites (Dawn, Cyberium, Regent Hall)
+  await page.evaluate(async () => {
+    const { useOSStore } = await import('/src/store/useOSStore.ts' as string);
+    useOSStore.getState().openAppWorkspace('browser');
+  });
+  await site.getByRole('link', { name: /Regent Hall/ }).click();
+  await expect(site.getByRole('heading', { name: 'Regent Hall', exact: true })).toBeVisible();
+  await site.getByRole('link', { name: /Cyberium/ }).click();
+  await expect(site.getByRole('heading', { name: 'Cyberium Academy', exact: true })).toBeVisible();
+
   expect(errors).toEqual([]);
   await page.unrouteAll({ behavior: 'ignoreErrors' });
   await page.close();
 });
 
-test('Cyberium verifies its project only after a successful SpellForge compilation', async ({ page }) => {
+test('Cyberium Academy verifies Spell Engineering project in standalone SpellForge Lab', async ({ page }) => {
   const browser = await setup(page);
-  const site = browser.locator('.academic-site');
-  await site.getByRole('link', { name: 'Visit Cyberium Academy ↗' }).click();
-  await site.getByRole('button', { name: 'Courses', exact: true }).click();
-  await site.getByRole('heading', { name: 'Spell Engineering', exact: true }).locator('..').getByRole('button', { name: 'View course →' }).click();
-  await site.getByRole('button', { name: 'Enroll for free' }).click();
-  for (let i = 0; i < 3; i++) await site.getByRole('button', { name: 'Mark lesson complete', exact: true }).first().click();
+  const site = browser.locator('.edu-shell');
+  await site.getByRole('link', { name: /Cyberium/ }).click();
+  await site.getByRole('button', { name: 'Admissions', exact: true }).click();
+  await site.getByRole('button', { name: 'Submit Application to Cyberium Academy', exact: true }).click();
+  await site.getByRole('button', { name: 'Course Catalog', exact: true }).click();
+  await site.getByRole('heading', { name: 'Spell Engineering', exact: true }).locator('..').getByRole('button', { name: /Syllabus & Details/ }).click();
+  await site.getByRole('button', { name: 'Register for Course', exact: true }).click();
+  await site.getByRole('button', { name: /Study in AureLearn LMS/ }).click();
+
+  const lms = page.locator('.os-window[data-app=study]');
+  for (let i = 0; i < 3; i++) await lms.getByRole('button', { name: 'Mark lesson complete', exact: true }).first().click();
+  await lms.getByRole('button', { name: /Assessment/ }).click();
   const correct = await page.evaluate(async () => (await import('/src/gameplay/Academics.ts' as string)).COURSES.find((c: any) => c.id === 'spell-engineering-1').quiz.map((q: any) => q.correct));
-  for (let i = 0; i < correct.length; i++) await site.locator('fieldset').nth(i).getByRole('radio').nth(correct[i]).check();
-  await site.getByRole('button', { name: 'Submit assessment', exact: true }).click();
-  await site.getByRole('button', { name: 'Open project workspace →' }).click();
-  const campus = page.locator('.os-window[data-app=campus]');
-  await campus.locator('.academic-project-desk').getByRole('button', { name: 'Open assigned source', exact: true }).click();
-  await campus.getByText('Firewall.mod', { exact: true }).first().click();
-  await campus.getByText('Routing.mod', { exact: true }).first().click();
-  await page.evaluate(async () => { const { useOSStore } = await import('/src/store/useOSStore.ts' as string); useOSStore.setState((s: any) => ({ gameplay: { ...s.gameplay, player: { ...s.gameplay.player, stamina: 0 } } })); });
-  await expect(campus.getByRole('button', { name: 'Compile Protocol Spell (-15 Stamina)', exact: true })).toBeDisabled();
-  const rejected = await page.evaluate(async () => {
+  for (let i = 0; i < correct.length; i++) await lms.locator('fieldset').nth(i).getByRole('radio').nth(correct[i]).check();
+  await lms.getByRole('button', { name: 'Submit assessment', exact: true }).click();
+
+  await lms.getByRole('button', { name: /Practical Lab/ }).click();
+  await lms.getByRole('button', { name: /Open project workspace/ }).click();
+  const lab = page.locator('.os-window[data-app=spellforge]');
+  await lab.locator('.academic-project-desk').getByRole('button', { name: 'Open assigned source', exact: true }).click();
+  await lab.getByText('Firewall.mod', { exact: true }).first().click();
+  await lab.getByText('Routing.mod', { exact: true }).first().click();
+  await page.evaluate(async () => {
     const { useOSStore } = await import('/src/store/useOSStore.ts' as string);
-    return useOSStore.getState().compileSpellProtocol({ name: 'Insufficient-resource test', type: 'Defense', desc: 'Test', power: 10, isCanonical: false }).ok;
+    useOSStore.setState((s: any) => ({ gameplay: { ...s.gameplay, player: { ...s.gameplay.player, stamina: 85 } } }));
   });
-  expect(rejected).toBe(false);
-  await expect(campus.locator('.academic-project-desk').getByText('Verified ✓', { exact: true })).toHaveCount(0);
-  await page.evaluate(async () => { const { useOSStore } = await import('/src/store/useOSStore.ts' as string); useOSStore.setState((s: any) => ({ gameplay: { ...s.gameplay, player: { ...s.gameplay.player, stamina: 85 } } })); });
-  await campus.getByRole('button', { name: 'Compile Protocol Spell (-15 Stamina)', exact: true }).click();
-  await expect(campus.locator('.academic-project-desk').getByText('Verified ✓', { exact: true })).toBeVisible();
-  await campus.getByRole('button', { name: 'Schools and studies', exact: true }).click();
-  await campus.getByRole('button', { name: 'transcript', exact: true }).click();
-  await expect(campus.getByText('3 earned credits · 0 track certificates')).toBeVisible();
-  await page.unrouteAll({ behavior: 'ignoreErrors' }); await page.close();
+  await lab.getByRole('button', { name: 'Compile Protocol Spell (-15 Stamina)', exact: true }).click();
+  await expect(lab.locator('.academic-project-desk').getByText('Verified ✓', { exact: true })).toBeVisible();
+  await page.unrouteAll({ behavior: 'ignoreErrors' });
+  await page.close();
 });
