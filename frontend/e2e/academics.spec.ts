@@ -52,7 +52,7 @@ test('themed .edu sites, AureLearn LMS, CAMPUS Registrar, and Document Studio sh
     await lms.locator('fieldset').nth(i).getByRole('radio').nth(correct[i]).check();
   }
   await lms.getByRole('button', { name: 'Submit assessment', exact: true }).click();
-  await expect(lms.getByText('Best score: 100%')).toBeVisible();
+  await expect(lms.getByRole('status')).toHaveText('Best score: 100%. Pass mark: 80%.');
 
   // 3. Complete practical project in Royal Archives
   await lms.getByRole('button', { name: /Practical Lab/ }).click();

@@ -91,9 +91,9 @@ export default function SpellForgeApp() {
 
   return (
     <div className="flex flex-col h-full bg-[#FAFBFD] text-slate-800 font-sans select-none overflow-auto">
-      <AcademicProjectDesk workspace="compiler" />
+      <div className="shrink-0"><AcademicProjectDesk workspace="compiler" /></div>
       {/* Top Header Toolbar */}
-      <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200 shadow-xs">
+      <div className="flex shrink-0 items-center justify-between px-6 py-4 bg-white border-b border-slate-200 shadow-xs">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 border border-purple-200 text-purple-700">
             <Sparkles size={18} />
@@ -120,7 +120,7 @@ export default function SpellForgeApp() {
       </div>
 
       {/* Workspace Split */}
-      <div className="flex-1 grid grid-cols-12 min-h-0 overflow-hidden">
+      <div className="flex-1 shrink-0 grid grid-cols-12 min-h-[420px] overflow-hidden">
         {/* Module Inventory Tray */}
         <div className="col-span-4 border-r border-slate-200 p-5 overflow-y-auto space-y-3 bg-slate-50">
           <div className="flex items-center justify-between mb-2">

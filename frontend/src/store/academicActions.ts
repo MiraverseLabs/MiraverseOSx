@@ -83,8 +83,8 @@ async function deliverAcademicMail(payload: {
       time: 'Just now',
       read: false,
       folder: 'inbox',
-      accountType: 'academic',
-      category: 'institution',
+      verifiedSender: true,
+      attachment: null,
       institutionalSeal: payload.seal,
     });
   } catch {
@@ -187,7 +187,7 @@ export function createAcademicActions(set: Setter, get: () => OSStoreState): Aca
         const school = INSTITUTIONS.find(s => s.id === command.institution);
         if (!school) return { ok: false, message: 'Institution not found.' };
         const ctx = await resolveCitizenContext(command, false);
-        if (!ctx.ok) return ctx;
+        if (ctx.ok === false) return ctx;
         const { citizen, managing } = ctx;
         const current = read();
         const existing = current.admissions[citizen]?.[school.id];
@@ -257,7 +257,7 @@ export function createAcademicActions(set: Setter, get: () => OSStoreState): Aca
         const program = school.degrees.find(d => d.id === command.programId);
         if (!program) return { ok: false, message: 'Degree program not found.' };
         const ctx = await resolveCitizenContext({}, false);
-        if (!ctx.ok) return ctx;
+        if (ctx.ok === false) return ctx;
         const { citizen } = ctx;
         const current = read();
         if (!isAdmittedToInstitution(current, citizen, school.id)) {
@@ -287,7 +287,7 @@ export function createAcademicActions(set: Setter, get: () => OSStoreState): Aca
         const club = school.clubs.find(c => c.id === command.clubId);
         if (!club) return { ok: false, message: 'Campus organization not found.' };
         const ctx = await resolveCitizenContext({}, false);
-        if (!ctx.ok) return ctx;
+        if (ctx.ok === false) return ctx;
         const { citizen } = ctx;
         const current = read();
         if (!isAdmittedToInstitution(current, citizen, school.id)) {
@@ -316,7 +316,7 @@ export function createAcademicActions(set: Setter, get: () => OSStoreState): Aca
         },
         correction,
       );
-      if (!ctx.ok) return ctx;
+      if (ctx.ok === false) return ctx;
       const { self, citizen, managing } = ctx;
 
       const currentState = read();

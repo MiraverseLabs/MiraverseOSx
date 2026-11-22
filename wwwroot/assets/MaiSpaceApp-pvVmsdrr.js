@@ -1,0 +1,1 @@
+import{j as r}from"./framer-motion-B0GbNFm6.js";import{M as t}from"./SocialApp-B7DGeN2r.js";import"./App-CJOM_t9R.js";import"./index-BJTvZfYu.js";import"./lucide-icons-yChwnuVN.js";function e(){return r.jsx(t,{})}export{e as default};

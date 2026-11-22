@@ -14,7 +14,7 @@ export interface AppMetadata {
   title: string;
   name?: string;
   formName?: string; // 5.3 In-Universe Form Name
-  accessType?: 'Personal App' | 'Dual-Pane App' | 'Subsystem Feed' | 'Public Browser' | 'Navigation Tool' | 'Civic Engine' | 'Labor Gateway' | 'Academic Portal' | 'Spatial Editor' | 'Inventory Matrix' | 'Telemetry App' | 'Enterprise Portal' | 'Utility' | 'Security';
+  accessType?: 'Personal App' | 'Dual-Pane App' | 'Subsystem Feed' | 'Public Browser' | 'Navigation Tool' | 'Civic Engine' | 'Labor Gateway' | 'Academic Portal' | 'Learning Management System' | 'Spatial Editor' | 'Inventory Matrix' | 'Telemetry App' | 'Enterprise Portal' | 'Utility' | 'Security';
   category: string;
   dev: string;
   version: string;

@@ -29,7 +29,7 @@
   "description": "MIRAVERSEOSX - Celestial Operating System Desktop Host",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mirxclej/MiraverseOSx.git"
+    "url": "git+https://github.com/MiraverseLabs/MiraverseOSx.git"
   },
   "license": "ISC",
   "dependencies": {
