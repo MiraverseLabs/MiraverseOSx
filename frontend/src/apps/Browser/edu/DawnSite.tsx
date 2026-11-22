@@ -3,8 +3,10 @@ import { ArrowRight, BookMarked, Feather, Leaf, Scale } from 'lucide-react';
 import { INSTITUTIONS } from '../../../gameplay/Academics';
 import { EduNetworkDirectoryBar, EduSectionContent, useEduContext } from './EduSiteShared';
 import { eduUrl, type EduLocation, type EduSection } from './eduRouter';
+import InstitutionScene from './InstitutionScene';
 import './edu-base.css';
 import './dawn-edu.css';
+import './edu-editorial.css';
 
 const NAV_ITEMS: { id: EduSection; label: string }[] = [
   { id: 'home', label: 'Dawn Court' },
@@ -36,7 +38,7 @@ export default function DawnSite({
           <button className="dwn-brand" onClick={() => go('home')}>
             <span className="dwn-crest" aria-hidden="true">{school.sealText}</span>
             <div>
-              <span className="dwn-sub">{school.domain} · {school.established} · {school.location}</span>
+              <span className="dwn-sub">{school.domain} Â· {school.established} Â· {school.location}</span>
               <h1>{school.name}</h1>
             </div>
           </button>
@@ -66,11 +68,11 @@ export default function DawnSite({
             <section className="dwn-hero">
               <div>
                 <span className="edu-eyebrow" style={{ color: '#9a6f1d' }}>
-                  DAWNSON, AURELINE · COLLEGIATE COMMUNITY OF INQUIRY · {ctx.academics?.activeTerm || 'Autumn 1000'}
+                  DAWNSON, AURELINE
                 </span>
                 <h2>{school.motto}</h2>
                 <p>{school.description}</p>
-                <p>{school.campus}</p>
+
                 <div className="edu-btn-row" style={{ marginTop: 18 }}>
                   <button className="edu-btn-primary" onClick={() => go(ctx.admitted ? 'courses' : 'admissions')}>
                     {ctx.admitted ? 'Explore Course Catalog' : 'Begin Your Application'} <ArrowRight size={14} />
@@ -81,11 +83,12 @@ export default function DawnSite({
                 </div>
               </div>
 
+              <InstitutionScene institution="dawn" />
               <aside className="dwn-almanac" aria-label="Dawn Court Almanac">
                 <h3>Dawn Court Almanac</h3>
                 {school.bulletins.map(item => (
                   <div key={item.id} className="dwn-almanac-item">
-                    <span className="edu-eyebrow" style={{ color: '#9a6f1d' }}>{item.tag} · {item.date}</span>
+                    <span className="edu-eyebrow" style={{ color: '#9a6f1d' }}>{item.tag} Â· {item.date}</span>
                     <strong>{item.title}</strong>
                     <p style={{ margin: '4px 0 0', fontSize: 12.5 }}>{item.summary}</p>
                   </div>
@@ -98,19 +101,19 @@ export default function DawnSite({
                 <Scale size={20} color="#9a6f1d" />
                 <h3>Civic Studies & History</h3>
                 <p>Primary charters, institutional history, and evidence-backed public policy in Concord Reading Hall.</p>
-                <button className="edu-btn-link" onClick={() => go('academics')}>Explore Civic Studies →</button>
+                <button className="edu-btn-link" onClick={() => go('academics')}>Explore Civic Studies â†’</button>
               </article>
               <article className="edu-card">
                 <Leaf size={20} color="#1f4b3f" />
                 <h3>Aether Conservatory</h3>
-                <p>Controlled observation, replication, and ecological stewardship across Meridion’s living biomes.</p>
-                <button className="edu-btn-link" onClick={() => go('courses')}>View Natural Sciences →</button>
+                <p>Controlled observation, replication, and ecological stewardship across Meridionâ€™s living biomes.</p>
+                <button className="edu-btn-link" onClick={() => go('courses')}>View Natural Sciences â†’</button>
               </article>
               <article className="edu-card">
                 <Feather size={20} color="#6b2737" />
                 <h3>Arcane Humanities</h3>
                 <p>Situated knowledge, custodial consent, and comparative arcane traditions in Lantern Cloister.</p>
-                <button className="edu-btn-link" onClick={() => go('faculty')}>Meet the Faculty →</button>
+                <button className="edu-btn-link" onClick={() => go('faculty')}>Meet the Faculty â†’</button>
               </article>
             </div>
           </div>
@@ -120,8 +123,8 @@ export default function DawnSite({
       </main>
 
       <footer className="edu-footer">
-        <span><BookMarked size={12} style={{ verticalAlign: 'middle' }} /> {school.name} · {school.location}</span>
-        <span>{school.domain} · {school.motto}</span>
+        <span><BookMarked size={12} style={{ verticalAlign: 'middle' }} /> {school.name} Â· {school.location}</span>
+        <span>{school.domain} Â· {school.motto}</span>
       </footer>
     </div>
   );

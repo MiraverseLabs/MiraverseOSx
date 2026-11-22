@@ -1,180 +1,77 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { ArrowRight, ArrowUpRight, Search, Globe, BookOpen, Landmark, Newspaper, Compass } from 'lucide-react';
 import { SERVICE_DIRECTORY } from './externalWeb';
-import { 
-  ArrowUpRight, Search, Folder, FolderOpen, ChevronDown, ChevronUp, Globe, 
-  Sparkles, Landmark, Shield, Activity, Truck, Terminal, Building, FileText, BookOpen, UserCheck, Newspaper
-} from 'lucide-react';
-import { resolveBrowserInput, IN_GAME_PORTALS, type InGamePortal } from './browserModel';
+import { resolveBrowserInput, IN_GAME_PORTALS, BROWSER_HOME, type InGamePortal } from './browserModel';
+import { useOSStore } from '../../store/useOSStore';
 
-export interface SearchHomeProps { 
-  openTab?: (url: string, title?: string) => void; 
-  navigateTab: (url: string, title?: string) => void; 
+export interface SearchHomeProps {
+  openTab?: (url: string, title?: string) => void;
+  navigateTab: (url: string, title?: string) => void;
 }
-
-const PORTAL_ICONS: Record<string, React.ElementType> = {
-  cyberium: Building, dawn: Building,
-  dispatch: Newspaper,
-  auresuite: Sparkles,
-  bank: Landmark,
-  dga: Shield,
-  faithmed: Activity,
-  shipping: Truck,
-  vectornet: Terminal,
-  cyacademy: Building,
-  records: FileText,
-  royalhistory: BookOpen,
-  maispace: Globe,
-  civinet: UserCheck
-};
-
+const SECTIONS = ['All websites', 'Education', 'Public services', 'Culture & community', 'Everyday tools'] as const;
+type Section = typeof SECTIONS[number];
+function sectionFor(portal: InGamePortal): Section {
+  if (portal.badge === 'ACADEMIC') return 'Education';
+  if (['GOV', 'DEEDS', 'HEALTH', 'SECURE'].includes(portal.badge)) return 'Public services';
+  if (['NEWS', 'ARCHIVE', 'SOCIAL', 'CIVIC'].includes(portal.badge)) return 'Culture & community';
+  return 'Everyday tools';
+}
+function SectionIcon({ section }: { section: Section }) {
+  const Icon = section === 'Education' ? BookOpen : section === 'Public services' ? Landmark : section === 'Culture & community' ? Newspaper : Globe;
+  return <Icon size={18} strokeWidth={1.5} aria-hidden="true" />;
+}
 export default function SearchHome({ navigateTab, openTab }: SearchHomeProps) {
   const [query, setQuery] = useState('');
-  const [isFolderOpen, setIsFolderOpen] = useState(true);
-
-  return (
-    <div className="vn-homepage overflow-y-auto">
-      <div className="w-full max-w-4xl mx-auto py-8 px-4 space-y-8">
-        
-        {/* Search Engine Hero */}
-        <section className="text-center space-y-4 max-w-xl mx-auto" aria-label="Versenet search">
-          <h1 className="text-4xl font-extrabold tracking-tight font-display text-[#39234f]">
-            versenet
-          </h1>
-          <p className="text-xs text-slate-500 font-mono">
-            Meridion Civic & Institutional Digital Network
-          </p>
-
-          <form 
-            onSubmit={event => { 
-              event.preventDefault(); 
-              if (query.trim()) navigateTab(resolveBrowserInput(query)); 
-            }}
-            className="flex items-center gap-2 p-1.5 pl-3.5 bg-white border border-slate-300 rounded-2xl shadow-xs focus-within:border-[#39234f] focus-within:ring-2 focus-within:ring-purple-100 transition"
-          >
-            <Search size={16} className="text-slate-400 shrink-0" />
-            <input 
-              aria-label="Search VerseNet"
-              placeholder="Search lore, civil registries, or enter an address..." 
-              value={query} 
-              onChange={event => setQuery(event.target.value)} 
-              spellCheck={false}
-              className="flex-1 bg-transparent border-0 outline-none text-xs text-slate-800 placeholder:text-slate-400 font-sans"
-            />
-            <button 
-              type="submit"
-              className="px-4 py-2 bg-[#39234f] hover:bg-[#4b3264] text-white text-xs font-bold rounded-xl transition cursor-pointer shrink-0"
-            >
-              Search
-            </button>
-          </form>
-        </section>
-
-        {/* ── IN-GAME PORTALS FOLDER ── */}
-        <section className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden transition-all">
-          <div 
-            onClick={() => setIsFolderOpen(!isFolderOpen)}
-            className="p-4 bg-slate-50/80 hover:bg-slate-100/80 border-b border-slate-200 flex items-center justify-between cursor-pointer transition select-none"
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-lg bg-purple-100 text-[#39234f] flex items-center justify-center font-bold">
-                {isFolderOpen ? <FolderOpen size={18} /> : <Folder size={18} />}
-              </div>
-              <div>
-                <div className="text-xs font-bold text-slate-900 flex items-center gap-2">
-                  <span>VerseNet Directory</span>
-                  <span className="px-2 py-0.2 rounded-full bg-purple-100 text-[#39234f] text-[10px] font-mono font-bold">
-                    {IN_GAME_PORTALS.length} Sites Folder
-                  </span>
-                </div>
-                <div className="text-[10px] text-slate-500 font-mono">
-                  Services and destinations across the Miraverse network
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 text-slate-400">
-              <span className="text-[11px] font-mono">{isFolderOpen ? 'Collapse Folder' : 'Expand Folder'}</span>
-              {isFolderOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </div>
-          </div>
-
-          {isFolderOpen && (
-            <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 bg-[#FAFBFD]">
-              {IN_GAME_PORTALS.map((portal) => {
-                const IconComponent = PORTAL_ICONS[portal.id] || Globe;
-                
-                const badgeStyle = 
-                  portal.badge === 'SUITE' ? 'bg-rose-100 text-rose-800 border-rose-200' :
-                  portal.badge === 'SECURE' || portal.badge === 'HEALTH' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' :
-                  portal.badge === 'GOV' ? 'bg-blue-100 text-blue-800 border-blue-200' :
-                  portal.badge === 'CARGO' ? 'bg-orange-100 text-orange-800 border-orange-200' :
-                  portal.badge === 'ONION' ? 'bg-purple-100 text-purple-800 border-purple-200' :
-                  portal.badge === 'ACADEMIC' ? 'bg-indigo-100 text-indigo-800 border-indigo-200' :
-                  'bg-slate-100 text-slate-700 border-slate-200';
-
-                return (
-                  <div
-                    key={portal.id}
-                    onClick={() => navigateTab(portal.url, portal.name)}
-                    className="group relative p-3.5 bg-white border border-slate-200 hover:border-purple-300 rounded-xl shadow-2xs hover:shadow-xs transition cursor-pointer flex flex-col justify-between space-y-2.5 text-left"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <div className="h-7 w-7 rounded-lg bg-slate-50 text-slate-700 group-hover:bg-purple-50 group-hover:text-purple-700 flex items-center justify-center transition">
-                          <IconComponent size={15} />
-                        </div>
-                        <div>
-                          <div className="font-bold text-xs text-slate-900 group-hover:text-purple-900 transition leading-tight">
-                            {portal.name}
-                          </div>
-                          <div className="text-[10px] text-slate-400 font-mono">
-                            {portal.domain}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold border shrink-0 ${badgeStyle}`}>
-                        {portal.badge}
-                      </span>
-                    </div>
-
-                    <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
-                      {portal.description}
-                    </p>
-
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
-                      <span>{portal.category}</span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openTab?.(portal.url, portal.name);
-                        }}
-                        title="Open in new tab"
-                        className="p-1 rounded hover:bg-slate-100 hover:text-slate-800 transition cursor-pointer"
-                      >
-                        <ArrowUpRight size={13} />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
-
-        {/* Directory Shortcut Footer */}
-        <div className="flex items-center justify-between text-xs text-slate-500 font-mono pt-4 border-t border-slate-200">
-          <span>VerseNet Intranet Protocol v3.8</span>
-          <button 
-            onClick={() => navigateTab(SERVICE_DIRECTORY)}
-            className="text-purple-800 hover:underline flex items-center gap-1 cursor-pointer"
-          >
-            <span>External Internet & Service Directory</span>
-            <ArrowUpRight size={13} />
-          </button>
+  const [filter, setFilter] = useState('');
+  const [section, setSection] = useState<Section>('All websites');
+  const visits = useOSStore(s => s.browserState.visits);
+  const sites = useMemo(() => IN_GAME_PORTALS.filter(site => site.id !== 'cyacademy'), []);
+  const matches = sites.filter(site => (section === 'All websites' || sectionFor(site) === section)
+    && `${site.name} ${site.domain} ${site.description}`.toLowerCase().includes(filter.trim().toLowerCase()));
+  const recent = visits.filter(visit => visit.url !== BROWSER_HOME && visit.url !== `${BROWSER_HOME}/`).slice(0, 3);
+  const visit = (event: React.MouseEvent<HTMLAnchorElement>, site: { url: string; name: string }) => {
+    event.preventDefault();
+    if ((event.ctrlKey || event.metaKey) && openTab) openTab(site.url, site.name);
+    else navigateTab(site.url, site.name);
+  };
+  return <div className="vn-discovery">
+    <header className="vn-discovery-header">
+      <a href={BROWSER_HOME} className="vn-wordmark" onClick={event => { event.preventDefault(); navigateTab(BROWSER_HOME); }}>
+        <Compass size={23} strokeWidth={1.4} aria-hidden="true" /> versenet<span>Meridion’s public web</span>
+      </a>
+      <button className="vn-directory-access" onClick={() => navigateTab(SERVICE_DIRECTORY)}>Services & external web <ArrowUpRight size={14} /></button>
+    </header>
+    <section className="vn-discovery-hero" aria-label="Versenet search">
+      <span className="vn-section-label">Explore the network</span><h1>Search Meridion.</h1>
+      <p>Public records, independent publications, universities, and everyday services.</p>
+      <form role="search" onSubmit={event => { event.preventDefault(); if (query.trim()) navigateTab(resolveBrowserInput(query)); }}>
+        <Search size={21} strokeWidth={1.6} aria-hidden="true" />
+        <input type="search" aria-label="Search VerseNet" placeholder="What would you like to find?" value={query} onChange={event => setQuery(event.target.value)} spellCheck={false} />
+        <button type="submit">Search <ArrowRight size={17} aria-hidden="true" /></button>
+      </form>
+      <div className="vn-search-topics"><span>Start with</span>{['Aureline', 'public archives', 'universities'].map(topic => <button key={topic} onClick={() => navigateTab(resolveBrowserInput(topic))}>{topic} <ArrowUpRight size={12} /></button>)}</div>
+    </section>
+    <div className="vn-discovery-layout">
+      <section className="vn-network-directory" aria-labelledby="vn-directory-title">
+        <div className="vn-section-heading"><div><span className="vn-section-label">A place to begin</span><h2 id="vn-directory-title">Around the network</h2></div><span className="vn-result-count" role="status">{matches.length} websites</span></div>
+        <div className="vn-directory-tools">
+          <div className="vn-directory-sections" role="group" aria-label="Website categories">{SECTIONS.map(item => <button key={item} aria-pressed={section === item} onClick={() => setSection(item)}>{item}</button>)}</div>
+          <label className="vn-directory-find"><Search size={15} aria-hidden="true" /><input type="search" aria-label="Find a website" placeholder="Filter by name or subject" value={filter} onChange={event => setFilter(event.target.value)} /></label>
         </div>
-
-      </div>
+        <div className="vn-destination-list">{matches.map(site => <article className="vn-destination-row" key={site.id}>
+          <span className="vn-destination-symbol" data-section={sectionFor(site)}><SectionIcon section={sectionFor(site)} /></span>
+          <a href={site.url} onClick={event => visit(event, site)}><span className="vn-destination-domain">{site.domain}</span><h3>{site.name}</h3><p>{site.description}</p></a>
+          <button className="vn-icon" aria-label={`Open ${site.name} in a new tab`} title="Open in a new tab" onClick={() => openTab ? openTab(site.url, site.name) : navigateTab(site.url, site.name)}><ArrowUpRight size={17} /></button>
+        </article>)}</div>
+        {!matches.length && <div className="vn-directory-empty"><h3>No websites match that search.</h3><p>Try a broader subject or browse the full directory.</p><button onClick={() => { setFilter(''); setSection('All websites'); }}>Show all websites <ArrowRight size={14} /></button></div>}
+      </section>
+      <aside className="vn-reading-list" aria-label="Network highlights">
+        <span className="vn-section-label">The reading list</span><h2>Worth a visit.</h2>
+        <a href="https://dispatch.mer" onClick={event => visit(event, { url: 'https://dispatch.mer', name: 'The Meridion Dispatch' })}><span>News & perspectives</span><h3>The Meridion Dispatch</h3><p>Reporting on the places, institutions, and people shaping daily life.</p><span className="vn-editorial-link">Read the latest edition <ArrowUpRight size={14} /></span></a>
+        <a href="https://dawn.edu" onClick={event => visit(event, { url: 'https://dawn.edu', name: 'Dawn University' })}><span>Study in Dawnson</span><h3>A university in the city.</h3><p>Explore Dawn University’s courses, faculty, and collegiate community.</p><span className="vn-editorial-link">Visit Dawn University <ArrowUpRight size={14} /></span></a>
+        {recent.length > 0 && <section className="vn-recent-pages"><span className="vn-section-label">Pick up where you left off</span>{recent.map(page => <a key={page.url} href={page.url} onClick={event => visit(event, { url: page.url, name: page.title })}><strong>{page.title}</strong><small>{new URL(page.url).hostname}</small><ArrowUpRight size={14} /></a>)}</section>}
+      </aside>
     </div>
-  );
+    <footer className="vn-discovery-footer"><span>VerseNet · The public web of Meridion</span><button onClick={() => navigateTab(SERVICE_DIRECTORY)}>Browse connected services <ArrowUpRight size={13} /></button></footer>
+  </div>;
 }

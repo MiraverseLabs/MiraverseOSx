@@ -3,6 +3,7 @@ import { INSTITUTIONS } from '../../../gameplay/Academics';
 import CyberiumSite from './CyberiumSite';
 import DawnSite from './DawnSite';
 import RegentHallSite from './RegentHallSite';
+import './edu-editorial.css';
 import { eduUrl, parseEduUrl } from './eduRouter';
 
 export default function EduSiteRouter({

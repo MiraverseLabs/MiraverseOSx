@@ -3,6 +3,7 @@ import { ArrowRight, Landmark, Scale, ScrollText, Shield } from 'lucide-react';
 import { INSTITUTIONS } from '../../../gameplay/Academics';
 import { EduNetworkDirectoryBar, EduSectionContent, useEduContext } from './EduSiteShared';
 import { eduUrl, type EduLocation, type EduSection } from './eduRouter';
+import InstitutionScene from './InstitutionScene';
 import './edu-base.css';
 import './regent-edu.css';
 
@@ -13,7 +14,7 @@ const NAV_ITEMS: { id: EduSection; label: string }[] = [
   { id: 'courses', label: 'Curriculum' },
   { id: 'faculty', label: 'Fellows & Faculty' },
   { id: 'campus-life', label: 'Societies' },
-  { id: 'portal', label: 'Fellows Portal' },
+  { id: 'portal', label: 'Student Portal' },
 ];
 
 export default function RegentHallSite({
@@ -59,9 +60,9 @@ export default function RegentHallSite({
             <section className="rgh-hero">
               <div>
                 <span className="edu-eyebrow" style={{ color: '#9c7330' }}>
-                  ROYAL EDUCATION ACROSS ALL EIGHT REALMS · THE EXCLUSIVE EMPRESS TRACK
+                  REGENT HALL · THE EIGHT REALMS
                 </span>
-                <h2>Royal Education for All Eight Realms</h2>
+                <h2>An education in the service of the realms.</h2>
                 <p>{school.description}</p>
                 <div className="edu-btn-row" style={{ marginTop: 18 }}>
                   <button className="edu-btn-primary" onClick={() => go(ctx.admitted ? 'courses' : 'admissions')}>
@@ -73,20 +74,7 @@ export default function RegentHallSite({
                 </div>
               </div>
 
-              <aside className="rgh-charter-box" aria-label="Warden's Prospectus">
-                <h3>WARDEN’S PROSPECTUS · {ctx.academics?.activeTerm || 'Autumn 1000'}</h3>
-                <p>{school.campus}</p>
-                <p>
-                  Standing: <strong>{ctx.admitted ? `Admitted Scholar (${ctx.admission?.studentId})` : 'Open Admissions'}</strong>
-                </p>
-                <button
-                  className="edu-btn-secondary"
-                  style={{ background: '#b08a4f', color: '#0f1b33', borderColor: '#d1b278', alignSelf: 'flex-start' }}
-                  onClick={() => go('academics')}
-                >
-                  Explore the Empress Track →
-                </button>
-              </aside>
+              <InstitutionScene institution="regent" />
             </section>
 
             <div className="edu-grid-3">

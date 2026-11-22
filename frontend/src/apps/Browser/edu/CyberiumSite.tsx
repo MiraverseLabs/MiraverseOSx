@@ -3,8 +3,10 @@ import { ArrowRight, Cpu, FlaskConical, Radio, Terminal } from 'lucide-react';
 import { INSTITUTIONS } from '../../../gameplay/Academics';
 import { EduNetworkDirectoryBar, EduSectionContent, useEduContext } from './EduSiteShared';
 import { eduUrl, type EduLocation, type EduSection } from './eduRouter';
+import InstitutionScene from './InstitutionScene';
 import './edu-base.css';
 import './cyberium-edu.css';
+import './edu-editorial.css';
 
 const NAV_ITEMS: { id: EduSection; label: string }[] = [
   { id: 'home', label: 'Overview' },
@@ -36,15 +38,11 @@ export default function CyberiumSite({
           <button className="cyb-brand" onClick={() => go('home')}>
             <span className="cyb-hex-seal" aria-hidden="true">{school.sealText}</span>
             <div>
-              <span className="cyb-brand-sub">{school.domain} · {school.established} · Sector 4 Quadrangle</span>
+              <span className="cyb-brand-sub">{school.domain} Â· {school.established} Â· Sector 4 Quadrangle</span>
               <h1>{school.name}</h1>
             </div>
           </button>
-          <div className="cyb-telemetry" aria-label="Laboratory status">
-            <span>LAB 4: ONLINE</span>
-            <span>SIGNAL GRID: NOMINAL</span>
-            <span>TERM: {ctx.academics?.activeTerm || 'Autumn 1000'}</span>
-          </div>
+          <button className="cyb-student-access" onClick={() => go('portal')}>Student portal <ArrowRight size={14} /></button>
         </div>
         <nav className="cyb-nav" aria-label="Cyberium Academy sections">
           {NAV_ITEMS.map(item => (
@@ -60,7 +58,7 @@ export default function CyberiumSite({
           <div className="edu-section">
             <section className="cyb-hero">
               <div>
-                <span className="edu-eyebrow" style={{ color: '#7dd3fc' }}>
+                <span className="edu-eyebrow">
                   POLYTECHNIC OF CYBERNETICS & COMPUTATIONAL SPELLCRAFT
                 </span>
                 <h2>{school.motto}</h2>
@@ -71,24 +69,14 @@ export default function CyberiumSite({
                   </button>
                   <button
                     className="edu-btn-secondary"
-                    style={{ background: 'rgba(255,255,255,0.08)', color: '#fff', borderColor: 'rgba(148,163,184,0.4)' }}
                     onClick={() => go('portal')}
                   >
-                    Student SSO Portal
+                    Student portal
                   </button>
                 </div>
               </div>
 
-              <aside className="cyb-hero-panel" aria-label="Cyberium Quick Telemetry">
-                <strong>QUADRANGLE TELEMETRY</strong>
-                <div className="cyb-hero-stat"><span>Active Departments</span><span>3</span></div>
-                <div className="cyb-hero-stat"><span>Accredited Courses</span><span>{ctx.schoolCourses.length}</span></div>
-                <div className="cyb-hero-stat"><span>Primary Lab Bench</span><span>SpellForge / Lab 4</span></div>
-                <div className="cyb-hero-stat">
-                  <span>Your Status</span>
-                  <span>{ctx.admitted ? `ADMITTED (${ctx.admission?.studentId})` : 'PROSPECTIVE'}</span>
-                </div>
-              </aside>
+              <InstitutionScene institution="cyberium" />
             </section>
 
             <div className="edu-grid-3">
@@ -96,28 +84,28 @@ export default function CyberiumSite({
                 <Cpu size={20} color="#0284c7" />
                 <h3>Cybernetics & Control</h3>
                 <p>Closed-loop sensor calibration, hardware safety interlocks, and fault isolation in Foundry Hall B.</p>
-                <button className="edu-btn-link" onClick={() => go('academics')}>Explore department →</button>
+                <button className="edu-btn-link" onClick={() => go('academics')}>Explore department â†’</button>
               </article>
               <article className="edu-card">
                 <FlaskConical size={20} color="#6d28d9" />
                 <h3>Computational Spellcraft</h3>
                 <p>Formal module contracts and live SpellForge protocol verification in Compiler Lab 4.</p>
-                <button className="edu-btn-link" onClick={() => go('courses')}>Browse spell courses →</button>
+                <button className="edu-btn-link" onClick={() => go('courses')}>Browse spell courses â†’</button>
               </article>
               <article className="edu-card">
                 <Radio size={20} color="#0284c7" />
                 <h3>Signal Systems</h3>
                 <p>Payload integrity, authorized decryption, and forensic evidence logs at the Signal Observatory.</p>
-                <button className="edu-btn-link" onClick={() => go('faculty')}>Meet lab instructors →</button>
+                <button className="edu-btn-link" onClick={() => go('faculty')}>Meet lab instructors â†’</button>
               </article>
             </div>
 
             <section className="edu-subblock">
-              <h3>Quadrangle Dispatches</h3>
+              <h3>From the academy</h3>
               <div className="edu-grid-3">
                 {school.bulletins.map(item => (
                   <article key={item.id} className="edu-card">
-                    <span className="edu-eyebrow">{item.tag} · {item.date}</span>
+                    <span className="edu-eyebrow">{item.tag} Â· {item.date}</span>
                     <h4>{item.title}</h4>
                     <p>{item.summary}</p>
                   </article>
@@ -131,8 +119,8 @@ export default function CyberiumSite({
       </main>
 
       <footer className="edu-footer">
-        <span><Terminal size={12} style={{ verticalAlign: 'middle' }} /> {school.name} · {school.location}</span>
-        <span>{school.domain} · {school.motto}</span>
+        <span><Terminal size={12} style={{ verticalAlign: 'middle' }} /> {school.name} Â· {school.location}</span>
+        <span>{school.domain} Â· {school.motto}</span>
       </footer>
     </div>
   );

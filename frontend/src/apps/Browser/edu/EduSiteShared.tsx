@@ -696,7 +696,7 @@ export function EduNetworkDirectoryBar({
 }) {
   return (
     <div className="edu-network-strip" aria-label="Meridion Higher Education Network">
-      <span><ShieldCheck size={12} /> MERIDION ACCREDITED .EDU NETWORK</span>
+      <span><ShieldCheck size={12} /> Meridion Higher Education</span>
       <div className="edu-network-links">
         {INSTITUTIONS.map(inst => (
           <a
@@ -708,7 +708,7 @@ export function EduNetworkDirectoryBar({
               navigateTab(`https://${inst.domain}`);
             }}
           >
-            {inst.shortName} ({inst.domain})
+            {inst.shortName}
           </a>
         ))}
       </div>

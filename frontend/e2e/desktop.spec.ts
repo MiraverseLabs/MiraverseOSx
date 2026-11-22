@@ -40,7 +40,7 @@ test('desktop apps open, maximize and retain appearance after reload', async ({ 
 test('browser restores its page and bookmark after reload and reopening the window', async ({ page }) => {
   await login(page); await openApp(page, 'VERSENET');
   const browser = page.locator('.os-window[data-app=browser]');
-  const address = browser.getByRole('textbox', { name: 'Search VerseNet or enter a web address', exact: true });
+  const address = browser.getByRole('combobox', { name: 'Search VerseNet or enter a web address', exact: true });
   await address.fill('https://firstfederal.aure/maintenance');
   await address.press('Enter');
   await expect(address).toHaveValue('https://firstfederal.aure/maintenance');
@@ -61,7 +61,7 @@ test('PULSE opens the Dispatch website and preserves reading across reload', asy
   await portal.screenshot({ path: '../output/previews/pulse-portal.png' });
   await portal.getByRole('button', { name: 'Open Meridion Dispatch', exact: true }).click();
   const browser = page.locator('.os-window[data-app=browser]');
-  const address = browser.getByRole('textbox', { name: 'Search VerseNet or enter a web address', exact: true });
+  const address = browser.getByRole('combobox', { name: 'Search VerseNet or enter a web address', exact: true });
   await expect(address).toHaveValue('https://dispatch.mer');
   const news = browser.getByRole('region', { name: 'The Meridion Dispatch', exact: true });
   await expect(news.getByRole('heading', { name: 'The front page', exact: true })).toBeVisible();
@@ -99,7 +99,7 @@ test('Dispatch keeps search context through saved views and supports keyboard na
   await page.getByRole('button', { name: 'Open Meridion Dispatch', exact: true }).click();
   const browser = page.locator('.os-window[data-app=browser]');
   const news = browser.getByRole('region', { name: 'The Meridion Dispatch', exact: true });
-  const address = browser.getByRole('textbox', { name: 'Search VerseNet or enter a web address', exact: true });
+  const address = browser.getByRole('combobox', { name: 'Search VerseNet or enter a web address', exact: true });
   await news.getByRole('button', { name: 'Economy', exact: true }).click();
   await news.getByRole('searchbox', { name: 'Search news', exact: true }).fill('contract compensation');
   await news.getByRole('searchbox', { name: 'Search news', exact: true }).press('Enter');

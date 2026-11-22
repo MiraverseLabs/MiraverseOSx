@@ -164,6 +164,8 @@ export default function BrowserApp() {
     const [filter, setFilter] = useState('');
     const [reload, setReload] = useState(0);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [suggestionIndex, setSuggestionIndex] = useState(-1);
+    const addressRef = useRef<HTMLInputElement>(null);
     const addressContainerRef = useRef<HTMLDivElement>(null);
 
     const pageRef = React.useRef<HTMLElement>(null);
@@ -197,16 +199,31 @@ export default function BrowserApp() {
     const filteredSuggestions = QUICK_NAVIGATION_TARGETS.filter(target => {
         const query = addressInput.trim().toLowerCase().replace(/^https?:\/\//, '');
         return target.domain.includes(query) || target.title.toLowerCase().includes(query);
-    });
+    }).slice(0, 8);
+
+    useEffect(() => { setSuggestionIndex(-1); }, [addressInput, activeTabId]);
+
+    const handleBrowserKey = (event: React.KeyboardEvent) => {
+        if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+        if (event.key.toLowerCase() === 'l') {
+            event.preventDefault(); addressRef.current?.focus(); addressRef.current?.select();
+        } else if (event.key.toLowerCase() === 't' && tabs.length < MAX_BROWSER_TABS) {
+            event.preventDefault(); openTab(BROWSER_HOME);
+            setTimeout(() => { addressRef.current?.focus(); addressRef.current?.select(); }, 0);
+        } else if (event.key.toLowerCase() === 'w' && tabs.length > 1) {
+            event.preventDefault(); closeTab(activeTabId);
+        }
+    };
 
     // Determine security badge for current URL
     const currentUrl = activeTab.url || '';
-    const isAureSuite = currentUrl.includes('auresuite.aure');
-    const isOnion = currentUrl.includes('.onion') || currentUrl.includes('vectornet.aure');
-    const isVerifiedCivic = currentUrl.includes('.gov') || currentUrl.includes('bank.aure') || currentUrl.includes('faithmed.aure') || currentUrl.includes('cyacademy.edu') || currentUrl.includes('cyberium.edu') || currentUrl.includes('dawn.edu');
+    const hostname = new URL(currentUrl).hostname;
+    const isAureSuite = hostname === 'auresuite.aure';
+    const isOnion = hostname.endsWith('.onion') || hostname === 'vectornet.aure';
+    const isVerifiedCivic = IN_GAME_PORTALS.some(site => site.domain === hostname && ['GOV', 'SECURE', 'HEALTH', 'ACADEMIC', 'DEEDS', 'ARCHIVE'].includes(site.badge)) || ['dga.gov', 'finance.oryn.gov'].includes(hostname);
 
     return (
-        <div className="versenet-browser">
+        <div className="versenet-browser" onKeyDown={handleBrowserKey}>
             <div className="vn-tabs" role="tablist" aria-label="Browser tabs">
                 {tabs.map(tab => (
                     <div className={`vn-tab ${tab.id === activeTabId ? 'is-active' : ''}`} key={tab.id}>
@@ -241,7 +258,9 @@ export default function BrowserApp() {
                 </button>
 
                 {/* Enhanced Omnibox with Security Badge & Autocomplete Dropdown */}
-                <div ref={addressContainerRef} className="relative flex-1 flex">
+                <div ref={addressContainerRef} className="relative flex-1 flex" onBlur={event => {
+                    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setShowSuggestions(false);
+                }}>
                     <form 
                         className="vn-address w-full relative" 
                         onSubmit={event => { 
@@ -251,25 +270,25 @@ export default function BrowserApp() {
                         }}
                     >
                         {/* Dynamic Security Badge */}
-                        <div className="flex items-center pl-1 shrink-0" title={isOnion ? 'Encrypted Onion Network' : isAureSuite ? 'AureSuite Cloud Productivity' : isVerifiedCivic ? 'Aureline Verified Civic Domain' : 'Versenet Network'}>
+                        <div className="vn-site-identity" title={isOnion ? 'Private relay' : isAureSuite ? 'AureSuite' : isVerifiedCivic ? 'Listed in the VerseNet directory' : 'Website address'}>
                             {isOnion ? (
-                                <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200">
-                                    <Terminal size={11} /> ONION
-                                </span>
+                                <Lock size={14} />
                             ) : isAureSuite ? (
-                                <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
-                                    <Sparkles size={11} /> SUITE
-                                </span>
+                                <Sparkles size={14} />
                             ) : isVerifiedCivic ? (
-                                <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                                    <ShieldCheck size={11} /> SECURE
-                                </span>
+                                <ShieldCheck size={14} />
                             ) : (
                                 <Globe size={14} className="text-slate-500" />
                             )}
                         </div>
 
                         <input 
+                            ref={addressRef}
+                            role="combobox"
+                            aria-autocomplete="list"
+                            aria-expanded={showSuggestions && filteredSuggestions.length > 0}
+                            aria-controls={showSuggestions && filteredSuggestions.length > 0 ? 'vn-address-suggestions' : undefined}
+                            aria-activedescendant={showSuggestions && suggestionIndex >= 0 ? `vn-suggestion-${suggestionIndex}` : undefined}
                             aria-label="Search VerseNet or enter a web address" 
                             value={addressInput} 
                             onChange={event => {
@@ -281,6 +300,15 @@ export default function BrowserApp() {
                                 setShowSuggestions(true);
                             }} 
                             spellCheck={false}
+                            onKeyDown={event => {
+                                if (event.key === 'Escape') { event.preventDefault(); setShowSuggestions(false); setSuggestionIndex(-1); }
+                                else if (['ArrowDown', 'ArrowUp'].includes(event.key) && filteredSuggestions.length) {
+                                    event.preventDefault(); setShowSuggestions(true);
+                                    setSuggestionIndex(index => event.key === 'ArrowDown' ? (index + 1) % filteredSuggestions.length : (index <= 0 ? filteredSuggestions.length - 1 : index - 1));
+                                } else if (event.key === 'Enter' && showSuggestions && suggestionIndex >= 0) {
+                                    event.preventDefault(); navigateTab(filteredSuggestions[suggestionIndex].url); setShowSuggestions(false); addressRef.current?.blur();
+                                }
+                            }}
                         />
 
                         <button type="button" className={`vn-icon ${saved ? 'is-saved' : ''}`} aria-label={saved ? 'Remove current bookmark' : 'Bookmark this page'} aria-pressed={saved} onClick={toggleBookmark}>
@@ -293,30 +321,31 @@ export default function BrowserApp() {
 
                     {/* Instant Omnibox Autocomplete Dropdown */}
                     {showSuggestions && filteredSuggestions.length > 0 && (
-                        <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 divide-y divide-slate-100 overflow-hidden font-sans">
-                            <div className="p-2 bg-slate-50 text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider flex items-center justify-between">
-                                <span>Versenet Domain Suggestions</span>
-                                <span>{filteredSuggestions.length} Results</span>
-                            </div>
-                            <div className="max-h-60 overflow-y-auto">
-                                {filteredSuggestions.map(target => (
+                        <div className="vn-suggestions-menu">
+                            <div className="vn-suggestions-label">Websites <span>↑ ↓ to browse · Enter to open</span></div>
+                            <div id="vn-address-suggestions" role="listbox" aria-label="Website suggestions">
+                                {filteredSuggestions.map((target, index) => (
                                     <button
+                                        id={`vn-suggestion-${index}`}
+                                        role="option"
+                                        aria-selected={index === suggestionIndex}
+                                        tabIndex={-1}
                                         key={target.url}
                                         type="button"
                                         onClick={() => {
                                             navigateTab(target.url);
                                             setShowSuggestions(false);
                                         }}
-                                        className="w-full p-2.5 flex items-center justify-between text-left hover:bg-slate-50 transition cursor-pointer text-xs"
+                                        className="vn-suggestion-option"
                                     >
                                         <div className="min-w-0 flex-1">
-                                            <div className="font-bold text-slate-900 truncate flex items-center gap-1.5">
+                                            <div className="vn-suggestion-title">
                                                 <span>{target.title}</span>
-                                                <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.2 rounded font-normal">
+                                                <span className="vn-suggestion-category">
                                                     {target.category}
                                                 </span>
                                             </div>
-                                            <div className="text-[11px] font-mono text-slate-500 truncate">{target.url}</div>
+                                            <div className="vn-suggestion-url">{target.domain}</div>
                                         </div>
                                         <ArrowUpRight size={14} className="text-slate-400 ml-2 shrink-0" />
                                     </button>
@@ -400,8 +429,8 @@ export default function BrowserApp() {
                 )}
             </div>
             <footer className="vn-status">
-                <span>VERSENET</span>
-                <span>{externalWebUrl(activeTab.url) || activeTab.url.startsWith(SERVICE_DIRECTORY) ? 'External Internet gateway' : 'VerseNet network'} · {tabs.length} / {MAX_BROWSER_TABS} tabs</span>
+                <span>{hostname}</span>
+                <span>{externalWebUrl(activeTab.url) ? 'External website' : 'VerseNet'} <span className="vn-key-hint">· Ctrl / ⌘ L to enter an address</span></span>
             </footer>
         </div>
     );
