@@ -12,21 +12,42 @@ namespace MiraverseOSx.Ai
         private readonly AiCostController _costController;
         private readonly GeminiProvider _gemini;
         private readonly OpenAiProvider _openAi;
+        private readonly OpenAiProvider _groq;
 
         public AiRouterService(
             NpcMemoryRepository memoryRepo,
             AiCostController costController,
             GeminiProvider gemini,
-            OpenAiProvider openAi)
+            OpenAiProvider openAi,
+            OpenAiProvider groq)
         {
             _memoryRepo = memoryRepo;
             _costController = costController;
             _gemini = gemini;
             _openAi = openAi;
+            _groq = groq;
         }
 
         public NpcMemoryRepository MemoryRepo => _memoryRepo;
         public AiCostController CostController => _costController;
+
+        public bool GeminiConfigured => _gemini.IsConfigured;
+        public bool OpenAiConfigured => _openAi.IsConfigured;
+        public bool GroqConfigured => _groq.IsConfigured;
+        public string ActiveProvider => GetProviderOrder(null).FirstOrDefault() ?? "native-persona";
+
+        private IEnumerable<string> GetProviderOrder(string? preference)
+        {
+            string preferred = (string.IsNullOrWhiteSpace(preference)
+                ? Environment.GetEnvironmentVariable("AI_PREFERRED_PROVIDER") ?? ""
+                : preference).Trim().ToLowerInvariant();
+            if (preferred == "gemini") preferred = "google-gemini";
+            var configured = new List<string>();
+            if (GeminiConfigured) configured.Add("google-gemini");
+            if (OpenAiConfigured) configured.Add("openai");
+            if (GroqConfigured) configured.Add("groq");
+            return configured.OrderBy(id => id == preferred ? 0 : 1);
+        }
 
         public async Task<AiChatResponse> ChatAsync(AiChatRequest request)
         {
@@ -39,7 +60,8 @@ namespace MiraverseOSx.Ai
             if (scopedInvestigation && string.IsNullOrWhiteSpace(request.ContextScope))
                 throw new ArgumentException("Investigation requests require a context scope.");
             // Different dockets, restored memories and changed evidence must never share a response.
-            string cacheWorkspace = activeApp;
+            var providerOrder = GetProviderOrder(request.PreferredProvider).ToList();
+            string cacheWorkspace = activeApp + "|providers:" + string.Join(",", providerOrder) + "|tokens:" + maxTokens;
             if (!string.IsNullOrEmpty(request.Context) || !string.IsNullOrEmpty(request.ContextScope))
                 cacheWorkspace += "|" + Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(request.ContextScope + "|" + request.Context)));
 
@@ -87,10 +109,7 @@ namespace MiraverseOSx.Ai
                 };
             }
 
-            // 5. Dual-provider execution with smart failover
-            string preferred = (request.PreferredProvider ?? "").ToLowerInvariant();
-            bool preferOpenAi = preferred == "openai";
-
+            // 5. Try the preferred configured provider, then the remaining providers.
             string generatedText = string.Empty;
             string providerUsed = string.Empty;
             string modelUsed = string.Empty;
@@ -98,73 +117,37 @@ namespace MiraverseOSx.Ai
             int completionTokens = 0;
             double cost = 0.0;
 
-            if (preferOpenAi && _openAi.IsConfigured)
+            foreach (string provider in providerOrder)
             {
                 try
                 {
-                    (generatedText, promptTokens, completionTokens) = await _openAi.GenerateAsync(systemPrompt, prompt, maxTokens);
-                    providerUsed = "openai";
-                    modelUsed = _openAi.ModelName;
-                }
-                catch
-                {
-                    // Failover to Gemini if OpenAI fails
-                    if (_gemini.IsConfigured)
-                    {
-                        try
-                        {
-                            (generatedText, promptTokens, completionTokens) = await _gemini.GenerateAsync(systemPrompt, prompt, maxTokens);
-                            providerUsed = "google-gemini";
-                            modelUsed = _gemini.ModelName;
-                        }
-                        catch { /* fall through to deterministic */ }
-                    }
-                }
-            }
-            else
-            {
-                // Default: Try Google Gemini first (cost-effective & high throughput)
-                if (_gemini.IsConfigured)
-                {
-                    try
+                    if (provider == "google-gemini")
                     {
                         (generatedText, promptTokens, completionTokens) = await _gemini.GenerateAsync(systemPrompt, prompt, maxTokens);
-                        providerUsed = "google-gemini";
                         modelUsed = _gemini.ModelName;
                     }
-                    catch
+                    else
                     {
-                        // Failover to OpenAI
-                        if (_openAi.IsConfigured)
-                        {
-                            try
-                            {
-                                (generatedText, promptTokens, completionTokens) = await _openAi.GenerateAsync(systemPrompt, prompt, maxTokens);
-                                providerUsed = "openai";
-                                modelUsed = _openAi.ModelName;
-                            }
-                            catch { /* fall through to deterministic */ }
-                        }
+                        var client = provider == "groq" ? _groq : _openAi;
+                        (generatedText, promptTokens, completionTokens) = await client.GenerateAsync(systemPrompt, prompt, maxTokens);
+                        modelUsed = client.ModelName;
+                    }
+                    if (!string.IsNullOrWhiteSpace(generatedText))
+                    {
+                        providerUsed = provider;
+                        break;
                     }
                 }
-                else if (_openAi.IsConfigured)
-                {
-                    try
-                    {
-                        (generatedText, promptTokens, completionTokens) = await _openAi.GenerateAsync(systemPrompt, prompt, maxTokens);
-                        providerUsed = "openai";
-                        modelUsed = _openAi.ModelName;
-                    }
-                    catch { /* fall through to deterministic */ }
-                }
+                catch { /* Try the next configured provider, then deterministic fallback. */ }
             }
 
-            // 6. Offline / Deterministic fallback if both providers fail or are unconfigured
+            // 6. Offline / Deterministic fallback if all providers fail or are unconfigured
             if (string.IsNullOrWhiteSpace(generatedText))
             {
                 generatedText = GenerateDeterministicResponse(npc, prompt, activeApp, "No remote cloud provider connected.");
                 providerUsed = "native-persona";
                 modelUsed = "deterministic-offline";
+                promptTokens = completionTokens = 0;
                 _costController.StoreInCache(npc, prompt, cacheWorkspace, generatedText, modelUsed, providerUsed);
             }
             else

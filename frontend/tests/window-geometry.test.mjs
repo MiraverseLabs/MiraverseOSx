@@ -22,6 +22,8 @@ test('maximized windows reserve system controls and restore returns the original
     assert.equal(fullscreen.top, fullscreen.menu);
     assert.equal(fullscreen.width, w);
     assert.equal(fullscreen.height, h - fullscreen.menu - fullscreen.dock);
+    assert.equal(fullscreen.top, 36);
+    assert.equal(fullscreen.top + fullscreen.height, h, 'The floating dock must not reserve a strip below the app');
     assert.deepEqual(fitWindow(w, h, 2, false), original);
   }
 });

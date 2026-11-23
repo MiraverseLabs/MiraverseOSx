@@ -2,7 +2,7 @@ import { getProfile as personasProfile } from '../game-content/characters/collec
 /**
  * MIRAVERSE OS x — NPC Dialogue & Persona Engine (TypeScript)
  * Integrates with the C# Backend AI Controller (/api/ai/chat) powered by
- * Google Gemini + OpenAI with persistent SQLite NPC memories, cost limits,
+ * Google Gemini + OpenAI + Groq with persistent SQLite NPC memories, cost limits,
  * and deterministic offline fallbacks.
  */
 
@@ -91,6 +91,8 @@ export class NPCEngine {
               ? 'Google Gemini'
               : data.provider === 'openai'
               ? 'OpenAI'
+              : data.provider === 'groq'
+              ? 'Groq'
               : 'Native Persona Engine';
 
           return {

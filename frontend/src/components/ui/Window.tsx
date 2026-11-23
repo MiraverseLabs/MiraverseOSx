@@ -9,6 +9,7 @@ import { APPS_DIRECTORY } from '../desktop/appDirectory';
 import AppGlyph, { appTone } from './AppGlyph';
 import { fitWindow, boundWindowOffset } from './windowGeometry';
 import AppErrorBoundary from './AppErrorBoundary';
+import { WindowChromeContext } from './WindowChrome';
 
 export interface WindowProps {
   win: any;
@@ -29,6 +30,8 @@ export default function Window({ win, isFocusMode = false, windowIndex = 0 }: Wi
   const dragControls = useDragControls();
   const reducedMotion = useReducedMotion();
   const windowElement = useRef<HTMLDivElement>(null);
+  const [chromeTarget, setChromeTarget] = useState<HTMLDivElement | null>(null);
+  const [integratedChrome, setIntegratedChrome] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fullscreenError, setFullscreenError] = useState('');
   useEffect(() => {
@@ -84,7 +87,7 @@ export default function Window({ win, isFocusMode = false, windowIndex = 0 }: Wi
   const startDrag = (e: React.PointerEvent) => {
     if (win.isMaximized || isFullscreen) return;
     const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('input') || target.closest('a')) return;
+    if (target.closest('button, input, a, [data-window-interactive]')) return;
     focusWindow(win.id);
     dragControls.start(e);
   };
@@ -125,6 +128,7 @@ export default function Window({ win, isFocusMode = false, windowIndex = 0 }: Wi
       data-maximized={!!win.isMaximized}
       data-tone={appTone(win.id)}
       data-app={win.contentKey || win.id}
+      data-integrated-chrome={integratedChrome}
       role="region"
       aria-label={app?.label || win.title || win.id}
       style={{
@@ -140,7 +144,7 @@ export default function Window({ win, isFocusMode = false, windowIndex = 0 }: Wi
         style={{ cursor: win.isMaximized || isFullscreen ? 'default' : 'grab' }}
         onPointerDown={startDrag}
         onDoubleClick={(event) => {
-          if ((event.target as HTMLElement).closest('button')) return;
+          if ((event.target as HTMLElement).closest('button, [data-window-interactive]')) return;
           if (isFullscreen) return;
           if (soundEnabled) SoundFX.playSnap();
           toggleMaximize(win.id);
@@ -148,8 +152,9 @@ export default function Window({ win, isFocusMode = false, windowIndex = 0 }: Wi
       >
         <div className="os-window__identity">
           <AppGlyph icon={app?.icon || Grid2X2} appId={win.id} size="small" />
-          <div className="os-window__name"><strong>{app?.label || win.title || win.id}</strong><small>{app?.code || 'MIRAVERSE'} / {app?.category || 'Workspace'}</small></div>
+          <div className="os-window__name"><strong>{app?.label || win.title || win.id}</strong></div>
         </div>
+        <div ref={setChromeTarget} className="os-window__app-chrome" data-window-interactive="true" />
 
         {/* Window Controls: Minimize, Maximize, Close */}
         <div className="os-window__controls">
@@ -195,7 +200,9 @@ export default function Window({ win, isFocusMode = false, windowIndex = 0 }: Wi
       {/* Shared application frame; each app owns its navigation and workspace. */}
       {fullscreenError && <div role="status" className="mira-window-status"><span>{fullscreenError}</span><button type="button" onClick={() => setFullscreenError('')} aria-label="Dismiss window message"><X size={13} /></button></div>}
       <div className="os-window__body">
-        <AppErrorBoundary onClose={() => closeWindow(win.id)}><Body /></AppErrorBoundary>
+        <WindowChromeContext.Provider value={{ target: chromeTarget, setIntegrated: setIntegratedChrome }}>
+          <AppErrorBoundary onClose={() => closeWindow(win.id)}><Body /></AppErrorBoundary>
+        </WindowChromeContext.Provider>
       </div>
     </motion.div>
   );

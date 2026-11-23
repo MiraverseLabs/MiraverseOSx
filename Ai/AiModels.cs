@@ -116,6 +116,9 @@ namespace MiraverseOSx.Ai
         [JsonPropertyName("openAiConfigured")]
         public bool OpenAiConfigured { get; set; }
 
+        [JsonPropertyName("groqConfigured")]
+        public bool GroqConfigured { get; set; }
+
         [JsonPropertyName("activeProvider")]
         public string ActiveProvider { get; set; } = string.Empty;
     }

@@ -53,7 +53,7 @@ export async function selectKnownFacts(
     });
     if (!response.ok) return fallback;
     const data = await response.json();
-    if (!["openai", "google-gemini"].includes(data.provider)) return fallback;
+    if (!["openai", "google-gemini", "groq"].includes(data.provider)) return fallback;
     const decoded = JSON.parse(
       String(data.text || "").replace(/^```(?:json)?\s*|\s*```$/g, ""),
     );

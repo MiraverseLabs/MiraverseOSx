@@ -58,6 +58,8 @@ export default defineConfig({
   server: {
     port: 3000,
     open: false,
+    // Test sources and generated HTML reports must not reload an active game session.
+    watch: { ignored: ['**/e2e/**', '**/tests/**', '**/test-results/**', '**/playwright-report/**', '**/storybook-static/**'] },
     proxy: {
       '/api': {
         target: 'http://localhost:5000',

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { isEduUrl } from './edu/eduRouter';
 import { isFaithMedUrl } from './medical/faithMedRouter';
 import SearchHome from './SearchHome';
+import { WindowTitlebarContent } from '../../components/ui/WindowChrome';
 import BrowserTabGroups from './BrowserTabGroups';
 import { NEWS_SITE } from './news/newsSite';
 import { BROWSER_HOME, MAX_BROWSER_TABS, resolveBrowserInput, IN_GAME_PORTALS } from './browserModel';
@@ -229,7 +230,7 @@ export default function BrowserApp() {
 
     return (
         <div className="versenet-browser" onKeyDown={handleBrowserKey}>
-            <div className="vn-tabs" role="tablist" aria-label="Browser tabs">
+            <WindowTitlebarContent><div className="vn-tabs" role="tablist" aria-label="Browser tabs">
                 {tabs.map(tab => (
                     <div className={`vn-tab ${tab.id === activeTabId ? 'is-active' : ''} ${tab.groupId ? 'is-grouped' : ''}`} key={tab.id}>
                         <button role="tab" aria-selected={tab.id === activeTabId} aria-controls="vn-page" id={`vn-tab-${tab.id}`} onClick={() => activate(tab.id)} title={tab.url}>
@@ -247,7 +248,7 @@ export default function BrowserApp() {
                 <button className="vn-icon" onClick={() => openTab(BROWSER_HOME)} disabled={tabs.length >= MAX_BROWSER_TABS} aria-label="New tab" title={`New tab (${tabs.length}/${MAX_BROWSER_TABS})`}>
                     <Plus size={16}/>
                 </button>
-            </div>
+            </div></WindowTitlebarContent>
 
             <div className="vn-toolbar">
                 <button className="vn-icon" onClick={goBack} disabled={!history || history.index === 0} aria-label="Back">

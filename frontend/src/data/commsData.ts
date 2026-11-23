@@ -329,7 +329,7 @@ export const INITIAL_EMAILS: EmailItem[] = [
     recipient: 'Player Scholar',
     recipientAddress: 'scholar@cyacademy.edu',
     faction: 'Cyberium Academy Admin',
-    subject: 'Welcome to MIRAVERSEOSX',
+    subject: 'Welcome to MiraverseOSx',
     time: '08:00 AM',
     timestamp: '2026-03-06T08:00:00.000Z',
     read: false,
@@ -375,7 +375,7 @@ export const INITIAL_EMAILS: EmailItem[] = [
     
 Your provisional Cyberium Academy registration has been received. Your record currently contains no verified credits, no active contacts, no declared career track, no reputation standing, and no confirmed housing beyond temporary placement.
 
-This is expected. MIRAVERSEOSX begins from a clean state so every player builds their identity through choices, work, study, relationships, and discovery.
+This is expected. MiraverseOSx begins from a clean state so every player builds their identity through choices, work, study, relationships, and discovery.
 
 Enclosed are two separate items:
 1. Your official REGISTRATION_CARD.pdf record (for inspection or archiving in File Explorer / Document Studio).
@@ -387,7 +387,7 @@ Registration Office`,
   {
     id: 'MSG-002',
     threadId: 'THR-002',
-    sender: 'MIRAVERSEOSX Account Services',
+    sender: 'MiraverseOSx Account Services',
     senderAddress: 'accounts@auremail.aure',
     senderMaid: 'MAID-OR-00000100',
     recipient: 'Player Citizen',
@@ -557,7 +557,7 @@ Visit faithmed.aure in Browser or reply to this thread to coordinate with Dr. Mi
   {
     id: 'MSG-006',
     threadId: 'THR-006',
-    sender: 'MIRAVERSEOSX Comms Services',
+    sender: 'MiraverseOSx Comms Services',
     senderAddress: 'relay@auremail.aure',
     senderMaid: 'MAID-OR-00000100',
     recipient: 'Player Citizen',
@@ -575,7 +575,7 @@ Visit faithmed.aure in Browser or reply to this thread to coordinate with Dr. Mi
     linkedApp: 'comms',
     attachment: null,
     attachments: [],
-    body: `Welcome to the MIRAVERSEOSX Communications Suite:
+    body: `Welcome to the MiraverseOSx Communications Suite:
 
 • AureMail (Universal Email): Handles all personal, academic, professional, and institutional correspondence across your verified MAID-linked addresses (@auremail.aure, @cyacademy.edu, @worknet.aure, @dga.gov, @faithmed.aure), including threaded conversations, official document filings, and verified disbursements.
 • COMMS Portal: Handles real-time OS-native chat rooms, municipal alert feeds, tactical squad channels, and instant direct messaging.

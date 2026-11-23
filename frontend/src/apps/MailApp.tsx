@@ -1162,7 +1162,7 @@ function MailWorkspace() {
           {!isComposing && (selectedMail ? (
             <div className="flex h-full flex-col space-y-4">
               <MailOrganizationBar ids={selectedBulkIds.length ? selectedBulkIds : selectedConversationIds} />
-              <div className="rounded-2xl border border-slate-300/80 bg-white p-5 shadow-sm space-y-3">
+              <div className="mail-reading-surface space-y-3">
                 <div className="flex flex-wrap items-start justify-between gap-2 border-b border-slate-200 pb-3">
                   <div>
                     <div className="flex items-center gap-2">

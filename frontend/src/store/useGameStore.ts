@@ -5,6 +5,8 @@ import { missionDirector } from '../gameplay/MissionDirector';
 import { harmonyEngine } from '../gameplay/HarmonyEngine';
 import { npcEngine } from '../gameplay/NPCEngine';
 import { useOSStore } from './useOSStore';
+import { WORKNET_ASSIGNMENTS } from '../gameplay/ActivityEngine';
+import { isWorldPaused } from '../integration/worldStateManager';
 
 declare global {
   interface External {
@@ -81,7 +83,7 @@ export interface GameStoreState {
   registerPlayer: (profileData: Partial<GameStoreState['player']>) => Promise<void>;
   requestTick: () => void;
   requestMission: () => void;
-  completeMission: (missionId: string) => void;
+  completeMission: (missionId: string) => { ok: boolean; reason?: string };
   requestNPCDialogue: (npcName: string, prompt: string) => Promise<void>;
   requestSpellResolution: (element: string, power: number, runeLevel: number) => void;
   handlePhotinoResponse: (data: { action: string; payload: any }) => void;
@@ -192,50 +194,33 @@ export const useGameStore = create<GameStoreState>((setStore, getStore) => ({
   },
 
   requestMission: () => {
-    const p = getStore().player;
-    const newMission = missionDirector.generateMission(p.level);
+    const player = useOSStore.getState().gameplay.player;
+    const newMission = missionDirector.generateMission(player.level);
     setStore((state) => ({
       missions: [newMission, ...state.missions.slice(0, 4)]
     }));
     sendToPhotinoHost('mission_result', newMission);
   },
 
+  // Legacy callers must use the same receipts and one-time payment rules as WORKNET.
+  // Generated OperationMission objects are previews, not independently payable work orders.
   completeMission: (missionId) => {
-    const state = getStore();
-    const mission = state.missions.find((m) => m.id === missionId);
-    if (!mission) return;
-
-    const rewardXP = mission.rewards?.xp || 200;
-    const rewardCredits = mission.rewards?.credits || 300;
-
-    // Synchronize directly with the canonical OS progression store (100 XP per level)
     const osState = useOSStore.getState();
-    osState.addXP(rewardXP);
-    osState.addCredits(rewardCredits);
-    const osPlayer = useOSStore.getState().gameplay.player;
-
-    const newXP = osPlayer?.xp ?? state.player.xp + rewardXP;
-    const newLevel = Math.floor(newXP / 100) + 1;
-    const newCredits = osPlayer?.credits ?? state.player.credits + rewardCredits;
-
-    const updatedWorld = {
-      ...state.worldState,
-      corruption_level: Math.max(0, Math.round((state.worldState.corruption_level - 1.5) * 10) / 10),
-      prism_harmonic: Math.min(100, Math.round((state.worldState.prism_harmonic + 1.2) * 10) / 10)
-    };
-
-    setStore({
-      player: {
-        ...state.player,
-        xp: newXP,
-        level: newLevel,
-        credits: newCredits
-      },
-      worldState: updatedWorld,
-      missions: state.missions.filter((m) => m.id !== missionId)
-    });
-
-    getStore().registerPlayer({});
+    if (!osState.isLoggedIn || isWorldPaused()) {
+      return { ok: false, reason: 'Log in and resume the world before finalizing work.' };
+    }
+    const assignment = Object.hasOwn(WORKNET_ASSIGNMENTS, missionId) ? WORKNET_ASSIGNMENTS[missionId] : undefined;
+    if (!assignment) {
+      return { ok: false, reason: 'Generated operations are previews. Complete a verified WORKNET assignment to receive rewards.' };
+    }
+    const result = osState.completeWorknetMission(assignment);
+    if (!result.ok) return result;
+    const player = useOSStore.getState().gameplay.player;
+    setStore(state => ({
+      player: { ...state.player, xp: player.xp, level: player.level, credits: player.credits },
+      missions: state.missions.filter(mission => mission.id !== missionId),
+    }));
+    return result;
   },
 
   requestNPCDialogue: async (npcName, prompt) => {

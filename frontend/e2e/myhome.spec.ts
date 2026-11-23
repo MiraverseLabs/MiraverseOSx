@@ -16,6 +16,7 @@ async function openHome(page: Page, malformed = false) {
 }
 test('suite actions show accurate rest recovery and install furnishings with a receipt',async ({page}) => {
   const home=await openHome(page);
+  await expect(home.locator('.suite-room')).toHaveAttribute('data-renderer','ready');
   await expect(home.getByRole('heading',{name:'Rest a while.'})).toBeVisible();
   await home.getByRole('button',{name:'Short rest',exact:true}).click();
   await expect(home.locator('.myhome-recovery')).toContainText('55');
@@ -34,8 +35,51 @@ test('suite actions show accurate rest recovery and install furnishings with a r
   const xp=async()=>page.evaluate(async()=>{const {useOSStore}=await import('/src/store/useOSStore.ts' as string);return useOSStore.getState().gameplay.player.xp;});
   const before=await xp();
   await home.getByRole('button',{name:/Aelita Hopper/}).click();
+  await expect(home.getByRole('heading',{name:'Make room for company.'})).toBeVisible();
   await home.getByRole('button',{name:/Aelita Hopper/}).click();
   expect(await xp()).toBe(before+15);
+});
+
+test('Phaser room supports furniture clicks, keyboard selection, lighting and clean remounts', async ({page}) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  const home = await openHome(page);
+  const room = home.locator('.suite-room');
+  await expect(room).toHaveAttribute('data-renderer', 'ready');
+  await expect(room.locator('canvas')).toHaveCount(1);
+  await expect(room.getByRole('button', {name:'Reduced motion'})).toBeDisabled();
+  const canvas = room.locator('canvas');
+  const bounds = await canvas.boundingBox();
+  await canvas.click({position:{x:bounds!.width * .74, y:bounds!.height * .40}});
+  await expect(home.getByRole('heading', {name:'A moment to focus.'})).toBeVisible();
+  const keepsakes = room.getByRole('button', {name:'Keepsakes Your collection'});
+  await keepsakes.focus();
+  await page.keyboard.press('Enter');
+  await expect(home.getByRole('heading', {name:'Things with a story.'})).toBeVisible();
+  await home.getByRole('combobox', {name:'Room lighting'}).selectOption('starlight');
+  await expect(room).toHaveAttribute('data-lighting','starlight');
+  await expect(room).toContainText('The city beneath the two moons');
+  await home.getByRole('button', {name:'Pinboard',exact:true}).click();
+  await expect(home.locator('.suite-room canvas')).toHaveCount(0);
+  await home.getByRole('button', {name:'Your suite',exact:true}).click();
+  await expect(room).toHaveAttribute('data-renderer','ready');
+  await expect(room.locator('canvas')).toHaveCount(1);
+  expect(errors).toEqual([]);
+  await page.setViewportSize({width:1200,height:1400});
+  await home.getByRole('combobox', {name:'Room lighting'}).selectOption('warm');
+  await room.scrollIntoViewIfNeeded();
+  await mkdir('../output/previews',{recursive:true});
+  await room.screenshot({path:'../output/previews/suite-4b-phaser.png'});
+});
+
+test('room controls remain usable when the scene artwork cannot load', async ({page}) => {
+  await page.route('**/images/housing/suite-4b-evening.webp', route => route.abort());
+  const home = await openHome(page);
+  await expect(home.locator('.suite-room')).toHaveAttribute('data-renderer','fallback');
+  await home.getByRole('button', {name:'Study Window desk'}).click();
+  await expect(home.getByRole('heading', {name:'A moment to focus.'})).toBeVisible();
+  await home.getByRole('button', {name:'Rest Bedroom'}).click();
+  await expect(home.getByRole('heading', {name:'Rest a while.'})).toBeVisible();
 });
 test('pinboard and lighting persist, dreams start empty, and the layout fits a narrow window',async ({page})=>{
   const home=await openHome(page);

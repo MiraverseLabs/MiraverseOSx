@@ -155,7 +155,7 @@ export default function MeridionLandingPage({ onSignIn, onEnroll, onDirectLaunch
       <footer className="relative z-10 border-t border-purple-500/20 py-8 px-8 text-center text-xs text-purple-400/60 font-mono">
         <div className="flex items-center justify-center gap-2 mb-2">
           <Sparkles size={14} className="text-purple-400" />
-          <span className="font-serif-y2k font-bold text-purple-200">MIRAVERSE OS</span>
+          <span className="font-serif-y2k font-bold text-purple-200">MiraverseOSx</span>
         </div>
         <p>© MERIDION REALM • ALL CITIZEN RIGHTS RESERVED</p>
       </footer>

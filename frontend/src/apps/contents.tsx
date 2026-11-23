@@ -16,13 +16,13 @@ export const APPS = [
   { id: 'jobs', title: 'WORKNET // Federal Access', icon: Briefcase, category: 'Workplace Portals' },
   { id: 'process', title: 'Process Monitor', icon: Cpu, category: 'Security' },
   { id: 'housing', title: 'My Home · Suite 4B', icon: Home, category: 'Personal Apps' },
-  { id: 'finance', title: 'ORYN // Treasury & Crypto Ledger', icon: Shield, category: 'Personal Apps' },
+  { id: 'finance', title: 'ORYN // Personal Treasury', icon: Shield, category: 'Personal Apps' },
   { id: 'vitals', title: 'VITALS // Bio-Aura Matrix', icon: Activity, category: 'Personal Apps' },
   { id: 'campus', title: 'CAMPUS // Academic Registrar', icon: BookOpen, category: 'Education' },
   { id: 'study', title: 'AureLearn // Student LMS', icon: Bookmark, category: 'Education' },
   { id: 'spellforge', title: 'SpellForge // Protocol Lab', icon: Sparkles, category: 'Education' },
-  { id: 'browser', title: 'VERSENET // Browser', icon: Globe, category: 'Versenet Web' },
-  { id: 'mail', title: 'AureMail // Digital Email', icon: Mail, category: 'Communication' },
+  { id: 'browser', title: 'VerseNet', icon: Globe, category: 'Versenet Web' },
+  { id: 'mail', title: 'AureMail', icon: Mail, category: 'Communication' },
   { id: 'post', title: 'Meridion Post // Packages & Mail', icon: Package, category: 'Personal Apps' },
   { id: 'comms', title: 'COMMS // Institutional Network', icon: MessageSquare, category: 'Workplace Portals' },
   { id: 'passport', title: 'Citizen Hub', icon: UserCheck, category: 'Personal Apps' },
@@ -195,7 +195,7 @@ export const CONTENTS = {
   process: withSuspense(ProcessMonitorApp, 'Process Monitor'),
   housing: withSuspense(HousingApp, 'My Home · Suite 4B'),
   jobs: withSuspense(JobWorkstationApp, 'Career Workstation'),
-  finance: withSuspense(FinanceTerminal, 'Oryn Finance Ledger'),
+  finance: withSuspense(FinanceTerminal, 'Oryn Personal Treasury'),
 };
 
 export const getContent = (key) => CONTENTS[key] || (() => <Panel>Nothing here yet.</Panel>);

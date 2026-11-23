@@ -1,7 +1,7 @@
 /**
- * MIRAVERSE OS x — Mission & Operations Director Engine (TypeScript)
- * Generates procedural city operations, tracks multi-tier progression
- * (Journeys, Adventures, Quests, Tasks, Missions), and computes rewards.
+ * MiraverseOSx procedural operation previews.
+ * Playable work, receipt validation, hierarchy and payment live in WORKNET's
+ * ActivityEngine / ProgressionEngine and canonical OS store.
  */
 
 export interface OperationReward {
@@ -71,9 +71,13 @@ export class MissionDirector {
 
   /**
    * Procedurally generates a field operation or city mission calibrated to player level,
-   * including verifiable objective steps, prerequisites, and world consequences.
+   * including proposed objectives, prerequisites, and world consequences.
+   * Generating or checking a preview does not authorize a reward.
    */
   public generateMission(playerLevel = 1, preferredRegion?: string): OperationMission {
+    playerLevel = Number.isSafeInteger(playerLevel) && playerLevel > 0
+      ? Math.min(playerLevel, Math.floor(Number.MAX_SAFE_INTEGER / 500))
+      : 1;
     const id = `MIS-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
     const type = this.MISSION_TYPES[Math.floor(Math.random() * this.MISSION_TYPES.length)];
     const region = preferredRegion && this.REGIONS.includes(preferredRegion)
@@ -135,8 +139,8 @@ export class MissionDirector {
   }
 
   public verifyObjectivesComplete(mission: OperationMission): boolean {
-    if (!mission.objectives || mission.objectives.length === 0) return true;
-    return mission.objectives.every((obj) => obj.completed);
+    if (!Array.isArray(mission?.objectives) || mission.objectives.length === 0) return false;
+    return mission.objectives.every(obj => obj && typeof obj.id === 'string' && obj.id.length > 0 && obj.completed === true);
   }
 }
 

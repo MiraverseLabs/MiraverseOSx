@@ -109,13 +109,11 @@ Character content is organized by named person, with identity metadata and profi
 
 This matters particularly for investigations: a character's case-context status is not necessarily a universal statement about the person across every other record.
 
-### Agent orchestration prototype
+### AI providers and memory
 
-The supplied `docs/agent-orchestrator` code includes a Node.js HTTP server, an external Groq inference path, a MAI-oriented response context, a workflow dashboard, and four tool definitions covering civic-record queries, VerseNet lore, OS control, and SpellForge rune synthesis.
+MAI and NPC dialogue use the main C# `/api/ai/chat` router, with optional Gemini, OpenAI, and Groq providers. Configure credentials and models in `.env` using `.env.example`. `AI_PREFERRED_PROVIDER` accepts `gemini` (or `google-gemini`), `openai`, or `groq`; a request's `preferredProvider` overrides that default. The preferred configured provider runs first, followed by the remaining configured providers in Gemini, OpenAI, Groq order. Failed or empty responses fall through to the next provider, then the deterministic persona engine.
 
-**Prototype boundary:** The included tool handlers currently return illustrative, hardcoded, or randomized responses. The example server's tool selection is based on prompt keywords rather than a complete, validated agent action protocol. Its local inference fallback also returns a simulation message rather than an equivalent model response. These prototypes should not be described as authenticated production integrations or authoritative access to world data.
-
-The intended direction is to connect AI capabilities to real game state, explicit permissions, auditable actions, and consistent failure reporting.
+Provider identity is reported in responses, cost logs, and `/api/ai/telemetry`, including `groqConfigured`. Telemetry's `activeProvider` identifies the first configured provider under the default preference, not a guarantee of remote availability. SQLite NPC memories, MAI personas, shared world memory, investigation context isolation, and daily budget limits remain in the main system. The separate experimental Groq agent server and its simulated tools have been retired.
 
 ## Civic identity, institutions, and permissions
 
@@ -210,7 +208,7 @@ This status summary uses conservative descriptions based on the supplied files, 
 | DGAOS investigation and operations | Extensive implementation notes and reported automated verification |
 | TRACE forensic integration | Documented case-linked workflow and persistence behavior |
 | Civic, social, academic, and financial applications | Described system responsibilities; current implementation depth not fully established by this archive |
-| AI agent orchestration | Inspectable HTTP/inference prototype with simulated or hardcoded tool outputs |
+| AI dialogue routing | Optional Gemini, OpenAI, and Groq providers with persona fallback and persistent NPC memories |
 | Autonomous NPC daily life | Core project direction; end-to-end operational status not established by the supplied archive |
 | Full cross-system simulation | Architectural objective with selected documented integrations; overall completeness unverified |
 
@@ -237,7 +235,7 @@ The project documentation is divided between gameplay and system implementation,
 | `docs/DGAOS-BUILD-BATCHES.md` | Agency-system implementation batches, workflows, fixes, and reported validation |
 | `docs/data/README.md` | Character content ownership, migration, data rules, and persistence boundaries |
 | `docs/data/CHARACTER_INVENTORY.md` | Character directory and resolved identity conflicts |
-| `docs/agent-orchestrator/` | Current supplied MAI/Groq agent prototype and tool definitions |
+| `Ai/` | Main AI router, optional cloud providers, and persistent NPC memories |
 | `docs/npc_profiles.docx` | NPC profile material |
 | `docs/familytree.pdf` | Relationship and family reference |
 | `docs/Meridion_ The Seven Realms Map.png` | Existing geographic visual reference requiring title/canon reconciliation |

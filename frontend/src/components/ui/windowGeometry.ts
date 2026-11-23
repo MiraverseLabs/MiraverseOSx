@@ -1,5 +1,7 @@
 export const WINDOW_RATIO = 16 / 9;
-export function desktopInsets(width:number,height:number){return {menu:width<800?104:64,dock:height<500?64:84};}
+export const DESKTOP_MENU_HEIGHT = 36;
+// The dock floats above the desktop and collapses while applications are open.
+export function desktopInsets(_width:number,_height:number){return {menu:DESKTOP_MENU_HEIGHT,dock:0};}
 
 export function fitWindow(screenW: number, screenH: number, index = 0, maximized = false) {
   const insets=desktopInsets(screenW,screenH);

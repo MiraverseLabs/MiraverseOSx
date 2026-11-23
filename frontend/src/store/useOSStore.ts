@@ -1,3 +1,5 @@
+import { createBankingActions, type BankingActions } from './bankingActions';
+import { journalBalanceChange, restoreBanking } from '../gameplay/Banking';
 import { createProcessActions, type ProcessActions } from './processActions';
 import { restoreProcessMonitor } from '../gameplay/ProcessMonitor';
 import { createAcademicActions, recordAcademicCompilation, type AcademicActions } from './academicActions';
@@ -64,7 +66,7 @@ export interface OSWindow {
   [key: string]: any;
 }
 
-export interface OSStoreState extends ProcessActions, AcademicActions, AssignmentFlowActions, ProgressionActions, VersenetActions, SiteActions, BroadStreetActions, SocialActions {
+export interface OSStoreState extends BankingActions, ProcessActions, AcademicActions, AssignmentFlowActions, ProgressionActions, VersenetActions, SiteActions, BroadStreetActions, SocialActions {
   isLoggedIn: boolean;
   isSanctuary: boolean;
   toggleSanctuary: () => void;
@@ -212,7 +214,14 @@ export interface OSStoreState extends ProcessActions, AcademicActions, Assignmen
   setWallpaper: (url: string) => void;
 }
 
-export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
+export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
+  const set: typeof rawSet = (update: any) => rawSet(state => {
+    const patch = typeof update === 'function' ? update(state) : update;
+    if (!patch?.gameplay?.player) return patch;
+    const player = journalBalanceChange(state.gameplay.player, patch.gameplay.player);
+    return player === patch.gameplay.player ? patch : { ...patch, gameplay: { ...patch.gameplay, player } };
+  });
+  return ({
   isLoggedIn: false,
   isSanctuary: false,
   toggleSanctuary: () => set((s) => ({ isSanctuary: !s.isSanctuary })),
@@ -898,6 +907,7 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
       };
     }),
 
+  ...createBankingActions(set, get),
   ...createProcessActions(set, get),
   ...createAcademicActions(set, get),
   ...createWorknetActions(set, get),
@@ -2231,7 +2241,7 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
   clearActive: () => set({ activeWindowId: null }),
 
   setWallpaper: (url) => set({ wallpaper: url }),
-}), {
+}); }, {
   name: 'miraverse-os-progress',
   version: 1,
   storage: createJSONStorage(() => osStorage),
@@ -2247,7 +2257,7 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
       versenetSites: restoreVersenetSites(saved?.versenetSites),
       browserState,
       browserUrl: browserState.tabs.find(tab => tab.id === browserState.activeTabId)!.url,
-      gameplay: (() => { const gameplay = mergeSavedProgress(current.gameplay, saved?.gameplay); return { ...gameplay, player: { ...gameplay.player, processMonitor: restoreProcessMonitor(gameplay.player.processMonitor) } }; })(),
+      gameplay: (() => { const gameplay = mergeSavedProgress(current.gameplay, saved?.gameplay); return { ...gameplay, player: { ...gameplay.player, banking: restoreBanking(gameplay.player.banking), processMonitor: restoreProcessMonitor(gameplay.player.processMonitor) } }; })(),
       wallpaper: typeof saved?.wallpaper === 'string' ? saved.wallpaper : current.wallpaper,
       isLoggedIn: typeof saved?.isLoggedIn === 'boolean' ? saved.isLoggedIn : current.isLoggedIn,
     };

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
+import { useWindowChrome } from './WindowChrome';
 
 export interface AppShellProps {
     children: React.ReactNode;
@@ -24,9 +25,10 @@ export interface AppToolbarProps {
 }
 
 export function AppToolbar({ icon: Icon, title, subtitle, actions, className }: AppToolbarProps) {
+    const embedded = !!useWindowChrome();
     return (
-        <header className={twMerge('app-toolbar', className)}>
-            <div className="flex min-w-0 items-center gap-3">
+        <header className={twMerge('app-toolbar', className)} data-embedded={embedded} aria-label={typeof title === 'string' ? `${title} tools` : 'Application tools'}>
+            {!embedded && <div className="flex min-w-0 items-center gap-3">
                 {Icon && (
                     <span className="app-toolbar__icon" aria-hidden="true">
                         <Icon size={16} />
@@ -36,7 +38,7 @@ export function AppToolbar({ icon: Icon, title, subtitle, actions, className }: 
                     <h1 className="app-toolbar__title">{title}</h1>
                     {subtitle && <p className="app-toolbar__subtitle">{subtitle}</p>}
                 </div>
-            </div>
+            </div>}
             {actions && <div className="app-toolbar__actions">{actions}</div>}
         </header>
     );

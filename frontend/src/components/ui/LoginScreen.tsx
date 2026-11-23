@@ -103,7 +103,7 @@ export default function LoginScreen({ onLoginSuccess, initialMode = 'login', onB
           </div>
           <div>
             <h1 className="font-display text-3xl font-bold tracking-wide text-[#FFFFFF] drop-shadow-[0_0_12px_rgba(229,195,112,0.35)]">
-              MIRAVERSE OS
+              MiraverseOSx
             </h1>
             <p className="text-[10px] font-ui tracking-[0.25em] text-[#FBE6AB] mt-1 uppercase font-bold">
               CELESTIAL OPERATING SYSTEM • BOOT VER 5.3
@@ -211,7 +211,7 @@ export default function LoginScreen({ onLoginSuccess, initialMode = 'login', onB
           onClick={handleAdminBypass}
           disabled={isBooting}
           className="w-full rounded-2xl border border-amber-400/60 bg-gradient-to-r from-amber-500/20 via-amber-400/10 to-amber-500/20 p-3.5 text-amber-300 font-bold text-xs hover:bg-amber-400/30 hover:border-amber-300 transition-all duration-200 shadow-[0_0_20px_rgba(251,191,36,0.2)] flex items-center justify-center gap-2 group"
-          title="Bypass login and open MIRAVERSE OS with Administrator Level 4 Clearance"
+          title="Bypass login and open MiraverseOSx with Administrator Level 4 Clearance"
         >
           <ShieldAlert size={16} className="text-amber-400 group-hover:animate-bounce" />
           <span>⚡ ADMIN INSTANT ACCESS (BYPASS)</span>

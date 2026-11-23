@@ -88,7 +88,7 @@ test('the university and community sites retain distinct layouts at wide and nar
   }
   for (const domain of ['faithmed.aure', 'dga.gov.aure', 'bank.aure', 'shipping.aure']) {
     await navigate(page, `https://${domain}`);
-    const portal = browser.locator('.vn-service-portal');
+    const portal = browser.locator('.vn-service-portal, .bank-workspace');
     await expect(portal.getByRole('heading', { level: 1 })).toBeVisible();
     await browser.screenshot({ path: `../output/previews/versenet-${domain.split('.')[0]}.png` });
     await page.setViewportSize({ width: 560, height: 920 });
@@ -136,7 +136,7 @@ test('fresh browser openings show Home and restore only explicitly grouped tabs'
   await panel.getByRole('button', { name: 'Close browser library' }).click();
   await browser.getByRole('button', { name: 'New tab', exact: true }).click();
   await address.fill('bank.aure'); await address.press('Enter');
-  await expect(browser.locator('.vn-service-portal h1')).toHaveText('First Federal Bank of Aureline');
+  await expect(browser.locator('.bank-workspace h1')).toHaveText('Everyday banking.');
   await browser.getByRole('button', { name: 'Close', exact: true }).click();
   await page.evaluate(async () => (await import('/src/store/useOSStore.ts' as string)).useOSStore.getState().openAppWorkspace('browser'));
   await expect(address).toHaveValue('https://versenet.aure');

@@ -72,7 +72,7 @@ namespace MiraverseOSx
             var costController = new AiCostController(memoryRepo);
             var geminiProvider = new GeminiProvider(_httpClient);
             var openAiProvider = new OpenAiProvider(_httpClient);
-            var routerService = new AiRouterService(memoryRepo, costController, geminiProvider, openAiProvider);
+            var routerService = new AiRouterService(memoryRepo, costController, geminiProvider, openAiProvider, new OpenAiProvider(_httpClient, isGroq: true));
             _aiHttpHandler = new AiHttpHandler(routerService);
             var serverOnly = Array.Exists(args, value => value == "--server-only");
             int requestedPort = int.TryParse(Argument("--port"), out var parsedPort) && parsedPort is >= 1024 and <= 65535 ? parsedPort : 5000;

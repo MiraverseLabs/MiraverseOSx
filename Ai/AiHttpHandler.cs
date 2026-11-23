@@ -83,19 +83,16 @@ namespace MiraverseOSx.Ai
                 if (relPath.Equals("api/ai/telemetry", StringComparison.OrdinalIgnoreCase) && request.HttpMethod == "GET")
                 {
                     var (spend, count) = _router.MemoryRepo.GetDailyMetrics(DateTime.UtcNow);
-                    bool geminiOk = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("GEMINI_API_KEY"));
-                    bool openAiOk = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("OPENAI_API_KEY"));
-                    string active = geminiOk ? "google-gemini" : (openAiOk ? "openai" : "native-persona");
-
                     var telemetry = new AiTelemetryResponse
                     {
                         DailyBudgetUsd = _router.CostController.DailyBudgetUsd,
                         DailySpentUsd = spend,
                         TotalRequestsToday = count,
                         CacheHitsToday = _router.CostController.CacheHitsToday,
-                        GeminiConfigured = geminiOk,
-                        OpenAiConfigured = openAiOk,
-                        ActiveProvider = active
+                        GeminiConfigured = _router.GeminiConfigured,
+                        OpenAiConfigured = _router.OpenAiConfigured,
+                        GroqConfigured = _router.GroqConfigured,
+                        ActiveProvider = _router.ActiveProvider
                     };
 
                     await SendJsonResponse(response, 200, telemetry);

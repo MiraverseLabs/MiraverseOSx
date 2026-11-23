@@ -913,6 +913,12 @@ test("connected AI selects only known IDs and malformed or unavailable providers
       /openai/,
     );
     globalThis.fetch = async () =>
+      Response.json({ provider: "groq", text: '{"factIds":["known"]}' });
+    assert.match(
+      (await selectKnownFacts("case-a", "Witness", facts, "Courier badge?", [])).source,
+      /groq/,
+    );
+    globalThis.fetch = async () =>
       Response.json({
         provider: "openai",
         text: '{"factIds":["secret-from-another-case"]}',

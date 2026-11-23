@@ -15,29 +15,28 @@ namespace MiraverseOSx.Ai
         private readonly string? _initialApiKey;
         private readonly string? _initialModel;
 
-        public OpenAiProvider(HttpClient httpClient)
+        // Groq uses the OpenAI wire format, but has independent credentials and identity.
+        public OpenAiProvider(HttpClient httpClient, bool isGroq = false)
         {
             _httpClient = httpClient;
-            _initialApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
-            _initialModel = Environment.GetEnvironmentVariable("OPENAI_MODEL");
+            IsGroq = isGroq;
+            _initialApiKey = Environment.GetEnvironmentVariable(KeyVariable);
+            _initialModel = Environment.GetEnvironmentVariable(ModelVariable);
         }
 
-        private string? ApiKey => Environment.GetEnvironmentVariable("OPENAI_API_KEY")
-            ?? Environment.GetEnvironmentVariable("GROQ_API_KEY")
-            ?? _initialApiKey;
-
+        private string KeyVariable => IsGroq ? "GROQ_API_KEY" : "OPENAI_API_KEY";
+        private string ModelVariable => IsGroq ? "GROQ_MODEL" : "OPENAI_MODEL";
+        private string? ApiKey => Environment.GetEnvironmentVariable(KeyVariable) ?? _initialApiKey;
         public bool IsConfigured => !string.IsNullOrWhiteSpace(ApiKey);
-
-        public bool IsGroq => string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("OPENAI_API_KEY"))
-            && !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("GROQ_API_KEY"));
-
-        public string ModelName => IsGroq
-            ? (Environment.GetEnvironmentVariable("GROQ_MODEL") ?? "openai/gpt-oss-20b")
-            : (Environment.GetEnvironmentVariable("OPENAI_MODEL") ?? _initialModel ?? "gpt-4o-mini");
-
+        public bool IsGroq { get; }
+        public string ProviderId => IsGroq ? "groq" : "openai";
+        public string ModelName => NonBlank(Environment.GetEnvironmentVariable(ModelVariable),
+            NonBlank(_initialModel, IsGroq ? "openai/gpt-oss-20b" : "gpt-4o-mini"));
         public string Endpoint => IsGroq
             ? "https://api.groq.com/openai/v1/chat/completions"
-            : (Environment.GetEnvironmentVariable("OPENAI_ENDPOINT") ?? "https://api.openai.com/v1/chat/completions");
+            : NonBlank(Environment.GetEnvironmentVariable("OPENAI_ENDPOINT"), "https://api.openai.com/v1/chat/completions");
+
+        private static string NonBlank(string? value, string fallback) => string.IsNullOrWhiteSpace(value) ? fallback : value;
 
         public async Task<(string Text, int PromptTokens, int CompletionTokens)> GenerateAsync(
             string systemPrompt,
@@ -48,7 +47,7 @@ namespace MiraverseOSx.Ai
             var apiKey = ApiKey;
             if (string.IsNullOrWhiteSpace(apiKey))
             {
-                throw new InvalidOperationException("Neither OPENAI_API_KEY nor GROQ_API_KEY is configured.");
+                throw new InvalidOperationException($"{KeyVariable} is not configured.");
             }
 
             string endpoint = Endpoint;
@@ -73,12 +72,12 @@ namespace MiraverseOSx.Ai
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(TimeSpan.FromSeconds(8));
 
-            HttpResponseMessage response = await _httpClient.SendAsync(request, cts.Token);
+            using HttpResponseMessage response = await _httpClient.SendAsync(request, cts.Token);
             string responseBody = await response.Content.ReadAsStringAsync(cts.Token);
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException($"OpenAI API error (Status {response.StatusCode}): {responseBody}");
+                throw new HttpRequestException($"{ProviderId} API error (Status {response.StatusCode}): {responseBody}");
             }
 
             var root = JsonNode.Parse(responseBody);

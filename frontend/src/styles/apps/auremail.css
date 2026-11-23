@@ -6,6 +6,7 @@
 .auremail-client .mail-folders { width: 190px; min-width: 172px; max-width: 210px; background: #edf3f2; }
 .auremail-client .mail-list { width: 30%; min-width: 230px; max-width: 340px; }
 .auremail-client .mail-reader { padding: 20px; overflow-wrap: anywhere; }
+.auremail-client .mail-reading-surface { padding:0; background:transparent; border:0; border-radius:0; box-shadow:none; }
 .auremail-client .mail-message-row { padding: 16px; border-radius: 10px; }
 .mail-density-compact .mail-message-row { padding: 9px 12px; }
 .mail-density-compact .mail-message-row > p { -webkit-line-clamp: 1; }

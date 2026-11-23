@@ -158,3 +158,31 @@ html .mira-desktop .settings-theme-option, html .mira-desktop .settings-wallpape
 @media (prefers-reduced-motion: reduce) {
   .os-window, .os-window *, .mira-button, .mira-control { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* One native frame per app. Only the shared window owns its outer border. */
+html .mira-desktop .os-window[data-app] { outline:0; border-color:var(--os-border); }
+.os-window__body > :where(div, section, main):not([role=dialog]) {
+  margin:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  max-width:none;
+}
+.os-window[data-integrated-chrome=false] .os-window__app-chrome { display:none; }
+.os-window__app-chrome { flex:1; min-width:0; height:100%; }
+.os-window__identity, .os-window__controls { flex-shrink:0; }
+.os-window[data-integrated-chrome=true] .os-window__titlebar { gap:10px; }
+.os-window[data-app=browser] { --vn-line:var(--os-border); --vn-ink:var(--os-text); --vn-hover:var(--os-raised); }
+.os-window__app-chrome .vn-tabs { width:100%; height:100%; min-height:0; padding:5px 0 0; border:0; background:transparent; align-items:stretch; }
+.os-window__app-chrome .vn-tab { min-width:90px; flex-basis:190px; border-radius:6px 6px 0 0; }
+.os-window__app-chrome .vn-tab.is-active { background:var(--os-surface); border-color:var(--os-border); }
+.os-window__app-chrome .vn-tab>button[role=tab] { padding:5px 9px; font:12px var(--font-ui); }
+.os-window__app-chrome .vn-icon { flex-shrink:0; width:28px; align-self:center; }
+.os-window__app-chrome :where(button):focus-visible { outline:2px solid var(--os-focus); outline-offset:-3px; }
+.os-window .app-toolbar[data-embedded=true] { min-height:48px; flex:0 0 auto; padding:8px 16px; background:var(--os-surface); backdrop-filter:none; }
+.os-window .app-toolbar[data-embedded=true] .app-toolbar__actions { flex:1; width:100%; }
+.os-window .app-toolbar[data-embedded=true] .app-toolbar__actions>div { width:100%; }
+@media(max-width:600px) {
+  .os-window[data-integrated-chrome=true] .os-window__identity .os-window__name { display:none; }
+  .os-window[data-integrated-chrome=true] .os-window__titlebar { gap:5px; padding-inline:7px; }
+}

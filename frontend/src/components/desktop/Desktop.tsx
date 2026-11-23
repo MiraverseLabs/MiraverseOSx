@@ -28,6 +28,24 @@ import { getCelestialState } from '../../data/meridionWorld';
 export default function Desktop() {
   const { isLoggedIn, windows, isSanctuary, gameplay, wallpaper, logoutUser } = useOSStore();
   const [editing,setEditing]=useState(false);
+  const editingWindows = useRef<{ ids: string[]; active: string | null } | null>(null);
+  const finishEditing = () => {
+    setEditing(false);
+    const previous = editingWindows.current;
+    editingWindows.current = null;
+    if (previous) useOSStore.setState(state => ({
+      windows: state.windows.map(win => previous.ids.includes(win.id) ? { ...win, isMinimized: false } : win),
+      activeWindowId: state.windows.some(win => win.id === previous.active) ? previous.active : state.activeWindowId,
+    }));
+  };
+  const toggleEditing = () => {
+    if (editing) { finishEditing(); return; }
+    const state = useOSStore.getState();
+    editingWindows.current = { ids: state.windows.filter(win => !win.isMinimized).map(win => win.id), active: state.activeWindowId };
+    useOSStore.setState({ windows: state.windows.map(win => ({ ...win, isMinimized: true })), activeWindowId: null });
+    setEditing(true);
+    setIsPhoneOpen(false);
+  };
   const {soundEnabled,toggleSound}=useSystemStore();
   const incomingCalls=useOSStore(state=>Object.values(state.gameplay.player.assignmentJournal?.dispatches||{}).filter((d:any)=>d.channel==='phone'&&!d.heardAt).length);
   const celestial = getCelestialState(gameplay?.timeCycleCount ?? 28);
@@ -61,10 +79,11 @@ export default function Desktop() {
         event.preventDefault();
         setIsLauncherOpen((open) => !open);
       }
+      if (event.key === 'Escape' && editing && !isLauncherOpen) finishEditing();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isLoggedIn]);
+  }, [isLoggedIn, editing, isLauncherOpen]);
 
   if (!isLoggedIn) {
     if (authMode) return <LoginScreen initialMode={authMode} onLoginSuccess={(userData) => { useOSStore.getState().loginUser(userData); setAuthMode(null); }} onBackToLanding={() => setAuthMode(null)} />;
@@ -72,10 +91,10 @@ export default function Desktop() {
   }
 
   return (
-    <DesktopMusicProvider><main className="mira-desktop" data-theme={themeId} style={desktopThemeStyle(themeId) as React.CSSProperties}>
+    <DesktopMusicProvider><main className="mira-desktop" data-theme={themeId} data-editing={editing} data-app-open={windows.some(win => !win.isMinimized)} style={desktopThemeStyle(themeId) as React.CSSProperties}>
       {wallpaper ? <div className="personal-wallpaper-image" aria-hidden="true" style={{ backgroundImage: `linear-gradient(#20132d44, #20132d66), url(${JSON.stringify(wallpaper)})` }}/> : <PurpleWallpaper animated={!reducedMotion && pageVisible}/>}
       <header className="desktop-menubar">
-        <div className="desktop-wordmark"><img src={logoIcon} alt="" /><strong>MIRAVERSE<span>OS x</span></strong><span className="desktop-menu-divider" /><span className="desktop-location">Aureline</span></div>
+        <div className="desktop-wordmark"><img src={logoIcon} alt="" /><strong>MiraverseOSx</strong><span className="desktop-menu-divider" /><span className="desktop-location">{editing ? 'Editing widgets' : 'Aureline'}</span></div>
         <div className="desktop-menubar-right">
           <button
             type="button"
@@ -93,13 +112,13 @@ export default function Desktop() {
         </div>
       </header>
       <div ref={appWorkspaceRef} className="desktop-workspace">
-        <DesktopSurface editing={editing} onDoneEditing={() => setEditing(false)}/>
+        <DesktopSurface editing={editing} onDoneEditing={finishEditing}/>
         {isSanctuary && <SanctuaryOverlay />}
       </div>
       <AnimatePresence>{windows.filter((win) => !win.isMinimized).map((win) => <Window key={win.id} win={win} windowIndex={windows.findIndex((candidate) => candidate.id === win.id)} isFocusMode={true} workspaceRef={appWorkspaceRef} />)}</AnimatePresence>
       {isPhoneOpen && <div className="desktop-phone"><PhoneWidget onClose={() => setIsPhoneOpen(false)} /></div>}
-      <AppLauncherModal isOpen={isLauncherOpen} onClose={() => setIsLauncherOpen(false)} editing={editing} onToggleEditing={() => { setIsLauncherOpen(false); setEditing(v => !v); }} />
-      <DesktopTaskbar onTogglePhone={() => setIsPhoneOpen((open) => !open)} onOpenLauncher={() => setIsLauncherOpen(true)} isLauncherOpen={isLauncherOpen} editing={editing} onToggleEditing={() => setEditing(v => !v)} />
+      <AppLauncherModal isOpen={isLauncherOpen} onClose={() => setIsLauncherOpen(false)} editing={editing} onToggleEditing={() => { setIsLauncherOpen(false); toggleEditing(); }} />
+      <DesktopTaskbar onTogglePhone={() => setIsPhoneOpen((open) => !open)} onOpenLauncher={() => setIsLauncherOpen(true)} isLauncherOpen={isLauncherOpen} editing={editing} onToggleEditing={toggleEditing} />
       <ToastViewport />
     </main></DesktopMusicProvider>
   );

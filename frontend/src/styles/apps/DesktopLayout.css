@@ -1,13 +1,20 @@
 /* Desktop arrangement; shared theme tokens retain the established visual style. */
-.mira-desktop { --desktop-menu-height:64px; --desktop-dock-height:84px; }
-.mira-desktop .desktop-menubar { height:var(--desktop-menu-height); min-height:var(--desktop-menu-height); padding:0 20px; display:grid; grid-template-columns:auto 1fr auto; gap:18px; position:relative; z-index:20002; }
+.mira-desktop { --desktop-menu-height:36px; --desktop-dock-height:76px; }
+html .mira-desktop .desktop-menubar { box-sizing:border-box; height:var(--desktop-menu-height); min-height:var(--desktop-menu-height); flex-shrink:0; padding:0 14px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; position:relative; z-index:20002; }
 .desktop-layout-controls { display:flex; align-items:center; justify-content:center; gap:8px; min-width:0; }
 .desktop-layout-controls select,.desktop-layout-controls button { color:var(--studio-ink); background:var(--studio-paper); border:1px solid var(--studio-line); border-radius:9px; padding:7px 10px; font:11px var(--font-ui); min-height:32px; }
 .desktop-layout-controls button { display:flex; align-items:center; gap:6px; }
-.mira-desktop .desktop-menubar-right { gap:12px; }
+.mira-desktop .desktop-menubar-right { gap:9px; justify-self:end; min-width:0; }
+.mira-desktop .desktop-wordmark { gap:8px; min-width:0; }
+.mira-desktop .desktop-wordmark img { width:20px; height:20px; }
+.mira-desktop .desktop-wordmark strong { font-size:10px; letter-spacing:.08em; }
+.mira-desktop .desktop-menubar time { font-size:10px; }
+.mira-desktop .desktop-menubar time span { margin-left:8px; }
+.mira-desktop .desktop-celestial-badge { min-height:24px; padding:2px 6px; border:0; border-radius:5px; }
+.mira-desktop .desktop-celestial-badge .moon-icon { font-size:13px; }
 .desktop-system-controls { display:flex; align-items:center; gap:3px; position:relative; }
-.desktop-system-controls>.shell-icon-button,.desktop-system-controls .mai-toggle { width:32px; height:32px; min-width:32px; padding:0; display:inline-flex; justify-content:center; align-items:center; border:1px solid #ffffff28; border-radius:8px; background:#ffffff12; color:#faf6f9; position:relative; box-shadow:none; }
-.desktop-system-controls .mai-toggle { width:auto; padding:0 8px; gap:4px; font:10px var(--font-ui); }
+.desktop-system-controls>.shell-icon-button,.desktop-system-controls .mai-toggle { width:26px; height:26px; min-width:26px; padding:0; display:inline-flex; justify-content:center; align-items:center; border:0; border-radius:5px; background:transparent; color:#faf6f9; position:relative; box-shadow:none; }
+.desktop-system-controls .mai-toggle { width:auto; padding:0 6px; gap:4px; font:10px var(--font-ui); }
 .desktop-system-controls .mai-dock { position:static; }
 .desktop-system-controls .mai-panel { position:absolute; top:calc(100% + 16px); bottom:auto; right:0; width:min(384px,calc(100vw - 24px)); max-height:calc(100dvh - 150px); overflow:auto; color:var(--studio-ink); }
 .desktop-call-count { position:absolute; top:-5px; right:-4px; border-radius:8px; font:9px var(--font-ui); padding:2px 4px; color:var(--studio-ink); background:var(--studio-soft); }
@@ -80,16 +87,7 @@
 .desktop-drag-handle { touch-action:none; cursor:grab!important; }
 .desktop-edge.is-drop-target { outline:2px dashed var(--studio-soft); outline-offset:-2px; border-radius:12px; }
 .desktop-drop-hint { color:#fff; font:12px var(--font-ui); text-align:center; padding:25px; }
-.desktop-customizer { position:absolute; top:16px; left:50%; transform:translateX(-50%); width:min(340px,calc(100% - 32px)); max-height:calc(100% - 110px); overflow:auto; z-index:3; background:var(--studio-paper); color:var(--studio-ink); padding:16px; border:1px solid var(--studio-line); border-radius:14px; box-shadow:0 8px 30px #0002; font:11px/1.5 var(--font-ui); }
-.desktop-customizer h2 { font-size:14px; margin:0; }
-.desktop-customizer p { margin:8px 0; color:var(--studio-muted); }
-.desktop-widget-picker { display:grid; grid-template-columns:1fr 1fr; gap:7px; padding:8px 0 12px; }
-.desktop-widget-picker label { display:flex; gap:5px; align-items:center; }
-.desktop-customizer form { display:flex; gap:5px; margin:10px 0; }
-.desktop-customizer form input { min-width:0; flex:1; }
-.desktop-customizer button { border:1px solid var(--studio-line); background:#fff8; padding:4px 7px; }
-.desktop-pin-row { display:flex; gap:5px; align-items:center; padding:5px 0; }
-.desktop-pin-row span { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; }
+
 .desktop-reset { margin-top:14px; }
 .desktop-music { font:11px/1.5 var(--font-ui); }
 .desktop-track { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
@@ -109,6 +107,56 @@
 .mira-desktop .desktop-taskbar { z-index:20000; bottom:14px; left:20px; right:20px; display:flex; justify-content:center; }
 .mira-desktop .desktop-dock { width:max-content; max-width:min(800px,100%); }
 @media(max-width:1100px) { .desktop-surface { grid-template-columns:260px minmax(0,1fr) 232px; gap:16px; padding:16px; } .mira-desktop .desktop-menubar { padding:0 12px; gap:10px; } .desktop-wordmark strong { font-size:10px; letter-spacing:.04em; } .desktop-location,.desktop-menu-divider { display:none; } .mira-desktop .desktop-menubar-right { gap:7px; } .desktop-menubar time { font-size:0; } .desktop-menubar time span { font-size:11px; margin:0; } }
-@media(max-width:799px) { .mira-desktop { --desktop-menu-height:104px; } .mira-desktop .desktop-menubar { grid-template-columns:auto 1fr; grid-template-rows:52px 44px; padding:0 12px 8px; gap:0 8px; } .desktop-wordmark strong { display:none; } .desktop-wordmark img { width:24px; height:24px; } .desktop-layout-controls { grid-column:1/-1; grid-row:2; } .mira-desktop .desktop-menubar-right { justify-content:flex-end; gap:6px; } .desktop-system-controls .mai-label { display:none; } .desktop-system-controls .mai-toggle { width:30px; padding:0; } .desktop-system-controls>.shell-icon-button { width:29px; min-width:29px; } .desktop-celestial-badge { padding:3px 5px; font-size:10px; gap:3px; } .desktop-surface { display:flex; flex-direction:column; overflow:auto; gap:16px; padding:16px; pointer-events:auto; } .desktop-edge { overflow:visible; min-height:auto; flex:none; padding:0; } .desktop-center { display:none; } .desktop-group-shortcuts { grid-template-columns:repeat(3,minmax(0,1fr)); } .desktop-customizer { position:fixed; top:112px; z-index:20004; max-height:calc(100dvh - 210px); } .desktop-system-controls .mai-panel { right:-30px; } }
+@media(max-width:799px) { html .mira-desktop .desktop-menubar { grid-template-columns:minmax(0,1fr) auto; grid-template-rows:36px; padding:0 8px; gap:8px; } .desktop-wordmark strong { display:none; } .desktop-wordmark img { width:20px; height:20px; } .desktop-layout-controls { grid-column:1/-1; grid-row:2; } .mira-desktop .desktop-menubar-right { justify-content:flex-end; gap:6px; } .desktop-system-controls .mai-label { display:none; } .desktop-system-controls .mai-toggle { width:26px; padding:0; } .desktop-system-controls>.shell-icon-button { width:26px; min-width:26px; } .desktop-celestial-badge { padding:3px 5px; font-size:10px; gap:3px; } .desktop-surface { display:flex; flex-direction:column; overflow:auto; gap:16px; padding:16px; pointer-events:auto; } .desktop-edge { overflow:visible; min-height:auto; flex:none; padding:0; } .desktop-center { display:none; } .desktop-group-shortcuts { grid-template-columns:repeat(3,minmax(0,1fr)); }  .desktop-system-controls .mai-panel { right:-30px; } }
 @media(max-height:499px) { .mira-desktop { --desktop-dock-height:64px; } .mira-desktop .desktop-taskbar { bottom:6px; } .mira-desktop .desktop-dock { padding:4px; } }
 @media(prefers-reduced-motion:reduce) { .desktop-widget-group { transition:none!important; } }
+
+/* The shell occupies one row. App windows use all remaining vertical space. */
+.mira-desktop[data-app-open=true] { --desktop-dock-height:0px; }
+.mira-desktop .desktop-taskbar[data-floating=true], .mira-desktop .desktop-taskbar[data-collapsed=true] { justify-content:flex-start; left:10px; right:10px; bottom:10px; }
+.mira-desktop .desktop-dock { padding:5px; gap:3px; border-radius:12px; }
+.mira-desktop .dock-app { width:34px; height:34px; flex-basis:34px; border-radius:7px; }
+.mira-desktop .dock-library { height:34px; border-radius:7px; }
+.dock-corner { display:flex; align-items:center; padding:3px; pointer-events:auto; border:1px solid var(--studio-line); border-radius:11px; background:color-mix(in srgb,var(--studio-paper) 96%,transparent); box-shadow:0 3px 14px #17122026; color:var(--studio-accent); }
+.dock-corner button { display:grid; place-items:center; border:0; background:transparent; color:inherit; padding:0; border-radius:7px; }
+.dock-corner-orbit { width:32px; height:32px; }
+.dock-corner-reveal { width:19px; height:32px; border-left:1px solid var(--studio-line)!important; border-radius:0 7px 7px 0!important; }
+.dock-corner button:hover { background:var(--studio-soft); }
+.dock-corner button:focus-visible { outline:2px solid var(--studio-accent); outline-offset:2px; }
+.mira-desktop[data-editing=true] .desktop-taskbar { display:none; }
+.desktop-surface.is-editing { right:360px; bottom:0; grid-template-columns:repeat(2,minmax(0,1fr)); }
+.desktop-surface.is-editing .desktop-center { display:none; }
+.desktop-surface.is-editing .desktop-edge { border:1px dashed #ffffff4d; border-radius:12px; padding:8px; }
+.desktop-customizer { position:absolute; inset:0 0 0 auto; width:360px; min-height:0; display:flex; flex-direction:column; z-index:5; background:var(--studio-paper); color:var(--studio-ink); border-left:1px solid var(--studio-line); box-shadow:-12px 0 36px #1712201f; font:12px/1.5 var(--font-ui); }
+.desktop-customizer-header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-shrink:0; padding:22px; border-bottom:1px solid var(--studio-line); }
+.desktop-customizer-header>div>span { color:var(--studio-muted); font-size:9px; letter-spacing:.14em; }
+.desktop-customizer-header h2 { font:400 24px/1.3 Georgia,serif; margin:5px 0 0; }
+.desktop-customizer-body { flex:1; min-height:0; overflow:auto; padding:0 22px 22px; }
+.desktop-customizer p { margin:8px 0 14px; color:var(--studio-muted); font-size:12px; }
+.desktop-customizer-intro { padding-top:18px; }
+.desktop-customizer-body>section { padding:18px 0; border-top:1px solid var(--studio-line); }
+.desktop-customizer h3 { font-size:13px; margin:0 0 12px; font-weight:600; }
+.desktop-customizer button { display:inline-flex; align-items:center; justify-content:center; gap:5px; padding:7px 9px; min-height:30px; border:1px solid var(--studio-line); background:#ffffff80; }
+.desktop-customizer .desktop-customizer-done { background:var(--studio-accent); border-color:var(--studio-accent); color:white; }
+.desktop-customizer .desktop-customizer-done:hover { background:var(--studio-accent); filter:brightness(1.1); }
+.desktop-customizer-field { display:grid; gap:7px; color:var(--studio-muted); }
+.desktop-customizer select { width:100%; min-height:34px; }
+.desktop-widget-picker { display:grid; grid-template-columns:1fr; gap:5px; }
+.desktop-widget-picker label { display:flex; align-items:center; gap:10px; padding:9px 10px; min-height:36px; border:1px solid var(--studio-line); border-radius:6px; background:#ffffff50; cursor:pointer; }
+.desktop-widget-picker label:has(input:checked) { background:var(--studio-soft); }
+.desktop-customizer .desktop-widget-picker input[type=checkbox] { width:15px; height:15px; }
+.desktop-customizer form { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+.desktop-customizer form input { flex:1; min-width:100px; }
+.desktop-pin-row { display:flex; align-items:center; gap:5px; padding:9px 0; border-bottom:1px solid var(--studio-line); }
+.desktop-pin-row>span { flex:1; min-width:0; overflow-wrap:anywhere; }
+.desktop-customizer-pins { margin-bottom:12px; }
+.desktop-customizer footer { padding-top:20px; border-top:1px solid var(--studio-line); }
+@media(max-width:799px) {
+  .desktop-surface.is-editing { right:0; bottom:52%; padding:12px; gap:12px; }
+  .desktop-customizer { inset:auto 0 0; width:100%; height:52%; border-left:0; border-top:1px solid var(--studio-line); box-shadow:0 -8px 30px #1712201f; }
+  .desktop-customizer-header { padding:12px 18px; }
+  .desktop-customizer-header h2 { font-size:21px; }
+  .desktop-customizer-body { padding-inline:18px; }
+  .desktop-widget-picker { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:380px) { .mira-desktop .desktop-celestial-badge { display:none; } }
