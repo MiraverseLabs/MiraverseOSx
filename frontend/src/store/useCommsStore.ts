@@ -250,6 +250,9 @@ export interface CommsState extends MailOrganizationActions {
   setPhoneDraft: (contact: string, text: string) => void;
   mailRequest?: { id: string; token: string };
   requestMailMessage: (id: string) => void;
+  composeAttachmentRequest?: { attachment: EmailAttachment; token: string };
+  requestComposeWithAttachment: (attachment: EmailAttachment) => void;
+  clearComposeAttachmentRequest: () => void;
   emails: EmailItem[];
   playerAccounts: AureMailAccount[];
   activeAccountAddress: string; // 'ALL' or specific AureMailAccount.address
@@ -353,6 +356,11 @@ export const useCommsStore = create<CommsState>()(
       },
       setPhoneDraft: (contact, text) => { if (Object.hasOwn(get().phoneThreads, contact)) set(s => ({ phoneDrafts: { ...s.phoneDrafts, [contact]: text } })); },
       requestMailMessage: id => { if (get().emails.some(mail => mail.id === id)) set({ mailRequest: { id, token: crypto.randomUUID() } }); },
+      requestComposeWithAttachment: attachment => {
+        if (!attachment || !attachment.name || attachment.isReward) return;
+        set({ composeAttachmentRequest: { attachment: { ...attachment, isReward: false, amount: 0, xp: 0 }, token: crypto.randomUUID() } });
+      },
+      clearComposeAttachmentRequest: () => set({ composeAttachmentRequest: undefined }),
       deliverInstitutionalEmail: email => set(s => {
         if (!email || !email.id || s.emails.some(m => m.id === email.id)) return s;
         return { emails: [email, ...s.emails] };
@@ -1041,7 +1049,7 @@ Your completed form has been verified and recorded in the institutional registry
     }),
     {
       name: 'miraverse-comms',
-      partialize: ({ phoneRequest, ...saved }) => saved,
+      partialize: ({ phoneRequest, composeAttachmentRequest, ...saved }) => saved,
       merge: (persistedState: any, currentState) => {
         const merged = { ...currentState, ...(persistedState || {}) };
         if (!Array.isArray(merged.emails) || merged.emails.length === 0) {

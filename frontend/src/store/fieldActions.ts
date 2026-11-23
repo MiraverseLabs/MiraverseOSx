@@ -1,6 +1,7 @@
 import type { OSStoreState } from './useOSStore';
 import { FIELD_MISSION, restoreFieldSession, interactField, fieldReady } from '../gameplay/FieldOperations';
 import { nextWorkStage } from '../gameplay/ActivityEngine';
+import { isWorldPaused } from '../integration/worldStateManager';
 
 export function createFieldActions(set: any, get: () => OSStoreState) {
   const active = () => {
@@ -9,6 +10,7 @@ export function createFieldActions(set: any, get: () => OSStoreState) {
   };
   return {
     fieldAction: (action: 'move' | 'interact' | 'record', payload: any) => {
+      if (isWorldPaused()) return { ok: false, message: 'The world is paused. Resume it before continuing field operations.' };
       const order = active();
       if (!order) return { ok: false, message: 'Accept the assignment and read its briefing in WORKNET first. Resolve any equipment incident before continuing.' };
       const session = restoreFieldSession(order.fieldSession);

@@ -1,0 +1,1 @@
+import{j as r}from"./framer-motion-B0GbNFm6.js";import{B as o}from"./BankingWorkspace-DEWRa_T1.js";import"./App-DzUCvO67.js";import"./index-BvlI6Rii.js";import"./lucide-icons-ClMDhjqY.js";function p(){return r.jsx(o,{})}export{p as default};

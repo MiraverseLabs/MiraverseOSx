@@ -12,6 +12,23 @@ import { createSiteActions, type SiteActions } from './siteActions';
 import { emptyVersenetSites, restoreVersenetSites, type VersenetSites } from '../apps/Browser/interactiveSites';
 import { createVersenetActions, type VersenetActions } from './versenetActions';
 import { emptyVersenetContent, restoreVersenetContent, type VersenetContent } from '../apps/Browser/searchCatalog';
+import {
+  emptyFyloState,
+  restoreFyloState,
+  createFyloFolder,
+  createPersonalNote,
+  updateFyloNote,
+  renameFyloFile,
+  moveFyloFile,
+  copyFyloFile,
+  toggleFyloFavorite,
+  retainAttachmentInFylo,
+  trashFyloFile,
+  restoreFyloFile,
+  deleteFyloFilePermanently,
+  emptyFyloTrash,
+  type FyloState,
+} from '../apps/files/fyloStore';
 import { restoreDesktopPreferences, changeDesktop, type DesktopAction, type DesktopPreferences } from './desktopPreferences';
 import { resolveAppDestination, retiredWindowDestination, type WorkspaceRequest } from './appNavigation';
 import { canAcceptInvitation, invitationForOrganization, membershipSource, organization, registerCommunicationsAuthority } from '../integration/communicationsAccess';
@@ -96,6 +113,23 @@ export interface OSStoreState extends BankingActions, ProcessActions, AcademicAc
   browserState: BrowserState;
   versenetContent: VersenetContent;
   versenetSites: VersenetSites;
+  fylo: FyloState;
+  fyloAction: (
+    action:
+      | 'createFolder'
+      | 'createNote'
+      | 'updateNote'
+      | 'rename'
+      | 'move'
+      | 'copy'
+      | 'toggleFavorite'
+      | 'retainAttachment'
+      | 'trash'
+      | 'restore'
+      | 'deletePermanent'
+      | 'emptyTrash',
+    payload?: any,
+  ) => { ok: boolean; file?: any; dir?: string; pinned?: boolean; alreadyRetained?: boolean; removedCount?: number; message?: string; reason?: string };
 
   setBrowserUrl: (url: string | null) => void;
   openBrowserTab: (url?: string, title?: string) => void;
@@ -418,6 +452,76 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   browserState: initialBrowserState(),
   versenetContent: emptyVersenetContent(),
   versenetSites: emptyVersenetSites(),
+  fylo: emptyFyloState(),
+  fyloAction: (action, payload) => {
+    const current = get().fylo;
+    if (action === 'createFolder') {
+      const res = createFyloFolder(current, payload?.name, payload?.parentDir);
+      if (res.ok) set({ fylo: res.state });
+      return { ok: res.ok, dir: res.dir, message: res.ok ? `Created folder ${res.dir}.` : res.reason, reason: res.reason };
+    }
+    if (action === 'createNote') {
+      const res = createPersonalNote(current, payload || {});
+      if (res.ok) set({ fylo: res.state });
+      return { ok: res.ok, file: res.file, message: res.ok ? `Saved ${res.file?.name} in Fylo.` : res.reason, reason: res.reason };
+    }
+    if (action === 'updateNote') {
+      const res = updateFyloNote(current, payload?.id, payload || {});
+      if (res.ok) set({ fylo: res.state });
+      return { ok: res.ok, file: res.file, message: res.ok ? `Updated ${res.file?.name}.` : res.reason, reason: res.reason };
+    }
+    if (action === 'rename') {
+      const res = renameFyloFile(current, payload?.id, payload?.name);
+      if (res.ok) set({ fylo: res.state });
+      return { ok: res.ok, file: res.file, message: res.ok ? `Renamed to ${res.file?.name}.` : res.reason, reason: res.reason };
+    }
+    if (action === 'move') {
+      const res = moveFyloFile(current, payload?.id, payload?.dir);
+      if (res.ok) set({ fylo: res.state });
+      return { ok: res.ok, file: res.file, message: res.ok ? `Moved ${res.file?.name} to ${res.file?.dir}.` : res.reason, reason: res.reason };
+    }
+    if (action === 'copy') {
+      const res = copyFyloFile(current, payload?.source, payload?.dir);
+      if (res.ok) set({ fylo: res.state });
+      return { ok: res.ok, file: res.file, message: res.ok ? `Created personal copy ${res.file?.name}.` : res.reason, reason: res.reason };
+    }
+    if (action === 'toggleFavorite') {
+      const res = toggleFyloFavorite(current, payload?.key);
+      set({ fylo: res.state });
+      return { ok: true, pinned: res.pinned, message: res.pinned ? 'Pinned to Favorites.' : 'Removed from Favorites.' };
+    }
+    if (action === 'retainAttachment') {
+      const res = retainAttachmentInFylo(current, payload || {});
+      set({ fylo: res.state });
+      return {
+        ok: true,
+        file: res.file,
+        alreadyRetained: res.alreadyRetained,
+        message: res.alreadyRetained ? `${res.file.name} is already retained in Fylo.` : `${res.file.name} saved as an independent file in Fylo.`,
+      };
+    }
+    if (action === 'trash') {
+      const res = trashFyloFile(current, payload?.id);
+      if (res.ok) set({ fylo: res.state });
+      return { ok: res.ok, message: res.ok ? 'Moved file to Trash.' : res.reason, reason: res.reason };
+    }
+    if (action === 'restore') {
+      const res = restoreFyloFile(current, payload?.id);
+      if (res.ok) set({ fylo: res.state });
+      return { ok: res.ok, message: res.ok ? 'Restored file from Trash.' : res.reason, reason: res.reason };
+    }
+    if (action === 'deletePermanent') {
+      const res = deleteFyloFilePermanently(current, payload?.id);
+      if (res.ok) set({ fylo: res.state });
+      return { ok: res.ok, message: res.ok ? 'File permanently deleted.' : res.reason, reason: res.reason };
+    }
+    if (action === 'emptyTrash') {
+      const res = emptyFyloTrash(current);
+      set({ fylo: res.state });
+      return { ok: true, removedCount: res.removedCount, message: `Removed ${res.removedCount} trashed item${res.removedCount === 1 ? '' : 's'}.` };
+    }
+    return { ok: false, reason: 'Unknown Fylo action.' };
+  },
   ...createSiteActions(set, get),
   ...createVersenetActions(set, get),
   ...createBrowserActions(set, get),
@@ -2246,7 +2350,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   version: 1,
   storage: createJSONStorage(() => osStorage),
   // Window metadata can contain React icons; recreate windows rather than serializing them.
-  partialize: ({ gameplay, wallpaper, isLoggedIn, browserState, desktopPreferences, versenetContent, versenetSites }) => ({ gameplay, wallpaper, isLoggedIn, browserState: restartBrowserSession(browserState), desktopPreferences, versenetContent, versenetSites }),
+  partialize: ({ gameplay, wallpaper, isLoggedIn, browserState, desktopPreferences, versenetContent, versenetSites, fylo }) => ({ gameplay, wallpaper, isLoggedIn, browserState: restartBrowserSession(browserState), desktopPreferences, versenetContent, versenetSites, fylo }),
   merge: (persisted, current) => {
     const saved = persisted as Partial<OSStoreState> | null;
     const browserState = restoreBrowserState(saved?.browserState);
@@ -2255,6 +2359,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
       desktopPreferences: restoreDesktopPreferences(saved?.desktopPreferences),
       versenetContent: restoreVersenetContent(saved?.versenetContent),
       versenetSites: restoreVersenetSites(saved?.versenetSites),
+      fylo: restoreFyloState(saved?.fylo),
       browserState,
       browserUrl: browserState.tabs.find(tab => tab.id === browserState.activeTabId)!.url,
       gameplay: (() => { const gameplay = mergeSavedProgress(current.gameplay, saved?.gameplay); return { ...gameplay, player: { ...gameplay.player, banking: restoreBanking(gameplay.player.banking), processMonitor: restoreProcessMonitor(gameplay.player.processMonitor) } }; })(),

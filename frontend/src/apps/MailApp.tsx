@@ -59,6 +59,9 @@ import {
 } from '../components/ui/app-shell';
 import DocumentModal from '../components/widgets/DocumentModal';
 import { attachmentDocument } from './mail/attachmentDocument';
+import { visibleFileCatalog } from './files/fileCatalog';
+import { toMailAttachment } from './files/fyloStore';
+import { resolveFileExtension } from './files/fileExtensions';
 import { useToastStore } from '../store/useToastStore';
 import CommunicationsAccessPanel from './CommunicationsAccessPanel';
 import { senderAccess } from '../integration/communicationsAccess';
@@ -107,6 +110,17 @@ function MailWorkspace() {
   const [mobileView, setMobileView] = useState('list');
   const [now, setNow] = useState(Date.now);
   const mailRequest = useMailState(state => state.mailRequest);
+  const composeAttachmentRequest = useMailState(state => state.composeAttachmentRequest);
+  const clearComposeAttachmentRequest = useMailState(state => state.clearComposeAttachmentRequest);
+  useOSStore(state => state.fylo);
+
+  useEffect(() => {
+    if (!composeAttachmentRequest?.attachment) return;
+    const att = composeAttachmentRequest.attachment;
+    setComposeAttachments((prev) => (prev.some((a) => a.id === att.id) ? prev : [...prev, att]));
+    setIsComposing(true);
+    clearComposeAttachmentRequest();
+  }, [composeAttachmentRequest?.token]);
   const pendingRequestedReader = useRef(false);
   const [activeFolder, setActiveFolder] = useState<string>('inbox');
   const [inboxTab, setInboxTab] = useState<InboxCategory>('all');
@@ -450,16 +464,28 @@ function MailWorkspace() {
     const res = saveAttachmentToVault(selectedMail.id, att.id);
     if (res.alreadySaved) {
       pushToast({
-        title: 'Already in File Explorer Vault',
-        message: `${att.name} is already archived in your personal Vault.`,
+        title: 'Already Retained in Fylo',
+        message: `${att.name} is already retained as an independent file in Fylo.`,
         tone: 'info',
       });
       return;
     }
     if (!res.ok) { pushToast({ title: 'Attachment unavailable', message: 'This attachment cannot be saved.', tone: 'warning' }); return; }
+    const doc = attachmentDocument(att, selectedMail);
+    useOSStore.getState().fyloAction('retainAttachment', {
+      id: `mail:${selectedMail.id}:${att.id}`,
+      name: att.name,
+      desc: att.previewTitle || att.previewText || 'AureMail attachment',
+      body: (doc as any).content?.bodyText || att.previewText || selectedMail.body,
+      document: doc,
+      dir: '/downloads/auremail',
+      publisher: selectedMail.sender,
+      mailId: selectedMail.id,
+      origin: 'auremail',
+    });
     pushToast({
-      title: 'Saved to File Explorer Vault',
-      message: `${att.name} (${att.version || 'v1.0'}) archived with full provenance. No automatic currency awarded.`,
+      title: 'Saved to Fylo',
+      message: `${att.name} (${att.version || 'original'}) retained as an independent file in Fylo (/downloads/auremail).`,
       tone: 'success',
     });
   };
@@ -1116,10 +1142,36 @@ function MailWorkspace() {
 
               <RichMailEditor value={composeHtml} onChange={(html, text) => { setComposeHtml(html); setComposeBody(text); }} />
 
-              {/* Vault File Attachments Selector */}
+              {/* Fylo File Attachments Selector */}
               <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                 <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="text-[10px] font-bold uppercase text-slate-400">Attach File:</span>
+                  <span className="text-[10px] font-bold uppercase text-slate-400">Attach from Fylo:</span>
+                  <select
+                    aria-label="Attach a file from Fylo"
+                    defaultValue=""
+                    onChange={(e) => {
+                      const id = e.target.value;
+                      if (!id) return;
+                      const fyloFile = visibleFileCatalog(useOSStore.getState(), emails, savedAttachmentIds).find(
+                        (f) => f.id === id,
+                      );
+                      if (fyloFile) {
+                        const att = toMailAttachment(fyloFile) as EmailAttachment;
+                        setComposeAttachments((prev) => (prev.some((a) => a.id === att.id) ? prev : [...prev, att]));
+                      }
+                      e.target.value = '';
+                    }}
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-mono text-slate-700"
+                  >
+                    <option value="">+ Choose file from Fylo…</option>
+                    {visibleFileCatalog(useOSStore.getState(), emails, savedAttachmentIds)
+                      .filter((f) => f.type !== 'folder')
+                      .map((f) => (
+                        <option key={f.id} value={f.id}>
+                          {f.name} ({f.dir})
+                        </option>
+                      ))}
+                  </select>
                   {VAULT_ATTACHABLE_FILES.map((vf) => {
                     const attached = composeAttachments.some((a) => a.id === vf.id);
                     return (
@@ -1142,6 +1194,20 @@ function MailWorkspace() {
                       </button>
                     );
                   })}
+                  {composeAttachments
+                    .filter((a) => !VAULT_ATTACHABLE_FILES.some((vf) => vf.id === a.id))
+                    .map((att) => (
+                      <button
+                        key={att.id}
+                        type="button"
+                        title={`Remove ${att.name} (${resolveFileExtension(att.name).associatedApp})`}
+                        onClick={() => setComposeAttachments((prev) => prev.filter((a) => a.id !== att.id))}
+                        className="rounded-lg border border-indigo-500 bg-indigo-50 px-2 py-0.5 text-[10px] font-mono font-bold text-indigo-800"
+                      >
+                        <Paperclip size={10} className="inline mr-1" />
+                        {att.name} ×
+                      </button>
+                    ))}
                 </div>
 
                 <div className="flex items-center gap-2">

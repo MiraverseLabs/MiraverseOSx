@@ -5,6 +5,7 @@ import { useOSStore } from '../../store/useOSStore';
 import { normalizeDocument } from './documentModel';
 import DocumentContent from './DocumentContent';
 import { canReadDocument, documentActionDestination, documentReaderSessionKey } from './documentAccess';
+import { resolveFileExtension } from '../../apps/files/fileExtensions';
 import '../../styles/apps/DocumentReader.css';
 
 interface DocumentModalProps {
@@ -28,7 +29,8 @@ function DocumentReader({ file, onClose, onSubmitForm }: DocumentModalProps) {
   const [decryptKey, setDecryptKey] = useState('');
   const [isDecrypted, setIsDecrypted] = useState(false);
   const [decryptError, setDecryptError] = useState(false);
-  const [activeAttachmentNotice, setActiveAttachmentNotice] = useState(null);
+  const [activeAttachmentNotice, setActiveAttachmentNotice] = useState<string | null>(null);
+  const [nestedAttachmentDoc, setNestedAttachmentDoc] = useState<any>(null);
   const dialog = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
@@ -73,9 +75,48 @@ function DocumentReader({ file, onClose, onSubmitForm }: DocumentModalProps) {
     }
   };
 
-  const handleOpenAttachment = (att) => {
-    setActiveAttachmentNotice(`Opening attachment [${att.name}] (${att.desc})...`);
-    setTimeout(() => setActiveAttachmentNotice(null), 3000);
+  const handleOpenAttachment = (att: any) => {
+    const spec = resolveFileExtension(att.name || 'document.txt');
+    setNestedAttachmentDoc({
+      id: `${file.id}-att-${att.id || att.name}`,
+      name: att.name,
+      filename: att.name,
+      extension: spec.dotExt,
+      type: spec.ext,
+      category: spec.category,
+      meta: {
+        classification: 'EMBEDDED DOCUMENT ENCLOSURE',
+        author: file.meta?.author || 'DOCUMENT ENCLOSURE',
+        timestamp: file.meta?.timestamp || 'WINTER',
+        fileSize: att.size || 'Saved copy',
+      },
+      security: { isEncrypted: false },
+      content: {
+        title: att.name,
+        subtitle: `${att.desc || spec.purpose} · ${spec.associatedApp}`,
+        bodyText:
+          att.body ||
+          `${att.desc || spec.purpose}\n\nSource Document: ${file.name}\nExtension: ${spec.dotExt}\nAssociated Application: ${spec.associatedApp}`,
+      },
+    });
+  };
+
+  const handleSaveAttachmentToFylo = (event: React.MouseEvent, att: any) => {
+    event.stopPropagation();
+    const spec = resolveFileExtension(att.name || 'document.txt');
+    const res = useOSStore.getState().fyloAction('retainAttachment', {
+      id: `doc:${file.id}:${att.id || att.name}`,
+      name: att.name,
+      desc: att.desc || spec.purpose,
+      body:
+        att.body ||
+        `${att.desc || spec.purpose}\n\nSaved from document: ${file.name}\nExtension: ${spec.dotExt} (${spec.associatedApp})`,
+      dir: '/documents',
+      publisher: file.meta?.author || 'Document enclosure',
+      origin: 'fylo',
+    });
+    setActiveAttachmentNotice(res.message || `Saved ${att.name} to Fylo.`);
+    setTimeout(() => setActiveAttachmentNotice(null), 3200);
   };
 
   return (
@@ -181,7 +222,16 @@ function DocumentReader({ file, onClose, onSubmitForm }: DocumentModalProps) {
                             <div className="text-[10px] text-white/50">{att.desc}</div>
                           </div>
                         </div>
-                        <span className="font-mono text-[9px] text-rose-300/80 bg-white/5 px-1.5 py-0.5 rounded">{att.size}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono text-[9px] text-rose-300/80 bg-white/5 px-1.5 py-0.5 rounded">{att.size}</span>
+                          <button
+                            type="button"
+                            onClick={(event) => handleSaveAttachmentToFylo(event, att)}
+                            className="font-mono text-[9px] text-[#f4d35e] bg-white/5 hover:bg-white/15 px-2 py-0.5 rounded border border-[#f4d35e]/30"
+                          >
+                            Save to Fylo
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -259,6 +309,9 @@ function DocumentReader({ file, onClose, onSubmitForm }: DocumentModalProps) {
         </div>
 
       </div>
+      {nestedAttachmentDoc && (
+        <DocumentModal file={nestedAttachmentDoc} onClose={() => setNestedAttachmentDoc(null)} />
+      )}
     </div>
   );
 }

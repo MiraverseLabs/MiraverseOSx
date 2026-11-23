@@ -28,7 +28,7 @@ export const APPS = [
   { id: 'passport', title: 'Citizen Hub', icon: UserCheck, category: 'Personal Apps' },
   { id: 'pulse', title: 'PULSE // News Portal', icon: Radio, category: 'Communication' },
   { id: 'maispace', title: 'mai.space // Social Network', icon: MessageSquare, category: 'Communication' },
-  { id: 'files', title: 'File Explorer', icon: Folder, category: 'Storage' },
+  { id: 'files', title: 'Fylo', icon: Folder, category: 'Storage' },
   { id: 'lore', title: 'Lore Explorer', icon: BookOpen, category: 'Database' },
   { id: 'terminal', title: 'System Terminal', icon: Terminal, category: 'Intelligence' },
   { id: 'settings', title: 'System Settings', icon: Settings, category: 'Utility' },

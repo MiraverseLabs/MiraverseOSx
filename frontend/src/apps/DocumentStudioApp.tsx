@@ -216,6 +216,29 @@ export default function DocumentStudioApp() {
     setTimeout(() => setIssuanceNotice(null), 4000);
   };
 
+  const handleSaveCurrentToFylo = () => {
+    if (!recordPermissions.allowedDocumentIds.includes(activeDocId)) {
+      setIssuanceNotice('Institutional authorization required to retain a copy of this record in Fylo.');
+      return;
+    }
+    const docInfo = DOCUMENT_TABS.find(t => t.id === activeDocId);
+    const title = docInfo?.title || 'Document';
+    const slug = `${title}_${selectedCitizen.name || 'citizen'}`.replace(/[^a-zA-Z0-9]+/g, '_');
+    const idKey = selectedCitizen.maid || selectedCitizen.record;
+    const res = useOSStore.getState().fyloAction('retainAttachment', {
+      id: `docstudio:${idKey}:${activeDocId}`,
+      name: `${slug}.doc`,
+      desc: `${title} — retained personal copy (${selectedCitizen.name})`,
+      body: `${title}\nPrepared for: ${selectedCitizen.name} (${idKey})\nSubtitle: ${docInfo?.subtitle || ''}\nOrigin: Document Studio\nNote: Personal copy retained in Fylo. Authoritative institutional records remain with their issuing agency.`,
+      dir: '/documents',
+      publisher: 'Document Studio',
+      origin: 'document-studio',
+      version: 'v1.0',
+    });
+    setIssuanceNotice(res.message || `Saved ${slug}.doc to Fylo (/documents).`);
+    setTimeout(() => setIssuanceNotice(null), 4000);
+  };
+
   // Render the active document HTML inline
   const renderActiveDocumentContent = () => {
     if (!recordPermissions.allowedDocumentIds.includes(activeDocId)) {
@@ -262,7 +285,7 @@ export default function DocumentStudioApp() {
         <div className="document-library-actions"><button className="document-export" onClick={handleExportFullPacket}><Download size={14} />Export complete packet</button><details><summary>Record actions</summary><button onClick={() => openCitizenInApp(selectedCitizen.maid || selectedCitizen.record, 'meridionRegistry', { sourceApp: 'documentStudio' })}>Open citizen dossier</button><button onClick={() => setIsPortraitModalOpen(true)}>Edit portrait</button><button onClick={handleLogIssuance}>Log issuance snapshot</button></details></div>
       </aside>
       <main className="document-workbench">
-        <header className="document-toolbar"><div><span className="workspace-kicker">Document {activeDocId.toString().padStart(2, '0')} / 09</span><h2>{DOCUMENT_TABS.find(document => document.id === activeDocId)?.title}</h2></div><div className="document-toolbar-actions"><div className="document-zoom"><button aria-label="Zoom out" onClick={() => setZoomScale(Math.max(60, zoomScale - 10))}>−</button><span>{zoomScale}%</span><button aria-label="Zoom in" onClick={() => setZoomScale(Math.min(140, zoomScale + 10))}>+</button></div><button onClick={handlePrintCurrent}><Printer size={14} /><span>Print</span></button><button onClick={handleDownloadCurrentHtml}><Download size={14} /><span>Save HTML</span></button></div></header>
+        <header className="document-toolbar"><div><span className="workspace-kicker">Document {activeDocId.toString().padStart(2, '0')} / 09</span><h2>{DOCUMENT_TABS.find(document => document.id === activeDocId)?.title}</h2></div><div className="document-toolbar-actions"><div className="document-zoom"><button aria-label="Zoom out" onClick={() => setZoomScale(Math.max(60, zoomScale - 10))}>−</button><span>{zoomScale}%</span><button aria-label="Zoom in" onClick={() => setZoomScale(Math.min(140, zoomScale + 10))}>+</button></div><button onClick={handlePrintCurrent}><Printer size={14} /><span>Print</span></button><button onClick={handleSaveCurrentToFylo}><FileText size={14} /><span>Save to Fylo</span></button><button onClick={handleDownloadCurrentHtml}><Download size={14} /><span>Save HTML</span></button></div></header>
         {issuanceNotice && <div className="document-notice" role="status"><CheckCircle2 size={14} /><span>{issuanceNotice}</span><button aria-label="Dismiss issuance notice" onClick={() => setIssuanceNotice(null)}>×</button></div>}
         <div className="document-pasteboard"><div className="document-paper" style={{ transform: `scale(${zoomScale / 100})`, transformOrigin: 'top center' }}>{renderActiveDocumentContent()}</div></div>
         <footer className="document-workbench-footer"><span>{selectedCitizen.maid || selectedCitizen.record}</span><span>Sovereign Realm of Meridion · Specimen view</span></footer>
