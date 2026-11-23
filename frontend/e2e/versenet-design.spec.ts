@@ -58,6 +58,7 @@ test('the university and community sites retain distinct layouts at wide and nar
   page.on('pageerror', error => errors.push(error.message));
   const browser = await openBrowser(page);
   await mkdir('../output/previews', { recursive: true });
+  await expect(browser.getByRole('heading', { name: 'Search Meridion.', exact: true })).toBeVisible();
   await browser.screenshot({ path: '../output/previews/versenet-home.png' });
   const sites = [
     ['dawn.edu', 'Dawn University', 'dawn'],
@@ -85,5 +86,38 @@ test('the university and community sites retain distinct layouts at wide and nar
     await expect.poll(() => browser.locator('.is-site').evaluate(el => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
     await page.setViewportSize({ width: 1440, height: 900 });
   }
+  for (const domain of ['faithmed.aure', 'dga.gov.aure', 'bank.aure', 'shipping.aure']) {
+    await navigate(page, `https://${domain}`);
+    const portal = browser.locator('.vn-service-portal');
+    await expect(portal.getByRole('heading', { level: 1 })).toBeVisible();
+    await browser.screenshot({ path: `../output/previews/versenet-${domain.split('.')[0]}.png` });
+    await page.setViewportSize({ width: 560, height: 920 });
+    await expect.poll(() => portal.evaluate(el => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(1);
+    await page.setViewportSize({ width: 1440, height: 900 });
+  }
   expect(errors).toEqual([]);
+});
+
+test('Faith Medical exports the current personal baseline without awarding XP or hiding zero aura', async ({ page }) => {
+  const browser = await openBrowser(page);
+  await page.evaluate(async () => {
+    const { useOSStore } = await import('/src/store/useOSStore.ts' as string);
+    useOSStore.setState((s: any) => ({ gameplay: { ...s.gameplay, player: { ...s.gameplay.player, auraHealth: 0, xp: 321 } } }));
+  });
+  await navigate(page, 'https://faithmed.aure');
+  const portal = browser.locator('.vn-service-portal');
+  await expect(portal.getByText('Aura Integrity: 0%', { exact: true })).toBeVisible();
+  const downloadPromise = page.waitForEvent('download');
+  await portal.getByRole('button', { name: 'Download clinical chart', exact: true }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe('faith-medical-baseline.txt');
+  const { readFile } = await import('node:fs/promises');
+  const contents = await readFile((await download.path())!, 'utf8');
+  expect(contents).toContain('Aura integrity: 0%');
+  expect(contents).toContain('Personal bio-aura baseline');
+  const again = page.waitForEvent('download');
+  await portal.getByRole('button', { name: 'Download chart again', exact: true }).click();
+  await again;
+  const xp = await page.evaluate(async () => (await import('/src/store/useOSStore.ts' as string)).useOSStore.getState().gameplay.player.xp);
+  expect(xp).toBe(321);
 });

@@ -1,14 +1,737 @@
 /* Editorial foundation shared by the three university sites. */
-.edu-shell{--edu-body-font:'Plus Jakarta Sans',Arial,sans-serif;--edu-radius:3px;--edu-btn-radius:3px;font-size:14px;line-height:1.7;overflow:visible}
-.edu-shell *{box-sizing:border-box}.edu-shell :is(button,a,input,select,textarea):focus-visible{outline:2px solid var(--edu-accent);outline-offset:4px}.edu-main{max-width:1240px;padding:clamp(28px,4cqw,58px) clamp(22px,4.5cqw,64px) 60px}.edu-section{gap:42px}.edu-network-strip{padding:9px clamp(22px,4.5cqw,64px);font-size:10px;letter-spacing:.02em;background:var(--edu-surface-alt);color:var(--edu-muted);border-bottom:1px solid var(--edu-border)}.edu-network-strip>span{font-weight:500}.edu-network-links{gap:19px}.edu-network-links a{opacity:1}.edu-network-links a[aria-current=page]{font-weight:600;text-underline-offset:4px}.edu-eyebrow{font-size:10px;letter-spacing:.12em;line-height:1.7}.edu-card{padding:25px;border-radius:3px;box-shadow:none}.edu-card p,.edu-page-header p,.edu-syllabus p{font-size:14px;line-height:1.85;max-width:70ch}.edu-grid-3{gap:26px}.edu-grid-2{gap:24px}.edu-section>.edu-grid-3>.edu-card{padding:25px 0 0;border:0;border-top:1px solid var(--edu-border);background:transparent}.edu-card h3{font-size:23px;font-weight:500;margin:14px 0 11px}.edu-card h4{font-size:20px;font-weight:500}.edu-btn-primary,.edu-btn-secondary{font-size:12px;font-weight:500;padding:12px 17px;line-height:1.5;border-radius:3px;box-shadow:none}.edu-btn-link{font-size:12px;font-weight:500;padding-top:13px;text-underline-offset:4px}.edu-page-header{padding-bottom:25px;border-bottom:1px solid var(--edu-border)}.edu-page-header h2,.edu-syllabus-head h2{font-size:clamp(30px,4cqw,44px);font-weight:400;letter-spacing:-1px}.edu-form{gap:20px}.edu-form label{font-size:13px;font-weight:500}.edu-shell :is(input,textarea,select){font-size:14px;padding:11px 12px;border-radius:3px}.edu-banner{border-radius:3px;font-weight:400}.edu-advising-tip{border-left-width:1px;background:transparent;padding-left:16px;font-size:13px}.edu-kpi-row,.edu-id-grid,.edu-syllabus-meta{background:transparent;border-width:1px 0;border-radius:0;padding:18px 0;gap:20px}.edu-footer{max-width:1240px;margin:auto;background:transparent;padding:24px clamp(22px,4.5cqw,64px);font-size:11px}.edu-campus-scene{margin:0;min-width:0;align-self:center}.edu-campus-scene svg{display:block;width:100%;height:auto}.edu-campus-scene figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:11px 0;font-size:10px;line-height:1.6;color:var(--edu-muted)}.edu-campus-scene figcaption strong{font-weight:500;color:var(--edu-ink)}.edu-campus-scene figcaption span{font-size:9px;text-align:right}
+
+.vn-page .edu-shell {
+  --edu-body-font: 'Plus Jakarta Sans',Arial,sans-serif;
+  --edu-radius: 3px;
+  --edu-btn-radius: 3px;
+  font-size: 14px;
+  line-height: 1.7;
+  overflow: visible;
+}
+
+.vn-page .edu-shell * {
+  box-sizing: border-box;
+}
+
+.vn-page .edu-shell :is(button,a,input,select,textarea):focus-visible {
+  outline: 2px solid var(--edu-accent);
+  outline-offset: 4px;
+}
+
+.vn-page .edu-main {
+  max-width: 1240px;
+  padding: clamp(28px,4cqw,58px) clamp(22px,4.5cqw,64px) 60px;
+}
+
+.vn-page .edu-section {
+  gap: 42px;
+}
+
+.vn-page .edu-network-strip {
+  padding: 9px clamp(22px,4.5cqw,64px);
+  font-size: 10px;
+  letter-spacing: .02em;
+  background: var(--edu-surface-alt);
+  color: var(--edu-muted);
+  border-bottom: 1px solid var(--edu-border);
+}
+
+.vn-page .edu-network-strip>span {
+  font-weight: 500;
+}
+
+.vn-page .edu-network-links {
+  gap: 19px;
+}
+
+.vn-page .edu-network-links a {
+  opacity: 1;
+}
+
+.vn-page .edu-network-links a[aria-current=page] {
+  font-weight: 600;
+  text-underline-offset: 4px;
+}
+
+.vn-page .edu-eyebrow {
+  font-size: 10px;
+  letter-spacing: .12em;
+  line-height: 1.7;
+}
+
+.vn-page .edu-card {
+  padding: 25px;
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+.vn-page .edu-card p,.vn-page .edu-page-header p,.vn-page .edu-syllabus p {
+  font-size: 14px;
+  line-height: 1.85;
+  max-width: 70ch;
+}
+
+.vn-page .edu-grid-3 {
+  gap: 26px;
+}
+
+.vn-page .edu-grid-2 {
+  gap: 24px;
+}
+
+.vn-page .edu-section>.edu-grid-3>.edu-card {
+  padding: 25px 0 0;
+  border: 0;
+  border-top: 1px solid var(--edu-border);
+  background: transparent;
+}
+
+.vn-page .edu-card h3 {
+  font-size: 23px;
+  font-weight: 500;
+  margin: 14px 0 11px;
+}
+
+.vn-page .edu-card h4 {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.vn-page .edu-btn-primary,.vn-page .edu-btn-secondary {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 12px 17px;
+  line-height: 1.5;
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+.vn-page .edu-btn-link {
+  font-size: 12px;
+  font-weight: 500;
+  padding-top: 13px;
+  text-underline-offset: 4px;
+}
+
+.vn-page .edu-page-header {
+  padding-bottom: 25px;
+  border-bottom: 1px solid var(--edu-border);
+}
+
+.vn-page .edu-page-header h2,.vn-page .edu-syllabus-head h2 {
+  font-size: clamp(30px,4cqw,44px);
+  font-weight: 400;
+  letter-spacing: -1px;
+}
+
+.vn-page .edu-form {
+  gap: 20px;
+}
+
+.vn-page .edu-form label {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.vn-page .edu-shell :is(input,textarea,select) {
+  font-size: 14px;
+  padding: 11px 12px;
+  border-radius: 3px;
+}
+
+.vn-page .edu-banner {
+  border-radius: 3px;
+  font-weight: 400;
+}
+
+.vn-page .edu-advising-tip {
+  border-left-width: 1px;
+  background: transparent;
+  padding-left: 16px;
+  font-size: 13px;
+}
+
+.vn-page .edu-kpi-row,.vn-page .edu-id-grid,.vn-page .edu-syllabus-meta {
+  background: transparent;
+  border-width: 1px 0;
+  border-radius: 0;
+  padding: 18px 0;
+  gap: 20px;
+}
+
+.vn-page .edu-footer {
+  max-width: 1240px;
+  margin: auto;
+  background: transparent;
+  padding: 24px clamp(22px,4.5cqw,64px);
+  font-size: 11px;
+}
+
+.vn-page .edu-campus-scene {
+  margin: 0;
+  min-width: 0;
+  align-self: center;
+}
+
+.vn-page .edu-campus-scene svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.vn-page .edu-campus-scene figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 11px 0;
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--edu-muted);
+}
+
+.vn-page .edu-campus-scene figcaption strong {
+  font-weight: 500;
+  color: var(--edu-ink);
+}
+
+.vn-page .edu-campus-scene figcaption span {
+  font-size: 9px;
+  text-align: right;
+}
+
 /* Cyberium: a contemporary research institution, with a quiet technical vocabulary. */
-.edu-cyberium{--edu-bg:#f4f6f3;--edu-surface:#fcfdfb;--edu-surface-alt:#e8eeea;--edu-ink:#263b42;--edu-muted:#5b6e72;--edu-accent:#285866;--edu-accent-soft:#e1eceb;--edu-border:#d1ddda;--edu-display-font:'Plus Jakarta Sans',Arial,sans-serif}
-.cyb-header{background:#fcfdfb;color:#263b42;border-bottom:1px solid #d1ddda;padding:28px clamp(22px,4.5cqw,64px) 0}.cyb-header-top{max-width:1112px;margin-bottom:23px}.cyb-brand h1{font-size:25px;font-weight:600;letter-spacing:-1.1px}.cyb-brand-sub{font:10px/1.6 'Plus Jakarta Sans',Arial,sans-serif;text-transform:none;letter-spacing:.02em;color:#62777b}.cyb-hex-seal{width:43px;height:43px;background:#e5eeea;border:1px solid #9cb4af;color:#345c66;box-shadow:none;font-size:14px;font-weight:500}.cyb-nav{max-width:1112px;gap:24px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}.cyb-nav button{color:#526a70;font:12px/1.5 'Plus Jakarta Sans',Arial,sans-serif;padding:13px 0;border-radius:0;white-space:nowrap;background:transparent;letter-spacing:0;text-transform:none}.cyb-nav button:hover{background:transparent;color:#203f48}.cyb-nav button[aria-pressed=true]{color:#203f48;background:transparent;border-bottom:2px solid #285866}.cyb-student-access{display:flex;align-items:center;gap:12px;color:#315561;background:none;border:1px solid #bfceca;border-radius:3px;padding:10px 14px;font:12px 'Plus Jakarta Sans',Arial,sans-serif}.cyb-hero{padding:0;background:transparent;color:#263b42;box-shadow:none;border:0;border-radius:0;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(25px,5cqw,65px)}.cyb-hero h2{font:500 clamp(32px,4.8cqw,54px)/1.14 'Plus Jakarta Sans',Arial,sans-serif;letter-spacing:-2px;color:#263b42;margin:18px 0 23px}.cyb-hero p{color:#5b6e72;font-size:14px;line-height:1.9;max-width:50ch}.cyb-hero .edu-eyebrow{color:#52767d}.cyb-hero .edu-btn-secondary{color:#315561;background:transparent;border-color:#afc3bf}.cyb-hero .edu-btn-row{margin-top:25px!important}.edu-cyberium .edu-card h3,.edu-cyberium .edu-subblock>h3{font-size:22px;letter-spacing:-.7px}
+
+.vn-page .edu-cyberium {
+  --edu-bg: #f4f6f3;
+  --edu-surface: #fcfdfb;
+  --edu-surface-alt: #e8eeea;
+  --edu-ink: #263b42;
+  --edu-muted: #5b6e72;
+  --edu-accent: #285866;
+  --edu-accent-soft: #e1eceb;
+  --edu-border: #d1ddda;
+  --edu-display-font: 'Plus Jakarta Sans',Arial,sans-serif;
+}
+
+.vn-page .cyb-header {
+  background: #fcfdfb;
+  color: #263b42;
+  border-bottom: 1px solid #d1ddda;
+  padding: 28px clamp(22px,4.5cqw,64px) 0;
+}
+
+.vn-page .cyb-header-top {
+  max-width: 1112px;
+  margin-bottom: 23px;
+}
+
+.vn-page .cyb-brand h1 {
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: -1.1px;
+}
+
+.vn-page .cyb-brand-sub {
+  font: 10px/1.6 'Plus Jakarta Sans',Arial,sans-serif;
+  text-transform: none;
+  letter-spacing: .02em;
+  color: #62777b;
+}
+
+.vn-page .cyb-hex-seal {
+  width: 43px;
+  height: 43px;
+  background: #e5eeea;
+  border: 1px solid #9cb4af;
+  color: #345c66;
+  box-shadow: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.vn-page .cyb-nav {
+  max-width: 1112px;
+  gap: 24px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.vn-page .cyb-nav button {
+  color: #526a70;
+  font: 12px/1.5 'Plus Jakarta Sans',Arial,sans-serif;
+  padding: 13px 0;
+  border-radius: 0;
+  white-space: nowrap;
+  background: transparent;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.vn-page .cyb-nav button:hover {
+  background: transparent;
+  color: #203f48;
+}
+
+.vn-page .cyb-nav button[aria-pressed=true] {
+  color: #203f48;
+  background: transparent;
+  border-bottom: 2px solid #285866;
+}
+
+.vn-page .cyb-student-access {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #315561;
+  background: none;
+  border: 1px solid #bfceca;
+  border-radius: 3px;
+  padding: 10px 14px;
+  font: 12px 'Plus Jakarta Sans',Arial,sans-serif;
+}
+
+.vn-page .cyb-hero {
+  padding: 0;
+  background: transparent;
+  color: #263b42;
+  box-shadow: none;
+  border: 0;
+  border-radius: 0;
+  grid-template-columns: minmax(0,1.1fr) minmax(0,1fr);
+  gap: clamp(25px,5cqw,65px);
+}
+
+.vn-page .cyb-hero h2 {
+  font: 500 clamp(32px,4.8cqw,54px)/1.14 'Plus Jakarta Sans',Arial,sans-serif;
+  letter-spacing: -2px;
+  color: #263b42;
+  margin: 18px 0 23px;
+}
+
+.vn-page .cyb-hero p {
+  color: #5b6e72;
+  font-size: 14px;
+  line-height: 1.9;
+  max-width: 50ch;
+}
+
+.vn-page .cyb-hero .edu-eyebrow {
+  color: #52767d;
+}
+
+.vn-page .cyb-hero .edu-btn-secondary {
+  color: #315561;
+  background: transparent;
+  border-color: #afc3bf;
+}
+
+.vn-page .cyb-hero .edu-btn-row {
+  margin-top: 25px !important;
+}
+
+.vn-page .edu-cyberium .edu-card h3,.vn-page .edu-cyberium .edu-subblock>h3 {
+  font-size: 22px;
+  letter-spacing: -.7px;
+}
+
 /* Dawn: a civic university with the rhythm of an academic journal. */
-.edu-dawn{--edu-bg:#f8f5ee;--edu-surface:#fcfaf5;--edu-surface-alt:#ede9df;--edu-ink:#333d35;--edu-muted:#6b7063;--edu-accent:#3f5949;--edu-border:#dcdace;--edu-display-font:'Newsreader','Esteban',Georgia,serif}
-.dwn-header{padding:29px clamp(22px,4.5cqw,64px) 0;background:#fcfaf5;border-color:#dcdace}.dwn-masthead{max-width:1112px;margin-bottom:24px;align-items:center}.dwn-brand h1{font-family:var(--edu-display-font);font-size:34px;font-weight:400;letter-spacing:-1px;color:#333d35}.dwn-sub{font-size:9px;letter-spacing:.08em;color:#7a725e}.dwn-crest{width:48px;height:54px;border-radius:2px 2px 24px 24px;background:transparent;border:1px solid #aaa183;box-shadow:none;color:#7b7256;font-size:17px;font-weight:400}.dwn-nav{max-width:1112px;flex-wrap:nowrap;overflow-x:auto;gap:24px;scrollbar-width:thin}.dwn-nav button{white-space:nowrap;padding:13px 0;color:#6a6e61;font-size:12px;font-weight:400;letter-spacing:0;background:transparent;border-radius:0}.dwn-nav button:hover{background:none;color:#334b3d}.dwn-nav button[aria-pressed=true]{color:#334b3d;background:none;border-bottom:2px solid #435b49}.dwn-hero{background:transparent;border:0;padding:0;gap:30px 45px;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:center}.dwn-hero h2{font:400 clamp(38px,5.8cqw,66px)/1.08 var(--edu-display-font);letter-spacing:-1.8px;color:#344437;margin:19px 0 23px}.dwn-hero p{font-size:14px;line-height:1.9;color:#6b7063;max-width:48ch}.dwn-almanac{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 30px;background:transparent;padding:30px 0 0;border:0;border-top:1px solid #dcdace;box-shadow:none;border-radius:0}.dwn-almanac>h3{grid-column:1/-1;font:400 26px var(--edu-display-font);color:#344437;margin:0 0 24px}.dwn-almanac-item{padding:0;margin:0;border:0}.dwn-almanac-item strong{font:400 20px/1.3 var(--edu-display-font);display:block;margin-top:8px;color:#344437}.dwn-almanac-item p{font-size:12px!important;line-height:1.8;margin-top:10px!important}.dwn-almanac .edu-eyebrow{font-size:9px}.edu-dawn .edu-card h3{font-size:26px}
+
+.vn-page .edu-dawn {
+  --edu-bg: #f8f5ee;
+  --edu-surface: #fcfaf5;
+  --edu-surface-alt: #ede9df;
+  --edu-ink: #333d35;
+  --edu-muted: #6b7063;
+  --edu-accent: #3f5949;
+  --edu-border: #dcdace;
+  --edu-display-font: 'Newsreader','Esteban',Georgia,serif;
+}
+
+.vn-page .dwn-header {
+  padding: 29px clamp(22px,4.5cqw,64px) 0;
+  background: #fcfaf5;
+  border-color: #dcdace;
+}
+
+.vn-page .dwn-masthead {
+  max-width: 1112px;
+  margin-bottom: 24px;
+  align-items: center;
+}
+
+.vn-page .dwn-brand h1 {
+  font-family: var(--edu-display-font);
+  font-size: 34px;
+  font-weight: 400;
+  letter-spacing: -1px;
+  color: #333d35;
+}
+
+.vn-page .dwn-sub {
+  font-size: 9px;
+  letter-spacing: .08em;
+  color: #7a725e;
+}
+
+.vn-page .dwn-crest {
+  width: 48px;
+  height: 54px;
+  border-radius: 2px 2px 24px 24px;
+  background: transparent;
+  border: 1px solid #aaa183;
+  box-shadow: none;
+  color: #7b7256;
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.vn-page .dwn-nav {
+  max-width: 1112px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 24px;
+  scrollbar-width: thin;
+}
+
+.vn-page .dwn-nav button {
+  white-space: nowrap;
+  padding: 13px 0;
+  color: #6a6e61;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+.vn-page .dwn-nav button:hover {
+  background: none;
+  color: #334b3d;
+}
+
+.vn-page .dwn-nav button[aria-pressed=true] {
+  color: #334b3d;
+  background: none;
+  border-bottom: 2px solid #435b49;
+}
+
+.vn-page .dwn-hero {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  gap: 30px 45px;
+  grid-template-columns: minmax(0,1.1fr) minmax(0,1fr);
+  align-items: center;
+}
+
+.vn-page .dwn-hero h2 {
+  font: 400 clamp(38px,5.8cqw,66px)/1.08 var(--edu-display-font);
+  letter-spacing: -1.8px;
+  color: #344437;
+  margin: 19px 0 23px;
+}
+
+.vn-page .dwn-hero p {
+  font-size: 14px;
+  line-height: 1.9;
+  color: #6b7063;
+  max-width: 48ch;
+}
+
+.vn-page .dwn-almanac {
+  grid-column: 1/-1;
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 0 30px;
+  background: transparent;
+  padding: 30px 0 0;
+  border: 0;
+  border-top: 1px solid #dcdace;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.vn-page .dwn-almanac>h3 {
+  grid-column: 1/-1;
+  font: 400 26px var(--edu-display-font);
+  color: #344437;
+  margin: 0 0 24px;
+}
+
+.vn-page .dwn-almanac-item {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.vn-page .dwn-almanac-item strong {
+  font: 400 20px/1.3 var(--edu-display-font);
+  display: block;
+  margin-top: 8px;
+  color: #344437;
+}
+
+.vn-page .dwn-almanac-item p {
+  font-size: 12px !important;
+  line-height: 1.8;
+  margin-top: 10px !important;
+}
+
+.vn-page .dwn-almanac .edu-eyebrow {
+  font-size: 9px;
+}
+
+.vn-page .edu-dawn .edu-card h3 {
+  font-size: 26px;
+}
+
 /* Regent Hall: restrained formal typography, generous margins and a sovereign navy masthead. */
-.edu-regent{--edu-bg:#f5f5f1;--edu-surface:#fdfdfa;--edu-surface-alt:#e7e9e7;--edu-ink:#273d4b;--edu-muted:#65727a;--edu-accent:#2c4656;--edu-border:#d3d9d9;--edu-display-font:'Newsreader','Esteban',Georgia,serif}
-.rgh-header{background:#213643;color:#eef0e9;border:0}.rgh-crest-bar{padding:29px clamp(22px,4.5cqw,64px);max-width:1240px}.rgh-brand h1{font:400 32px/1.2 var(--edu-display-font);letter-spacing:-.4px;color:#f1f1e9}.rgh-sub{font-size:9px;letter-spacing:.08em;color:#b6c1c3}.rgh-shield{width:44px;height:50px;border:1px solid #a8a48c;border-radius:1px 1px 23px 23px;background:transparent;color:#d7cfb2;font-size:17px;font-weight:400}.rgh-motto-pill{border:0;background:none;border-radius:0;padding:0;font:italic 16px var(--edu-display-font);color:#d0c9ae}.rgh-nav-wrap{background:#1b303d;border:0}.rgh-nav{max-width:1240px;padding:0 clamp(22px,4.5cqw,64px);gap:24px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}.rgh-nav button{font:11px/1.5 'Plus Jakarta Sans',Arial,sans-serif;letter-spacing:.02em;text-transform:none;white-space:nowrap;padding:14px 0;border-bottom-width:2px;color:#c0cacf}.rgh-nav button:hover{background:transparent}.rgh-nav button[aria-pressed=true]{color:#e8e2cd;border-color:#b8ae86}.rgh-hero{padding:0;border:0;background:transparent;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:45px}.rgh-hero h2{font:400 clamp(38px,5.2cqw,60px)/1.1 var(--edu-display-font);color:#273d4b;letter-spacing:-1.4px;margin:19px 0 23px}.rgh-hero p{font-size:14px;line-height:1.9;color:#65727a;max-width:48ch}.rgh-hero .edu-eyebrow{color:#7b7359!important}.edu-regent .edu-card h3{font-size:26px}
-@container(max-width:850px){.cyb-hero h2{letter-spacing:-1.2px}.dwn-masthead>.edu-btn-row{gap:8px}.dwn-brand h1{font-size:29px}.cyb-nav,.dwn-nav,.rgh-nav{gap:20px}.edu-network-strip{font-size:9px}.edu-network-links{gap:12px}.dwn-almanac{gap:24px}}
-@container(max-width:720px){.cyb-hero,.dwn-hero,.rgh-hero{grid-template-columns:1fr;gap:28px;padding:0}.edu-campus-scene{max-width:560px;width:100%;margin:auto}.dwn-almanac{grid-template-columns:1fr;gap:25px}.dwn-almanac>h3{margin-bottom:0}.dwn-almanac-item{border-top:1px solid #dcdace;padding-top:18px}.edu-section{gap:30px}.edu-network-strip>span{display:none}.edu-network-strip{padding-top:9px;padding-bottom:9px}.rgh-motto-pill{display:none}.edu-grid-3{grid-template-columns:1fr}.cyb-header-top,.dwn-masthead{align-items:center;gap:20px}.cyb-brand-sub,.dwn-sub,.rgh-sub{font-size:9px;letter-spacing:0}.edu-campus-scene figcaption{font-size:11px}.edu-campus-scene figcaption span{font-size:10px}.cyb-brand h1{font-size:23px}.rgh-brand h1{font-size:29px}.edu-footer{gap:12px;flex-direction:column}.edu-two-col{grid-template-columns:1fr}}
+
+.vn-page .edu-regent {
+  --edu-bg: #f5f5f1;
+  --edu-surface: #fdfdfa;
+  --edu-surface-alt: #e7e9e7;
+  --edu-ink: #273d4b;
+  --edu-muted: #65727a;
+  --edu-accent: #2c4656;
+  --edu-border: #d3d9d9;
+  --edu-display-font: 'Newsreader','Esteban',Georgia,serif;
+}
+
+.vn-page .rgh-header {
+  background: #213643;
+  color: #eef0e9;
+  border: 0;
+}
+
+.vn-page .rgh-crest-bar {
+  padding: 29px clamp(22px,4.5cqw,64px);
+  max-width: 1240px;
+}
+
+.vn-page .rgh-brand h1 {
+  font: 400 32px/1.2 var(--edu-display-font);
+  letter-spacing: -.4px;
+  color: #f1f1e9;
+}
+
+.vn-page .rgh-sub {
+  font-size: 9px;
+  letter-spacing: .08em;
+  color: #b6c1c3;
+}
+
+.vn-page .rgh-shield {
+  width: 44px;
+  height: 50px;
+  border: 1px solid #a8a48c;
+  border-radius: 1px 1px 23px 23px;
+  background: transparent;
+  color: #d7cfb2;
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.vn-page .rgh-motto-pill {
+  border: 0;
+  background: none;
+  border-radius: 0;
+  padding: 0;
+  font: italic 16px var(--edu-display-font);
+  color: #d0c9ae;
+}
+
+.vn-page .rgh-nav-wrap {
+  background: #1b303d;
+  border: 0;
+}
+
+.vn-page .rgh-nav {
+  max-width: 1240px;
+  padding: 0 clamp(22px,4.5cqw,64px);
+  gap: 24px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.vn-page .rgh-nav button {
+  font: 11px/1.5 'Plus Jakarta Sans',Arial,sans-serif;
+  letter-spacing: .02em;
+  text-transform: none;
+  white-space: nowrap;
+  padding: 14px 0;
+  border-bottom-width: 2px;
+  color: #c0cacf;
+}
+
+.vn-page .rgh-nav button:hover {
+  background: transparent;
+}
+
+.vn-page .rgh-nav button[aria-pressed=true] {
+  color: #e8e2cd;
+  border-color: #b8ae86;
+}
+
+.vn-page .rgh-hero {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  grid-template-columns: minmax(0,1.1fr) minmax(0,1fr);
+  gap: 45px;
+}
+
+.vn-page .rgh-hero h2 {
+  font: 400 clamp(38px,5.2cqw,60px)/1.1 var(--edu-display-font);
+  color: #273d4b;
+  letter-spacing: -1.4px;
+  margin: 19px 0 23px;
+}
+
+.vn-page .rgh-hero p {
+  font-size: 14px;
+  line-height: 1.9;
+  color: #65727a;
+  max-width: 48ch;
+}
+
+.vn-page .rgh-hero .edu-eyebrow {
+  color: #7b7359 !important;
+}
+
+.vn-page .edu-regent .edu-card h3 {
+  font-size: 26px;
+}
+
+@container (max-width:850px) {
+  .vn-page .cyb-hero h2 {
+    letter-spacing: -1.2px;
+  }
+
+  .vn-page .dwn-masthead>.edu-btn-row {
+    gap: 8px;
+  }
+
+  .vn-page .dwn-brand h1 {
+    font-size: 29px;
+  }
+
+  .vn-page .cyb-nav,.vn-page .dwn-nav,.vn-page .rgh-nav {
+    gap: 20px;
+  }
+
+  .vn-page .edu-network-strip {
+    font-size: 9px;
+  }
+
+  .vn-page .edu-network-links {
+    gap: 12px;
+  }
+
+  .vn-page .dwn-almanac {
+    gap: 24px;
+  }
+}
+
+@container (max-width:720px) {
+  .vn-page .cyb-hero,.vn-page .dwn-hero,.vn-page .rgh-hero {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 0;
+  }
+
+  .vn-page .edu-campus-scene {
+    max-width: 560px;
+    width: 100%;
+    margin: auto;
+  }
+
+  .vn-page .dwn-almanac {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  .vn-page .dwn-almanac>h3 {
+    margin-bottom: 0;
+  }
+
+  .vn-page .dwn-almanac-item {
+    border-top: 1px solid #dcdace;
+    padding-top: 18px;
+  }
+
+  .vn-page .edu-section {
+    gap: 30px;
+  }
+
+  .vn-page .edu-network-strip>span {
+    display: none;
+  }
+
+  .vn-page .edu-network-strip {
+    padding-top: 9px;
+    padding-bottom: 9px;
+  }
+
+  .vn-page .rgh-motto-pill {
+    display: none;
+  }
+
+  .vn-page .edu-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .vn-page .cyb-header-top,.vn-page .dwn-masthead {
+    align-items: center;
+    gap: 20px;
+  }
+
+  .vn-page .cyb-brand-sub,.vn-page .dwn-sub,.vn-page .rgh-sub {
+    font-size: 9px;
+    letter-spacing: 0;
+  }
+
+  .vn-page .edu-campus-scene figcaption {
+    font-size: 11px;
+  }
+
+  .vn-page .edu-campus-scene figcaption span {
+    font-size: 10px;
+  }
+
+  .vn-page .cyb-brand h1 {
+    font-size: 23px;
+  }
+
+  .vn-page .rgh-brand h1 {
+    font-size: 29px;
+  }
+
+  .vn-page .edu-footer {
+    gap: 12px;
+    flex-direction: column;
+  }
+
+  .vn-page .edu-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vn-page .dwn-hero h2 {
+  font-size: clamp(36px,4.7cqw,52px);
+}
+
+.vn-page .rgh-hero h2 {
+  font-size: clamp(36px,4.6cqw,52px);
+}
+
+.vn-page .cyb-hero h2 {
+  font-size: clamp(32px,4.4cqw,48px);
+}
+
+.vn-page .edu-main {
+  padding-top: 40px;
+}

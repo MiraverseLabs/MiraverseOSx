@@ -3,7 +3,7 @@ import { useOSStore } from '../../store/useOSStore';
 import { createPortal } from 'react-dom';
 import { APPS_DIRECTORY, launchDesktopApp } from './appDirectory';
 
-import { Smartphone, Power, Volume2, VolumeX, Grid2X2, Globe, Folder, Mail, PanelsTopLeft } from 'lucide-react';
+import { Smartphone, Power, Volume2, VolumeX, Grid2X2, Globe, Folder, Mail, PanelsTopLeft, SlidersHorizontal, Check } from 'lucide-react';
 import { useSystemStore } from '../../store/useSystemStore';
 import { SoundFX } from '../../utils/audio';
 
@@ -11,11 +11,13 @@ export interface DesktopTaskbarProps {
   onTogglePhone: () => void;
   onOpenLauncher: () => void;
   isLauncherOpen: boolean;
+  editing?: boolean;
+  onToggleEditing?: () => void;
 }
 
 const pinned = [{ id: 'browser', icon: Globe }, { id: 'files', icon: Folder }, { id: 'mail', icon: Mail, PanelsTopLeft }];
 
-export default function DesktopTaskbar({ onTogglePhone, onOpenLauncher, isLauncherOpen }: DesktopTaskbarProps) {
+export default function DesktopTaskbar({ onTogglePhone, onOpenLauncher, isLauncherOpen, editing = false, onToggleEditing }: DesktopTaskbarProps) {
   const [tooltip, setTooltip] = React.useState<{ text: string; x: number; y: number } | null>(null);
   const showTooltip = (event: React.SyntheticEvent<HTMLButtonElement>, text: string) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -43,7 +45,23 @@ export default function DesktopTaskbar({ onTogglePhone, onOpenLauncher, isLaunch
           return <button key={app.id} className={`dock-app ${active ? 'is-active' : ''}`} aria-label={`${win ? 'Toggle' : 'Open'} ${name}`} aria-pressed={!!active} onMouseEnter={event => showTooltip(event, name)} onMouseLeave={() => setTooltip(null)} onFocus={event => showTooltip(event, name)} onBlur={() => setTooltip(null)} onClick={() => { setTooltip(null); playClick(); win ? toggleApp(win) : launchDesktopApp(app.id); }}><Icon size={21} strokeWidth={1.6} aria-hidden="true"/>{win && <i aria-hidden="true" className={`dock-running-dot ${active ? 'is-active' : ''}`} />}</button>;
         })}
       </div>
-      <span className="dock-divider"/><button className="dock-app" aria-label="Show Desktop" title="Show Desktop" aria-pressed={!!hiddenDesktopWindows.length} onClick={toggleShowDesktop}><PanelsTopLeft size={19}/></button>
+      <span className="dock-divider"/>
+      {onToggleEditing && (
+        <button
+          className={`dock-app ${editing ? 'is-active' : ''}`}
+          aria-label={editing ? 'Finish customizing desktop' : 'Customize Desktop'}
+          title={editing ? 'Finish customizing desktop' : 'Customize Desktop'}
+          aria-pressed={editing}
+          onMouseEnter={event => showTooltip(event, editing ? 'Done Customizing' : 'Customize Desktop')}
+          onMouseLeave={() => setTooltip(null)}
+          onFocus={event => showTooltip(event, editing ? 'Done Customizing' : 'Customize Desktop')}
+          onBlur={() => setTooltip(null)}
+          onClick={() => { setTooltip(null); playClick(); onToggleEditing(); }}
+        >
+          {editing ? <Check size={19}/> : <SlidersHorizontal size={19}/>}
+        </button>
+      )}
+      <button className="dock-app" aria-label="Show Desktop" title="Show Desktop" aria-pressed={!!hiddenDesktopWindows.length} onClick={toggleShowDesktop}><PanelsTopLeft size={19}/></button>
       </div>
       {tooltip && createPortal(<div className="taskbar-tooltip" role="tooltip" style={{ left: tooltip.x, top: tooltip.y }}>{tooltip.text}</div>, document.body)}
     </nav>

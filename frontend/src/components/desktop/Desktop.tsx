@@ -13,7 +13,7 @@ import PurpleWallpaper from './PurpleWallpaper';
 import DesktopSurface from './DesktopSurface';
 import { DesktopMusicProvider } from './DesktopMusic';
 import MAIDock from '../widgets/MAIDock';
-import { Smartphone, Volume2, VolumeX, Power, SlidersHorizontal, Check } from 'lucide-react';
+import { Smartphone, Volume2, VolumeX, Power } from 'lucide-react';
 import { useSystemStore } from '../../store/useSystemStore';
 
 import logoIcon from '../../assets/images/logo_icon.png';
@@ -26,7 +26,7 @@ import { useCommsStore } from '../../store/useCommsStore';
 import { getCelestialState } from '../../data/meridionWorld';
 
 export default function Desktop() {
-  const { isLoggedIn, windows, isSanctuary, gameplay, wallpaper, desktopPreferences, desktopAction, logoutUser } = useOSStore();
+  const { isLoggedIn, windows, isSanctuary, gameplay, wallpaper, logoutUser } = useOSStore();
   const [editing,setEditing]=useState(false);
   const {soundEnabled,toggleSound}=useSystemStore();
   const incomingCalls=useOSStore(state=>Object.values(state.gameplay.player.assignmentJournal?.dispatches||{}).filter((d:any)=>d.channel==='phone'&&!d.heardAt).length);
@@ -76,7 +76,6 @@ export default function Desktop() {
       {wallpaper ? <div className="personal-wallpaper-image" aria-hidden="true" style={{ backgroundImage: `linear-gradient(#20132d44, #20132d66), url(${JSON.stringify(wallpaper)})` }}/> : <PurpleWallpaper animated={!reducedMotion && pageVisible}/>}
       <header className="desktop-menubar">
         <div className="desktop-wordmark"><img src={logoIcon} alt="" /><strong>MIRAVERSE<span>OS x</span></strong><span className="desktop-menu-divider" /><span className="desktop-location">Aureline</span></div>
-        <div className="desktop-layout-controls"><select aria-label="Desktop layout" value={desktopPreferences.activeLayout} onChange={e=>desktopAction({type:'layout',id:e.target.value as any})}><option value="everyday">Everyday</option><option value="personal">Personal</option><option value="work">Work</option></select><button aria-label={editing?'Finish customizing desktop':'Customize Desktop'} aria-pressed={editing} onClick={()=>setEditing(v=>!v)}>{editing?<Check size={15}/>:<SlidersHorizontal size={15}/>}<span>{editing?'Done':'Customize'}</span></button></div>
         <div className="desktop-menubar-right">
           <button
             type="button"
@@ -94,13 +93,13 @@ export default function Desktop() {
         </div>
       </header>
       <div ref={appWorkspaceRef} className="desktop-workspace">
-        <DesktopSurface editing={editing}/>
+        <DesktopSurface editing={editing} onDoneEditing={() => setEditing(false)}/>
         {isSanctuary && <SanctuaryOverlay />}
       </div>
       <AnimatePresence>{windows.filter((win) => !win.isMinimized).map((win) => <Window key={win.id} win={win} windowIndex={windows.findIndex((candidate) => candidate.id === win.id)} isFocusMode={true} workspaceRef={appWorkspaceRef} />)}</AnimatePresence>
       {isPhoneOpen && <div className="desktop-phone"><PhoneWidget onClose={() => setIsPhoneOpen(false)} /></div>}
-      <AppLauncherModal isOpen={isLauncherOpen} onClose={() => setIsLauncherOpen(false)} />
-      <DesktopTaskbar onTogglePhone={() => setIsPhoneOpen((open) => !open)} onOpenLauncher={() => setIsLauncherOpen(true)} isLauncherOpen={isLauncherOpen} />
+      <AppLauncherModal isOpen={isLauncherOpen} onClose={() => setIsLauncherOpen(false)} editing={editing} onToggleEditing={() => { setIsLauncherOpen(false); setEditing(v => !v); }} />
+      <DesktopTaskbar onTogglePhone={() => setIsPhoneOpen((open) => !open)} onOpenLauncher={() => setIsLauncherOpen(true)} isLauncherOpen={isLauncherOpen} editing={editing} onToggleEditing={() => setEditing(v => !v)} />
       <ToastViewport />
     </main></DesktopMusicProvider>
   );

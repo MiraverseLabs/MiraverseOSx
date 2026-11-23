@@ -1,0 +1,202 @@
+/* Public-facing service portals: restrained institutional surfaces and readable records. */
+
+.vn-service-portal {
+  --portal-accent: #3f536b;
+  --portal-paper: #f7f8f8;
+  padding: clamp(23px,4cqw,54px);
+  background: var(--portal-paper);
+  color: #33414b;
+  font: 14px/1.7 'Plus Jakarta Sans',Arial,sans-serif;
+  container-type: inline-size;
+}
+
+.vn-service-medical {
+  --portal-accent: #3b6d60;
+  --portal-paper: #f5f8f5;
+}
+
+.vn-service-bank {
+  --portal-accent: #766446;
+  --portal-paper: #f9f7f1;
+}
+
+.vn-service-shipping {
+  --portal-accent: #865e47;
+  --portal-paper: #faf7f3;
+}
+
+.vn-service-archive {
+  --portal-accent: #655a4e;
+  --portal-paper: #f9f6ef;
+}
+
+.vn-service-portal>header {
+  padding: 18px 0 27px;
+  border-color: #d5dddb;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.vn-service-portal h1 {
+  font: 400 clamp(29px,3.8cqw,42px)/1.2 'Newsreader',Georgia,serif;
+  letter-spacing: -.7px;
+  color: #2f4148;
+}
+
+.vn-service-medical h1,.vn-service-government h1,.vn-service-shipping h1 {
+  font-family: 'Plus Jakarta Sans',Arial,sans-serif;
+  font-size: clamp(26px,3.2cqw,35px);
+  font-weight: 500;
+  letter-spacing: -1.2px;
+}
+
+.vn-service-portal>header p {
+  font: 12px/1.7 'Plus Jakarta Sans',Arial,sans-serif;
+  color: var(--portal-accent);
+  margin-top: 6px;
+}
+
+.vn-service-portal :is(.rounded-2xl,.rounded-xl) {
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+.vn-service-portal [class~='text-xs'] {
+  font-size: 13px;
+}
+
+.vn-service-portal [class~='text-[10px]'] {
+  font-size: 11px;
+}
+
+.vn-service-portal :is(input,select,textarea) {
+  font-family: 'Plus Jakarta Sans',Arial,sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 11px 12px;
+}
+
+.vn-service-portal button {
+  font-family: 'Plus Jakarta Sans',Arial,sans-serif;
+  line-height: 1.5;
+}
+
+.vn-service-portal h2 {
+  font-size: 17px;
+  letter-spacing: -.3px;
+  font-weight: 600;
+}
+
+.vn-service-portal h3 {
+  line-height: 1.6;
+  letter-spacing: .02em;
+}
+
+.vn-service-portal p {
+  line-height: 1.8;
+}
+
+.vn-service-portal .vn-citizen-context {
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid #d8dfdd;
+  background: transparent;
+  padding: 0 0 17px;
+  margin-bottom: 20px;
+  font: 11px/1.6 'Plus Jakarta Sans',Arial,sans-serif;
+  color: #6a7778;
+}
+
+.vn-citizen-context>div:first-child>div:first-child {
+  background: transparent;
+  border: 0;
+  width: 20px;
+  height: 25px;
+  color: #7b8583;
+}
+
+.vn-citizen-context>div:last-child>span:first-child {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #637471;
+  font-weight: 400;
+}
+
+.vn-service-portal :is(button,a,input,select,textarea):focus-visible {
+  outline-color: var(--portal-accent);
+  outline-offset: 4px;
+}
+
+@container (max-width:650px) {
+  .vn-service-portal>header {
+    align-items: flex-start;
+  }
+
+  .vn-service-portal>header>div {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .vn-service-portal h1 {
+    font-size: 29px;
+  }
+
+  .vn-service-portal .vn-citizen-context {
+    gap: 12px;
+  }
+
+  .vn-service-portal h2 {
+    font-size: 16px;
+  }
+}
+
+@container (max-width:650px) {
+  .vn-service-portal .grid {
+    grid-template-columns: minmax(0,1fr);
+  }
+
+  .vn-service-portal .grid>[class*='col-span'] {
+    grid-column: auto;
+  }
+
+  .vn-service-portal>header {
+    overflow-wrap: anywhere;
+  }
+}
+
+.vn-service-portal .vn-citizen-context {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #d5ddda;
+  padding: 0 0 16px;
+  margin-bottom: 12px;
+  font: 11px/1.5 'Plus Jakarta Sans',Arial,sans-serif;
+  color: #6a7778;
+}
+
+.vn-citizen-context>div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.vn-citizen-context small {
+  font-size: 10px;
+  color: #7b8582;
+}
+
+.vn-service-portal h3 {
+  font-family: 'Plus Jakarta Sans',Arial,sans-serif;
+  text-transform: none;
+}
+
+.vn-service-portal .font-display {
+  font-family: 'Plus Jakarta Sans',Arial,sans-serif;
+}

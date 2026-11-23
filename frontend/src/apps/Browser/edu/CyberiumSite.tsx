@@ -38,7 +38,7 @@ export default function CyberiumSite({
           <button className="cyb-brand" onClick={() => go('home')}>
             <span className="cyb-hex-seal" aria-hidden="true">{school.sealText}</span>
             <div>
-              <span className="cyb-brand-sub">{school.domain} Â· {school.established} Â· Sector 4 Quadrangle</span>
+              <span className="cyb-brand-sub">{school.domain} · {school.established} · Sector 4 Quadrangle</span>
               <h1>{school.name}</h1>
             </div>
           </button>
@@ -84,19 +84,19 @@ export default function CyberiumSite({
                 <Cpu size={20} color="#0284c7" />
                 <h3>Cybernetics & Control</h3>
                 <p>Closed-loop sensor calibration, hardware safety interlocks, and fault isolation in Foundry Hall B.</p>
-                <button className="edu-btn-link" onClick={() => go('academics')}>Explore department â†’</button>
+                <button className="edu-btn-link" onClick={() => go('academics')}>Explore department →</button>
               </article>
               <article className="edu-card">
                 <FlaskConical size={20} color="#6d28d9" />
                 <h3>Computational Spellcraft</h3>
                 <p>Formal module contracts and live SpellForge protocol verification in Compiler Lab 4.</p>
-                <button className="edu-btn-link" onClick={() => go('courses')}>Browse spell courses â†’</button>
+                <button className="edu-btn-link" onClick={() => go('courses')}>Browse spell courses →</button>
               </article>
               <article className="edu-card">
                 <Radio size={20} color="#0284c7" />
                 <h3>Signal Systems</h3>
                 <p>Payload integrity, authorized decryption, and forensic evidence logs at the Signal Observatory.</p>
-                <button className="edu-btn-link" onClick={() => go('faculty')}>Meet lab instructors â†’</button>
+                <button className="edu-btn-link" onClick={() => go('faculty')}>Meet lab instructors →</button>
               </article>
             </div>
 
@@ -105,7 +105,7 @@ export default function CyberiumSite({
               <div className="edu-grid-3">
                 {school.bulletins.map(item => (
                   <article key={item.id} className="edu-card">
-                    <span className="edu-eyebrow">{item.tag} Â· {item.date}</span>
+                    <span className="edu-eyebrow">{item.tag} · {item.date}</span>
                     <h4>{item.title}</h4>
                     <p>{item.summary}</p>
                   </article>
@@ -119,8 +119,8 @@ export default function CyberiumSite({
       </main>
 
       <footer className="edu-footer">
-        <span><Terminal size={12} style={{ verticalAlign: 'middle' }} /> {school.name} Â· {school.location}</span>
-        <span>{school.domain} Â· {school.motto}</span>
+        <span><Terminal size={12} style={{ verticalAlign: 'middle' }} /> {school.name} · {school.location}</span>
+        <span>{school.domain} · {school.motto}</span>
       </footer>
     </div>
   );

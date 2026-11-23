@@ -217,12 +217,12 @@ export const PROTOCOLS: ProtocolItem[] = [
   {
     id: 'campus',
     code: 'CAMPUS',
-    name: 'CAMPUS // Academic Network',
-    sector: 'Cyberium Academy',
+    name: 'CAMPUS // Academic Registrar',
+    sector: 'Meridion Higher Education',
     clearance: 'Student Enrollment',
     aetherTrace: 'AT-0x0218',
     flux: '19.4 MHz',
-    desc: 'Cyberium Academy and Dawn University: courses, projects, transcripts, and registrar services.',
+    desc: 'Unified Student IDs, GPA, degree audits, and transcripts across Cyberium Academy, Dawn University (Dawnson), and Regent Hall.',
     color: 'text-blue-900',
     bg: 'bg-blue-50',
     border: 'border-blue-300'
@@ -231,13 +231,15 @@ export const PROTOCOLS: ProtocolItem[] = [
 
 const GROUPS: Record<string, string> = {
   dgaos: 'Agency', jobs: 'Agency',
-  meridionRegistry: 'Civic', documentStudio: 'Civic', campus: 'Civic',
+  meridionRegistry: 'Civic', documentStudio: 'Civic', campus: 'Civic', study: 'Civic',
   passport: 'Personal', housing: 'Personal', finance: 'Personal', vitals: 'Personal',
   browser: 'Connect', comms: 'Connect', mail: 'Connect', maispace: 'Connect', pulse: 'Connect',
-  files: 'Tools', process: 'Tools', lore: 'Tools', terminal: 'Tools', settings: 'Tools',
+  files: 'Tools', process: 'Tools', lore: 'Tools', spellforge: 'Tools', terminal: 'Tools', settings: 'Tools',
 };
 
 const additionalApps: ProtocolItem[] = [
+  { id: 'study', code: 'AURELEARN', name: 'AURELEARN // Student LMS', sector: 'Coursework & Exams', icon: BookOpen, clearance: 'Admitted Scholar', aetherTrace: 'AT-0x0219', flux: '21.0 MHz', desc: 'Read course modules, take assessments, track your gradebook, and launch practical labs across all admitted institutions.', color: 'text-sky-900', bg: 'bg-sky-50', border: 'border-sky-300' },
+  { id: 'spellforge', code: 'SPELLFORGE', name: 'SPELLFORGE // Protocol Lab', sector: 'Compiler Lab 4', icon: Sparkles, clearance: 'Lab Access', aetherTrace: 'AT-0x0220', flux: '44.8 MHz', desc: 'Synthesize elemental and utility spell modules and verify Cyberium Academy Spell Engineering practical projects.', color: 'text-purple-900', bg: 'bg-purple-50', border: 'border-purple-300' },
   { id: 'fieldOperations', code: 'FIELD', name: 'Field Operations', sector: 'DGA service tunnels', icon: Shield, clearance: 'Assignment Clearance 2', aetherTrace: 'AT-0x0512', flux: '88.2 MHz', desc: 'Explore Tunnel 09, collect evidence, interview a witness, and submit containment findings to WORKNET.', color: 'text-emerald-900', bg: 'bg-emerald-50', border: 'border-emerald-300' },
   { id: 'maispace', code: 'mai.space', name: 'mai.space // Social Network', sector: 'Personal social network', icon: MessageSquare, clearance: 'Citizen Access', aetherTrace: 'AT-0x0733', flux: '22.0 MHz', desc: 'Your existing social profile, posts, friends, and community interactions.', color: 'text-rose-800', bg: 'bg-rose-50', border: 'border-rose-300' },
   { id: 'mail', code: 'AUREMAIL', name: 'AUREMAIL // Mailbox', sector: 'Aureline Postal Network', icon: Mail, clearance: 'Citizen Access', aetherTrace: 'AT-0x0413', flux: '22.0 MHz', desc: 'Your personal inbox for citizen correspondence, official notices, and new opportunities.', color: 'text-sky-800', bg: 'bg-sky-50', border: 'border-sky-300' },

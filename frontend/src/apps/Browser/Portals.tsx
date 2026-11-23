@@ -1,4 +1,5 @@
 import AcademicPortal from '../academic/AcademicPortal';
+import '../../styles/apps/versenet-portals.css';
 import React, { useState } from 'react';
 import { 
     Activity, Shield, Building, FileText, Landmark, Truck, Eye, 
@@ -16,32 +17,13 @@ import { SoundFX } from '../../utils/audio';
 // Shared Universal AureID / Citizen MAID Bar
 // ==========================================
 export function CitizenAureIdBar({ portalName }: { portalName: string }) {
-    const player = useOSStore((s) => s.gameplay?.player);
-    const clearance = player?.clearanceLevel ?? 1;
-
-    return (
-        <div className="mb-4 p-2.5 bg-white border border-slate-200 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs font-mono shadow-2xs">
-            <div className="flex items-center gap-2.5">
-                <div className="h-7 w-7 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold">
-                    <UserCheck size={16} />
-                </div>
-                <div>
-                    <span className="font-bold text-slate-800">{player?.name || 'Citizen'}</span>
-                    <span className="text-slate-400 ml-2">[{player?.identity?.citizenId || 'MAID-9041-AURE'}]</span>
-                </div>
-            </div>
-            <div className="flex items-center gap-3">
-                <span className="px-2 py-0.5 rounded-md bg-indigo-50 border border-indigo-200 text-indigo-800 font-bold text-[10px]">
-                    CLEARANCE TIER {clearance} ({clearance >= 2 ? 'AUTHORIZED' : 'PROVISIONAL'})
-                </span>
-                <span className="text-amber-700 font-bold">{player?.credits ?? 0} ₡</span>
-                <span className="text-emerald-700 font-bold">{player?.bits ?? 0} ◈</span>
-                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 rounded text-[10px] font-bold border border-emerald-200">
-                    SSO LINKED // {portalName}
-                </span>
-            </div>
-        </div>
-    );
+    const player = useOSStore(s => s.gameplay.player);
+    const identity = useOSStore(s => s.gameplay.identity);
+    const isLoggedIn = useOSStore(s => s.isLoggedIn);
+    return <div className="vn-citizen-context" aria-label={`${portalName} account context`}>
+        <div><UserCheck size={15} aria-hidden="true" /><span>{isLoggedIn ? player.name || 'Citizen' : 'Guest visitor'}</span><small>{isLoggedIn ? identity.citizenId || 'Citizen account' : 'Browse public information'}</small></div>
+        <span>{isLoggedIn ? `Access level ${player.clearanceLevel ?? 1}` : 'Public access'}</span>
+    </div>;
 }
 
 // ==========================================
@@ -243,11 +225,12 @@ function FormalCaseReasoningBoard({ filterInstitution }: { filterInstitution?: s
 // ==========================================
 export function FaithMedPortal() {
     const player = useOSStore((s) => s.gameplay?.player);
+    const identity = useOSStore(s => s.gameplay.identity);
+    const isLoggedIn = useOSStore(s => s.isLoggedIn);
     const timeCycleCount = useOSStore((s) => s.gameplay?.timeCycleCount ?? 0);
     const runFaithDiagnosticScan = useOSStore((s) => s.runFaithDiagnosticScan);
     const treatFaithCondition = useOSStore((s) => s.treatFaithCondition);
     const completePatientCareAssignment = useOSStore((s) => s.completePatientCareAssignment);
-    const addXP = useOSStore((s) => s.addXP);
 
     const [clinicalMessage, setClinicalMessage] = useState<string | null>(null);
     const [selectedDiagByCase, setSelectedDiagByCase] = useState<Record<string, string>>({});
@@ -274,10 +257,33 @@ export function FaithMedPortal() {
     };
 
     const handleDownloadChart = () => {
+        if (!isLoggedIn) {
+            setClinicalMessage('Sign in to export your personal baseline chart.');
+            return;
+        }
+        const chart = [
+            'Faith Medical Group',
+            'Personal bio-aura baseline',
+            '',
+            `Citizen: ${player.name || 'Citizen'}`,
+            `MAID: ${identity.citizenId || 'Not linked'}`,
+            `World cycle: ${timeCycleCount}`,
+            `Aura integrity: ${player.auraHealth ?? 100}%`,
+            `Stamina: ${player.stamina ?? 0}`,
+            `Baseline assessment: ${isDiagnosed ? 'Recorded' : 'Not yet assessed'}`,
+            `Active conditions: ${activeConditions.length ? activeConditions.join(', ') : 'None recorded'}`,
+            '',
+            'A snapshot of your current personal readings. No new diagnosis or treatment is recorded by this export.',
+        ].join('\n');
+        const url = URL.createObjectURL(new Blob([chart], { type: 'text/plain;charset=utf-8' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'faith-medical-baseline.txt';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
         setDownloadedChart(true);
-        SoundFX.playCoin();
-        if (addXP) addXP(20);
-        setTimeout(() => setDownloadedChart(false), 3000);
     };
 
     const handleCompletePatientCare = async (caseId: string) => {
@@ -312,7 +318,7 @@ export function FaithMedPortal() {
     ];
 
     return (
-        <div className="p-6 space-y-6 bg-[#FAFBFD] min-h-full text-slate-800 font-sans select-none">
+        <div className="vn-service-portal vn-service-medical p-6 space-y-6 bg-[#FAFBFD] min-h-full text-slate-800 font-sans select-none">
             <CitizenAureIdBar portalName="Faith Medical Intranet" />
 
             <header className="flex items-center justify-between border-b border-emerald-100 pb-4">
@@ -330,11 +336,11 @@ export function FaithMedPortal() {
                         onClick={handleDownloadChart}
                         className="px-3 py-1.5 bg-white border border-emerald-300 text-emerald-800 hover:bg-emerald-50 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
                     >
-                        <Download size={13} /> {downloadedChart ? 'Chart Downloaded (+20 XP)' : 'Download Clinical Chart'}
+                        <Download size={13} /> {downloadedChart ? 'Download chart again' : 'Download clinical chart'}
                     </button>
                     <div className="text-right text-xs">
                         <div className="text-slate-500">Patient Baseline ({isDiagnosed ? 'Calibrated' : 'Uncalibrated'})</div>
-                        <div className="text-emerald-700 font-bold">Aura Integrity: {player?.auraHealth || 100}%</div>
+                        <div className="text-emerald-700 font-bold">Aura Integrity: {player?.auraHealth ?? 100}%</div>
                     </div>
                 </div>
             </header>
@@ -346,7 +352,7 @@ export function FaithMedPortal() {
                         <Activity size={18} className="text-emerald-700" /> Personal Baseline Aura Telemetry Scan
                     </h2>
                     <p className="text-xs text-emerald-800 leading-relaxed">
-                        Routine personal diagnostic scans restore Aura Integrity (+20%) and Stamina (+10). Clinical Inpatient care below awards formal medical career advancement.
+                        Review your personal bio-aura baseline and support aura and stamina recovery. Clinical care is available below.
                     </p>
                 </div>
                 <button
@@ -354,7 +360,7 @@ export function FaithMedPortal() {
                     disabled={scannedThisCycle}
                     className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer shrink-0"
                 >
-                    {scannedThisCycle ? '✓ Baseline Scanned' : 'Run Aura Baseline Scan (+Stipend)'}
+                    {scannedThisCycle ? '✓ Baseline Scanned' : 'Run baseline scan'}
                 </button>
             </div>
 
@@ -450,7 +456,7 @@ export function DGAPortal() {
     };
 
     return (
-        <div className="p-6 space-y-6 bg-[#FAFBFD] min-h-full text-slate-800 font-sans select-none">
+        <div className="vn-service-portal vn-service-government p-6 space-y-6 bg-[#FAFBFD] min-h-full text-slate-800 font-sans select-none">
             <CitizenAureIdBar portalName="DGA Central Gateway" />
 
             <header className="flex items-center justify-between border-b border-blue-100 pb-4">
@@ -565,7 +571,7 @@ export function CyacademyPortal() {
 // ==========================================
 export function OrynvellRecordsPortal() {
     return (
-        <div className="p-6 space-y-6 bg-[#FAFBFD] min-h-full text-slate-800 font-sans select-none">
+        <div className="vn-service-portal vn-service-records p-6 space-y-6 bg-[#FAFBFD] min-h-full text-slate-800 font-sans select-none">
             <CitizenAureIdBar portalName="Orynvell Deeds Bureau" />
 
             <header className="flex items-center justify-between border-b border-amber-100 pb-4">
@@ -672,7 +678,7 @@ export function BankPortal() {
     };
 
     return (
-        <div className="p-6 space-y-6 bg-[#FAFBFD] min-h-full text-slate-800 font-sans select-none">
+        <div className="vn-service-portal vn-service-bank p-6 space-y-6 bg-[#FAFBFD] min-h-full text-slate-800 font-sans select-none">
             <CitizenAureIdBar portalName="First Federal Bank of Aureline" />
 
             <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
@@ -896,7 +902,7 @@ export function QuestNoticePortal() {
 // ==========================================
 export function RoyalHistoryPortal() {
     return (
-        <div className="p-6 space-y-6 bg-[#FAFBFD] text-slate-800 min-h-full font-serif select-none">
+        <div className="vn-service-portal vn-service-archive p-6 space-y-6 bg-[#FAFBFD] text-slate-800 min-h-full font-serif select-none">
             <CitizenAureIdBar portalName="Royal Historic Society" />
 
             <header className="flex items-center justify-between border-b border-cyan-100 pb-4">
@@ -974,7 +980,7 @@ export function ShippingPortal() {
     };
 
     return (
-        <div className="p-6 space-y-6 bg-[#FAFBFD] min-h-full text-slate-800 font-sans select-none">
+        <div className="vn-service-portal vn-service-shipping p-6 space-y-6 bg-[#FAFBFD] min-h-full text-slate-800 font-sans select-none">
             <CitizenAureIdBar portalName="Aureline CargoTrack Logistics" />
 
             <header className="flex items-center justify-between border-b border-orange-100 pb-4">

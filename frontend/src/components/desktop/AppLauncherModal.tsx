@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, ChevronRight, Grid2X2, Search, X, Shield, UserRound, Globe, Wrench, LayoutGrid, Sparkles } from 'lucide-react';
+import { ArrowRight, ChevronRight, Grid2X2, Search, X, Shield, UserRound, Globe, Wrench, LayoutGrid, Sparkles, SlidersHorizontal, Check } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 import { useSystemStore } from '../../store/useSystemStore';
 import { SoundFX } from '../../utils/audio';
@@ -12,6 +12,8 @@ export type { ProtocolItem } from './appDirectory';
 export interface AppLauncherModalProps {
   isOpen: boolean;
   onClose: () => void;
+  editing?: boolean;
+  onToggleEditing?: () => void;
 }
 
 const categories = [
@@ -23,7 +25,7 @@ const categories = [
   { name: 'Tools', icon: Wrench },
 ];
 
-export default function AppLauncherModal({ isOpen, onClose }: AppLauncherModalProps) {
+export default function AppLauncherModal({ isOpen, onClose, editing = false, onToggleEditing }: AppLauncherModalProps) {
   const [selectedId, setSelectedId] = useState('browser');
   const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState('All apps');
@@ -32,6 +34,8 @@ export default function AppLauncherModal({ isOpen, onClose }: AppLauncherModalPr
   const gridRef = useRef<HTMLDivElement>(null);
   const windows = useOSStore((state) => state.windows);
   const player = useOSStore((state) => state.gameplay?.player);
+  const desktopPreferences = useOSStore((state) => state.desktopPreferences);
+  const desktopAction = useOSStore((state) => state.desktopAction);
   const soundEnabled = useSystemStore((state) => state.soundEnabled);
 
   const query = searchQuery.trim().toLowerCase();
@@ -149,7 +153,23 @@ export default function AppLauncherModal({ isOpen, onClose }: AppLauncherModalPr
             </> : <div className="drawer-inspector-placeholder"><Grid2X2 size={32} /><p>Your next destination is a search away.</p></div>}
           </aside>
         </div>
-        <footer className="drawer-footer"><span><i className="shell-status-dot" /> AURELINE · PERSONAL WORKSPACE</span><span><kbd>↑</kbd><kbd>↓</kbd> Navigate <kbd>↵</kbd> Open <kbd>esc</kbd> Close</span></footer>
+        <footer className="drawer-footer">
+          <span><i className="shell-status-dot" /> AURELINE · PERSONAL WORKSPACE</span>
+          <div className="desktop-layout-controls">
+            <select aria-label="Desktop layout" value={desktopPreferences.activeLayout} onChange={e => desktopAction({ type: 'layout', id: e.target.value as any })}>
+              <option value="everyday">Everyday</option>
+              <option value="personal">Personal</option>
+              <option value="work">Work</option>
+            </select>
+            {onToggleEditing && (
+              <button type="button" aria-label={editing ? 'Finish customizing desktop' : 'Customize Desktop'} aria-pressed={editing} onClick={onToggleEditing}>
+                {editing ? <Check size={14} /> : <SlidersHorizontal size={14} />}
+                <span>{editing ? 'Done' : 'Customize'}</span>
+              </button>
+            )}
+          </div>
+          <span><kbd>↑</kbd><kbd>↓</kbd> Navigate <kbd>↵</kbd> Open <kbd>esc</kbd> Close</span>
+        </footer>
       </div>
     </dialog>
   );
