@@ -1,5 +1,6 @@
 import { createAcademicActions, recordAcademicCompilation, type AcademicActions } from './academicActions';
 import { emptyAcademics } from '../gameplay/Academics';
+import { HOME_FURNISHINGS, HOME_GUESTS } from '../gameplay/Housing';
 import { createBrowserActions } from './browserActions';
 import { createSocialActions, type SocialActions } from './socialActions';
 import { grantLocalCredentials, isLocalWorld } from '../gameplay/localCredentials';
@@ -124,6 +125,7 @@ export interface OSStoreState extends AcademicActions, AssignmentFlowActions, Pr
   };
   studyInHousing: () => { ok: boolean; message: string };
   purchaseHousingUpgrade: (upgradeId: string, cost: number, bitCost?: number) => { ok: boolean; message: string };
+  inviteHousingGuest: (guestId: string) => { ok: boolean; message: string };
   advanceWorknetMissionStep: (missionId: string, stepKey: string) => void;
   completeWorknetDomainTask: (missionId: string, selectedOptionId: string) => { ok: boolean; message: string };
   acceptEmployment: (track: string) => { ok: boolean; message: string };
@@ -834,56 +836,45 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
     }));
     get().addSkillXP('Research', 25);
     get().addSkillXP('Programming', 20);
-    return { ok: true, message: `Completed 2 hours of Cyberium Academy Syntax coursework (-${staminaCost} Stamina). +${xpGain} Academic XP gained!` };
+    return { ok: true, message: `Quiet independent study completed (-${staminaCost} stamina, +${xpGain} XP). Formal coursework is tracked in AureLearn.` };
   },
 
-  purchaseHousingUpgrade: (upgradeId, cost, bitCost = 0) => {
+  purchaseHousingUpgrade: (upgradeId) => {
     const state = get();
     const player = state.gameplay.player;
+    const furnishing = HOME_FURNISHINGS.find(item => item.id === upgradeId);
+    if (!furnishing) return { ok: false, message: 'That furnishing is not available.' };
     const unlocked: string[] = Array.isArray(player.unlockedHousingUpgrades) ? player.unlockedHousingUpgrades : ['banner'];
-    if (unlocked.includes(upgradeId)) {
-      return { ok: false, message: 'Upgrade already installed in your housing unit.' };
-    }
+    if (unlocked.includes(upgradeId)) return { ok: false, message: 'This furnishing is already installed.' };
+    if (!Number.isFinite(player.credits) || player.credits < furnishing.cost) return { ok: false, message: `You need ${furnishing.cost} credits for this furnishing.` };
+    const comfort = player.roomComfort ?? player.dormComfort ?? 50;
+    const nextComfort = Math.min(100, Math.max(0, Number.isFinite(comfort) ? comfort : 50) + 10);
+    const xp = player.xp + 40;
+    set(s => ({ gameplay: { ...s.gameplay, player: { ...s.gameplay.player,
+      credits: player.credits - furnishing.cost, unlockedHousingUpgrades: [...unlocked, upgradeId],
+      roomComfort: nextComfort, dormComfort: nextComfort, housingCalibrated: true, xp, level: Math.floor(xp / 100) + 1,
+    } } }));
+    get().recordWorldEvent({ category: 'housing', title: `Installed ${furnishing.name}`,
+      summary: `Suite 4B received ${furnishing.name}. Room comfort: ${nextComfort}.`,
+      institution: 'HOMECRAFT // Housing', impact: { reputationTrack: 'campus', reputationDelta: 2 } });
+    return { ok: true, message: `${furnishing.name} installed. +40 XP. Room comfort: ${nextComfort}/100.` };
+  },
 
-    if (bitCost > 0) {
-      if ((player.bits || 0) < bitCost) {
-        return { ok: false, message: `Insufficient BITS! Requires ${bitCost} ◈ BITS.` };
-      }
-    } else {
-      if ((player.credits || 0) < cost) {
-        return { ok: false, message: `Insufficient CREDITS! Requires ${cost} ₢ Credits.` };
-      }
-    }
-
-    const newXP = player.xp + 40;
-    const newLevel = Math.floor(newXP / 100) + 1;
-    const currentComfort = typeof player.roomComfort === 'number' ? player.roomComfort : (player.dormComfort || 50);
-    const nextComfort = currentComfort + 10;
-
-    set((s) => ({
-      gameplay: {
-        ...s.gameplay,
-        player: {
-          ...s.gameplay.player,
-          credits: bitCost > 0 ? s.gameplay.player.credits : Math.max(0, s.gameplay.player.credits - cost),
-          bits: bitCost > 0 ? Math.max(0, (s.gameplay.player.bits || 0) - bitCost) : s.gameplay.player.bits,
-          unlockedHousingUpgrades: [...unlocked, upgradeId],
-          housingCalibrated: true,
-          roomComfort: nextComfort,
-          dormComfort: nextComfort,
-          xp: newXP,
-          level: newLevel,
-        },
-      },
-    }));
-    get().recordWorldEvent({
-      category: 'housing',
-      title: `Installed Housing Upgrade: ${upgradeId}`,
-      summary: `Citizen upgraded residential Suite 4B with ${upgradeId} (+40 XP, +10 Room Comfort → ${nextComfort}).`,
-      institution: 'HOMECRAFT // Housing',
-      impact: { reputationTrack: 'campus', reputationDelta: 2 },
-    });
-    return { ok: true, message: `Upgrade unlocked & permanently installed! Granted +40 XP and +10 Room Comfort (Comfort: ${nextComfort}).` };
+  inviteHousingGuest: guestId => {
+    const state = get();
+    const player = state.gameplay.player;
+    const guest = HOME_GUESTS.find(item => item.id === guestId);
+    if (!guest) return { ok: false, message: 'That guest is not available.' };
+    if (!player.unlockedHousingUpgrades?.includes('seating')) return { ok: false, message: 'Install guest seating before inviting a friend.' };
+    const cycle = state.gameplay.timeCycleCount;
+    const visits: { guestId: string; cycle: number }[] = Array.isArray(player.housingGuestVisits) ? player.housingGuestVisits : [];
+    if (visits.some(visit => visit.guestId === guestId && visit.cycle === cycle)) return { ok: true, message: `${guest.name} has already visited this cycle. You can revisit your conversation.` };
+    const xp = player.xp + 15;
+    set(s => ({ gameplay: { ...s.gameplay, player: { ...s.gameplay.player,
+      housingGuestVisits: [...visits.filter(visit => visit.cycle === cycle), { guestId, cycle }],
+      xp, level: Math.floor(xp / 100) + 1,
+    } } }));
+    return { ok: true, message: `${guest.name} stopped by. +15 XP for this cycle's visit.` };
   },
 
   advanceWorknetMissionStep: (missionId, stepKey) =>
