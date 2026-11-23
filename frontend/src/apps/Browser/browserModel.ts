@@ -1,5 +1,6 @@
 import { NEWS_SITE } from './news/newsSite';
 import { eduPageTitle } from './edu/eduRouter';
+import { faithMedPageTitle } from './medical/faithMedRouter';
 export const BROWSER_HOME = 'https://versenet.aure';
 export const MAX_BROWSER_TABS = 8;
 
@@ -156,6 +157,8 @@ export function browserTitle(url: string): string {
     if (parsed.hostname === NEWS_SITE.domain) return parsed.pathname === '/saved' ? `Saved stories · ${NEWS_SITE.name}` : parsed.pathname.startsWith('/article/') ? `Article · ${NEWS_SITE.name}` : NEWS_SITE.name;
     const eduTitle = eduPageTitle(url);
     if (eduTitle) return eduTitle;
+    const medTitle = faithMedPageTitle(url);
+    if (medTitle) return medTitle;
     const siteNames: Record<string, string> = { 
       'companion.aure': 'Aureline Companion', 
       'gardenreview.aure': 'Glassline Garden Review', 

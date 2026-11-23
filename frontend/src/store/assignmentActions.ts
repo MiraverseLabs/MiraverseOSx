@@ -1,3 +1,4 @@
+import { PROCESS_MISSION } from '../gameplay/ProcessMonitor';
 import type { OSStoreState } from './useOSStore';
 import { useCommsStore } from './useCommsStore';
 import { getOpportunity, opportunityStatus, assignmentFiles, emptyAssignmentJournal, DISPATCH_SCHEDULE, dispatchEmail, activityReady, type AssignmentJournal, type AssignmentFile } from '../gameplay/AssignmentFlow';
@@ -141,7 +142,7 @@ export function createAssignmentActions(set: (update: (state: OSStoreState) => P
       const assignment = WORKNET_ASSIGNMENTS[id];
       const carePaid = order.resultIds.some((resultId: string) => player.taskResults[resultId]?.compensationPaid);
       const file: AssignmentFile = { id: `completion:${order.id}`, name: `Completion_cycle_${order.cycle}.log`, dir: `/assignments/${id}`, type: 'log', size: 'Receipt', desc: 'Accepted work and compensation', assignmentId: id,
-        body: `${opportunity.title}\nWork order: ${order.id}\nStatus: accepted\nEvaluation: ${order.evaluation}/100\n\n${id === CASE_MISSION ? caseCompletionText(order.caseProgress) : order.resultIds.map((resultId: string) => { const result = player.taskResults[resultId]; return `${result.stageId}\n${Object.entries(result.output).filter(([key]) => !key.endsWith('__html')).map(([key, value]) => `${key}: ${value}`).join('\n')}`; }).join('\n\n')}\n\n${carePaid ? 'Clinical compensation was already issued at treatment. No duplicate payment.' : `Paid: ${assignment.rewardCredits} credits, ${assignment.rewardBits || 0} bits, ${assignment.rewardXP} career XP.`}` };
+        body: `${opportunity.title}\nWork order: ${order.id}\nStatus: accepted\nEvaluation: ${order.evaluation}/100\n\n${id === CASE_MISSION ? caseCompletionText(order.caseProgress) : order.resultIds.map((resultId: string) => { const result = player.taskResults[resultId]; return `${result.stageId}\n${Object.entries(result.output).filter(([key]) => !key.endsWith('__html')).map(([key, value]) => `${key}: ${value}`).join('\n')}`; }).join('\n\n')}\n\n${id === PROCESS_MISSION && player.processMonitor?.completion?.paid === false ? 'Historical PID 512 compensation retained. No duplicate payment.' : carePaid ? 'Clinical compensation was already issued at treatment. No duplicate payment.' : `Paid: ${assignment.rewardCredits} credits, ${assignment.rewardBits || 0} bits, ${assignment.rewardXP} career XP.`}` };
       saveFiles([file]);
       sendReceipt(id, 'completed', file);
       get().refreshContextualDiscoveries();

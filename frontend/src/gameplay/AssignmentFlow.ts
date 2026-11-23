@@ -80,6 +80,7 @@ export function assignmentFiles(opportunity: Opportunity): AssignmentFile[] {
   ];
 }
 export const DISPATCH_SCHEDULE = [
+    { id: 'ms-process-001', channel: 'email' as const },
     { id: 'ms-case-002', channel: 'email' as const },
   { id: 'ms-shift-04', channel: 'email' as const },
   { id: 'qn-02', channel: 'email' as const },

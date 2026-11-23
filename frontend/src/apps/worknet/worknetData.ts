@@ -106,6 +106,7 @@ export const INSTITUTIONAL_REGISTRY: Record<WorkplaceStationId, InstitutionalThe
       { id: 'rd-dga-2', title: 'Perimeter Seal Health Inspection', frequency: 'Twice Weekly', estUnits: 2, description: 'Verify SealLockCrypt integrity across Transit Junction gates 04 through 12.', rewardDesc: '+40 ₢ · +20 Career XP' }
     ],
     externalApps: [
+      { id: 'process', title: 'Process Monitor', description: 'Shared PRISM diagnostics, evidence, containment and WorkNet reports.', appId: 'process' },
       { id: 'dgaos', title: 'DGAOS Enterprise Console', description: 'Investigative dockets, forensic logs, and departmental operations.', appId: 'dgaos' },
       { id: 'trace', title: 'TRACE Forensics', description: 'Deep packet inspection and acoustic waveform analysis.', appId: 'dgaos' },
       { id: 'vault', title: 'VAULT Records', description: 'Access classified evidence attachments and case filings.', appId: 'files' }

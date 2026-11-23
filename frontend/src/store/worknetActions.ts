@@ -1,3 +1,5 @@
+import { isWorldPaused } from '../integration/worldStateManager';
+import { PROCESS_MISSION } from '../gameplay/ProcessMonitor';
 import { changeWorkplace, workTick, stationTrack, employed } from '../apps/worknet/workplaceModel';
 import type { OSStoreState } from './useOSStore';
 import { sanitizeMailHtml, mailHtmlToText } from '../apps/mail/richText';
@@ -38,6 +40,7 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
       if (missionId === CASE_MISSION && (!get().broadStreetEligible() || get().broadStreetPreviouslyComplete())) return { ok: false, message: 'Existing DGA/TRACE access and clearance 2 are required. Previously closed or paid Broad Street cases cannot reopen as new paid assignments.' };
       const state = get();
       const player = state.gameplay.player;
+      if (missionId === PROCESS_MISSION && (!get().isLoggedIn || isWorldPaused())) return { ok: false, message: 'Log in and resume the world before accepting diagnostic work.' };
       const definition = getWorkDefinition(missionId);
       if (!definition) return { ok: false, message: 'Unknown assignment.' };
       const existing: WorkOrder | undefined = player.worknetOrders?.[missionId];
@@ -83,6 +86,7 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
     },
 
     submitWorknetStage: (missionId: string, stageId: string, values: WorkValues) => {
+      if (missionId === PROCESS_MISSION) return { ok: false, message: 'Use the shared Process Monitor to produce and submit diagnostic evidence.' };
       if (missionId === CASE_MISSION) return { ok: false, message: 'Submit the structured findings and citations through the case report reviewer.' };
       const player = get().gameplay.player;
       const order: WorkOrder | undefined = player.worknetOrders?.[missionId];
@@ -133,6 +137,7 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
     },
 
     completeWorknetMission: (mission: { id: string; track: string; rewardCredits: number; rewardBits?: number; rewardXP: number; primaryAttribute?: string }) => {
+      if (mission?.id === PROCESS_MISSION) { const result = get().finalizeProcessAssignment(); return { ok: result.ok, reason: result.message }; }
       if (mission?.id === CASE_MISSION) {
         const order = get().gameplay.player.worknetOrders?.[CASE_MISSION];
         const progress = restoreCaseProgress(order?.caseProgress);

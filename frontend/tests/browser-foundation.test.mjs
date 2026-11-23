@@ -37,7 +37,7 @@ test('back/forward restore titles and a new route drops only the forward branch'
   storage(); const store = await fresh(); const actions = store.getState();
   actions.navigateBrowserTab('worknet.aure'); actions.navigateBrowserTab('faithmed.aure'); actions.goBrowserBack();
   assert.equal(store.getState().browserState.tabs[0].title, 'WorkNet');
-  actions.goBrowserForward(); assert.equal(store.getState().browserState.tabs[0].title, 'Faith Medical');
+  actions.goBrowserForward(); assert.equal(store.getState().browserState.tabs[0].title, 'Faith Medical Group');
   actions.goBrowserBack(); actions.navigateBrowserTab('civinet.mer'); actions.goBrowserForward();
   assert.equal(store.getState().browserState.tabs[0].title, 'Citizen Hub');
   actions.navigateBrowserTab('civinet.mer');

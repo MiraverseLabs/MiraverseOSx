@@ -1,3 +1,4 @@
+import { validatedQuarantinePids } from '../gameplay/ProcessMonitor';
 export interface NoticeItem {
   id: string;
   category: 'tasks' | 'quests' | 'missions' | 'adventures' | 'journey';
@@ -129,7 +130,7 @@ export function evaluateNoticeObjective(player: any, noticeId: string): NoticeOb
       };
     }
     case 'n-02': {
-      const quarantinedCount = Array.isArray(player.quarantinedProcessPids) ? player.quarantinedProcessPids.length : 0;
+      const quarantinedCount = validatedQuarantinePids(player).length;
       const hackedCount = Number(player.hackedNodes || 0);
       const inspectedAethercore = Array.isArray(player.inspectedFiles) && (
         player.inspectedFiles.includes('aethercore-sys') ||
@@ -142,7 +143,7 @@ export function evaluateNoticeObjective(player: any, noticeId: string): NoticeOb
         current,
         required: 1,
         progressText: `${current} / 1 Anomaly Traced`,
-        hint: 'Quarantine a corrupted thread in SYSTEM Process Monitor or inspect AETHERCORE.sys in VAULT.',
+        hint: 'Complete the shared Process Monitor investigation or inspect an authorized anomaly record in VAULT.',
         targetAppId: 'process',
       };
     }

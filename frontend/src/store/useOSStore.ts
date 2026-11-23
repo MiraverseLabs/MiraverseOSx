@@ -1,3 +1,5 @@
+import { createProcessActions, type ProcessActions } from './processActions';
+import { restoreProcessMonitor } from '../gameplay/ProcessMonitor';
 import { createAcademicActions, recordAcademicCompilation, type AcademicActions } from './academicActions';
 import { emptyAcademics } from '../gameplay/Academics';
 import { HOME_FURNISHINGS, HOME_GUESTS } from '../gameplay/Housing';
@@ -62,7 +64,7 @@ export interface OSWindow {
   [key: string]: any;
 }
 
-export interface OSStoreState extends AcademicActions, AssignmentFlowActions, ProgressionActions, VersenetActions, SiteActions, BroadStreetActions, SocialActions {
+export interface OSStoreState extends ProcessActions, AcademicActions, AssignmentFlowActions, ProgressionActions, VersenetActions, SiteActions, BroadStreetActions, SocialActions {
   isLoggedIn: boolean;
   isSanctuary: boolean;
   toggleSanctuary: () => void;
@@ -896,6 +898,7 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
       };
     }),
 
+  ...createProcessActions(set, get),
   ...createAcademicActions(set, get),
   ...createWorknetActions(set, get),
   ...createFieldActions(set, get),
@@ -995,40 +998,7 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
     }
   },
 
-  quarantineProcess: (pid) => {
-    const state = get();
-    const player = state.gameplay.player;
-    const quarantined: number[] = Array.isArray(player.quarantinedProcessPids) ? player.quarantinedProcessPids : [];
-    if (quarantined.includes(pid)) return false;
-
-    const newXP = player.xp + 150;
-    const newLevel = Math.floor(newXP / 100) + 1;
-    const nextCorruption = Math.max(2.0, Number((state.gameplay.prismCorruptionLevel - 2.5).toFixed(1)));
-
-    set((s) => ({
-      gameplay: {
-        ...s.gameplay,
-        prismCorruptionLevel: nextCorruption,
-        player: {
-          ...s.gameplay.player,
-          quarantinedProcessPids: [...quarantined, pid],
-          hackedNodes: (s.gameplay.player.hackedNodes || 0) + 1,
-          credits: s.gameplay.player.credits + 250,
-          xp: newXP,
-          level: newLevel,
-        },
-      },
-    }));
-    get().addSkillXP('CyberSecurity', 30);
-    get().recordWorldEvent({
-      category: 'forensic',
-      title: `Quarantined Rogue Kernel Process PID ${pid}`,
-      summary: `Isolated anomalous PRISM/AETHERCORE thread PID ${pid} in Process Monitor (-2.5% Corruption).`,
-      institution: 'Process Monitor',
-      impact: { reputationTrack: 'dga', reputationDelta: 5 },
-    });
-    return true;
-  },
+  quarantineProcess: pid => get().processAction({ type: 'isolate', pid }).ok,
 
   recordFileInspection: (mockKey) =>
     set((state) => {
@@ -2277,7 +2247,7 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
       versenetSites: restoreVersenetSites(saved?.versenetSites),
       browserState,
       browserUrl: browserState.tabs.find(tab => tab.id === browserState.activeTabId)!.url,
-      gameplay: mergeSavedProgress(current.gameplay, saved?.gameplay),
+      gameplay: (() => { const gameplay = mergeSavedProgress(current.gameplay, saved?.gameplay); return { ...gameplay, player: { ...gameplay.player, processMonitor: restoreProcessMonitor(gameplay.player.processMonitor) } }; })(),
       wallpaper: typeof saved?.wallpaper === 'string' ? saved.wallpaper : current.wallpaper,
       isLoggedIn: typeof saved?.isLoggedIn === 'boolean' ? saved.isLoggedIn : current.isLoggedIn,
     };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { isEduUrl } from './edu/eduRouter';
+import { isFaithMedUrl } from './medical/faithMedRouter';
 import SearchHome from './SearchHome';
 import BrowserTabGroups from './BrowserTabGroups';
 import { NEWS_SITE } from './news/newsSite';
@@ -28,6 +29,7 @@ import {
 
 const DispatchNewsSite = lazy(() => import('./news/DispatchNewsSite'));
 const EduSiteRouter = lazy(() => import('./edu/EduSiteRouter'));
+const FaithMedSite = lazy(() => import('./medical/FaithMedSite'));
 
 export const QUICK_NAVIGATION_TARGETS = IN_GAME_PORTALS.map(p => ({
     domain: p.domain,
@@ -72,6 +74,7 @@ function ContentFrame({ url, openTab, navigateTab, openService }: any) {
     if (!url) return <SearchHome navigateTab={navigateTab} openTab={openTab} />;
     if (new URL(url).hostname === NEWS_SITE.domain) return <Suspense fallback={<p role="status">Connecting to the Dispatch…</p>}><DispatchNewsSite url={url} navigateTab={navigateTab}/></Suspense>;
     if (isEduUrl(url)) return <Suspense fallback={<p role="status">Loading academic portal…</p>}><EduSiteRouter url={url} navigateTab={navigateTab}/></Suspense>;
+    if (isFaithMedUrl(url)) return <Suspense fallback={<p role="status">Connecting to Faith Medical…</p>}><FaithMedSite url={url} navigateTab={navigateTab}/></Suspense>;
     if (new URL(url).hostname === 'firstfederal.aure' && new URL(url).pathname === '/maintenance') return <BroadStreetPublicPage />;
     if (new URL(url).hostname === 'services.aure') return <ServiceDirectory navigateTab={openService}/>;
     if (externalWebUrl(url)) return <ExternalWebPage url={url}/>;

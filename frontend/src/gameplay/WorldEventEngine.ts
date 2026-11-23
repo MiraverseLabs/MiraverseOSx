@@ -1,3 +1,4 @@
+import { validatedQuarantinePids, PROCESS_MISSION, restoreProcessMonitor, processReportIssues } from './ProcessMonitor';
 import { getProfile as FORMAL_INVESTIGATION_CASESProfile } from '../game-content/characters/collections/FORMAL_INVESTIGATION_CASES';
 import { getProfile as PATIENT_CARE_ASSIGNMENTSProfile } from '../game-content/characters/collections/PATIENT_CARE_ASSIGNMENTS';
 import { getWorkDefinition, evaluateWorkOrder, nextWorkStage } from './ActivityEngine';
@@ -174,9 +175,7 @@ export class WorldEventEngine {
     const completedWorknetCount = Array.isArray(player?.completedWorknetMissionIds)
       ? player.completedWorknetMissionIds.length
       : 0;
-    const quarantinedCount = Array.isArray(player?.quarantinedProcessPids)
-      ? player.quarantinedProcessPids.length
-      : 0;
+    const quarantinedCount = validatedQuarantinePids(player).length;
     const masteredSpells: string[] = Array.isArray(player?.forgedSpells) ? player.forgedSpells : ['Reflect Shield'];
     const activeConditions: string[] = Array.isArray(player?.conditions) ? player.conditions : [];
     const solvedCases: string[] = Array.isArray(player?.solvedInvestigationCaseIds)
@@ -455,7 +454,9 @@ export function evaluateWorknetObjective(
   const definition = getWorkDefinition(missionId);
   const order = player?.worknetOrders?.[missionId];
   const results = player?.taskResults || {};
-  const verified = Boolean(definition && definition.track === track && order?.definitionId === missionId && order?.subject === definition.subject && evaluateWorkOrder(order, results));
+  const monitor = missionId === PROCESS_MISSION ? restoreProcessMonitor(player?.processMonitor) : null;
+  const currentDiagnosticReview = !monitor || Boolean(monitor.completion || (monitor.review?.revision === monitor.revision && !processReportIssues(monitor).length));
+  const verified = Boolean(currentDiagnosticReview && definition && definition.track === track && order?.definitionId === missionId && order?.subject === definition.subject && evaluateWorkOrder(order, results));
   return {
     verified,
     source: verified ? `Accepted work order ${order.id}` : 'Pending assignment work',
@@ -463,6 +464,7 @@ export function evaluateWorknetObjective(
       ? 'All required task outputs and deliverables are accepted.'
       : order?.remediationRequired
         ? 'Restore safe conditions and submit a remediation note before continuing.'
+        : monitor ? 'Complete the shared Process Monitor evidence, containment verification, and current report review.'
         : `Requires ${definition?.subject || missionId}: ${order ? nextWorkStage(order, results)?.title || 'accepted deliverables' : 'open a work order and complete its required stages'}.`,
   };
 }
@@ -669,7 +671,7 @@ function getCompletedMissionsForTrack(player: any, track: string): number {
   const completed: string[] = Array.isArray(player?.completedWorknetMissionIds)
     ? player.completedWorknetMissionIds
     : [];
-  return completed.filter((id) => WORKNET_DOMAIN_TASKS[id]?.track === track).length;
+  return completed.filter((id) => (WORKNET_DOMAIN_TASKS[id]?.track === track || (id === PROCESS_MISSION && track === 'dga'))).length;
 }
 
 export const CAREER_TRACK_SPECS: Record<string, CareerTrackSpec> = {
@@ -812,8 +814,8 @@ export const CAREER_TRACK_SPECS: Record<string, CareerTrackSpec> = {
         description: 'Advance through solved DGA/TRACE forensic cases and quarantined rogue PRISM threads.',
         isMet: (player, targetRank) => {
           const solved = Array.isArray(player?.solvedInvestigationCaseIds) ? player.solvedInvestigationCaseIds.length : 0;
-          const quarantined = Array.isArray(player?.quarantinedProcessPids) ? player.quarantinedProcessPids.length : 0;
-          const dgaMissions = getCompletedMissionsForTrack(player, 'dga');
+          const quarantined = validatedQuarantinePids(player).length;
+          const dgaMissions = getCompletedMissionsForTrack(player, 'dga') - (player?.completedWorknetMissionIds?.includes(PROCESS_MISSION) ? 1 : 0);
           return solved + quarantined + dgaMissions >= targetRank && (solved >= 1 || quarantined >= 1);
         },
         requirementSummary: (targetRank) =>
@@ -901,7 +903,7 @@ export const CAREER_TRACK_SPECS: Record<string, CareerTrackSpec> = {
         description: 'Advance through hands-on relay repairs, kernel thread isolation, and SpellForge compiler synthesis.',
         isMet: (player, targetRank) => {
           const engMissions = getCompletedMissionsForTrack(player, 'engineer');
-          const quarantined = Array.isArray(player?.quarantinedProcessPids) ? player.quarantinedProcessPids.length : 0;
+          const quarantined = validatedQuarantinePids(player).length;
           const forged = Array.isArray(player?.forgedSpells) ? player.forgedSpells.length : 1;
           return engMissions + quarantined + Math.max(0, forged - 1) >= targetRank;
         },
@@ -1101,10 +1103,10 @@ export function evaluateCareerPromotion(
   const relevantSkills = primarySkills[track] || ['Research'];
   const skillFloor = Math.max(1, Math.ceil(nextRankIndex / 2));
   const skillsMet = relevantSkills.some(skill => (player?.skills?.[skill]?.level || 1) >= skillFloor);
-  const acceptedExperience = getCompletedMissionsForTrack(player, track);
+  const acceptedExperience = getCompletedMissionsForTrack(player, track) - (track === 'dga' && player?.completedWorknetMissionIds?.includes(PROCESS_MISSION) ? 1 : 0);
   const specialistExperience = track === 'medical' ? player?.completedPatientCareIds?.length || 0
     : track === 'artist' ? Math.max(0, (player?.forgedSpells?.length || 1) - 1) + Math.max(0, (player?.maiSpaceProfile?.bulletinPosts?.length || 4) - 4)
-    : track === 'dga' ? (player?.solvedInvestigationCaseIds?.length || 0) + (player?.quarantinedProcessPids?.length || 0)
+    : track === 'dga' ? (player?.solvedInvestigationCaseIds?.length || 0) + validatedQuarantinePids(player).length
     : track === 'archivist' ? (player?.inspectedFiles || []).filter((id: string) => ['purge-archive', 'aethercore-sys'].includes(id)).length
     : track === 'warden' ? player?.discoveredShrines?.length || 0 : 0;
   const experienceMet = acceptedExperience + specialistExperience > 0;

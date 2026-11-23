@@ -1,3 +1,5 @@
+import ProcessMonitorApp from './ProcessMonitorApp';
+import { PROCESS_MISSION } from '../gameplay/ProcessMonitor';
 import React, { useState } from 'react';
 import { useOSStore } from '../store/useOSStore';
 import { WORK_DEFINITIONS, nextWorkStage, resolveWorkStage, resultForStage, evaluateLinkedActivities, type TaskResult, type WorkOrder } from '../gameplay/ActivityEngine';
@@ -30,6 +32,7 @@ export default function WorknetOrderPanel({ missionId, onFeedback }: { missionId
   const canRepeat = definition.kind === 'shift' && definition.track !== 'medical' && order?.status === 'accepted' && cycle > order.cycle;
   const feedback = (result: { ok: boolean; message: string }) => onFeedback(`${result.ok ? '✓' : '⚠'} ${result.message}`);
   const activities = evaluateLinkedActivities(results).filter(activity => isOpportunityRevealed(activity.id, player) && activity.milestones.some(milestone => milestone.requirements.some(requirement => requirement.definitionId === missionId)));
+  if (missionId === PROCESS_MISSION) return <ProcessMonitorApp host="worknet" />;
   if (missionId === 'ms-case-002') return <BroadStreetCasePanel />;
   return (
     <section className="space-y-3 text-xs font-ui" aria-label="Assignment work order">

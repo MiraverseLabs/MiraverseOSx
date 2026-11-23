@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import ProcessMonitorApp from '../../../apps/ProcessMonitorApp';
+import { PROCESS_INCIDENT } from '../../../gameplay/ProcessMonitor';
 import { isLocalWorld } from '../../../gameplay/localCredentials';
 import {
   Shield,
@@ -106,6 +108,7 @@ export function DgaShell({ traceWorkbenchNode, onOpenCaseNotebook }: DgaShellPro
   const [roleOverride, setRoleOverride] = useState<DGARole | null>(null);
   const [accessNotice, setAccessNotice] = useState<string | null>(null);
   const [dgaState, setDgaState] = useState<DGAState | null>(null);
+  const [processOpen, setProcessOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<DgaTab>('dashboard');
   const [activeMode, setActiveMode] = useState<'DGA_CORE' | 'TRACE'>('DGA_CORE');
   const [isRailCollapsed, setIsRailCollapsed] = useState(false);
@@ -161,7 +164,8 @@ export function DgaShell({ traceWorkbenchNode, onOpenCaseNotebook }: DgaShellPro
   useEffect(() => {
     if (!workspaceRequest || !dgaState || dgaState.isLocked) return;
     if (workspaceRequest.section.startsWith('broadstreet:')) return;
-    if (workspaceRequest.section === 'trace') setActiveMode('TRACE');
+    if (workspaceRequest.section === `process:${PROCESS_INCIDENT}`) { setActiveMode('DGA_CORE'); setActiveTab('investigation'); setProcessOpen(true); }
+    else if (workspaceRequest.section === 'trace') setActiveMode('TRACE');
     else if (workspaceRequest.section === 'services') { setActiveMode('DGA_CORE'); setActiveTab('services'); }
     useOSStore.getState().consumeWorkspaceRequest('dgaos', workspaceRequest.revision);
   }, [workspaceRequest, dgaState?.isLocked]);
@@ -352,6 +356,7 @@ export function DgaShell({ traceWorkbenchNode, onOpenCaseNotebook }: DgaShellPro
               Enable full access
             </button>
           )}
+          <button type="button" className="dga-notebook-launch" onClick={() => { handleNavigateTab('investigation'); setProcessOpen(true); }}><Cpu size={13}/>Process Diagnostics</button>
           {onOpenCaseNotebook && (
             <button
               type="button"
@@ -583,7 +588,8 @@ export function DgaShell({ traceWorkbenchNode, onOpenCaseNotebook }: DgaShellPro
               />
             )}
 
-            {effectiveTab === 'investigation' && (
+            {effectiveTab === 'investigation' && processOpen && <div className="h-full min-h-0 flex flex-col"><nav className="dga-case-navigation"><button onClick={() => setProcessOpen(false)}>Return to investigations</button></nav><div className="flex-1 min-h-0"><ProcessMonitorApp host="dga" /></div></div>}
+            {effectiveTab === 'investigation' && !processOpen && (
               <DgaInvestigationHub
                 onOpenCase={handleSelectCase}
                 onLaunchTrace={handleLaunchTrace}

@@ -264,5 +264,23 @@
     "rewardXP": 70,
     "primaryAttribute": "Versatile XP",
     "permittedTools": ["CallNumberGuide", "MicrofiberCloth"]
+  },
+  {
+    "id": "ms-process-001",
+    "type": "Special Assignments",
+    "track": "dga",
+    "department": "DGA Blackout Containment Unit",
+    "title": "Investigate the local PRISM memory intrusion",
+    "location": "Aureline / local diagnostic node",
+    "workplace": "DGA",
+    "severity": "Elevated",
+    "description": "Investigate PID 512 using its signature, memory-write logs, and connection trace. Preserve the evidence, verify containment, and submit one shared diagnostic report.",
+    "targetSubject": "PM-PRISM-001",
+    "requiredAction": "Use Process Monitor to diagnose, contain, verify, and report the local intrusion.",
+    "rewardCredits": 250,
+    "rewardBits": 0,
+    "rewardXP": 150,
+    "primaryAttribute": "Intellect",
+    "permittedTools": ["Process Monitor", "Evidence notebook"]
   }
 ]
