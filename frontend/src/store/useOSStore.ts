@@ -11,7 +11,7 @@ import { restoreDesktopPreferences, changeDesktop, type DesktopAction, type Desk
 import { resolveAppDestination, retiredWindowDestination, type WorkspaceRequest } from './appNavigation';
 import { canAcceptInvitation, invitationForOrganization, membershipSource, organization, registerCommunicationsAuthority } from '../integration/communicationsAccess';
 import { isWorldPaused } from '../integration/worldStateManager';
-import { initialBrowserState, restoreBrowserState, type BrowserState } from '../apps/Browser/browserModel';
+import { BROWSER_HOME, initialBrowserState, restoreBrowserState, restartBrowserSession, type BrowserState } from '../apps/Browser/browserModel';
 export type { BrowserState, BrowserTab, TabHistory } from '../apps/Browser/browserModel';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -102,6 +102,11 @@ export interface OSStoreState extends AcademicActions, AssignmentFlowActions, Pr
   toggleBrowserBookmark: () => void;
   removeBrowserBookmark: (url: string) => void;
   clearBrowserHistory: () => void;
+  goBrowserHome: () => void;
+  createBrowserTabGroup: (name: string) => { ok: boolean; message: string };
+  setBrowserTabGroup: (tabId: number, groupId?: string) => { ok: boolean; message: string };
+  renameBrowserTabGroup: (id: string, name: string) => { ok: boolean; message: string };
+  removeBrowserTabGroup: (id: string) => void;
 
   loginUser: (userData: any) => void;
   grantLocalFullAccess: () => { ok: boolean; message: string };
@@ -545,7 +550,11 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
       };
     }),
 
-  logoutUser: () => set({ isLoggedIn: false }),
+  logoutUser: () => set(state => {
+    const workspaceRequests = { ...state.workspaceRequests };
+    delete workspaceRequests.browser;
+    return { isLoggedIn: false, browserState: restartBrowserSession(state.browserState), browserUrl: BROWSER_HOME, workspaceRequests };
+  }),
 
   // ------------------------------------------------------------------
   // Gameplay State Lane (Cross-App Progression & Mechanics)
@@ -2217,8 +2226,11 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
 
   closeWindow: (id) => set((state) => {
     const remaining = state.windows.filter((w) => w.id !== id);
+    const workspaceRequests = { ...state.workspaceRequests };
+    if (id === 'browser') delete workspaceRequests.browser;
     return {
       windows: remaining,
+      ...(id === 'browser' ? { browserState: restartBrowserSession(state.browserState), browserUrl: BROWSER_HOME, workspaceRequests } : {}),
       activeWindowId:
         state.activeWindowId === id
           ? (remaining.slice().sort((a, b) => b.zIndex - a.zIndex)[0]?.id || null)
@@ -2263,7 +2275,7 @@ export const useOSStore = create<OSStoreState>()(persist((set, get) => ({
   version: 1,
   storage: createJSONStorage(() => osStorage),
   // Window metadata can contain React icons; recreate windows rather than serializing them.
-  partialize: ({ gameplay, wallpaper, isLoggedIn, browserState, desktopPreferences, versenetContent, versenetSites }) => ({ gameplay, wallpaper, isLoggedIn, browserState, desktopPreferences, versenetContent, versenetSites }),
+  partialize: ({ gameplay, wallpaper, isLoggedIn, browserState, desktopPreferences, versenetContent, versenetSites }) => ({ gameplay, wallpaper, isLoggedIn, browserState: restartBrowserSession(browserState), desktopPreferences, versenetContent, versenetSites }),
   merge: (persisted, current) => {
     const saved = persisted as Partial<OSStoreState> | null;
     const browserState = restoreBrowserState(saved?.browserState);

@@ -1,10 +1,12 @@
-import { BROWSER_HOME, MAX_BROWSER_TABS, browserTitle, resolveBrowserInput, recordBrowserVisit } from '../apps/Browser/browserModel';
+import { BROWSER_HOME, MAX_BROWSER_TABS, browserTitle, resolveBrowserInput, recordBrowserVisit, restartBrowserSession } from '../apps/Browser/browserModel';
 
 export function createBrowserActions(set: any, get: any) {
   const open = (input = BROWSER_HOME, title?: string, reuse = false) => {
     const current = get().browserState;
     const resolved = resolveBrowserInput(input);
     if (reuse && current.tabs.length >= MAX_BROWSER_TABS && !current.tabs.some((tab: any) => tab.url === resolved)) {
+      const ordinary = current.tabs.find((tab: any) => !tab.groupId);
+      if (ordinary) get().setActiveBrowserTab(ordinary.id);
       get().navigateBrowserTab(resolved, title);
       return;
     }
@@ -24,11 +26,53 @@ export function createBrowserActions(set: any, get: any) {
     return { browserUrl: url, browserState: { ...state, tabs: state.tabs.map((tab: any) => tab.id === id ? { ...tab, url, title: browserTitle(url) } : tab), historyMap: { ...state.historyMap, [id]: { ...history, index } }, visits: recordBrowserVisit(state, url) } };
   });
   return {
+    goBrowserHome: () => {
+      const state = get().browserState;
+      const home = state.tabs.find((tab: any) => !tab.groupId && tab.url === BROWSER_HOME);
+      if (home) { get().setActiveBrowserTab(home.id); return; }
+      if (state.tabs.length < MAX_BROWSER_TABS) { open(BROWSER_HOME); return; }
+      const ordinary = state.tabs.find((tab: any) => !tab.groupId);
+      if (ordinary) { get().setActiveBrowserTab(ordinary.id); get().navigateBrowserTab(BROWSER_HOME); }
+    },
+    createBrowserTabGroup: (name: string) => {
+      const state = get().browserState;
+      const trimmed = typeof name === 'string' ? name.trim().slice(0, 40) : '';
+      if (!trimmed) return { ok: false, message: 'Enter a group name.' };
+      if (state.groups.length >= 20) return { ok: false, message: 'You can save up to 20 tab groups.' };
+      if (state.groups.some((group: any) => group.name.toLowerCase() === trimmed.toLowerCase())) return { ok: false, message: 'A group with that name already exists.' };
+      const tab = state.tabs.find((item: any) => item.id === state.activeTabId);
+      if (!tab?.groupId && state.tabs.filter((item: any) => item.groupId).length >= MAX_BROWSER_TABS - 1) return { ok: false, message: `You can save ${MAX_BROWSER_TABS - 1} grouped tabs. One place is reserved for the homepage.` };
+      const id = `group-${crypto.randomUUID()}`;
+      set((s: any) => ({ browserState: { ...s.browserState, groups: [...s.browserState.groups, { id, name: trimmed }], tabs: s.browserState.tabs.map((item: any) => item.id === tab.id ? { ...item, groupId: id } : item) } }));
+      return { ok: true, message: `Saved this tab in ${trimmed}.` };
+    },
+    setBrowserTabGroup: (tabId: number, groupId?: string) => {
+      const state = get().browserState;
+      const tab = state.tabs.find((item: any) => item.id === tabId);
+      if (!tab || (groupId && !state.groups.some((group: any) => group.id === groupId))) return { ok: false, message: 'Choose an existing tab and group.' };
+      if (groupId && !tab.groupId && state.tabs.filter((item: any) => item.groupId).length >= MAX_BROWSER_TABS - 1) return { ok: false, message: `You can save ${MAX_BROWSER_TABS - 1} grouped tabs. One place is reserved for the homepage.` };
+      set((s: any) => ({ browserState: { ...s.browserState, tabs: s.browserState.tabs.map((item: any) => item.id === tabId ? { ...item, groupId } : item) } }));
+      return { ok: true, message: groupId ? 'Tab saved to the group.' : 'Tab removed from its saved group. It will close at the end of this session.' };
+    },
+    renameBrowserTabGroup: (id: string, name: string) => {
+      const trimmed = typeof name === 'string' ? name.trim().slice(0, 40) : '';
+      const groups = get().browserState.groups;
+      if (!trimmed || !groups.some((group: any) => group.id === id)) return { ok: false, message: 'Enter a name for an existing group.' };
+      if (groups.some((group: any) => group.id !== id && group.name.toLowerCase() === trimmed.toLowerCase())) return { ok: false, message: 'A group with that name already exists.' };
+      set((s: any) => ({ browserState: { ...s.browserState, groups: s.browserState.groups.map((group: any) => group.id === id ? { ...group, name: trimmed } : group) } }));
+      return { ok: true, message: 'Group renamed.' };
+    },
+    removeBrowserTabGroup: (id: string) => set((s: any) => ({ browserState: { ...s.browserState, groups: s.browserState.groups.filter((group: any) => group.id !== id), tabs: s.browserState.tabs.map((tab: any) => tab.groupId === id ? { ...tab, groupId: undefined } : tab) } })),
     setBrowserUrl: (url: string | null) => url ? open(url, undefined, true) : set({ browserUrl: null }),
     openBrowserTab: (url?: string, title?: string) => open(url, title),
     closeBrowserTab: (id: number) => set((s: any) => {
       const state = s.browserState; const index = state.tabs.findIndex((tab: any) => tab.id === id);
-      if (index < 0 || state.tabs.length === 1) return {};
+      if (index < 0) return {};
+      if (state.tabs.length === 1) {
+        if (!state.tabs[0].groupId) return {};
+        const browserState = restartBrowserSession({ ...state, tabs: [] });
+        return { browserState, browserUrl: BROWSER_HOME };
+      }
       const tabs = state.tabs.filter((tab: any) => tab.id !== id); const historyMap = { ...state.historyMap }; delete historyMap[id];
       const activeTabId = state.activeTabId === id ? tabs[Math.min(index, tabs.length - 1)].id : state.activeTabId;
       return { browserUrl: tabs.find((tab: any) => tab.id === activeTabId).url, browserState: { ...state, tabs, activeTabId, historyMap } };

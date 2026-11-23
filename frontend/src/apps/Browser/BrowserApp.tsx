@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { isEduUrl } from './edu/eduRouter';
 import SearchHome from './SearchHome';
+import BrowserTabGroups from './BrowserTabGroups';
 import { NEWS_SITE } from './news/newsSite';
 import { BROWSER_HOME, MAX_BROWSER_TABS, resolveBrowserInput, IN_GAME_PORTALS } from './browserModel';
 import { externalWebUrl, SERVICE_DIRECTORY } from './externalWeb';
@@ -142,13 +143,14 @@ export default function BrowserApp() {
     const toggleBookmark = useOSStore(s => s.toggleBrowserBookmark);
     const removeBookmark = useOSStore(s => s.removeBrowserBookmark);
     const clearHistory = useOSStore(s => s.clearBrowserHistory);
+    const goHome = useOSStore(s => s.goBrowserHome);
 
     // Only explicit workspace requests change the current page. Consuming a
     // request must not erase an inter-app destination or the restored session.
     useEffect(() => {
         if (!workspaceRequest) return;
         if (workspaceRequest.section === 'home') {
-            navigateTab(BROWSER_HOME, 'Versenet');
+            goHome();
             useOSStore.getState().consumeWorkspaceRequest('browser', workspaceRequest.revision);
         } else if (workspaceRequest.section === 'services') {
             openService(SERVICE_DIRECTORY);
@@ -157,10 +159,10 @@ export default function BrowserApp() {
             openService(workspaceRequest.section);
             useOSStore.getState().consumeWorkspaceRequest('browser', workspaceRequest.revision);
         }
-    }, [workspaceRequest, openService, navigateTab]);
+    }, [workspaceRequest, openService, navigateTab, goHome]);
 
     const [addressInput, setAddressInput] = useState('');
-    const [panel, setPanel] = useState<'history' | 'bookmarks' | null>(null);
+    const [panel, setPanel] = useState<'history' | 'bookmarks' | 'groups' | null>(null);
     const [filter, setFilter] = useState('');
     const [reload, setReload] = useState(0);
     const [showSuggestions, setShowSuggestions] = useState(false);
@@ -193,7 +195,7 @@ export default function BrowserApp() {
     const history = historyMap[activeTabId];
     const saved = bookmarks.some(item => item.url === activeTab.url);
     const entries = (panel === 'history' ? visits : bookmarks).filter(item => `${item.title} ${item.url}`.toLowerCase().includes(filter.toLowerCase()));
-    const togglePanel = (next: 'history' | 'bookmarks') => { setPanel(panel === next ? null : next); setFilter(''); };
+    const togglePanel = (next: 'history' | 'bookmarks' | 'groups') => { setPanel(panel === next ? null : next); setFilter(''); };
 
     // Autocomplete filter
     const filteredSuggestions = QUICK_NAVIGATION_TARGETS.filter(target => {
@@ -226,12 +228,13 @@ export default function BrowserApp() {
         <div className="versenet-browser" onKeyDown={handleBrowserKey}>
             <div className="vn-tabs" role="tablist" aria-label="Browser tabs">
                 {tabs.map(tab => (
-                    <div className={`vn-tab ${tab.id === activeTabId ? 'is-active' : ''}`} key={tab.id}>
+                    <div className={`vn-tab ${tab.id === activeTabId ? 'is-active' : ''} ${tab.groupId ? 'is-grouped' : ''}`} key={tab.id}>
                         <button role="tab" aria-selected={tab.id === activeTabId} aria-controls="vn-page" id={`vn-tab-${tab.id}`} onClick={() => activate(tab.id)} title={tab.url}>
                             <Globe size={13}/>
                             <span>{tab.title}</span>
+                            {tab.groupId && <span className="vn-tab-group-tag" title="Saved tab group">{state.groups.find(group => group.id === tab.groupId)?.name}</span>}
                         </button>
-                        {tabs.length > 1 && (
+                        {(tabs.length > 1 || tab.groupId) && (
                             <button className="vn-close" aria-label={`Close ${tab.title} tab`} onClick={() => closeTab(tab.id)}>
                                 <X size={13}/>
                             </button>
@@ -253,7 +256,7 @@ export default function BrowserApp() {
                 <button className="vn-icon" onClick={() => setReload(value => value + 1)} aria-label="Reload page">
                     <RotateCw size={15}/>
                 </button>
-                <button className="vn-icon vn-home" onClick={() => navigateTab(BROWSER_HOME)} aria-label="Home">
+                <button className="vn-icon vn-home" onClick={goHome} aria-label="Home">
                     <Home size={16}/>
                 </button>
 
@@ -361,24 +364,33 @@ export default function BrowserApp() {
                 <button className="vn-icon" aria-label="Bookmarks" aria-expanded={panel === 'bookmarks'} onClick={() => togglePanel('bookmarks')}>
                     <Bookmark size={16}/>
                 </button>
+                <button className="vn-icon" aria-label="Saved tab groups" aria-expanded={panel === 'groups'} onClick={() => togglePanel('groups')}>
+                    <Folder size={16}/>
+                </button>
                 <button className="vn-icon" aria-label="Browsing history" aria-expanded={panel === 'history'} onClick={() => togglePanel('history')}>
                     <History size={17}/>
                 </button>
             </div>
 
+            {state.groups.length > 0 && <nav className="vn-groups-bar" aria-label="Saved tab groups">
+                <span>Saved groups</span>{state.groups.map(group => {
+                    const members = tabs.filter(tab => tab.groupId === group.id);
+                    return <button key={group.id} aria-label={`Open ${group.name} group`} aria-pressed={activeTab.groupId === group.id} onClick={() => members.length ? activate(members[0].id) : setPanel('groups')}><Folder size={12} />{group.name}<small>{members.length}</small></button>;
+                })}
+            </nav>}
             <div className="vn-body">
                 <main ref={pageRef} id="vn-page" role="tabpanel" aria-labelledby={`vn-tab-${activeTabId}`} className="vn-page">
                     <ContentFrame key={`${activeTabId}:${activeTab.url}:${reload}`} url={activeTab.url} openTab={openTab} openService={openService} navigateTab={navigateTab}/>
                 </main>
                 {panel && (
-                    <aside className="vn-library" aria-label={panel === 'history' ? 'Browsing history panel' : 'Bookmarks panel'}>
+                    <aside className="vn-library" aria-label={panel === 'groups' ? 'Saved tab groups panel' : panel === 'history' ? 'Browsing history panel' : 'Bookmarks panel'}>
                         <header>
-                            <h2>{panel === 'history' ? 'History' : 'Bookmarks'}</h2>
+                            <h2>{panel === 'groups' ? 'Saved tab groups' : panel === 'history' ? 'History' : 'Bookmarks'}</h2>
                             <button className="vn-icon" aria-label="Close browser library" onClick={() => setPanel(null)}>
                                 <X size={16}/>
                             </button>
                         </header>
-                        <p>{panel === 'history' ? 'Recently visited · saved on this device' : 'Your saved corners of the network'}</p>
+                        {panel === 'groups' ? <BrowserTabGroups /> : <><p>{panel === 'history' ? 'Recently visited · saved on this device' : 'Your saved corners of the network'}</p>
                         
                         {/* In-Game Portals folder inside bookmarks library */}
                         {panel === 'bookmarks' && (
@@ -425,6 +437,7 @@ export default function BrowserApp() {
                         {!entries.length && (
                             <p role="status">{filter ? 'No matching pages.' : panel === 'history' ? 'Your next visit will appear here.' : 'Use the star beside an address to save a page.'}</p>
                         )}
+                        </>}
                     </aside>
                 )}
             </div>

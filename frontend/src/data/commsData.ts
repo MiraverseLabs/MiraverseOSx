@@ -73,8 +73,11 @@ export interface EmailItem {
   labels?: string[];
   npcKey?: string;
   linkedApp?: string;
+  accountType?: EmailAccountType;
+  category?: 'primary' | 'institution' | 'delivery';
+  trackingNumber?: string;
   auditLog?: string[];
-  attachment: { type: string; amount: number; name: string; claimed: boolean } | null;
+  attachment?: { type: string; amount: number; name: string; claimed: boolean } | null;
   attachments?: EmailAttachment[];
   body: string;
   bodyHtml?: string;

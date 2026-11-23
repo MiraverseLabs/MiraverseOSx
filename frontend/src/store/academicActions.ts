@@ -430,8 +430,23 @@ export function createAcademicActions(set: Setter, get: () => OSStoreState): Aca
             faction: school.name,
             subject: `Credential Conferred: ${newlyEarnedDegrees.join(', ')}`,
             seal: `${school.sealText}-REGISTRAR-SEAL`,
-            body: `Congratulations!\n\nFollowing your completion of ${course.code} (${course.title}), ${school.name} has conferred the following academic credential:\n\n• ${newlyEarnedDegrees.join('\n• ')}\n\nYour official transcript in CAMPUS and Document Studio has been updated.\n\n— Office of the Registrar, ${school.name}`,
+            body: `Congratulations!\n\nFollowing your completion of ${course.code} (${course.title}), ${school.name} has conferred the following academic credential:\n\n• ${newlyEarnedDegrees.join('\n• ')}\n\nYour official transcript in CAMPUS and Document Studio has been updated, and your wax-sealed parchment credential has been dispatched to your Suite 4B physical mailbox in Meridion Post.\n\n— Office of the Registrar, ${school.name}`,
           });
+          void import('./usePostalStore').then(({ usePostalStore }) => {
+            usePostalStore.getState().enqueueIncomingDelivery({
+              id: `POST-DEG-${school.id}-${course.id}-${citizen}`,
+              kind: 'official_seal',
+              carrier: school.id === 'regent' ? 'Royal Courier' : 'Meridion Post',
+              senderName: `${school.name} Office of the Registrar`,
+              senderAddress: school.location,
+              title: `Official Diploma Folio: ${newlyEarnedDegrees[0]}`,
+              description: `Wax-sealed parchment diploma conferred by ${school.name} for completing ${course.title}.`,
+              sealLabel: `${school.sealText}-REGISTRAR-WAX-SEAL`,
+              paperBody: `${school.name}\nOfficial Parchment Credential\n\nConferred upon Citizen ${citizen}:\n${newlyEarnedDegrees.join('\n')}\n\n"${school.motto}"`,
+              rewards: { xp: 25, itemName: `${school.shortName} Parchment Diploma (${newlyEarnedDegrees[0]})` },
+              status: 'delivered',
+            });
+          }).catch(() => {});
         }
       }
       if (significant) void sync();

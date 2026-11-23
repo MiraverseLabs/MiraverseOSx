@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Page, type Locator } from '@playwright/test';
 
 // Every test has a fresh browser context on a separate origin. Never touch the real save API.
 test.beforeEach(async ({ page }) => {
@@ -15,6 +15,14 @@ async function login(page: Page) {
 async function openApp(page: Page, code: string) {
   await page.getByRole('button', { name: 'Open Orbit', exact: true }).click();
   await page.getByRole('button', { name: `Select ${code}`, exact: true }).dblclick();
+}
+
+async function saveCurrentTab(browser: Locator, name: string) {
+  await browser.getByRole('button', { name: 'Saved tab groups', exact: true }).click();
+  const panel = browser.getByRole('complementary', { name: 'Saved tab groups panel', exact: true });
+  await panel.getByRole('textbox', { name: 'New group name', exact: true }).fill(name);
+  await panel.getByRole('button', { name: 'Create group and save this tab', exact: true }).click();
+  await panel.getByRole('button', { name: 'Close browser library', exact: true }).click();
 }
 test('desktop apps open, maximize and retain appearance after reload', async ({ page }) => {
   const failures: string[] = []; page.on('pageerror', error => failures.push(error.message));
@@ -37,7 +45,7 @@ test('desktop apps open, maximize and retain appearance after reload', async ({ 
   await expect(page.getByText('This app could not display its workspace.')).toHaveCount(0);
   expect(failures).toEqual([]);
 });
-test('browser restores its page and bookmark after reload and reopening the window', async ({ page }) => {
+test('browser opens its homepage after reopening and reload while retaining bookmarks', async ({ page }) => {
   await login(page); await openApp(page, 'VERSENET');
   const browser = page.locator('.os-window[data-app=browser]');
   const address = browser.getByRole('combobox', { name: 'Search VerseNet or enter a web address', exact: true });
@@ -47,8 +55,13 @@ test('browser restores its page and bookmark after reload and reopening the wind
   await browser.getByRole('button', { name: 'Bookmark this page', exact: true }).click();
   await browser.getByRole('button', { name: 'Close', exact: true }).click();
   await openApp(page, 'VERSENET');
-  await expect(address).toHaveValue('https://firstfederal.aure/maintenance');
+  await expect(address).toHaveValue('https://versenet.aure');
   await page.reload(); await openApp(page, 'VERSENET');
+  await expect(address).toHaveValue('https://versenet.aure');
+  await browser.getByRole('button', { name: 'Bookmarks', exact: true }).click();
+  const library = browser.getByRole('complementary', { name: 'Bookmarks panel', exact: true });
+  await expect(library.locator('.vn-library-item')).toHaveCount(1);
+  await library.locator('.vn-library-item>button').first().click();
   await expect(address).toHaveValue('https://firstfederal.aure/maintenance');
   await expect(browser.getByRole('button', { name: 'Remove current bookmark', exact: true })).toBeVisible();
 });
@@ -74,7 +87,10 @@ test('PULSE opens the Dispatch website and preserves reading across reload', asy
   await expect(news.getByRole('article', { name: 'Before your next shift, read the terms', exact: true })).toBeVisible();
   await news.getByRole('button', { name: 'Save story', exact: true }).click();
   await expect(address).toHaveValue(/dispatch\.mer\/article\/employment-guide/);
+  await saveCurrentTab(browser, 'News reading');
   await page.reload(); await openApp(page, 'VERSENET');
+  await expect(address).toHaveValue('https://versenet.aure');
+  await browser.getByRole('button', { name: 'Open News reading group', exact: true }).click();
   await expect(news.getByRole('article', { name: 'Before your next shift, read the terms', exact: true })).toBeVisible();
   await news.getByRole('button', { name: 'Back to edition', exact: true }).click();
   await expect(news.getByText('Read', { exact: true })).toBeVisible();
@@ -211,6 +227,7 @@ test('directory edits open at the selected card and changes survive reload', asy
   await expect(directory.getByRole('heading', { name: 'Research library', exact: true })).toBeVisible();
   await expect(directory.getByRole('status').filter({ hasText: 'Saved Research library.' })).toBeVisible();
   await page.reload(); await openApp(page, 'VERSENET');
+  await browser.getByRole('button', { name: 'Service Directory', exact: true }).click();
   const saved = directory.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Research library', exact: true }) });
   await expect(saved.getByText('example.com/library', { exact: true })).toBeVisible();
   await expect(saved.getByText('My reference tools and documents.', { exact: true })).toBeVisible();

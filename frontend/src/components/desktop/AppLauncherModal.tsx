@@ -38,8 +38,9 @@ export default function AppLauncherModal({ isOpen, onClose, editing = false, onT
   const desktopAction = useOSStore((state) => state.desktopAction);
   const soundEnabled = useSystemStore((state) => state.soundEnabled);
 
+  const orbitApps = APPS_DIRECTORY.filter((app) => app.id !== 'housing');
   const query = searchQuery.trim().toLowerCase();
-  const filtered = APPS_DIRECTORY.filter((app) =>
+  const filtered = orbitApps.filter((app) =>
     (category === 'All apps' || app.category === category) &&
     (!query || `${app.code} ${app.name} ${app.sector} ${app.desc}`.toLowerCase().includes(query))
   );
@@ -107,7 +108,7 @@ export default function AppLauncherModal({ isOpen, onClose, editing = false, onT
             <nav aria-label="App categories" className="drawer-categories">
               {categories.map(({ name, icon: Icon }) => (
                 <button key={name} aria-pressed={category === name} className={`drawer-category ${category === name ? 'is-active' : ''}`} onClick={() => setCategory(name)}>
-                  <Icon size={17} /><span>{name}</span><span className="drawer-category-count">{APPS_DIRECTORY.filter((app) => name === 'All apps' || app.category === name).length}</span>
+                  <Icon size={17} /><span>{name}</span><span className="drawer-category-count">{orbitApps.filter((app) => name === 'All apps' || app.category === name).length}</span>
                 </button>
               ))}
             </nav>

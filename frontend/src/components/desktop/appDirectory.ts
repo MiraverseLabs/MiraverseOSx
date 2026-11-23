@@ -1,5 +1,5 @@
 import { DESKTOP_APP_IDS } from '../../store/desktopPreferences';
-import { Briefcase, Bookmark, Cpu, Home, Sparkles, Globe, Mail, MessageSquare, UserCheck, Radio, Folder, BookOpen, Terminal, Settings, Shield, Activity, Landmark, ContactRound, Fingerprint, FileText, GraduationCap, Grid2X2 } from 'lucide-react';
+import { Briefcase, Bookmark, Cpu, Home, Sparkles, Globe, Mail, MessageSquare, UserCheck, Radio, Folder, BookOpen, Terminal, Settings, Shield, Activity, Landmark, ContactRound, Fingerprint, FileText, GraduationCap, Grid2X2, Package } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { APPS } from '../../apps/contents';
 import { useOSStore } from '../../store/useOSStore';
@@ -83,14 +83,14 @@ export const PROTOCOLS: ProtocolItem[] = [
   },
   {
     id: 'housing',
-    code: 'HOMECRAFT',
-    name: 'HOMECRAFT // Housing',
-    sector: 'Orynvell & Cyberium Academy Housing',
+    code: 'MY HOME',
+    name: 'My Home · Suite 4B',
+    sector: 'Vector House · Aureline',
     icon: Home,
     clearance: 'Resident Clearance',
     aetherTrace: 'AT-0x0289',
     flux: '32.1 MHz',
-    desc: 'Housing grid editor, suite customization, furniture layout, room expansion, and restorative rest hub.',
+    desc: 'Your personal Suite 4B residence: rest & recovery, study desk, keepsake shelf, room ambiance, pinboard, and guest hangouts.',
     color: 'text-indigo-800',
     bg: 'bg-indigo-50',
     border: 'border-indigo-300'
@@ -232,7 +232,7 @@ export const PROTOCOLS: ProtocolItem[] = [
 const GROUPS: Record<string, string> = {
   dgaos: 'Agency', jobs: 'Agency',
   meridionRegistry: 'Civic', documentStudio: 'Civic', campus: 'Civic', study: 'Civic',
-  passport: 'Personal', housing: 'Personal', finance: 'Personal', vitals: 'Personal',
+  passport: 'Personal', housing: 'Personal', post: 'Personal', finance: 'Personal', vitals: 'Personal',
   browser: 'Connect', comms: 'Connect', mail: 'Connect', maispace: 'Connect', pulse: 'Connect',
   files: 'Tools', process: 'Tools', lore: 'Tools', spellforge: 'Tools', terminal: 'Tools', settings: 'Tools',
 };
@@ -242,7 +242,8 @@ const additionalApps: ProtocolItem[] = [
   { id: 'spellforge', code: 'SPELLFORGE', name: 'SPELLFORGE // Protocol Lab', sector: 'Compiler Lab 4', icon: Sparkles, clearance: 'Lab Access', aetherTrace: 'AT-0x0220', flux: '44.8 MHz', desc: 'Synthesize elemental and utility spell modules and verify Cyberium Academy Spell Engineering practical projects.', color: 'text-purple-900', bg: 'bg-purple-50', border: 'border-purple-300' },
   { id: 'fieldOperations', code: 'FIELD', name: 'Field Operations', sector: 'DGA service tunnels', icon: Shield, clearance: 'Assignment Clearance 2', aetherTrace: 'AT-0x0512', flux: '88.2 MHz', desc: 'Explore Tunnel 09, collect evidence, interview a witness, and submit containment findings to WORKNET.', color: 'text-emerald-900', bg: 'bg-emerald-50', border: 'border-emerald-300' },
   { id: 'maispace', code: 'mai.space', name: 'mai.space // Social Network', sector: 'Personal social network', icon: MessageSquare, clearance: 'Citizen Access', aetherTrace: 'AT-0x0733', flux: '22.0 MHz', desc: 'Your existing social profile, posts, friends, and community interactions.', color: 'text-rose-800', bg: 'bg-rose-50', border: 'border-rose-300' },
-  { id: 'mail', code: 'AUREMAIL', name: 'AUREMAIL // Mailbox', sector: 'Aureline Postal Network', icon: Mail, clearance: 'Citizen Access', aetherTrace: 'AT-0x0413', flux: '22.0 MHz', desc: 'Your personal inbox for citizen correspondence, official notices, and new opportunities.', color: 'text-sky-800', bg: 'bg-sky-50', border: 'border-sky-300' },
+  { id: 'mail', code: 'AUREMAIL', name: 'AUREMAIL // Digital Email', sector: 'AureMail Digital Relay', icon: Mail, clearance: 'Citizen Access', aetherTrace: 'AT-0x0413', flux: '22.0 MHz', desc: 'Digital email client for personal messages, institutional notices, academic admissions, and delivery alerts.', color: 'text-sky-800', bg: 'bg-sky-50', border: 'border-sky-300' },
+  { id: 'post', code: 'POST', name: 'POST // Meridion Post', sector: 'Physical Mail & Parcel Locker', icon: Package, clearance: 'Residential Suite 4B', aetherTrace: 'AT-0x0414', flux: '18.2 MHz', desc: 'Physical residential mailbox, parcel locker unboxing, wax-sealed letters, live shipment tracking, and outbound shipping.', color: 'text-amber-900', bg: 'bg-amber-50', border: 'border-amber-300' },
   { id: 'terminal', code: 'TERMINAL', name: 'TERMINAL // System Console', sector: 'Local System Tools', icon: Terminal, clearance: 'Local Console', aetherTrace: 'AT-0x0002', flux: '14.2 MHz', desc: 'Explore the local system through the command console and SQL workspace.', color: 'text-slate-800', bg: 'bg-slate-100', border: 'border-slate-300' },
   { id: 'settings', code: 'SETTINGS', name: 'SETTINGS // Preferences', sector: 'System Preferences', icon: Settings, clearance: 'Citizen Access', aetherTrace: 'AT-0x0003', flux: '14.2 MHz', desc: 'Make your workspace your own. Manage your system preferences and audio settings.', color: 'text-indigo-800', bg: 'bg-indigo-50', border: 'border-indigo-300' },
 ];

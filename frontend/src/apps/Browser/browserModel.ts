@@ -122,12 +122,14 @@ export const IN_GAME_PORTALS: InGamePortal[] = [
 
 export const STARTER_SITES = IN_GAME_PORTALS.slice(0, 5);
 
-export interface BrowserTab { id: number; url: string; title: string }
+export interface BrowserTab { id: number; url: string; title: string; groupId?: string }
+export interface BrowserTabGroup { id: string; name: string }
 export interface TabHistory { stack: string[]; index: number }
 export interface BrowserVisit { url: string; title: string; visitedAt: number }
 export interface BrowserBookmark { url: string; title: string }
 export interface BrowserState {
   tabs: BrowserTab[]; 
+  groups: BrowserTabGroup[];
   activeTabId: number; 
   nextTabId: number;
   historyMap: Record<number, TabHistory>;
@@ -191,6 +193,7 @@ export function browserTitle(url: string): string {
 export function initialBrowserState(): BrowserState {
   return { 
     tabs: [{ id: 1, url: BROWSER_HOME, title: 'Versenet' }], 
+    groups: [],
     activeTabId: 1, 
     nextTabId: 2, 
     historyMap: { 1: { stack: [BROWSER_HOME], index: 0 } }, 
@@ -201,6 +204,19 @@ export function initialBrowserState(): BrowserState {
 
 export function recordBrowserVisit(state: BrowserState, url: string): BrowserVisit[] {
   return [{ url, title: browserTitle(url), visitedAt: Date.now() }, ...state.visits.filter(visit => visit.url !== url)].slice(0, 150);
+}
+
+// Ordinary tabs belong to the current session. A fresh session keeps saved groups,
+// bookmarks and visit history, and always selects a separate homepage tab.
+export function restartBrowserSession(state: BrowserState): BrowserState {
+  const groups = state.groups || [];
+  const tabs = state.tabs.filter(tab => tab.groupId && groups.some(group => group.id === tab.groupId)).slice(0, MAX_BROWSER_TABS - 1);
+  let homeId = 1;
+  while (tabs.some(tab => tab.id === homeId)) homeId++;
+  const home: BrowserTab = { id: homeId, url: BROWSER_HOME, title: 'Versenet' };
+  const historyMap: Record<number, TabHistory> = { [homeId]: { stack: [BROWSER_HOME], index: 0 } };
+  for (const tab of tabs) historyMap[tab.id] = state.historyMap[tab.id] || { stack: [tab.url], index: 0 };
+  return { ...state, groups, tabs: [home, ...tabs], activeTabId: homeId, historyMap, nextTabId: Math.max(state.nextTabId, homeId + 1) };
 }
 
 export function restoreBrowserState(saved: unknown): BrowserState {
@@ -215,11 +231,17 @@ export function restoreBrowserState(saved: unknown): BrowserState {
 
   const bookmarks = cleanItems(data.bookmarks).slice(0, 100);
   const visits = cleanItems(data.visits).filter(item => Number.isFinite(item.visitedAt)).slice(0, 150);
+  const groups: BrowserTabGroup[] = [];
+  for (const group of Array.isArray(data.groups) ? data.groups : []) {
+    if (!group || typeof group.id !== 'string' || !/^group-[a-z0-9-]{1,80}$/i.test(group.id) || typeof group.name !== 'string' || !group.name.trim() || groups.some(item => item.id === group.id)) continue;
+    groups.push({ id: group.id, name: group.name.trim().slice(0, 40) });
+    if (groups.length === 20) break;
+  }
   const tabs: BrowserTab[] = [];
   for (const tab of Array.isArray(data.tabs) ? data.tabs : []) {
     if (!tab || !Number.isSafeInteger(tab.id) || tab.id <= 0 || tab.id >= Number.MAX_SAFE_INTEGER - 1 || typeof tab.url !== 'string' || tabs.some(other => other.id === tab.id)) continue;
     const url = resolveBrowserInput(tab.url);
-    tabs.push({ id: tab.id, url, title: typeof tab.title === 'string' && tab.title.trim() ? tab.title.slice(0, 200) : browserTitle(url) });
+    tabs.push({ id: tab.id, url, title: typeof tab.title === 'string' && tab.title.trim() ? tab.title.slice(0, 200) : browserTitle(url), ...(groups.some(group => group.id === tab.groupId) ? { groupId: tab.groupId } : {}) });
     if (tabs.length === MAX_BROWSER_TABS) break;
   }
   if (!tabs.length) tabs.push(...defaults.tabs);
@@ -231,8 +253,8 @@ export function restoreBrowserState(saved: unknown): BrowserState {
     historyMap[tab.id] = stack.length && stack[index] === tab.url ? { stack, index } : { stack: [tab.url], index: 0 };
   }
   const minimumNext = Math.max(...tabs.map(tab => tab.id)) + 1;
-  return { tabs, historyMap, bookmarks, visits,
+  return restartBrowserSession({ tabs, groups, historyMap, bookmarks, visits,
     activeTabId: tabs.some(tab => tab.id === data.activeTabId) ? data.activeTabId! : tabs[0].id,
     nextTabId: Number.isSafeInteger(data.nextTabId) && data.nextTabId! >= minimumNext ? data.nextTabId! : minimumNext,
-  };
+  });
 }

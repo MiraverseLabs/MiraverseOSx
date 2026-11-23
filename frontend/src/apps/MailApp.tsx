@@ -26,8 +26,11 @@ import {
   BadgeCheck,
   Clock,
   Tag as PinLabel,
+  Package,
 } from 'lucide-react';
 import { MailProvider, useMailState } from './mail/MailContext';
+import MailSidebar, { SIDEBAR_ICONS } from './mail/MailSidebar';
+import { classifyInboxCategory, matchesAccountScope, type InboxCategory } from './mail/mailCategories';
 import MailTools, { MailOrganizationBar } from './mail/MailTools';
 import RichMailEditor, { RichMailBody } from './mail/RichMailEditor';
 import { groupConversations, conversationMessageIds, isSnoozed } from './mail/mailOrganization';
@@ -106,6 +109,7 @@ function MailWorkspace() {
   const mailRequest = useMailState(state => state.mailRequest);
   const pendingRequestedReader = useRef(false);
   const [activeFolder, setActiveFolder] = useState<string>('inbox');
+  const [inboxTab, setInboxTab] = useState<InboxCategory>('all');
   const [activeFaction, setActiveFaction] = useState<string>('all');
   const [search, setSearch] = useState<string>('');
   const [selectedMailId, setSelectedMailId] = useState<string>('MSG-001');
@@ -248,14 +252,7 @@ function MailWorkspace() {
 
   const isEmailRead = (mail: EmailItem) => Boolean(mail.read || readEmailIds.includes(mail.id));
 
-  const matchesAccountFilter = (mail: EmailItem) => {
-    if (!activeAccountAddress || activeAccountAddress === 'ALL') return true;
-    const target = activeAccountAddress.toLowerCase();
-    return (
-      (mail.recipientAddress && mail.recipientAddress.toLowerCase() === target) ||
-      (mail.senderAddress && mail.senderAddress.toLowerCase() === target)
-    );
-  };
+  const matchesAccountFilter = (mail: EmailItem) => matchesAccountScope(mail, activeAccountAddress, playerAccounts);
 
   const filteredEmails = useMemo(() => {
     const list = emails.filter((mail) => {
@@ -295,6 +292,7 @@ function MailWorkspace() {
         if (!isOutbox) return false;
       } else if (activeFolder === 'inbox') {
         if (isSent || isOutbox) return false;
+        if (inboxTab !== 'all' && classifyInboxCategory(mail) !== inboxTab) return false;
       }
 
       if (activeFolder === 'starred' && !starredEmailIds.includes(mail.id)) return false;
@@ -339,8 +337,10 @@ function MailWorkspace() {
   }, [
     emails,
     activeFolder,
+    inboxTab,
     activeFaction,
     activeAccountAddress,
+    playerAccounts,
     search,
     starredEmailIds,
     archivedEmailIds,
@@ -700,167 +700,51 @@ function MailWorkspace() {
       <nav className="mail-mobile-nav" aria-label="Mobile mailbox navigation"><select aria-label="Mailbox folder" value={activeFolder} onChange={event => setActiveFolder(event.target.value)}>{['inbox', 'starred', 'official', 'sent', 'drafts', 'outbox', 'archive', 'spam', 'snoozed', 'trash', 'directory', ...organization.folders.map(name => `folder:${name}`), ...organization.labels.map(name => `label:${name}`)].map(name => <option key={name} value={name}>{name.replace(/^(folder|label):/, '')}</option>)}</select><button onClick={() => setIsComposing(true)}>Compose</button><button onClick={() => setToolsView('contacts')}>Contacts</button><button onClick={() => setToolsView('settings')}>Settings</button><button onClick={() => setAccessOpen(true)}>Accounts & memberships</button></nav>
       {/* ── MAIN MAILBOX LAYOUT (3 PANES) ── */}
       <div className="mail-layout flex min-h-0 flex-1 overflow-hidden">
-        {/* PANE 1: LEFT FOLDERS, ACCOUNTS & DIRECTORY */}
-        <AppSidebar className="mail-folders w-[22%] min-w-48 max-w-56 shrink-0 p-3 space-y-4 overflow-y-auto" label="Mailbox folders and accounts">
-          <div className="mail-sidebar-tools"><button onClick={() => setToolsView('contacts')}>Personal contacts</button><button onClick={() => setToolsView('settings')}>Settings & rules</button><button onClick={() => setAccessOpen(true)}>Accounts & memberships</button></div>
-          <div className="space-y-1.5">
-            <button
-              onClick={() => {
-                setComposeFrom(selectedSenderAddress);
-                setIsComposing((prev) => !prev);
-              }}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#17213f] to-[#3a497b] py-2 text-xs font-bold text-white shadow-sm hover:opacity-90 transition"
-            >
-              <Sparkles size={14} className="text-purple-300" /> {isComposing ? 'Close Composer' : 'Compose Mail'}
-            </button>
-            <button
-              onClick={() => setActiveFolder(activeFolder === 'directory' ? 'inbox' : 'directory')}
-              className={`flex w-full items-center justify-center gap-1.5 rounded-xl border py-1.5 text-xs font-bold transition ${
-                activeFolder === 'directory'
-                  ? 'border-indigo-500 bg-indigo-50 text-indigo-900'
-                  : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
-              }`}
-            >
-              <Users size={13} /> Universal Directory ({directoryContacts.length})
-            </button>
-          </div>
-
-          <div className="space-y-1">
-            <div className="text-[10px] font-bold uppercase tracking-[.2em] text-slate-400 mb-1.5 px-2">
-              Mailboxes
-            </div>
-            {[
-              {
-                id: 'inbox',
-                label: 'Inbox',
-                icon: Inbox,
-                count: emails.filter(m => inInbox(m) && matchesAccountFilter(m)).length,
-              },
-              { id: 'starred', label: 'Starred', icon: Star, count: starredEmailIds.length },
-              {
-                id: 'official',
-                label: 'Official Dispatches',
-                icon: Shield,
-                count: emails.filter(
-                  (m) =>
-                    !archivedEmailIds.includes(m.id) &&
-                    !trashedEmailIds.includes(m.id) &&
-                    /DGA|Faith|Cyberium Academy|Bureau|Housing|Registrar|Services|Dean/i.test(`${m.sender} ${m.faction}`)
-                ).length,
-              },
-              {
-                id: 'sent',
-                label: 'Sent',
-                icon: Send,
-                count: emails.filter((m) => m.folder === 'sent' && !trashedEmailIds.includes(m.id)).length,
-              },
-              {
-                id: 'drafts',
-                label: 'Drafts',
-                icon: FileEdit,
-                count: drafts.length,
-              },
-              {
-                id: 'outbox',
-                label: 'Outbox / Held',
-                icon: Clock,
-                count: emails.filter((m) => m.folder === 'outbox' && !trashedEmailIds.includes(m.id)).length,
-              },
-              { id: 'archive', label: 'Archive', icon: Archive, count: archivedEmailIds.length },
-              { id: 'trash', label: 'Trash', icon: Trash2, count: trashedEmailIds.length },
-              { id: 'spam', label: 'Spam', icon: AlertTriangle, count: emails.filter(mail => organization.metadata[mail.id]?.spam && !trashedEmailIds.includes(mail.id) && matchesAccountFilter(mail)).length },
-              { id: 'snoozed', label: 'Snoozed', icon: Clock, count: emails.filter(mail => isSnoozed(organization.metadata[mail.id], now) && !trashedEmailIds.includes(mail.id) && matchesAccountFilter(mail)).length },
-              ...organization.folders.map(name => ({ id: `folder:${name}`, label: name, icon: Archive, count: emails.filter(mail => organization.metadata[mail.id]?.folder === name && !trashedEmailIds.includes(mail.id) && matchesAccountFilter(mail)).length })),
-              ...organization.labels.map(name => ({ id: `label:${name}`, label: name, icon: PinLabel, count: emails.filter(mail => organization.metadata[mail.id]?.labels?.includes(name) && !trashedEmailIds.includes(mail.id) && matchesAccountFilter(mail)).length })),
-            ].map((f) => {
-              const IconComp = f.icon;
-              return (
-                <button
-                  key={f.id}
-                  onDragOver={event => event.preventDefault()}
-                  onDrop={event => dropMail(event, f.id)}
-                  onClick={() => setActiveFolder(f.id)}
-                  className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-xs transition ${
-                    activeFolder === f.id
-                      ? 'bg-[#e9ebf6] font-bold text-[#1d2650] shadow-2xs'
-                      : 'text-slate-600 hover:bg-[#f2f3fb]'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <IconComp size={14} className={activeFolder === f.id ? 'text-[#5f6ab0]' : 'text-slate-400'} />
-                    <span>{f.label}</span>
-                  </div>
-                  {f.count > 0 && (
-                    <span
-                      className={`text-[10px] font-mono rounded px-1.5 py-0.2 ${
-                        activeFolder === f.id ? 'bg-[#5f6ab0] text-white' : 'bg-slate-200 text-slate-600'
-                      }`}
-                    >
-                      {f.count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Verified Player Accounts Switcher */}
-          <div className="border-t border-slate-200 pt-3 space-y-1.5">
-            <div className="text-[10px] font-bold uppercase tracking-[.2em] text-slate-400 px-2">
-              Verified Accounts
-            </div>
-            <button
-              onClick={() => setActiveAccountAddress('ALL')}
-              className={`w-full rounded-lg px-2.5 py-1.5 text-left text-[11px] transition ${
-                activeAccountAddress === 'ALL'
-                  ? 'bg-indigo-100 font-bold text-indigo-950'
-                  : 'text-slate-600 hover:bg-slate-100'
-              }`}
-            >
-              Combined Inbox ({playerAccounts.length} linked)
-            </button>
-            {playerAccounts.map((acc) => (
-              <button
-                key={acc.id}
-                onClick={() => setActiveAccountAddress(acc.address)}
-                className={`w-full rounded-lg px-2.5 py-1.5 text-left text-[11px] transition ${
-                  activeAccountAddress === acc.address
-                    ? 'bg-indigo-100 font-bold text-indigo-950'
-                    : 'text-slate-600 hover:bg-slate-100'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="truncate font-mono text-[10px]">{acc.address}</span>
-                  <span className="rounded bg-emerald-100 px-1 text-[9px] font-bold uppercase text-emerald-800">
-                    {acc.accountType.slice(0, 4)}
-                  </span>
-                </div>
-                <div className="truncate text-[10px] text-slate-400">{acc.roleLabel} · {senderAccess(communicationsPlayer, acc) ? 'Can send' : 'History only'}</div>
-              </button>
-            ))}
-          </div>
-
-          <div className="border-t border-slate-200 pt-3 space-y-1.5">
-            <div className="text-[10px] font-bold uppercase tracking-[.2em] text-slate-400 px-2">
-              Labels & Factions
-            </div>
-            <div className="flex flex-wrap gap-1 px-1">
-              {['all', 'dga', 'faith', 'cyacademy', 'civic', 'personal', 'story'].map((fac) => (
-                <button
-                  key={fac}
-                  onClick={() => setActiveFaction(fac)}
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize transition ${
-                    activeFaction === fac
-                      ? 'bg-[#17213f] text-white'
-                      : 'bg-slate-200/80 text-slate-600 hover:bg-slate-300'
-                  }`}
-                >
-                  {fac}
-                </button>
-              ))}
-            </div>
-          </div>
-        </AppSidebar>
+        {/* PANE 1: LEFT FOLDERS & ACCOUNTS */}
+        <MailSidebar
+          isComposing={isComposing}
+          onToggleCompose={() => {
+            setComposeFrom(selectedSenderAddress);
+            setIsComposing(prev => !prev);
+          }}
+          activeFolder={activeFolder}
+          onSelectFolder={setActiveFolder}
+          onDropMail={dropMail}
+          primaryFolders={[
+            { id: 'inbox', label: 'Inbox', icon: SIDEBAR_ICONS.Inbox, count: emails.filter(m => inInbox(m) && matchesAccountFilter(m)).length },
+            { id: 'starred', label: 'Starred', icon: SIDEBAR_ICONS.Star, count: starredEmailIds.length },
+            { id: 'sent', label: 'Sent', icon: SIDEBAR_ICONS.Send, count: emails.filter(m => m.folder === 'sent' && !trashedEmailIds.includes(m.id)).length },
+            { id: 'drafts', label: 'Drafts', icon: SIDEBAR_ICONS.FileEdit, count: drafts.length },
+          ]}
+          secondaryFolders={[
+            { id: 'snoozed', label: 'Snoozed', icon: SIDEBAR_ICONS.Clock, count: emails.filter(mail => isSnoozed(organization.metadata[mail.id], now) && !trashedEmailIds.includes(mail.id) && matchesAccountFilter(mail)).length },
+            { id: 'outbox', label: 'Outbox / Held', icon: SIDEBAR_ICONS.Clock, count: emails.filter(m => m.folder === 'outbox' && !trashedEmailIds.includes(m.id)).length },
+            { id: 'archive', label: 'Archive', icon: SIDEBAR_ICONS.Archive, count: archivedEmailIds.length },
+            { id: 'spam', label: 'Spam', icon: SIDEBAR_ICONS.AlertTriangle, count: emails.filter(mail => organization.metadata[mail.id]?.spam && !trashedEmailIds.includes(mail.id) && matchesAccountFilter(mail)).length },
+            { id: 'trash', label: 'Trash', icon: SIDEBAR_ICONS.Trash2, count: trashedEmailIds.length },
+          ]}
+          customFolders={organization.folders.map(name => ({
+            id: `folder:${name}`,
+            label: name,
+            icon: SIDEBAR_ICONS.Archive,
+            count: emails.filter(mail => organization.metadata[mail.id]?.folder === name && !trashedEmailIds.includes(mail.id) && matchesAccountFilter(mail)).length,
+          }))}
+          labelFolders={organization.labels.map(name => ({
+            id: `label:${name}`,
+            label: name,
+            icon: SIDEBAR_ICONS.PinLabel,
+            count: emails.filter(mail => organization.metadata[mail.id]?.labels?.includes(name) && !trashedEmailIds.includes(mail.id) && matchesAccountFilter(mail)).length,
+          }))}
+          activeAccountScope={activeAccountAddress}
+          onSelectAccountScope={setActiveAccountAddress}
+          playerAccounts={playerAccounts}
+          communicationsPlayer={communicationsPlayer}
+          directoryCount={directoryContacts.length}
+          onOpenContacts={() => setToolsView('contacts')}
+          onOpenSettings={() => setToolsView('settings')}
+          onOpenAccess={() => setAccessOpen(true)}
+          onOpenPostalApp={() => useOSStore.getState().openAppWorkspace('post')}
+        />
 
         {/* PANE 2: CENTER MESSAGE LIST / DRAFTS / UNIVERSAL DIRECTORY */}
         <AppPane className="mail-list w-[33%] min-w-64 max-w-88 shrink-0 border-r border-slate-300/70 bg-white/40 flex flex-col">
@@ -874,6 +758,38 @@ function MailWorkspace() {
                 : `${filteredEmails.length} messages`}
             </span>
           </div>
+
+          {/* Smart Inbox Category Tabs */}
+          {activeFolder === 'inbox' && (
+            <div className="flex items-center gap-1 border-b border-slate-200 bg-white/80 px-2 py-1.5 overflow-x-auto" role="tablist" aria-label="Inbox categories">
+              {([
+                { id: 'all', label: 'All' },
+                { id: 'primary', label: 'Primary' },
+                { id: 'institution', label: 'Institutional' },
+                { id: 'delivery', label: 'Deliveries' },
+              ] as { id: InboxCategory; label: string }[]).map(tabItem => {
+                const count = emails.filter(
+                  m => inInbox(m) && matchesAccountFilter(m) && (tabItem.id === 'all' || classifyInboxCategory(m) === tabItem.id),
+                ).length;
+                return (
+                  <button
+                    key={tabItem.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={inboxTab === tabItem.id}
+                    onClick={() => setInboxTab(tabItem.id)}
+                    className={`rounded-lg px-2 py-1 text-[10.5px] font-semibold whitespace-nowrap transition cursor-pointer ${
+                      inboxTab === tabItem.id
+                        ? 'bg-[#17213f] text-white'
+                        : 'text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    {tabItem.label} {count > 0 ? `(${count})` : ''}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Bulk Actions Bar when messages are selected */}
           {selectedBulkIds.length > 0 && activeFolder !== 'directory' && activeFolder !== 'drafts' && (
@@ -1343,6 +1259,28 @@ function MailWorkspace() {
                 </div>
 
                 {/* Conversation Thread View */}
+                {(selectedMail.trackingNumber || selectedMail.linkedApp === 'post' || classifyInboxCategory(selectedMail) === 'delivery') && (
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2.5 text-xs">
+                    <div className="flex items-center gap-2 text-amber-950 font-semibold">
+                      <Package size={15} className="text-amber-800 shrink-0" />
+                      <span>
+                        Physical Shipment Notification
+                        {selectedMail.trackingNumber ? ` · Tracking ${selectedMail.trackingNumber}` : ''}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        useOSStore
+                          .getState()
+                          .openAppWorkspace('post', selectedMail.trackingNumber ? `track:${selectedMail.trackingNumber}` : 'locker')
+                      }
+                      className="rounded-lg bg-amber-800 hover:bg-amber-900 px-3 py-1.5 text-[11px] font-bold text-white transition cursor-pointer"
+                    >
+                      Open in Meridion Post →
+                    </button>
+                  </div>
+                )}
                 {selectedMail.assignmentId && <button type="button" className="assignment-mail-action" onClick={() => useOSStore.getState().openAssignment(selectedMail.assignmentId!)}>Review opportunity in WorkNet <ExternalLink size={14} /></button>}
                 {selectedMail.id === CASE_MAIL && <div className="assignment-mail-action"><button type="button" onClick={() => { const result = useOSStore.getState().acquireCaseSource('guard-statement', 'mail'); setCaseNotice(result.message); }}>Add guard statement to evidence notebook</button><button type="button" onClick={() => useOSStore.getState().openAppWorkspace('dgaos', 'broadstreet:notebook')}>Open Broad Street notebook</button><p role="status">{caseNotice}</p></div>}
                 {threadMessages.length > 1 ? (

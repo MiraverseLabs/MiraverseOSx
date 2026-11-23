@@ -5,7 +5,7 @@ import SettingsApp from './SettingsApp';
 import { 
   Folder, FileText, Shield, Globe, Briefcase, BookOpen, 
   Mail, MessageSquare, UserCheck, Sparkles, Settings, 
-  Bookmark, Radio, Terminal, Cpu, Home, Activity
+  Bookmark, Radio, Terminal, Cpu, Home, Activity, Package
 } from 'lucide-react';
 
 export const APPS = [
@@ -15,14 +15,15 @@ export const APPS = [
   { id: 'meridionRegistry', title: 'AURA Citizen Registry', icon: UserCheck, category: 'Civic Records' },
   { id: 'jobs', title: 'WORKNET // Federal Access', icon: Briefcase, category: 'Workplace Portals' },
   { id: 'process', title: 'Process Monitor', icon: Cpu, category: 'Security' },
-  { id: 'housing', title: 'HOMECRAFT // Housing', icon: Home, category: 'Personal Apps' },
+  { id: 'housing', title: 'My Home · Suite 4B', icon: Home, category: 'Personal Apps' },
   { id: 'finance', title: 'ORYN // Treasury & Crypto Ledger', icon: Shield, category: 'Personal Apps' },
   { id: 'vitals', title: 'VITALS // Bio-Aura Matrix', icon: Activity, category: 'Personal Apps' },
   { id: 'campus', title: 'CAMPUS // Academic Registrar', icon: BookOpen, category: 'Education' },
   { id: 'study', title: 'AureLearn // Student LMS', icon: Bookmark, category: 'Education' },
   { id: 'spellforge', title: 'SpellForge // Protocol Lab', icon: Sparkles, category: 'Education' },
   { id: 'browser', title: 'VERSENET // Browser', icon: Globe, category: 'Versenet Web' },
-  { id: 'mail', title: 'AureMail Mailbox', icon: Mail, category: 'Communication' },
+  { id: 'mail', title: 'AureMail // Digital Email', icon: Mail, category: 'Communication' },
+  { id: 'post', title: 'Meridion Post // Packages & Mail', icon: Package, category: 'Personal Apps' },
   { id: 'comms', title: 'COMMS // Institutional Network', icon: MessageSquare, category: 'Workplace Portals' },
   { id: 'passport', title: 'Citizen Hub', icon: UserCheck, category: 'Personal Apps' },
   { id: 'pulse', title: 'PULSE // News Portal', icon: Radio, category: 'Communication' },
@@ -43,6 +44,7 @@ const PulseApp = lazy(() => import('./Pulse/PulseApp'));
 const MaiSpaceApp = lazy(() => import('./MaiSpaceApp'));
 const BrowserApp = lazy(() => import('./Browser/BrowserApp'));
 const MailApp = lazy(() => import('./MailApp'));
+const PostalApp = lazy(() => import('./PostalApp'));
 const FileExplorerApp = lazy(() => import('./FileExplorerApp'));
 const LoreExplorerApp = lazy(() => import('./LoreExplorer'));
 const ProcessMonitorApp = lazy(() => import('./ProcessMonitorApp'));
@@ -176,7 +178,8 @@ export const CONTENTS = {
   meridionRegistry: withSuspense(RegistryWorkspaceApp, 'Citizen Registry'),
   files: withSuspense(FileExplorerApp, 'File Explorer'),
   comms: withSuspense(CommsApp, 'Comms'),
-  mail: withSuspense(MailApp, 'Mailbox'),
+  mail: withSuspense(MailApp, 'AureMail'),
+  post: withSuspense(PostalApp, 'Meridion Post'),
   passport: withSuspense(CivicProfileApp, 'Citizen Hub'),
   vitals: withSuspense(VitalsApp, 'VITALS Monitor'),
   vault: withSuspense(CivicProfileApp, 'VAULT Storage'),
@@ -190,7 +193,7 @@ export const CONTENTS = {
   settings: SettingsApp,
   lore: withSuspense(LoreExplorerApp, 'Lore Explorer'),
   process: withSuspense(ProcessMonitorApp, 'Process Monitor'),
-  housing: withSuspense(HousingApp, 'HOMECRAFT // Housing'),
+  housing: withSuspense(HousingApp, 'My Home · Suite 4B'),
   jobs: withSuspense(JobWorkstationApp, 'Career Workstation'),
   finance: withSuspense(FinanceTerminal, 'Oryn Finance Ledger'),
 };
