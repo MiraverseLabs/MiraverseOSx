@@ -1,0 +1,74 @@
+{
+  "version": "1.0.0",
+  "eras": [
+    {
+      "id": "era-nephilim",
+      "period": "400 BM – 300 BM",
+      "title": "The Nephilim Era",
+      "summary": "Century of angelic descent, hidden resonance harmonics, and the first recorded anomalies across the nascent world."
+    },
+    {
+      "id": "era-purge",
+      "period": "300 BM – Year 0",
+      "title": "The Purge",
+      "summary": "Roughly 300 years of systematic suppression, forced erasure, and violence against bloodlines tied to forbidden resonance lines."
+    },
+    {
+      "id": "era-exodus",
+      "period": "Jan – Feb, Year 0",
+      "title": "The Final Exodus & Migration",
+      "summary": "The final period of The Purge and the coordinated pilgrimage to the sacred sanctuary of Orynvell; part of the founding calendar year."
+    },
+    {
+      "id": "era-founding",
+      "period": "March 6, Year 0",
+      "title": "Coronation of Queen Maeryn Seraphima & Founding of Meridion",
+      "summary": "Founding Day of sovereign Meridion. Maeryn Seraphima is crowned monarch and the sovereign realm concord is ratified. Celebrated annually each March 6.",
+      "isMilestone": true
+    },
+    {
+      "id": "era-consecration",
+      "period": "April – Dec, Year 0",
+      "title": "Sanctuary Consecration & First Structures",
+      "summary": "Construction of the first permanent crystalline structures, archive halls, and civic foundations in Aureline, Orynvell."
+    },
+    {
+      "id": "era-maeryn",
+      "period": "Year 0 – Present",
+      "title": "Era of Maeryn",
+      "summary": "The ongoing reign and cultural history of the matriarchal monarchy, inter-realm stewardship across the Eight Realms, and modern civic development."
+    }
+  ],
+  "loreEntries": [
+    {
+      "id": "lore-moons",
+      "title": "The Twin Moons of Meridion — Radiance and Echo",
+      "category": "Celestial Astronomy",
+      "content": "Meridion orbits beneath a single sun and two moons. Radiance, the outer moon, is physically larger and distant, appearing pale luminous white. Echo, the inner moon, is smaller, orbits closer, and appears with a dark slate obsidian reflective sheen. Their conjunctions and oppositions mark celestial festivals and alter harmonic resonance frequencies across the Eight Realms."
+    },
+    {
+      "id": "lore-realms",
+      "title": "The Eight Realms of Meridion & Sovereign Seats",
+      "category": "World Geography",
+      "content": "Sovereign Meridion encompasses eight realms: Orynvell (Aether, Cap. Aureline ★, House Seraphima), Fross (Winter, Cap. Southwake ★ / Northwake, House Holly), Lumia (Light, Cap. Rhyna ★, House Lucia), Marlowe (Water, Cap. Island City ★, House Neryx), Brisland (Air, Cap. Elodia ★, House Yoko), Kaji (Fire, Cap. Balisya ★; Kailo, Kanifan, and Pyre, House Ember), Nephele (Nether, Cap. Serafin ★, House Keket), and Ve’Raylia (Earth/Nature, Cap. Elmore ★, House Valmon)."
+    },
+    {
+      "id": "lore-color-houses",
+      "title": "The Seven Color Houses vs. Royal Lineages",
+      "category": "Civic & Social Structure",
+      "content": "In Meridion, the Seven Color Houses are social and resonant affiliations—distinct from the eight geographic realms and their royal ruling lineages. Citizens carry a birth House and current House recorded in the AURA Registry, with formal secondary affiliation petitions heard by the House Tribunal."
+    },
+    {
+      "id": "lore-housing-tiers",
+      "title": "Land Registry & Residential Tiers",
+      "category": "Civic Law",
+      "content": "HOMECRAFT and AURA Registry classify citizen housing into three tiers: Tier A (Fully Interactive with furnished interiors and room-level upgrades), Tier B (Simplified Visitable with address presence and visitor access), and Tier C (Registered Only with stable location IDs for identity records)."
+    },
+    {
+      "id": "lore-press-tradition",
+      "title": "Public Letters: The Meridian & The Social Register",
+      "category": "Culture & Media",
+      "content": "Public discourse across Meridion balances civic reporting with cultural chronicle. The Meridian serves as the flagship daily broadsheet from Meridian Press House in Aureline, while The Social Register chronicles court protocol, estates, patronage, fashion, and modern social life across all ten editorial departments."
+    }
+  ]
+}

@@ -22,7 +22,9 @@ export interface SampleArchive {
 export const PORTALS: Record<string, PortalInfo> = {
     'cyberium.edu': { title: 'Cyberium Academy', category: 'Academic Portal', icon: Building, accent: 'purple', domain: 'cyberium.edu' },
     'dawn.edu': { title: 'Dawn University', category: 'Academic Portal', icon: Building, accent: 'amber', domain: 'dawn.edu' },
-    'dispatch.mer': { title: 'The Meridion Dispatch', category: 'News Headlines Civic Health Economy Culture', icon: Newspaper, accent: 'purple', domain: 'dispatch.mer' },
+    'meridian.mer': { title: 'The Meridian', category: 'News Analysis Perspective World Politics Economy Culture Eight Realms', icon: Newspaper, accent: 'blue', domain: 'meridian.mer' },
+    'dispatch.mer': { title: 'The Meridian (Meridion Dispatch)', category: 'News Headlines Civic Health Economy Culture', icon: Newspaper, accent: 'purple', domain: 'dispatch.mer' },
+    'socialregister.mer': { title: 'The Social Register', category: 'Society Magazine Courts Style Interview Residences Heritage Calendar', icon: BookOpen, accent: 'rose', domain: 'socialregister.mer' },
     'companion.aure': { title: 'Aureline Companion', category: 'Dogs Cats Companions Community Profiles Enquiries', icon: Globe, accent: 'purple', domain: 'companion.aure' },
     'gardenreview.aure': { title: 'Glassline Garden Review', category: 'Plants Garden Visitors Community Profiles', icon: Building, accent: 'purple', domain: 'gardenreview.aure' },
     'readingroom.aure': { title: 'Aureline Open Reading Room', category: 'Library Education Research Profiles Records', icon: BookOpen, accent: 'purple', domain: 'readingroom.aure' },

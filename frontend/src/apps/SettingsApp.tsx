@@ -5,6 +5,7 @@ import { useOSStore } from '../store/useOSStore';
 import { useSystemStore } from '../store/useSystemStore';
 import { SoundFX } from '../utils/audio';
 import PurpleWallpaper from '../components/desktop/PurpleWallpaper';
+import wallpapers from '../data/wallpapers.json';
 import WorldSaveSettings from './WorldSaveSettings';
 import '../styles/apps/Settings.css';
 import { DESKTOP_THEMES, desktopThemeStyle } from '../store/desktopThemes';
@@ -16,12 +17,7 @@ const sections = [
   { id: 'credentials', title: 'Credentials', detail: 'Player access & institutions', icon: Settings2 },
   { id: 'about', title: 'About', detail: 'Your Miraverse system', icon: Info },
 ] as const;
-const wallpapers = [
-  { name: 'Aureline Orbit', detail: 'Your palette, ribbons & starlight', url: '' },
-  { name: 'Blue horizon', detail: 'Earth from above', url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop' },
-  { name: 'Machine study', detail: 'A quiet technical study', url: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=2070&auto=format&fit=crop' },
-  { name: 'Night district', detail: 'City lights after dark', url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop' },
-];
+
 
 export default function SettingsApp() {
   const [selected, setSelected] = useState<typeof sections[number]['id']>('appearance');
@@ -66,7 +62,7 @@ export default function SettingsApp() {
             <span className="settings-wallpaper-swatch">{item.url ? <span className="settings-wallpaper-image" style={{ backgroundImage: `url(${JSON.stringify(item.url)})` }} /> : <PurpleWallpaper animated={false} />}{wallpaper === item.url && <span className="settings-wallpaper-check"><Check size={14} aria-hidden="true" /></span>}</span>
             <strong>{item.name}</strong><small>{item.detail}</small>
           </button>)}</div>
-          <p className="settings-footnote">The default wallpaper is available offline. Photo wallpapers need an internet connection. Desktop animation follows your device’s reduced-motion preference.</p>
+          <p className="settings-footnote">The default and Aureline wallpapers are available offline. Other photo wallpapers need an internet connection. Desktop animation follows your device’s reduced-motion preference.</p>
         </>}
         {selected === 'sound' && <section className="settings-group" aria-labelledby="settings-audio-heading"><h3 id="settings-audio-heading">Desktop audio</h3><div className="settings-preference-row"><div><strong id="settings-sound-label">System sounds</strong><p id="settings-sound-help">Interface sounds and desktop audio. This is the same control as the taskbar speaker.</p></div><button className="settings-switch" role="switch" aria-labelledby="settings-sound-label" aria-describedby="settings-sound-help" aria-checked={soundEnabled} onClick={() => setSoundEnabled(!soundEnabled)}><span /></button></div><div className="settings-preference-row"><div><strong>Listen to a preview</strong><p>Play a short interface sound.</p></div><button className="settings-secondary-button" disabled={!soundEnabled} onClick={() => SoundFX.playSnap()}><Volume2 size={16} aria-hidden="true" />Play sound</button></div></section>}
         {selected === 'save' && <WorldSaveSettings />}

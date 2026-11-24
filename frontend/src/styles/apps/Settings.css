@@ -36,7 +36,7 @@
 .settings-section-heading p { margin: 0; font-size: 11px; color: #5f6c76; }
 .settings-wallpapers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 14px; }
 .settings-wallpaper-option { display: block; min-width: 0; text-align: left; background: transparent; padding: 0; border: 0; color: #36424b; cursor: pointer; }
-.settings-wallpaper-swatch { position: relative; display: block; height: clamp(74px, 12cqw, 130px); overflow: hidden; border: 2px solid transparent; border-radius: 9px; background: #e3e7e9; }
+.settings-wallpaper-swatch { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; border: 2px solid transparent; border-radius: 9px; background: #e3e7e9; }
 .settings-wallpaper-option[aria-pressed=true] .settings-wallpaper-swatch { border-color: #55386e; box-shadow: 0 0 0 3px #e6e0eb; }
 .settings-wallpaper-image { position: absolute; inset: 0; background-position: center; background-size: cover; }
 .settings-wallpaper-check { position: absolute; right: 8px; bottom: 8px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; background: #fff; color: #236b58; }

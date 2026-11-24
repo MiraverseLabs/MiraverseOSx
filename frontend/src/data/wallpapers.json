@@ -1,0 +1,9 @@
+[
+  { "name": "Aureline Orbit", "detail": "Your palette, ribbons & starlight", "url": "" },
+  { "name": "City beneath the heavens", "detail": "Aureline’s celestial skyline · Available offline", "url": "/images/wallpapers/aureline-city-beneath-the-heavens.png" },
+  { "name": "Across Angel Bay", "detail": "Harbor lights at celestial twilight · Available offline", "url": "/images/wallpapers/aureline-across-angel-bay.png" },
+  { "name": "Glassline twilight", "detail": "Neighborhoods beneath the moons · Available offline", "url": "/images/wallpapers/aureline-glassline-twilight.png" },
+  { "name": "Blue horizon", "detail": "Earth from above", "url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop" },
+  { "name": "Machine study", "detail": "A quiet technical study", "url": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=2070&auto=format&fit=crop" },
+  { "name": "Night district", "detail": "City lights after dark", "url": "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop" }
+]

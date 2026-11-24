@@ -1,0 +1,195 @@
+{
+  "version": "1.0.0",
+  "palettes": {
+    "celestial-romance": {
+      "name": "Celestial Romance",
+      "swatches": {
+        "thistle": "#D8C0CB",
+        "oldBurgundy": "#48293D",
+        "lightBlue": "#AADBE3",
+        "uclaBlue": "#506F8A",
+        "jacarta": "#45304D"
+      }
+    },
+    "cherry-mocha": {
+      "name": "Cherry Mocha",
+      "swatches": {
+        "cherryRed": "#8F263B",
+        "mocha": "#704638",
+        "roseBlush": "#E8B9C1",
+        "latte": "#F1E5D8"
+      }
+    },
+    "historic-romance": {
+      "name": "Historic Romance",
+      "swatches": {
+        "soilMaroon": "#2C0F10",
+        "bordeauxVelvet": "#461615",
+        "dullAmber": "#927355",
+        "dustyTaupe": "#5D4733",
+        "forestMoss": "#332D1A"
+      }
+    },
+    "celestial-gold": {
+      "name": "Celestial Gold",
+      "swatches": {
+        "pearl": "#C6AE73",
+        "antique": "#AD9664",
+        "silt": "#6B5B2D",
+        "gold": "#AD8330",
+        "velvet": "#2E311A"
+      }
+    },
+    "midnight-ash": {
+      "name": "Midnight Ash",
+      "swatches": {
+        "kettleBlack": "#141214",
+        "tapShoe": "#302F33",
+        "asphaltBlue": "#464C55",
+        "seaLion": "#7F8995",
+        "greatFalls": "#9EA7B3",
+        "ashenWhisper": "#636D79",
+        "cemeteryAsh": "#C2C7CF"
+      }
+    }
+  },
+  "fonts": [
+    { "id": "dm-serif-display", "family": "'DM Serif Display', Georgia, serif", "role": "Mastheads & Feature Headlines", "license": "SIL Open Font License 1.1", "status": "approved", "localFiles": ["DMSerifDisplay-Regular.ttf", "DMSerifDisplay-Italic.ttf"] },
+    { "id": "crimson-text", "family": "'Crimson Text', Georgia, serif", "role": "Body Copy, Reporting & Interviews", "license": "SIL Open Font License 1.1", "status": "approved", "localFiles": ["CrimsonText-Regular.ttf", "CrimsonText-Italic.ttf", "CrimsonText-SemiBold.ttf"] },
+    { "id": "amiri", "family": "'Amiri', Georgia, serif", "role": "Quotations, Heritage & Archival Features", "license": "SIL Open Font License 1.1", "status": "approved", "localFiles": ["Amiri-Regular.ttf", "Amiri-Italic.ttf"] },
+    { "id": "limelight", "family": "'Limelight', Georgia, serif", "role": "Arts, Performance & Special Editions", "license": "SIL Open Font License 1.1", "status": "approved", "localFiles": ["Limelight-Regular.ttf"] },
+    { "id": "italianno", "family": "'Italianno', cursive, serif", "role": "Romantic Accents, Signatures & Correspondence", "license": "SIL Open Font License 1.1", "status": "approved", "localFiles": ["Italianno-Regular.ttf"] },
+    { "id": "pinyon-script", "family": "'Pinyon Script', cursive, serif", "role": "Ceremonial Courts, Galas & Society Openers", "license": "SIL Open Font License 1.1", "status": "approved", "localFiles": ["PinyonScript-Regular.ttf"] },
+    { "id": "bjcree", "family": "'Crimson Text', Georgia, serif", "role": "Pending suitability & font embedding verification", "license": "Pending verification", "status": "held_pending_license", "localFiles": [] }
+  ],
+  "brandKits": {
+    "the-social-register": {
+      "id": "the-social-register",
+      "name": "The Social Register",
+      "organizationId": "ORG_SOCIAL_REGISTER",
+      "tokens": {
+        "bgSurface": "#FFFFFF",
+        "bgElevated": "#FAF6F8",
+        "bgHero": "#48293D",
+        "bgSecondary": "#45304D",
+        "textPrimary": "#241620",
+        "textSecondary": "#45304D",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#C6AE73",
+        "accentSecondary": "#D8C0CB",
+        "borderOrnament": "#C6AE73",
+        "fontDisplay": "'DM Serif Display', Georgia, serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Pinyon Script', cursive, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": {
+        "masthead": "canon:brand-sr-masthead",
+        "monogram": "canon:brand-sr-monogram",
+        "corner": "canon:ornament-botanical-corner",
+        "divider": "canon:ornament-editorial-divider",
+        "star": "canon:ornament-celestial-star",
+        "plaque": "canon:ornament-ornate-plaque",
+        "crest": "canon:ornament-floral-crest"
+      }
+    },
+    "the-meridian": {
+      "id": "the-meridian",
+      "name": "The Meridian",
+      "organizationId": "ORG_THE_MERIDIAN",
+      "tokens": {
+        "bgSurface": "#F7F9FC",
+        "bgElevated": "#FFFFFF",
+        "bgHero": "#141214",
+        "bgSecondary": "#464C55",
+        "textPrimary": "#141214",
+        "textSecondary": "#464C55",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#506F8A",
+        "accentSecondary": "#C6AE73",
+        "accentBreaking": "#48293D",
+        "accentHighlight": "#AADBE3",
+        "borderOrnament": "#9EA7B3",
+        "fontDisplay": "'DM Serif Display', Georgia, serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Limelight', Georgia, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": {
+        "masthead": "canon:brand-meridian-masthead",
+        "monogram": "canon:brand-meridian-monogram",
+        "divider": "canon:ornament-editorial-divider",
+        "star": "canon:ornament-celestial-star"
+      }
+    },
+    "velvet-studio": {
+      "id": "velvet-studio",
+      "name": "The Velvet Cultural Studio",
+      "organizationId": "ORG_VELVET_STUDIO",
+      "tokens": {
+        "bgSurface": "#FCF9FA",
+        "bgElevated": "#FFFFFF",
+        "bgHero": "#8F263B",
+        "bgSecondary": "#704638",
+        "textPrimary": "#2C0F10",
+        "textSecondary": "#5D4733",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#E8B9C1",
+        "accentSecondary": "#C6AE73",
+        "borderOrnament": "#E8B9C1",
+        "fontDisplay": "'Limelight', 'DM Serif Display', serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Italianno', cursive, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": {
+        "star": "canon:ornament-celestial-star",
+        "divider": "canon:ornament-editorial-divider"
+      }
+    },
+    "unbranded-editorial": {
+      "id": "unbranded-editorial",
+      "name": "Miraverse Unbranded Editorial Master",
+      "tokens": {
+        "bgSurface": "#FFFFFF",
+        "bgElevated": "#F6F8FB",
+        "bgHero": "#302F33",
+        "bgSecondary": "#464C55",
+        "textPrimary": "#141214",
+        "textSecondary": "#636D79",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#506F8A",
+        "accentSecondary": "#AD9664",
+        "borderOrnament": "#C2C7CF",
+        "fontDisplay": "'DM Serif Display', Georgia, serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Italianno', cursive, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": {
+        "divider": "canon:ornament-editorial-divider"
+      }
+    },
+    "unbranded-modern": {
+      "id": "unbranded-modern",
+      "name": "Miraverse Contemporary Clean Master",
+      "tokens": {
+        "bgSurface": "#FFFFFF",
+        "bgElevated": "#F1F5F9",
+        "bgHero": "#506F8A",
+        "bgSecondary": "#45304D",
+        "textPrimary": "#141214",
+        "textSecondary": "#464C55",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#AADBE3",
+        "accentSecondary": "#D8C0CB",
+        "borderOrnament": "#9EA7B3",
+        "fontDisplay": "'DM Serif Display', Georgia, serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Crimson Text', Georgia, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": {}
+    }
+  }
+}

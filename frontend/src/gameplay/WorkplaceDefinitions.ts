@@ -352,7 +352,83 @@ export const INSTITUTIONAL_REGISTRY: Record<WorkplaceStationId, InstitutionalThe
       { id: 'rd-art-1', title: 'Daily Civic Broadcast Soundcheck', frequency: 'Daily Shift', estUnits: 1, description: 'Calibrate harmonic equalization on the public broadcast array.', rewardCredits: 30, rewardXP: 20, get rewardDesc() { return formatDutyReward(this); } }
     ],
     externalApps: [
+      { id: 'creativeStudio', title: 'Creative Studio', description: 'Visual templates, photography, posters, and brand campaigns.', appId: 'creativeStudio' },
       { id: 'maispace', title: 'MAI.SPACE', description: 'Social network, music publishing, and community blog.', appId: 'maispace' }
+    ]
+  },
+  press: {
+    id: 'press',
+    proceduralTier: 'Tier 2: Field Synthesis & Sampling',
+    name: 'Meridian & Rosemont Press',
+    fullName: 'Meridian Press House & Rosemont Periodical Syndicate',
+    shortOrg: 'Meridian Press',
+    tagline: 'Daily Broadsheet Reporting, Society Periodicals & Public Communications',
+    focus: 'Journalism, editorial publishing, interviews, copy verification, public relations',
+    accentColor: '#506F8A',
+    secondaryColor: '#48293D',
+    badgeBg: '#F7F9FC',
+    badgeBorder: '#9EA7B3',
+    badgeText: '#141214',
+    headerBg: '#141214',
+    headerBorder: '#C6AE73',
+    cardBorder: '#CBD5E1',
+    icon: BookOpen,
+    clearanceRequired: 1,
+    divisions: [
+      { id: 'meridian-newsroom', name: 'The Meridian Ten-Desk Newsroom', head: 'Managing Editor Clara Sterling', description: 'Daily inter-realm news, economy, science, environment, and civic verification at 18 Meridian Quay.', staffCount: 32 },
+      { id: 'social-register-salon', name: 'The Social Register Editorial Salon', head: 'Editor-at-Large Lady Celestine Vane', description: 'Monthly collectible issues, court chronicle, architecture, style, and cultural interviews at 7 Rosemont Terrace.', staffCount: 18 },
+      { id: 'public-letters', name: 'Institutional PR & Public Notices Desk', head: 'Press Liaison Henrik Lind', description: 'Official press releases, campaign coordination, and Orynvell Public Records filings.', staffCount: 12 }
+    ],
+    supervisor: {
+      id: 'sup-press',
+      name: 'Clara Sterling',
+      title: 'Executive Managing Editor',
+      department: 'Meridian Press House',
+      avatar: '📰',
+      personality: 'Incisive, fair-minded, allergic to unverified rumor and purple prose.',
+      expectations: 'Check every realm attribution twice, respect citizen privacy boundaries, and never miss print lock.',
+      approvalRate: 84
+    },
+    coworkers: [
+      {
+        id: 'cw-prs-1',
+        name: 'Julian Sterling',
+        title: 'Senior Interview & Feature Editor',
+        division: 'The Social Register Editorial Salon',
+        avatar: '✒️',
+        status: 'Desk',
+        specialty: 'Long-form cultural interviews and Rosemont issue curation',
+        quote: 'Let the subject finish their thought—the real sentence always arrives after the pause.',
+        trust: 62,
+        competence: 88,
+        familiarity: 54,
+        cooperation: 78,
+        conflictHistory: 4
+      },
+      {
+        id: 'cw-prs-2',
+        name: 'Nadia Solis',
+        title: 'Wire & Standards Copy Editor',
+        division: 'The Meridian Ten-Desk Newsroom',
+        avatar: '🔍',
+        status: 'In Meeting',
+        specialty: 'Inter-realm telemetry verification and headline precision',
+        quote: 'If we cannot cite a public source for it, it stays in the notebook until we can.',
+        trust: 58,
+        competence: 91,
+        familiarity: 48,
+        cooperation: 80,
+        conflictHistory: 2
+      }
+    ],
+    routineDuties: [
+      { id: 'rd-prs-1', title: 'Morning Eight-Realm Wire & Stylebook Pass', frequency: 'Daily Shift', estUnits: 1, description: 'Verify realm capitals, lunar dates, and source attributions across incoming desk dispatches.', rewardCredits: 35, rewardXP: 20, get rewardDesc() { return formatDutyReward(this); } },
+      { id: 'rd-prs-2', title: 'Rosemont Proof & Plate Caption Audit', frequency: 'Twice Weekly', estUnits: 1, description: 'Cross-check photographer provenance credits and department headers before issue lock.', rewardCredits: 30, rewardXP: 18, get rewardDesc() { return formatDutyReward(this); } }
+    ],
+    externalApps: [
+      { id: 'creativeStudio', title: 'Creative Studio', description: 'Assemble articles, covers, social promos, and collectible issues.', appId: 'creativeStudio' },
+      { id: 'browser', title: 'VerseNet Publications', description: 'Read meridian.mer and socialregister.mer live editions.', appId: 'browser' },
+      { id: 'docs', title: 'Document Studio', description: 'Draft .docx press releases and .pdf proofs for Fylo.', appId: 'documentStudio' }
     ]
   },
   questnotice: {

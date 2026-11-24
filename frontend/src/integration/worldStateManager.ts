@@ -2,6 +2,7 @@ import { WORLD_KEYS, readWorldEntries, type WorldEntries } from '../backend/worl
 import { applyWorldEntries, validWorldEntries } from '../backend/worldRecords';
 import { mirrorWorldEntries } from '../backend/worldMirrors';
 import { communicationsAuthority } from './communicationsAccess';
+import { validateMediaArtifactInput } from '../components/media/templateModel';
 
 export const CREATOR_STUDIO_STORAGE_KEY = 'miraverse-creator-studio-state-v1';
 const ISSUED_SNAPSHOTS_KEY = 'miraverse-issued-document-snapshots-v1';
@@ -15,7 +16,11 @@ export type CreatorDraftCategory =
   | 'versenet_page'
   | 'citizen_dossier'
   | 'comms_broadcast'
-  | 'world_patch';
+  | 'world_patch'
+  | 'publication_article'
+  | 'collectible_issue'
+  | 'social_campaign'
+  | 'media_template';
 
 export interface CreatorDraft {
   id: string;
@@ -359,6 +364,10 @@ export async function restoreWorldCheckpoint(
         }
         if (restoredOs?.state?.gameplay) {
           restoredOs.state.gameplay.worldEventLog = combinedLog;
+          const restoredMedia = Array.isArray(restoredOs.state.gameplay.publishedMediaArtifacts) ? restoredOs.state.gameplay.publishedMediaArtifacts : [];
+          const canonMedia = (currentOs?.state?.gameplay?.publishedMediaArtifacts || []).filter(a => a.verificationTier === 'canon_official');
+          const mediaIds = new Set(restoredMedia.map(a => a.id));
+          restoredOs.state.gameplay.publishedMediaArtifacts = [...restoredMedia, ...canonMedia.filter(a => !mediaIds.has(a.id))];
           storage.setItem(OS_PROGRESS_KEY, JSON.stringify(restoredOs));
         }
       }
@@ -407,6 +416,10 @@ export function saveCreatorDraft(
     'citizen_dossier',
     'comms_broadcast',
     'world_patch',
+    'publication_article',
+    'collectible_issue',
+    'social_campaign',
+    'media_template',
   ];
   if (!validCategories.includes(input.category)) {
     return { ok: false, message: `Invalid draft category '${input.category}'.` };
@@ -503,6 +516,12 @@ export function validateCreatorDraft(
   if (!draft.payload || typeof draft.payload !== 'object') {
     errors.push('Draft payload must be a valid structured object.');
   }
+  if (['publication_article', 'social_campaign'].includes(draft.category)) {
+    try {
+      const checked = validateMediaArtifactInput(draft.payload?.mediaArtifact || {});
+      if (!checked.ok) errors.push(...checked.errors);
+    } catch { errors.push('The media artifact contains invalid fields.'); }
+  }
 
   if (errors.length > 0) {
     return { ok: false, draft, errors, message: `Draft validation failed: ${errors.join(' ')}` };
@@ -550,6 +569,7 @@ export function publishCreatorDraft(
 
   const now = new Date().toISOString();
   const historicalEventId = `EVT-PUB-${crypto.randomUUID()}`;
+  const mediaRelease = ['publication_article', 'social_campaign'].includes(draft.category);
   const eventEntry = {
     id: historicalEventId,
     category: draft.payload?.eventCategory || 'civic',
@@ -559,10 +579,14 @@ export function publishCreatorDraft(
     cycle: 28,
     timestamp: now,
     tags: ['published', draft.category],
+    visibility: mediaRelease ? 'public' : 'private',
+    ...(mediaRelease ? { publicSummary: draft.summary } : {}),
   };
 
   // 2. Append to OS worldEventLog in storage if present (non-destructive)
   const storage = getStorage();
+  const previousOs = storage?.getItem(OS_PROGRESS_KEY) ?? null;
+  if (mediaRelease && !previousOs) return { ok: false, message: 'Save the signed-in world before publishing media.' };
   if (storage) {
     try {
       const osRaw = storage.getItem(OS_PROGRESS_KEY);
@@ -577,11 +601,20 @@ export function publishCreatorDraft(
             eventEntry,
             ...existingLog,
           ];
+          if (draft.payload?.mediaArtifact && typeof draft.payload.mediaArtifact === 'object') {
+            const existingArtifacts = Array.isArray(parsed.state.gameplay.publishedMediaArtifacts)
+              ? parsed.state.gameplay.publishedMediaArtifacts
+              : [];
+            parsed.state.gameplay.publishedMediaArtifacts = [
+              { ...validateMediaArtifactInput(draft.payload.mediaArtifact).artifact, verificationTier: 'canon_official' },
+              ...existingArtifacts.filter((a: any) => a?.id !== draft.payload.mediaArtifact.id),
+            ];
+          }
           storage.setItem(OS_PROGRESS_KEY, JSON.stringify(parsed));
         }
       }
     } catch {
-      // Continue publishing record in Creator Studio state
+      return { ok: false, message: 'The publication could not be saved. The draft remains unpublished.' };
     }
   }
 
@@ -604,7 +637,10 @@ export function publishCreatorDraft(
     eventEntry,
   };
   state.publishedHistory.unshift(publishedRecord);
-  saveCreatorStudioState(state);
+  if (!saveCreatorStudioState(state)) {
+    if (storage && previousOs !== null) storage.setItem(OS_PROGRESS_KEY, previousOs);
+    return { ok: false, message: 'The publication history could not be saved. The world publication was rolled back.' };
+  }
 
   return {
     ok: true,

@@ -49,6 +49,8 @@ try
     handler.Fail.Clear(); handler.Empty.Clear(); handler.Calls.Clear();
     var scoped = await router.ChatAsync(new AiChatRequest { Npc = "Mai", Prompt = "Known facts?", ActiveApp = "dga-operations", ContextScope = "case-a", Context = "facts" });
     Check(scoped.MemoriesUsed.Count == 0 && !handler.LastSystem.Contains("Remember the garden fountain"), "Investigations remain isolated from global NPC memories");
+    var editorial = await router.ChatAsync(new AiChatRequest { Npc = "Mai", Prompt = "Suggest a public deck for editorial review.", ActiveApp = "media-editor", ContextScope = "public:relay", Context = "A relay repair was accepted." });
+    Check(editorial.MemoriesUsed.Count == 0 && !handler.LastSystem.Contains("Remember the garden fountain") && handler.LastSystem.Contains("released public copy"), "Editorial polish uses only scoped public copy and never NPC memory");
     foreach (string key in new[] { "OPENAI_API_KEY", "GROQ_API_KEY", "GEMINI_API_KEY" }) Environment.SetEnvironmentVariable(key, " ");
     Check(!router.GroqConfigured && !router.OpenAiConfigured && router.ActiveProvider == "native-persona", "Blank credentials are unconfigured");
     var local = await router.ChatAsync(Request());

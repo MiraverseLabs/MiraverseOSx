@@ -13,6 +13,7 @@ export default function SevenRealmsMapPanel() {
     if (element.includes('Water') || element.includes('Spring')) return <Waves size={16} className="text-emerald-500" />;
     if (element.includes('Air') || element.includes('Autumn')) return <Wind size={16} className="text-orange-500" />;
     if (element.includes('Fire') || element.includes('Volcanic')) return <Flame size={16} className="text-rose-500" />;
+    if (element.includes('Earth') || element.includes('Nature')) return <Mountain size={16} className="text-emerald-700" />;
     return <Moon size={16} className="text-purple-500" />;
   };
 
@@ -23,11 +24,11 @@ export default function SevenRealmsMapPanel() {
         <div>
           <div className="flex items-center gap-2 text-xs font-mono font-bold text-indigo-700 uppercase tracking-wider">
             <Compass size={14} />
-            <span>Atlas Concord of the Seven Realms</span>
+            <span>Atlas Concord of the Eight Realms</span>
           </div>
           <h2 className="text-lg font-bold text-[#1e2640] mt-1">Sovereign Geography of Meridion</h2>
           <p className="text-xs text-slate-600 max-w-2xl mt-0.5 leading-relaxed">
-            Seven elemental realms under royal succession law. Star markers (★) designate sovereign capital anchors. Kailo, Kanifan, and Pyre are held under Kaji jurisdiction.
+            Eight elemental realms under royal succession law, including inland Ve’Raylia. Star markers (★) designate sovereign capital anchors. Kailo, Kanifan, and Pyre are held under Kaji jurisdiction.
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs font-mono bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-slate-700">
@@ -38,10 +39,10 @@ export default function SevenRealmsMapPanel() {
 
       {/* Main Grid: Interactive Realm Selector + Detail Card */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Seven Realms Grid */}
+        {/* Left Column: Eight Realms Grid */}
         <div className="lg:col-span-5 space-y-3">
           <div className="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider px-1">
-            Seven Realms & Anchors
+            Eight Realms & Anchors
           </div>
           <div className="grid grid-cols-1 gap-2.5">
             {SEVEN_REALMS.map((realm) => {

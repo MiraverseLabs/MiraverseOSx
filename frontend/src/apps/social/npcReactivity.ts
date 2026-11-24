@@ -367,3 +367,77 @@ export function handleDirectGuestbookSign(
     read: false
   });
 }
+
+/**
+ * Generates relationship-, interest-, and role-weighted NPC engagement on structured
+ * template posts across the full PEOPLE character registry rather than fixed sequences alone.
+ */
+export function generateTemplatePostReactions(
+  world: {
+    friends: string[];
+    blocked: string[];
+    comments: { id: string; target: string; author: string; text: string; cycle: number }[];
+    notifications: { id: string; text: string; destination: string; read: boolean }[];
+    templateLikes?: Record<string, string[]>;
+  },
+  artifact: {
+    id: string;
+    templateId: string;
+    brandKitId: string;
+    slotValues: { headline: string; subhead?: string; body?: string; kicker?: string };
+  },
+  currentCycle: number,
+  npcVectors?: Record<string, { friendship?: number; trust?: number }>,
+): void {
+  const haystack = `${artifact.slotValues.kicker || ''} ${artifact.slotValues.headline} ${artifact.slotValues.subhead || ''} ${artifact.slotValues.body || ''}`.toLowerCase();
+  const scored = PEOPLE.filter(p => !world.blocked.includes(p.id)).map(person => {
+    const persona = NPC_PERSONAS[person.id];
+    const vec = npcVectors?.[person.id] || { friendship: world.friends.includes(person.id) ? 68 : 45, trust: 50 };
+    const friendBoost = world.friends.includes(person.id) ? 25 : 0;
+    const interestTerms = `${person.interests || ''} ${(persona?.keywords || []).join(' ')}`.toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 2);
+    const matches = interestTerms.filter(term => haystack.includes(term)).length;
+    const brandAffinity =
+      (artifact.brandKitId === 'the-social-register' && ['sissi', 'aelita', 'rowan'].includes(person.id)) ||
+      (artifact.brandKitId === 'the-meridian' && ['jeremie', 'riven', 'voss', 'mara'].includes(person.id))
+        ? 15
+        : 0;
+    return {
+      person,
+      persona,
+      matches,
+      score: (vec.friendship ?? 50) * 0.4 + (vec.trust ?? 50) * 0.2 + friendBoost + matches * 18 + brandAffinity,
+    };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+  world.templateLikes ||= {};
+  const likers = scored.filter(s => s.score >= 42).slice(0, 3).map(s => s.person.id);
+  world.templateLikes[artifact.id] = [...new Set([...(world.templateLikes[artifact.id] || []), ...likers])];
+
+  const topCommenter = scored.find(s => s.score >= 48);
+  if (topCommenter) {
+    const { person, persona, matches } = topCommenter;
+    const pool = persona
+      ? matches > 0
+        ? persona.blogComments.topicMatched
+        : persona.blogComments.generic
+      : [`Thoughtful dispatch on "${artifact.slotValues.headline}". Glad to see this on the feed.`];
+    const commentText = pool[currentCycle % pool.length];
+    const commentId = `tpl-react:${artifact.id}:${person.id}`;
+    if (!world.comments.some(c => c.id === commentId)) {
+      world.comments.push({
+        id: commentId,
+        target: artifact.id,
+        author: person.id,
+        text: commentText,
+        cycle: currentCycle,
+      });
+      world.notifications.unshift({
+        id: `note:${commentId}`,
+        text: `${person.name} commented on "${artifact.slotValues.headline.slice(0, 36)}": "${commentText.slice(0, 42)}..."`,
+        destination: 'Home',
+        read: false,
+      });
+    }
+  }
+}

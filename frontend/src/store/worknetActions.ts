@@ -1,3 +1,4 @@
+import { releaseAcceptedWork } from '../gameplay/WorldPublicationFlow';
 import { INSTITUTIONAL_REGISTRY } from '../gameplay/WorkplaceDefinitions';
 import { CAREER_REGISTRY, canonicalCareerId, careerStation, contractSalary } from '../gameplay/CareerRegistry';
 import { workOrderId } from '../gameplay/WorkSchedule';
@@ -182,6 +183,7 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
         const last = progress.reviews.at(-1);
         if (!get().broadStreetEligible() || get().broadStreetPreviouslyComplete() || !last?.accepted || reviewBroadStreet(progress).length) return { ok: false, reason: 'A current accepted evidence review is required. Access changes or an existing completion receipt prevent another payout.' };
       }
+      if (isWorldPaused()) return { ok: false, reason: 'Resume the world before accepting completed work.' };
       const state = get();
       const player = state.gameplay.player;
       const order: WorkOrder | undefined = player.worknetOrders?.[mission?.id];
@@ -198,7 +200,7 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
       const bits = paidCare ? 0 : assignment.rewardBits;
       const xp = paidCare ? 0 : assignment.rewardXP;
       const newXP = player.xp + xp;
-      set(current => ({ gameplay: { ...current.gameplay,
+      set(current => ({ gameplay: releaseAcceptedWork({ ...current.gameplay,
         prismCorruptionLevel: ['dga', 'engineer', 'medical', 'archivist'].includes(definition.track) ? Math.max(2, Number((current.gameplay.prismCorruptionLevel - 1).toFixed(1))) : current.gameplay.prismCorruptionLevel,
         player: { ...current.gameplay.player,
           completedWorknetMissionIds: completedIds.includes(mission.id) ? completedIds : [...completedIds, mission.id],
@@ -208,7 +210,7 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
           credits: player.credits + credits, bits: player.bits + bits, xp: newXP,
           level: Math.floor(newXP / 100) + 1, stamina: player.stamina - 10,
         },
-      } }));
+      }, { ...order, status: 'accepted' }) }));
       if (xp) get().addCareerXP(definition.track, xp);
       get().recordAssignmentCompletion(mission.id);
       get().recordWorldEvent({ category: 'worknet', title: `Accepted work order ${order.id}`,

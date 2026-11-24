@@ -2,6 +2,7 @@ import { changeSocial, restoreSocial, type SocialAction, type SocialWorld } from
 export interface SocialActions { socialAction: (action: SocialAction) => { ok: boolean; message: string }; }
 export function createSocialActions(set: any, get: any): SocialActions {
   return { socialAction(action) {
+    if (action.type === 'publish-template-post') return get().publishCreativeArtifact(action.artifact);
     const state = get(), player = state.gameplay.player;
     const social = restoreSocial(player.maiSpaceWorld, player.maiSpaceProfile);
     const result = changeSocial(social, action, state.gameplay.timeCycleCount || 0, `social:${crypto.randomUUID()}`);

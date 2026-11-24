@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { newsSearchRecords } from './news/newsSite';
+import { socialRegisterSearchRecords } from './publications/socialRegisterModel';
 import { Search, ArrowUpRight, Folder, FileText, MapPin, Globe, User } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 import { PORTALS, SAMPLE_ARCHIVES } from './constants';
@@ -18,6 +19,8 @@ export default function UniversalSearch({ query, navigateTab, view = 'All' }: { 
   const player = useOSStore(s => s.gameplay.player);
   const eventLog = useOSStore(s => s.gameplay.worldEventLog);
   const newsCycle = useOSStore(s => s.gameplay.timeCycleCount);
+  const publications = useOSStore(s => s.gameplay.worldPublications);
+  const publishedArtifacts = useOSStore(s => s.gameplay.publishedMediaArtifacts);
   const newsExposure = useOSStore(s => s.gameplay.prismCorruptionLevel);
   const [input, setInput] = useState(query);
   const normalized = normalizeSearch(query);
@@ -31,17 +34,18 @@ export default function UniversalSearch({ query, navigateTab, view = 'All' }: { 
     const archives = SAMPLE_ARCHIVES.filter(arc => canSearchArchive(arc.id, player)).map(arc => ({ id: arc.id, type: 'archive', title: arc.title, summary: arc.excerpt, url: `https://fieldnotes.aure/archive/${arc.id}`, publisher: 'Public archive catalog' }));
     const people = NPCS.map(npc => ({ id: `person:${npc.id || npc.name}`, type: 'person', title: npc.name, summary: `${npc.role} · ${npc.faction} · ${npc.region || 'Aureline'}`, publisher: 'Public people index' }));
     const worldEvents: Hit[] = (eventLog || [])
-      .filter((evt: any) => evt && evt.category !== 'forensic' && typeof evt.id === 'string' && typeof evt.title === 'string')
+      .filter((evt: any) => evt && evt.visibility === 'public' && typeof evt.publicSummary === 'string' && evt.category !== 'forensic' && typeof evt.id === 'string' && typeof evt.title === 'string')
       .map((evt: any) => ({
         id: `event:${evt.id}`,
         type: 'site',
         title: evt.title,
-        summary: `${evt.institution} · ${evt.summary}`,
+        summary: `${evt.institution} · ${evt.publicSummary}`,
         publisher: evt.institution || 'Aureline Public Dispatches',
       }));
-    const news: Hit[] = newsSearchRecords({ cycle: newsCycle, corruption: newsExposure });
-    return [...casePublic, ...createPublicSearch<Hit>([...sites, ...news, ...archives, ...people, ...worldEvents])(normalized)];
-  }, [normalized, player, eventLog, newsCycle, newsExposure]);
+    const news: Hit[] = newsSearchRecords({ cycle: newsCycle, corruption: newsExposure, publications, publishedArtifacts });
+    const magazine: Hit[] = socialRegisterSearchRecords(normalized);
+    return [...casePublic, ...magazine, ...createPublicSearch<Hit>([...sites, ...news, ...archives, ...people, ...worldEvents])(normalized)];
+  }, [normalized, player, eventLog, newsCycle, newsExposure, publications, publishedArtifacts]);
   const generated: Hit[] = (bundle?.records || []).map(record => ({ ...record, record }));
   // Keep public institutions ahead of generated pages. Location entries remain reachable through Maps.
   const ordered = [...indexed, ...generated.filter(hit => !hit.id.includes(':place-'))];

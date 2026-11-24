@@ -4,7 +4,8 @@ import { isFaithMedUrl } from './medical/faithMedRouter';
 import SearchHome from './SearchHome';
 import { WindowTitlebarContent } from '../../components/ui/WindowChrome';
 import BrowserTabGroups from './BrowserTabGroups';
-import { NEWS_SITE } from './news/newsSite';
+import { NEWS_SITE, isMeridianHost } from './news/newsSite';
+import { SOCIAL_REGISTER_SITE } from './publications/socialRegisterModel';
 import { BROWSER_HOME, MAX_BROWSER_TABS, resolveBrowserInput, IN_GAME_PORTALS } from './browserModel';
 import { externalWebUrl } from './externalWeb';
 import ExternalWebPage from './ExternalWebPage';
@@ -28,6 +29,7 @@ import {
 } from 'lucide-react';
 
 const DispatchNewsSite = lazy(() => import('./news/DispatchNewsSite'));
+const SocialRegisterSite = lazy(() => import('./publications/SocialRegisterSite'));
 const EduSiteRouter = lazy(() => import('./edu/EduSiteRouter'));
 const FaithMedSite = lazy(() => import('./medical/FaithMedSite'));
 
@@ -72,7 +74,8 @@ function WorkNetAppNotice({ navigateTab }: { navigateTab: (url: string) => void 
 
 function ContentFrame({ url, openTab, navigateTab, openService }: any) {
     if (!url) return <SearchHome navigateTab={navigateTab} openTab={openTab} />;
-    if (new URL(url).hostname === NEWS_SITE.domain) return <Suspense fallback={<p role="status">Connecting to the Dispatch…</p>}><DispatchNewsSite url={url} navigateTab={navigateTab}/></Suspense>;
+    if (isMeridianHost(new URL(url).hostname)) return <Suspense fallback={<p role="status">Connecting to The Meridian…</p>}><DispatchNewsSite url={url} navigateTab={navigateTab}/></Suspense>;
+    if ([SOCIAL_REGISTER_SITE.domain, ...SOCIAL_REGISTER_SITE.altDomains].includes(new URL(url).hostname as any)) return <Suspense fallback={<p role="status">Opening The Social Register…</p>}><SocialRegisterSite url={url} navigateTab={navigateTab}/></Suspense>;
     if (isEduUrl(url)) return <Suspense fallback={<p role="status">Loading academic portal…</p>}><EduSiteRouter url={url} navigateTab={navigateTab}/></Suspense>;
     if (isFaithMedUrl(url)) return <Suspense fallback={<p role="status">Connecting to Faith Medical…</p>}><FaithMedSite url={url} navigateTab={navigateTab}/></Suspense>;
     if (new URL(url).hostname === 'firstfederal.aure' && new URL(url).pathname === '/maintenance') return <BroadStreetPublicPage />;

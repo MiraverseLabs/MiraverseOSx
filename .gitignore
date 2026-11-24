@@ -53,3 +53,6 @@ output/vite-compatibility/
 **/.cache/
 *.tsbuildinfo
 MiraverseOSx/
+
+# On-demand external reference checkouts are kept outside application source.
+/external/sources/

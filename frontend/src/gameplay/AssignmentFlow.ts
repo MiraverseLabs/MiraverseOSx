@@ -10,7 +10,12 @@ export interface AssignmentFile {
 export interface MissionCitation {
   id: string;
   missionId: string;
-  sourceSystem: 'orynvell-records' | 'royal-library';
+  sourceSystem:
+    | 'orynvell-records'
+    | 'royal-library'
+    | 'meridian-press-lead'
+    | 'versenet-publication-lead'
+    | 'maispace-public-lead';
   recordId: string;
   title: string;
   referenceCode: string;

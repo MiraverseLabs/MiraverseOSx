@@ -1,0 +1,305 @@
+{
+  "version": "1.0.0",
+  "templates": [
+    {
+      "id": "tpl-social-personal-photo",
+      "name": "Personal Photo Card",
+      "channel": "social",
+      "socialKind": "personal-photo",
+      "aspectRatio": "4/5",
+      "defaultBrandKitId": "unbranded-modern",
+      "slots": [
+        { "key": "image", "kind": "image", "label": "Primary Photograph", "required": false, "slotRole": "social.photo" },
+        { "key": "headline", "kind": "text", "label": "Caption Title", "required": true, "maxLength": 120 },
+        { "key": "subhead", "kind": "text", "label": "Location or Mood", "required": false, "maxLength": 90 }
+      ]
+    },
+    {
+      "id": "tpl-social-carousel",
+      "name": "Editorial Multi-Slide Carousel",
+      "channel": "social",
+      "socialKind": "carousel",
+      "aspectRatio": "1/1",
+      "defaultBrandKitId": "the-social-register",
+      "slots": [
+        { "key": "headline", "kind": "text", "label": "Carousel Cover Headline", "required": true, "maxLength": 120 },
+        { "key": "slides", "kind": "slides", "label": "Carousel Slides", "required": true }
+      ]
+    },
+    {
+      "id": "tpl-social-text-announcement",
+      "name": "Typographic Statement Card",
+      "channel": "social",
+      "socialKind": "text-announcement",
+      "aspectRatio": "1/1",
+      "defaultBrandKitId": "unbranded-editorial",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "Eyebrow / Desk", "required": false, "maxLength": 50 },
+        { "key": "headline", "kind": "text", "label": "Statement Headline", "required": true, "maxLength": 160 },
+        { "key": "body", "kind": "text", "label": "Supporting Copy", "required": false, "maxLength": 400 }
+      ]
+    },
+    {
+      "id": "tpl-social-event-promotion",
+      "name": "Event & Gala Invitation Graphic",
+      "channel": "social",
+      "socialKind": "event-promotion",
+      "aspectRatio": "4/5",
+      "defaultBrandKitId": "the-social-register",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "The Social Calendar", "required": false, "maxLength": 60 },
+        { "key": "headline", "kind": "text", "label": "Event Title", "required": true, "maxLength": 120 },
+        { "key": "dateLocation", "kind": "text", "label": "Cycle Date & Venue", "required": true, "maxLength": 120 },
+        { "key": "image", "kind": "image", "label": "Venue or Host Feature", "required": false, "slotRole": "place.hero" }
+      ]
+    },
+    {
+      "id": "tpl-social-product-ad",
+      "name": "Maison & Product Campaign Card",
+      "channel": "social",
+      "socialKind": "product-advertisement",
+      "aspectRatio": "1/1",
+      "defaultBrandKitId": "the-social-register",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "Brand / Atelier", "required": true, "maxLength": 60 },
+        { "key": "headline", "kind": "text", "label": "Campaign Headline", "required": true, "maxLength": 120 },
+        { "key": "subhead", "kind": "text", "label": "Craft & Price Note", "required": false, "maxLength": 160 },
+        { "key": "image", "kind": "image", "label": "Object Showcase", "required": false, "slotRole": "object.hero" }
+      ]
+    },
+    {
+      "id": "tpl-social-recruitment",
+      "name": "WORKNET & Institutional Recruitment Notice",
+      "channel": "social",
+      "socialKind": "recruitment",
+      "aspectRatio": "16/10",
+      "defaultBrandKitId": "the-meridian",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "Hiring Institution", "required": true, "maxLength": 80 },
+        { "key": "headline", "kind": "text", "label": "Open Role Title", "required": true, "maxLength": 120 },
+        { "key": "subhead", "kind": "text", "label": "Compensation & Clearance", "required": true, "maxLength": 160 }
+      ]
+    },
+    {
+      "id": "tpl-social-breaking-news",
+      "name": "Breaking News Square Dispatch",
+      "channel": "social",
+      "socialKind": "breaking-news",
+      "aspectRatio": "1/1",
+      "defaultBrandKitId": "the-meridian",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "Desk / Breaking Tag", "required": true, "maxLength": 50 },
+        { "key": "headline", "kind": "text", "label": "Breaking Headline", "required": true, "maxLength": 140 },
+        { "key": "subhead", "kind": "text", "label": "Deck / Summary", "required": true, "maxLength": 200 },
+        { "key": "image", "kind": "image", "label": "News Photograph", "required": false, "slotRole": "place.infrastructure" }
+      ]
+    },
+    {
+      "id": "tpl-social-article-promo",
+      "name": "Editorial Feature Promotion Square",
+      "channel": "social",
+      "socialKind": "article-promotion",
+      "aspectRatio": "1/1",
+      "defaultBrandKitId": "the-social-register",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "Department", "required": true, "maxLength": 50 },
+        { "key": "headline", "kind": "text", "label": "Feature Headline", "required": true, "maxLength": 140 },
+        { "key": "subhead", "kind": "text", "label": "Subhead", "required": false, "maxLength": 180 },
+        { "key": "image", "kind": "image", "label": "Editorial Portrait or Scene", "required": false, "slotRole": "place.hero" }
+      ]
+    },
+    {
+      "id": "tpl-social-birthday",
+      "name": "Birthday & Nameday Tribute",
+      "channel": "social",
+      "socialKind": "birthday",
+      "aspectRatio": "1/1",
+      "defaultBrandKitId": "velvet-studio",
+      "slots": [
+        { "key": "headline", "kind": "text", "label": "Celebrant Name", "required": true, "maxLength": 100 },
+        { "key": "subhead", "kind": "text", "label": "Tribute Note", "required": true, "maxLength": 200 },
+        { "key": "image", "kind": "image", "label": "Portrait", "required": false, "slotRole": "portrait.primary" }
+      ]
+    },
+    {
+      "id": "tpl-social-milestone",
+      "name": "Academic & Career Milestone Card",
+      "channel": "social",
+      "socialKind": "milestone",
+      "aspectRatio": "4/5",
+      "defaultBrandKitId": "unbranded-editorial",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "Milestone Category", "required": true, "maxLength": 60 },
+        { "key": "headline", "kind": "text", "label": "Achievement Title", "required": true, "maxLength": 140 },
+        { "key": "subhead", "kind": "text", "label": "Institution or Reflection", "required": false, "maxLength": 200 }
+      ]
+    },
+    {
+      "id": "tpl-social-public-statement",
+      "name": "Royal & Civic Public Statement Plaque",
+      "channel": "social",
+      "socialKind": "public-statement",
+      "aspectRatio": "4/5",
+      "defaultBrandKitId": "the-social-register",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "Chancery / Office", "required": true, "maxLength": 80 },
+        { "key": "headline", "kind": "text", "label": "Official Heading", "required": true, "maxLength": 140 },
+        { "key": "body", "kind": "text", "label": "Proclamation Text", "required": true, "maxLength": 500 }
+      ]
+    },
+    {
+      "id": "tpl-social-poll",
+      "name": "Interactive Community Poll Card",
+      "channel": "social",
+      "socialKind": "poll-question",
+      "aspectRatio": "4/3",
+      "defaultBrandKitId": "unbranded-modern",
+      "slots": [
+        { "key": "headline", "kind": "text", "label": "Poll Question", "required": true, "maxLength": 140 },
+        { "key": "pollOptions", "kind": "list", "label": "Choices (2–4)", "required": true }
+      ]
+    },
+    {
+      "id": "tpl-social-music-release",
+      "name": "Music & Soundscape Release Cover",
+      "channel": "social",
+      "socialKind": "music-release",
+      "aspectRatio": "1/1",
+      "defaultBrandKitId": "velvet-studio",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "New Release · Audio", "required": false, "maxLength": 60 },
+        { "key": "headline", "kind": "text", "label": "Track or Album Title", "required": true, "maxLength": 100 },
+        { "key": "subhead", "kind": "text", "label": "Artist & Studio Credits", "required": true, "maxLength": 140 },
+        { "key": "image", "kind": "image", "label": "Sleeve Artwork", "required": false, "slotRole": "media.cover" }
+      ]
+    },
+    {
+      "id": "tpl-social-film-release",
+      "name": "Holographic Film & Stage Poster",
+      "channel": "social",
+      "socialKind": "film-release",
+      "aspectRatio": "4/5",
+      "defaultBrandKitId": "velvet-studio",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "Premiere Billing", "required": false, "maxLength": 70 },
+        { "key": "headline", "kind": "text", "label": "Production Title", "required": true, "maxLength": 110 },
+        { "key": "subhead", "kind": "text", "label": "Director, Cast & Venue", "required": true, "maxLength": 180 },
+        { "key": "image", "kind": "image", "label": "Key Art", "required": false, "slotRole": "place.skyline" }
+      ]
+    },
+    {
+      "id": "tpl-social-sponsored-collab",
+      "name": "Sponsored Creator Collaboration",
+      "channel": "social",
+      "socialKind": "sponsored-collaboration",
+      "aspectRatio": "4/5",
+      "defaultBrandKitId": "the-social-register",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "In Partnership With", "required": true, "maxLength": 80 },
+        { "key": "headline", "kind": "text", "label": "Collaboration Story", "required": true, "maxLength": 130 },
+        { "key": "subhead", "kind": "text", "label": "Creator Perspective", "required": false, "maxLength": 200 },
+        { "key": "image", "kind": "image", "label": "Campaign Visual", "required": false, "slotRole": "residence.interior" }
+      ]
+    },
+    {
+      "id": "tpl-social-story",
+      "name": "Vertical Story Announcement (9:16)",
+      "channel": "social",
+      "socialKind": "story-announcement",
+      "aspectRatio": "9/16",
+      "defaultBrandKitId": "the-social-register",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "Story Moment", "required": false, "maxLength": 50 },
+        { "key": "headline", "kind": "text", "label": "Story Headline", "required": true, "maxLength": 100 },
+        { "key": "image", "kind": "image", "label": "Vertical Backdrop", "required": false, "slotRole": "place.district" }
+      ]
+    },
+    {
+      "id": "tpl-mag-cover",
+      "name": "The Social Register — Magazine Cover",
+      "channel": "magazine",
+      "aspectRatio": "3/4",
+      "defaultBrandKitId": "the-social-register",
+      "slots": [
+        { "key": "issueNumber", "kind": "text", "label": "Issue Number", "required": true, "maxLength": 30 },
+        { "key": "issueDate", "kind": "text", "label": "Edition Date", "required": true, "maxLength": 50 },
+        { "key": "headline", "kind": "text", "label": "Lead Cover Story", "required": true, "maxLength": 120 },
+        { "key": "subhead", "kind": "text", "label": "Theme Subtitle", "required": true, "maxLength": 160 },
+        { "key": "coverLines", "kind": "list", "label": "Cover Lines", "required": false },
+        { "key": "image", "kind": "image", "label": "Cover Plate", "required": false, "slotRole": "place.hero" }
+      ]
+    },
+    {
+      "id": "tpl-mag-department-opener",
+      "name": "Magazine Department Opener",
+      "channel": "magazine",
+      "aspectRatio": "3/4",
+      "defaultBrandKitId": "the-social-register",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "Department Name", "required": true, "maxLength": 60 },
+        { "key": "headline", "kind": "text", "label": "Feature Title", "required": true, "maxLength": 140 },
+        { "key": "subhead", "kind": "text", "label": "Deck", "required": true, "maxLength": 220 },
+        { "key": "pullQuote", "kind": "text", "label": "Pull Quote", "required": false, "maxLength": 220 },
+        { "key": "body", "kind": "text", "label": "Lead Essay", "required": true, "maxLength": 3000 }
+      ]
+    },
+    {
+      "id": "tpl-mag-interview",
+      "name": "The Interview — Q&A Spread",
+      "channel": "magazine",
+      "aspectRatio": "3/4",
+      "defaultBrandKitId": "the-social-register",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "The Interview", "required": true, "maxLength": 60 },
+        { "key": "headline", "kind": "text", "label": "Subject & Headline", "required": true, "maxLength": 140 },
+        { "key": "subhead", "kind": "text", "label": "Introduction", "required": true, "maxLength": 260 },
+        { "key": "pullQuote", "kind": "text", "label": "Featured Quotation", "required": false, "maxLength": 220 },
+        { "key": "body", "kind": "text", "label": "Conversation Transcript", "required": true, "maxLength": 3500 },
+        { "key": "image", "kind": "image", "label": "Subject Portrait", "required": false, "slotRole": "portrait.editorial" }
+      ]
+    },
+    {
+      "id": "tpl-news-front-page",
+      "name": "The Meridian — Broadsheet Front Page",
+      "channel": "newspaper",
+      "aspectRatio": "3/4",
+      "defaultBrandKitId": "the-meridian",
+      "slots": [
+        { "key": "issueDate", "kind": "text", "label": "Cycle & Edition", "required": true, "maxLength": 60 },
+        { "key": "headline", "kind": "text", "label": "Banner Headline", "required": true, "maxLength": 140 },
+        { "key": "subhead", "kind": "text", "label": "Lead Deck", "required": true, "maxLength": 240 },
+        { "key": "body", "kind": "text", "label": "Lead Dispatch", "required": true, "maxLength": 3000 },
+        { "key": "image", "kind": "image", "label": "Front-Page Photograph", "required": false, "slotRole": "place.infrastructure" }
+      ]
+    },
+    {
+      "id": "tpl-news-article",
+      "name": "The Meridian — Standard Article Layout",
+      "channel": "newspaper",
+      "aspectRatio": "4/3",
+      "defaultBrandKitId": "the-meridian",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "Section Desk", "required": true, "maxLength": 50 },
+        { "key": "headline", "kind": "text", "label": "Article Headline", "required": true, "maxLength": 150 },
+        { "key": "subhead", "kind": "text", "label": "Article Deck", "required": true, "maxLength": 240 },
+        { "key": "byline", "kind": "text", "label": "Byline & Cycle", "required": true, "maxLength": 100 },
+        { "key": "pullQuote", "kind": "text", "label": "Pull Quote", "required": false, "maxLength": 220 },
+        { "key": "body", "kind": "text", "label": "Article Body", "required": true, "maxLength": 4000 },
+        { "key": "image", "kind": "image", "label": "Article Graphic / Photo", "required": false, "slotRole": "place.hero" }
+      ]
+    },
+    {
+      "id": "tpl-doc-press-release",
+      "name": "Institutional Press Release & Notice",
+      "channel": "document",
+      "aspectRatio": "8.5/11",
+      "defaultBrandKitId": "unbranded-editorial",
+      "slots": [
+        { "key": "kicker", "kind": "text", "label": "Issuing Institution", "required": true, "maxLength": 90 },
+        { "key": "headline", "kind": "text", "label": "Release Title", "required": true, "maxLength": 150 },
+        { "key": "subhead", "kind": "text", "label": "Release Date & Embargo", "required": true, "maxLength": 120 },
+        { "key": "body", "kind": "text", "label": "Statement Body", "required": true, "maxLength": 5000 }
+      ]
+    }
+  ]
+}

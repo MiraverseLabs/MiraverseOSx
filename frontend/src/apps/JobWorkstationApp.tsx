@@ -15,6 +15,7 @@ export type WorkplaceStationId =
   | 'diplomat'
   | 'warden'
   | 'artist'
+  | 'press'
   | 'questnotice';
 
 export default function JobWorkstationApp() {

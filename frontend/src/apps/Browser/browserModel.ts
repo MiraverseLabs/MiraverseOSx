@@ -1,4 +1,5 @@
-import { NEWS_SITE } from './news/newsSite';
+import { NEWS_SITE, isMeridianHost } from './news/newsSite';
+import { SOCIAL_REGISTER_SITE } from './publications/socialRegisterModel';
 import { eduPageTitle } from './edu/eduRouter';
 import { faithMedPageTitle } from './medical/faithMedRouter';
 export const BROWSER_HOME = 'https://versenet.aure';
@@ -99,8 +100,10 @@ export const IN_GAME_PORTALS: InGamePortal[] = [
     description: 'Personal civic identity, services desk, and residence records.', 
     badge: 'CIVIC' 
   },
-  { id: 'dispatch', name: NEWS_SITE.name, domain: NEWS_SITE.domain, url: NEWS_SITE.url,
-    category: 'News & Public Affairs', description: 'Reporting from Aureline and the Seven Realms, public advisories, and a personal reading shelf.', badge: 'NEWS' },
+  { id: 'meridian', name: NEWS_SITE.name, domain: NEWS_SITE.domain, url: NEWS_SITE.url,
+    category: 'News & Public Affairs', description: 'Flagship daily newspaper across all Eight Realms (incorporating The Meridion Dispatch), ten desks, and collectible cycle editions.', badge: 'NEWS' },
+  { id: 'socialregister', name: SOCIAL_REGISTER_SITE.name, domain: SOCIAL_REGISTER_SITE.domain, url: SOCIAL_REGISTER_SITE.url,
+    category: 'Society & Culture Magazine', description: 'Flagship society magazine featuring The Courts, Style, The Interview, Residences, Heritage, and Issue 01 ("Between Tradition and Tomorrow").', badge: 'NEWS' },
 ];
 
 export const STARTER_SITES = IN_GAME_PORTALS.slice(0, 5);
@@ -136,7 +139,8 @@ export function resolveBrowserInput(input: string): string {
 export function browserTitle(url: string): string {
   try {
     const parsed = new URL(url);
-    if (parsed.hostname === NEWS_SITE.domain) return parsed.pathname === '/saved' ? `Saved stories · ${NEWS_SITE.name}` : parsed.pathname.startsWith('/article/') ? `Article · ${NEWS_SITE.name}` : NEWS_SITE.name;
+    if (isMeridianHost(parsed.hostname)) return parsed.pathname === '/saved' ? `Saved stories · ${NEWS_SITE.name}` : parsed.pathname.startsWith('/article/') ? `Article · ${NEWS_SITE.name}` : NEWS_SITE.name;
+    if ([SOCIAL_REGISTER_SITE.domain, ...SOCIAL_REGISTER_SITE.altDomains].includes(parsed.hostname as any)) return parsed.pathname === '/issue/01' ? `Issue 01 · ${SOCIAL_REGISTER_SITE.name}` : SOCIAL_REGISTER_SITE.name;
     const eduTitle = eduPageTitle(url);
     if (eduTitle) return eduTitle;
     const medTitle = faithMedPageTitle(url);

@@ -7,6 +7,8 @@ import { createHash } from 'node:crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const wallpapers = JSON.parse(readFileSync(path.join(__dirname, 'src/data/wallpapers.json'), 'utf8'));
+const wallpaperAssets = wallpapers.filter(item => item.url.startsWith('/')).map(item => item.url);
 
 export default defineConfig({
   plugins: [react(), {
@@ -19,8 +21,10 @@ export default defineConfig({
       handler(_options, bundle) {
       const assets = Object.keys(bundle).filter(name => /\.(js|css|woff2?|ttf)$/.test(name)).map(name => `/${name}`);
       const workerSource = readFileSync(path.join(__dirname, 'offline-worker.js'), 'utf8');
-      const revision = createHash('sha256').update(assets.join('\n')).update(workerSource).update(readFileSync(path.join(__dirname, 'index.html'))).update(readFileSync(path.join(__dirname, 'public/manifest.json'))).digest('hex').slice(0, 16);
-      const precache = ['/index.html', '/manifest.json', '/pwa-icon.svg', '/favicon.ico', '/images/Logo_Icon - 1.png', ...assets];
+      const wallpaperHash = createHash('sha256');
+      for (const url of wallpaperAssets) wallpaperHash.update(url).update(readFileSync(path.join(__dirname, 'public', url.slice(1))));
+      const revision = createHash('sha256').update(assets.join('\n')).update(workerSource).update(wallpaperHash.digest('hex')).update(readFileSync(path.join(__dirname, 'index.html'))).update(readFileSync(path.join(__dirname, 'public/manifest.json'))).digest('hex').slice(0, 16);
+      const precache = ['/index.html', '/manifest.json', '/pwa-icon.svg', '/favicon.ico', '/images/Logo_Icon - 1.png', ...wallpaperAssets, ...assets];
       this.emitFile({ type: 'asset', fileName: 'sw.js', source: `const CACHE_NAME = ${JSON.stringify(`miraverse-shell-${revision}`)};\nconst PRECACHE = ${JSON.stringify(precache)};\n${workerSource}` });
       },
     },

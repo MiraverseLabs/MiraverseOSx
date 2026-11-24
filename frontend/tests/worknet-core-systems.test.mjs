@@ -38,7 +38,7 @@ const {
 test('WorknetCoreSystems defines canonical scopes, categories, 9 careers, 16 actions, and maps existing WORKNET mechanics', () => {
   assert.equal(Object.keys(ACTIVITY_HIERARCHY).length, 5);
   assert.equal(WORKNET_ACTIVITY_CATEGORIES.length, 5);
-  assert.equal(ESTABLISHED_CAREERS.length, 9);
+  assert.equal(ESTABLISHED_CAREERS.length, 10);
   assert.equal(MISSION_ACTION_VOCABULARY.length, 16);
   assert.equal(EXECUTION_MODES.length, 4);
   assert.equal(OBJECTIVE_PATTERNS.length, 5);

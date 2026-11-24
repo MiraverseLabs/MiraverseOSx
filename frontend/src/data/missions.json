@@ -282,5 +282,43 @@
     "rewardXP": 150,
     "primaryAttribute": "Intellect",
     "permittedTools": ["Process Monitor", "Evidence notebook"]
+  },
+  {
+    "id": "ms-press-01",
+    "type": "Work Shifts",
+    "track": "press",
+    "department": "The Meridian & Social Register Joint Desk",
+    "title": "Fact-Check & File the Eight-Realm Concord Feature",
+    "location": "Meridian Press House · 18 Meridian Quay",
+    "workplace": "Meridian Press House",
+    "severity": "Routine",
+    "description": "Verify realm capital attributions—including Elmore in Ve’Raylia—cross-check public registry bounds, and file clean copy for morning publication.",
+    "targetSubject": "MER-DESK-801",
+    "threatOrSymptom": "Unverified realm attribution in draft wire",
+    "requiredAction": "Verify Ve’Raylia capital & lineage, apply press privacy standards, and file verified copy.",
+    "rewardCredits": 215,
+    "rewardBits": 1,
+    "rewardXP": 110,
+    "primaryAttribute": "Communication & Intellect",
+    "permittedTools": ["CreativeStudio", "PressStylebook"]
+  },
+  {
+    "id": "qn-04",
+    "type": "QUESTNOTICE",
+    "track": "questnotice",
+    "department": "Rosemont Salon Freelance Desk",
+    "title": "Freelance Commission: Rosemont Salon Event Card",
+    "location": "7 Rosemont Terrace, Crown District",
+    "workplace": "Questnotice Postings",
+    "severity": "Routine",
+    "description": "Prepare a print-verified gala announcement plaque using Old Burgundy and Pearl Gold brand specifications for Rosemont Editorial House.",
+    "targetSubject": "SR-GALA-CARD",
+    "threatOrSymptom": "Tight evening press deadline",
+    "requiredAction": "Confirm brand palette, verify venue address, and submit clean proof.",
+    "rewardCredits": 135,
+    "rewardBits": 0,
+    "rewardXP": 85,
+    "primaryAttribute": "Creativity",
+    "permittedTools": ["CreativeStudio", "ColorProofLoupe"]
   }
 ]

@@ -4,10 +4,10 @@ import { SocialContext, SocialImage } from './SocialContext';
 import { canSee, PEOPLE, restoreSocial } from './socialModel';
 import ProfileCanvas from './ProfileCanvas';
 import ProfileStudio from './ProfileStudio';
-import { Communities, Events, HomeFeed, Music, PeopleDirectory, Photos, SocialMail, Writing } from './SocialSections';
+import { Communities, Events, HomeFeed, Music, OfficialAccountsDirectory, PeopleDirectory, Photos, SocialMail, Writing } from './SocialSections';
 import './mai-space.css';
 
-const NAV = ['Home', 'Browse', 'Search', 'Friends', 'Mail', 'Blog', 'Music'];
+const NAV = ['Home', 'Accounts', 'Browse', 'Search', 'Friends', 'Mail', 'Blog', 'Music'];
 export function MaiSpacePortal() {
   const player = useOSStore(s => s.gameplay.player), cycle = useOSStore(s => s.gameplay.timeCycleCount || 0), socialAction = useOSStore(s => s.socialAction);
   const social = useMemo(() => restoreSocial(player.maiSpaceWorld, player.maiSpaceProfile), [player.maiSpaceWorld, player.maiSpaceProfile]);
@@ -25,6 +25,7 @@ export function MaiSpacePortal() {
     <div className="ms-live-status" role="status">{status}</div>
     <main className={`ms-main ${section === 'My Profile' ? 'ms-profile-page' : ''}`} key={section === 'My Profile' ? `profile:${owner}` : route}>
       {section === 'Home' && <HomeFeed/>}
+      {section === 'Accounts' && <OfficialAccountsDirectory/>}
       {section === 'Browse' && <PeopleDirectory/>}
       {section === 'Friends' && <PeopleDirectory friendsOnly/>}
       {section === 'Photos' && <Photos initialAlbum={suffix}/>}

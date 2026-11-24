@@ -13,7 +13,7 @@ const { emptyWorknetSimulation, advanceWorknetSimulation, restoreWorknetSimulati
 
 test('definition graph resolves every career, institution, mission, stage, chapter, schedule, NPC and discovery reference', () => {
   assert.deepEqual(validateGameplayRegistry(), []);
-  assert.equal(CAREERS.length, 9);
+  assert.equal(CAREERS.length, 10);
   assert.ok(CAREERS.every(c => c === CAREER_REGISTRY[c.id]));
   assert.equal(MISSIONS, registry.missionList);
   assert.equal(registry.progression.dga.rankTitles, CAREER_REGISTRY.dga.tierTitles);

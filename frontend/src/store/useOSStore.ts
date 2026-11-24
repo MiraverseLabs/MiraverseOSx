@@ -35,6 +35,11 @@ import {
 import { restoreDesktopPreferences, changeDesktop, type DesktopAction, type DesktopPreferences } from './desktopPreferences';
 import { resolveAppDestination, retiredWindowDestination, type WorkspaceRequest } from './appNavigation';
 import { canAcceptInvitation, invitationForOrganization, membershipSource, organization, registerCommunicationsAuthority } from '../integration/communicationsAccess';
+import { advanceDynamicMedia, restoreMediaStudio } from '../gameplay/MediaStudio';
+import { createMediaStudioActions, type MediaStudioActions } from './mediaStudioActions';
+import { processPublicReactions } from '../gameplay/WorldPublicationFlow';
+import { restoreWorldPublications } from '../gameplay/WorldPublications';
+import { worldWorkTick } from '../gameplay/WorkSchedule';
 import { isWorldPaused } from '../integration/worldStateManager';
 import { BROWSER_HOME, initialBrowserState, restoreBrowserState, restartBrowserSession, type BrowserState } from '../apps/Browser/browserModel';
 export type { BrowserState, BrowserTab, TabHistory } from '../apps/Browser/browserModel';
@@ -114,7 +119,7 @@ export interface OSWindow {
   [key: string]: any;
 }
 
-export interface OSStoreState extends BankingActions, ProcessActions, AcademicActions, AssignmentFlowActions, ProgressionActions, VersenetActions, SiteActions, BroadStreetActions, SocialActions {
+export interface OSStoreState extends MediaStudioActions, BankingActions, ProcessActions, AcademicActions, AssignmentFlowActions, ProgressionActions, VersenetActions, SiteActions, BroadStreetActions, SocialActions {
   isLoggedIn: boolean;
   isSanctuary: boolean;
   toggleSanctuary: () => void;
@@ -815,6 +820,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   ...createVersenetActions(set, get),
   ...createBrowserActions(set, get),
   ...createSocialActions(set, get),
+  ...createMediaStudioActions(set, get),
 
   grantLocalFullAccess: () => {
     const current = get();
@@ -958,6 +964,8 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     activeGameId: null,
     prismCorruptionLevel: 14.8,
     claimedComms: [],
+    worldPublications: restoreWorldPublications(null),
+    mediaStudio: restoreMediaStudio(null),
     worldEventLog: [
       {
         id: 'EVT-BOOT-01',
@@ -2605,7 +2613,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
       browserUrl: browserState.tabs.find(tab => tab.id === browserState.activeTabId)!.url,
       gameplay: (() => {
         const merged = mergeSavedProgress(current.gameplay, saved?.gameplay);
-        const restored = { ...merged, player: { ...restoreWorknetPlayer(merged.player, workTick(merged)), banking: restoreBanking(merged.player.banking), processMonitor: restoreProcessMonitor(merged.player.processMonitor) } };
+        const restored = { ...merged, mediaStudio: restoreMediaStudio(merged.mediaStudio, merged.timeCycleCount), worldPublications: restoreWorldPublications(merged.worldPublications), player: { ...restoreWorknetPlayer(merged.player, workTick(merged)), banking: restoreBanking(merged.player.banking), processMonitor: restoreProcessMonitor(merged.player.processMonitor) } };
         return isLocalWorld(globalThis.location?.hostname || '')
           ? grantLocalCredentials(restored, new Date().toISOString())
           : restored;
@@ -2628,3 +2636,13 @@ if (isLocalWorld(globalThis.location?.hostname || '')) {
     useOSStore.setState({ gameplay: grantLocalCredentials(current.gameplay, new Date().toISOString()) });
   }
 }
+
+// Consequences advance with the shared game clock, never with rendering or offline wall time.
+let restoringPublications = false;
+useOSStore.persist.onHydrate(() => { restoringPublications = true; });
+useOSStore.persist.onFinishHydration(() => { restoringPublications = false; });
+useOSStore.subscribe((state, previous) => {
+  if (restoringPublications || !state.isLoggedIn || isWorldPaused() || worldWorkTick(state.gameplay) <= worldWorkTick(previous.gameplay)) return;
+  const gameplay = advanceDynamicMedia(processPublicReactions(state.gameplay));
+  if (gameplay !== state.gameplay) useOSStore.setState({ gameplay });
+});

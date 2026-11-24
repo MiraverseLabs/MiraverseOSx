@@ -38,6 +38,7 @@ namespace MiraverseOSx
         private static HttpListener? _httpServer;
         private static int _activePort = 5000;
         private static WorldSaveApi? _worldApi;
+        private static MediaAssetApi? _mediaApi;
         private static AiHttpHandler? _aiHttpHandler;
         private static readonly HttpClient _httpClient = new HttpClient();
         private static readonly string _externalLaunchToken = Guid.NewGuid().ToString("N");
@@ -68,6 +69,7 @@ namespace MiraverseOSx
             string? Argument(string name) { int index = Array.IndexOf(args, name); return index >= 0 && index + 1 < args.Length ? args[index + 1] : null; }
             var dataDirectory = Argument("--data-dir") ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MiraverseOSx");
             _worldApi = new WorldSaveApi(dataDirectory);
+            _mediaApi = new MediaAssetApi(dataDirectory);
             var memoryRepo = new NpcMemoryRepository(dataDirectory);
             var costController = new AiCostController(memoryRepo);
             var geminiProvider = new GeminiProvider(_httpClient);
@@ -160,6 +162,7 @@ namespace MiraverseOSx
                 string relPath = context.Request.Url?.AbsolutePath.TrimStart('/') ?? "index.html";
 
                 if (_worldApi != null && await _worldApi.Handle(context, relPath)) return;
+                if (_mediaApi != null && await _mediaApi.Handle(context, relPath)) return;
                 if (_aiHttpHandler != null && await _aiHttpHandler.Handle(context, relPath)) return;
 
                 // --- SQLITE API ROUTE INTERCEPTOR ---
@@ -245,6 +248,7 @@ namespace MiraverseOSx
                     ".css" => "text/css",
                     ".png" => "image/png",
                     ".jpg" or ".jpeg" => "image/jpeg",
+                    ".webp" => "image/webp",
                     ".svg" => "image/svg+xml",
                     ".json" => "application/json",
                     ".mp4" => "video/mp4",
@@ -317,7 +321,7 @@ namespace MiraverseOSx
             if (uri.Scheme == "http" || uri.Scheme == "https")
             {
                 var host = uri.Host.ToLowerInvariant();
-                if (host.EndsWith(".aure") || host.EndsWith(".mer") || host.EndsWith(".onion") || new[] { "versenet", "civinet", "questnotice", "royalhistory", "dga.gov", "cyacademy.edu", "records.orynvell.gov", "finance.oryn.gov", "mai.space" }.Contains(host)) return false;
+                if (host.EndsWith(".aure") || host.EndsWith(".mer") || host.EndsWith(".onion") || new[] { "versenet", "civinet", "questnotice", "royalhistory", "dga.gov", "cyacademy.edu", "records.orynvell.gov", "finance.oryn.gov", "mai.space", "meridian.mer", "socialregister.mer" }.Contains(host)) return false;
                 launchTarget = uri.AbsoluteUri; return true;
             }
             // Explicit local HTML links only; never hand executable paths or network shares to the shell.

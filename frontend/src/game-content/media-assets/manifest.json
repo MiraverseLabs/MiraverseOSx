@@ -1,0 +1,140 @@
+{
+  "version": "1.0.0",
+  "assets": [
+    {
+      "id": "canon:brand-sr-masthead",
+      "src": "/media/brands/social-register-masthead.svg",
+      "mimeType": "image/svg+xml",
+      "slotRole": "masthead.primary",
+      "entityIds": ["ORG_SOCIAL_REGISTER"],
+      "caption": "The Social Register standalone botanical & celestial serif masthead",
+      "provenance": { "origin": "authored_svg", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-24" }
+    },
+    {
+      "id": "canon:brand-sr-monogram",
+      "src": "/media/brands/social-register-monogram.svg",
+      "mimeType": "image/svg+xml",
+      "slotRole": "monogram.primary",
+      "entityIds": ["ORG_SOCIAL_REGISTER"],
+      "caption": "The Social Register intertwined SR gold and thistle crest",
+      "provenance": { "origin": "authored_svg", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-24" }
+    },
+    {
+      "id": "canon:brand-meridian-masthead",
+      "src": "/media/brands/meridian-masthead.svg",
+      "mimeType": "image/svg+xml",
+      "slotRole": "masthead.primary",
+      "entityIds": ["ORG_THE_MERIDIAN"],
+      "caption": "The Meridian masthead with abstract eight-arc celestial meridian dome and Radiance & Echo twin moons",
+      "provenance": { "origin": "authored_svg", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-24" }
+    },
+    {
+      "id": "canon:brand-meridian-monogram",
+      "src": "/media/brands/meridian-monogram.svg",
+      "mimeType": "image/svg+xml",
+      "slotRole": "monogram.primary",
+      "entityIds": ["ORG_THE_MERIDIAN"],
+      "caption": "The Meridian slate-and-gold M monogram crest",
+      "provenance": { "origin": "authored_svg", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-24" }
+    },
+    {
+      "id": "canon:ornament-celestial-star",
+      "src": "/media/ornaments/celestial-star.svg",
+      "mimeType": "image/svg+xml",
+      "slotRole": "ornament.star",
+      "entityIds": ["ORG_SOCIAL_REGISTER", "ORG_THE_MERIDIAN"],
+      "caption": "Eight-point celestial star ornament",
+      "provenance": { "origin": "authored_svg", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-24" }
+    },
+    {
+      "id": "canon:ornament-botanical-corner",
+      "src": "/media/ornaments/botanical-corner.svg",
+      "mimeType": "image/svg+xml",
+      "slotRole": "ornament.corner",
+      "entityIds": ["ORG_SOCIAL_REGISTER"],
+      "caption": "Gold and thistle botanical corner frame ornament",
+      "provenance": { "origin": "authored_svg", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-24" }
+    },
+    {
+      "id": "canon:ornament-editorial-divider",
+      "src": "/media/ornaments/editorial-divider.svg",
+      "mimeType": "image/svg+xml",
+      "slotRole": "ornament.divider",
+      "entityIds": ["ORG_SOCIAL_REGISTER", "ORG_THE_MERIDIAN"],
+      "caption": "Symmetrical gold filigree and star editorial divider",
+      "provenance": { "origin": "authored_svg", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-24" }
+    },
+    {
+      "id": "canon:ornament-ornate-plaque",
+      "src": "/media/ornaments/ornate-plaque.svg",
+      "mimeType": "image/svg+xml",
+      "slotRole": "ornament.plaque",
+      "entityIds": ["ORG_SOCIAL_REGISTER"],
+      "caption": "Notched gold double-rule editorial title plaque",
+      "provenance": { "origin": "authored_svg", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-24" }
+    },
+    {
+      "id": "canon:ornament-floral-crest",
+      "src": "/media/ornaments/floral-crest.svg",
+      "mimeType": "image/svg+xml",
+      "slotRole": "ornament.crest",
+      "entityIds": ["ORG_SOCIAL_REGISTER"],
+      "caption": "Botanical lily and celestial crown crest",
+      "provenance": { "origin": "authored_svg", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-24" }
+    },
+    {
+      "id": "canon:place-angel-bay",
+      "src": "/images/wallpapers/aureline-across-angel-bay.png",
+      "mimeType": "image/png",
+      "slotRole": "place.hero",
+      "entityIds": ["REG_ORYNVELL", "geo-angel-bay", "loc-crown-sanctum"],
+      "caption": "Aureline across Angel Bay at twilight",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Art Archive", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-20" }
+    },
+    {
+      "id": "canon:place-aureline-heavens",
+      "src": "/images/wallpapers/aureline-city-beneath-the-heavens.png",
+      "mimeType": "image/png",
+      "slotRole": "place.skyline",
+      "entityIds": ["REG_ORYNVELL", "FAC_SERAPHIMA"],
+      "caption": "Imperial skyline of Aureline beneath Radiance and Echo",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Art Archive", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-20" }
+    },
+    {
+      "id": "canon:place-glassline-twilight",
+      "src": "/images/wallpapers/aureline-glassline-twilight.png",
+      "mimeType": "image/png",
+      "slotRole": "place.district",
+      "entityIds": ["REG_ORYNVELL", "loc-meridian-press-house", "loc-cyberium-campus"],
+      "caption": "Glassline District promenade and elevated transit dusk view",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Art Archive", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-20" }
+    },
+    {
+      "id": "canon:place-transit-junction",
+      "src": "/images/worknet/transit-junction.png",
+      "mimeType": "image/png",
+      "slotRole": "place.infrastructure",
+      "entityIds": ["FAC_DGA", "REG_ORYNVELL"],
+      "caption": "Aureline Glassline transit infrastructure & carrier relay",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse WORKNET Art", "license": "First-Party Original (see /images/worknet/CREDITS.md)", "approvalStatus": "approved", "createdAt": "2026-11-20" }
+    },
+    {
+      "id": "canon:place-depository",
+      "src": "/images/worknet/depository.png",
+      "mimeType": "image/png",
+      "slotRole": "place.institution",
+      "entityIds": ["ORG_ORYN_FINANCE", "FAC_ROYAL_HISTORY"],
+      "caption": "Municipal stone colonnade & depository hall in Aureline",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse WORKNET Art", "license": "First-Party Original (see /images/worknet/CREDITS.md)", "approvalStatus": "approved", "createdAt": "2026-11-20" }
+    },
+    {
+      "id": "canon:place-suite-4b",
+      "src": "/images/housing/suite-4b-evening.webp",
+      "mimeType": "image/webp",
+      "slotRole": "residence.interior",
+      "entityIds": ["loc-suite-4b"],
+      "caption": "Interior architectural study of Vector Housing Suite 4B in Glassline District",
+      "provenance": { "origin": "ai_generated_original", "creator": "Miraverse Environment Studio", "license": "First-Party Original (suite-4b-evening.provenance.json)", "approvalStatus": "approved", "createdAt": "2026-11-23" }
+    }
+  ]
+}

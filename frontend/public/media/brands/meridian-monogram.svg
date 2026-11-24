@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" role="img" aria-label="The Meridian Monogram Crest">
+  <rect x="34" y="26" width="212" height="228" rx="12" fill="#22354A" stroke="#C6AE73" stroke-width="2.2"/>
+  <!-- Abstract Meridian Grid Arc at Base -->
+  <path d="M 48 238 A 96 58 0 0 1 232 238" fill="none" stroke="#9EA7B3" stroke-width="1.4" opacity="0.75"/>
+  <path d="M 78 238 A 62 58 0 0 1 202 238" fill="none" stroke="#9EA7B3" stroke-width="1" opacity="0.6"/>
+  <line x1="140" y1="180" x2="140" y2="238" stroke="#AADBE3" stroke-width="1.1" opacity="0.75"/>
+  <!-- 8-Point Celestial Star -->
+  <polygon points="140,44 144,58 158,62 144,66 140,80 136,66 122,62 136,58" fill="#C6AE73"/>
+  <!-- Monogram M -->
+  <text x="140" y="182" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="118" fill="#FFFFFF">M</text>
+</svg>

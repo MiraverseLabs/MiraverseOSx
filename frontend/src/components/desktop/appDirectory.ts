@@ -67,6 +67,21 @@ export const PROTOCOLS: ProtocolItem[] = [
     border: 'border-purple-300'
   },
   {
+    id: 'creativeStudio',
+    code: 'MEDIA',
+    name: 'CREATIVE // Editorial & Brand Studio',
+    label: 'CREATIVE // Editorial & Brand Studio',
+    sector: 'Meridian Press & Velvet Guild',
+    icon: Sparkles,
+    clearance: 'Citizen / Press / Admin',
+    aetherTrace: 'AT-0x0124',
+    flux: '26.4 MHz',
+    desc: 'Shared visual template composer, World Asset Library browser, brand palettes, periodical publishing, and Admin Canon Console.',
+    color: 'text-rose-900',
+    bg: 'bg-rose-50',
+    border: 'border-rose-300'
+  },
+  {
     id: 'passport',
     code: 'CIVIC',
     name: 'Citizen Hub',

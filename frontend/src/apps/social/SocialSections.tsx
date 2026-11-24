@@ -6,6 +6,17 @@ import { sanitizeMailHtml, escapeMailText, mailHtmlToText } from '../mail/richTe
 import { storeMedia, removeMedia } from './socialMedia';
 import { useCommsStore } from '../../store/useCommsStore';
 import SortableList from '../../components/ui/SortableList';
+import { MediaTemplateRenderer } from '../../components/media/MediaTemplateRenderer';
+import { listTemplatesByChannel, type PublishedMediaArtifact } from '../../components/media/templateModel';
+import { BRAND_KITS, WORLD_PLACES } from '../../game-content/worldAssetLibrary';
+import {
+  ACCOUNT_FAMILY_LABELS,
+  OFFICIAL_SOCIAL_ACCOUNTS,
+  STARTER_SOCIAL_STORIES,
+  type SocialAccountFamily,
+  type SocialStoryItem,
+} from './socialAccountsAndFeed';
+import { useOSStore } from '../../store/useOSStore';
 const RichTextEditor = lazy(() => import('../../components/editor/RichTextEditor'));
 export function AudienceSelect({ value, onChange, includeGroup = false }: { value: Audience; onChange: (v: Audience) => void; includeGroup?: boolean }) { return <label>Audience<select value={value} onChange={e => onChange(e.target.value as Audience)}><option value="public">Public</option><option value="friends">Friends</option><option value="private">Only me</option>{includeGroup && <option value="group">Group members</option>}</select></label>; }
 export function PersonLink({ id }: { id: string }) { const { visit, player } = useSocial(); return <button className="ms-person-link" onClick={() => visit(id)}>{id === 'you' ? player.maiSpaceProfile?.handle || player.name : PEOPLE.find(p => p.id === id)?.name || 'Citizen'}</button>; }
@@ -24,11 +35,422 @@ export function Writing({ kind, selected = '' }: { kind: 'blog' | 'bulletin'; se
   const submit = (draft: boolean) => { if (act({ type: 'post', id, title, html, kind, audience: aud, draft, media })) { setId(''); setTitle(''); setHtml(''); setText(''); setMedia([]); } };
   return <div className="ms-content-width"><div className="ms-section-heading"><div><span className="ms-eyebrow">A PLACE FOR YOUR WORDS</span><h1>{kind === 'blog' ? 'The Journal' : 'Bulletin board'}</h1><p>{kind === 'blog' ? 'Long thoughts, small stories, and things worth keeping.' : 'Announcements, invitations, and what is happening lately.'}</p></div></div>{!selected && <section className="ms-card ms-compose"><h2>{id ? 'Edit your entry' : kind === 'blog' ? 'Start a new page' : 'Leave a bulletin'}</h2><label>Title<input value={title} onChange={e => setTitle(e.target.value)} maxLength={180}/></label>{kind === 'blog' ? <Suspense fallback={<p>Opening editor…</p>}><RichTextEditor label="Blog entry" value={html} onChange={setHtml}/></Suspense> : <textarea aria-label="Bulletin text" maxLength={2000} value={mailHtmlToText(html)} onChange={e => { setText(e.target.value); setHtml(escapeMailText(e.target.value)); }} placeholder="What would you like to share?"/>}{kind === 'blog' && <fieldset><legend>Photographs from my media shelf</legend>{social.assets.filter(a => a.type.startsWith('image/')).map(a => <label key={a.id}><input type="checkbox" checked={media.includes(a.id)} disabled={!media.includes(a.id) && media.length >= 8} onChange={e => setMedia(e.target.checked ? [...media, a.id] : media.filter(id => id !== a.id))}/>{a.name}</label>)}{!social.assets.some(a => a.type.startsWith('image/')) && <small>Upload images through Profile Studio to attach photographs here.</small>}</fieldset>}<AudienceSelect value={aud} onChange={setAud}/><div className="ms-actions"><button className="ms-primary" onClick={() => submit(false)}>Publish {kind}</button><button onClick={() => submit(true)}>Save draft</button>{id && <button onClick={() => { setId(''); setHtml(''); setTitle(''); }}>Cancel edit</button>}</div><small>Publishing is social, not a source of currency or relationship points. Save a draft before leaving.</small></section>}{entries.map(p => <PostCard key={p.id} post={p} onEdit={selected ? undefined : edit}/>)}{!entries.length && <p className="ms-empty">Nothing here yet. A blank page is a good beginning.</p>}</div>;
 }
+export function TemplateFeedPostCard({ artifact }: { artifact: PublishedMediaArtifact }) {
+  const { social, act, visit, player, cycle } = useSocial();
+  const official = OFFICIAL_SOCIAL_ACCOUNTS.find(a => a.id === artifact.authorId);
+  const person = PEOPLE.find(p => p.id === artifact.authorId);
+  const family: SocialAccountFamily = official ? official.family : 'personal';
+  const likes = social.templateLikes?.[artifact.id] || [];
+  const chosenPoll = social.pollSelections?.[artifact.id] ?? null;
+  const pollVotes: Record<number, number> = {};
+  if (Array.isArray(artifact.slotValues.pollOptions)) {
+    artifact.slotValues.pollOptions.forEach((_, idx) => {
+      pollVotes[idx] = (idx === 0 ? 5 : idx === 1 ? 3 : 2) + (chosenPoll === idx ? 1 : 0);
+    });
+  }
+
+  const citeSocialLead = () => {
+    const store = useOSStore.getState();
+    const targetMission =
+      store.gameplay?.player?.assignmentJournal?.selectedId ||
+      Object.keys(store.gameplay?.player?.worknetOrders || {})[0] ||
+      'ms-case-002';
+    store.citeInstitutionalEvidence({
+      missionId: targetMission,
+      sourceSystem: 'maispace-public-lead',
+      recordId: `MS-${artifact.id.slice(-12).toUpperCase()}`,
+      title: `[MAI.SPACE] ${artifact.slotValues.headline}`,
+      referenceCode: `MS-C${artifact.publishedCycle}`,
+      custodian: `MAI.SPACE Public Post · ${artifact.authorName} (${ACCOUNT_FAMILY_LABELS[family]})`,
+      citationText: `MAI.SPACE (${artifact.authorName}, Cycle ${artifact.publishedCycle}): "${artifact.slotValues.headline}" — Cited as social context/timestamp lead, not standalone forensic proof.`,
+      excerpt: artifact.slotValues.subhead || artifact.slotValues.body || artifact.slotValues.headline,
+      certified: false,
+    });
+  };
+
+  return (
+    <article className="ms-post ms-card" style={{ display: 'grid', gap: '0.75rem' }}>
+      {/* Separated Platform UI Chrome (distinct from the graphic template asset below) */}
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+          <span
+            aria-hidden="true"
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: '9999px',
+              background: '#48293D',
+              color: '#FFFFFF',
+              display: 'grid',
+              placeItems: 'center',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              border: '1.5px solid #C6AE73',
+            }}
+          >
+            {official ? official.avatarMonogram : person ? person.icon : '✦'}
+          </span>
+          <div>
+            {person || artifact.authorId === 'you' ? (
+              <PersonLink id={artifact.authorId} />
+            ) : (
+              <strong style={{ fontSize: '0.92rem' }}>{official?.name || artifact.authorName}</strong>
+            )}
+            <small style={{ display: 'block' }}>
+              @{official?.handle || person?.handle || player.maiSpaceProfile?.handle || 'citizen'} ·{' '}
+              <strong>{ACCOUNT_FAMILY_LABELS[family]}</strong> · Cycle {artifact.publishedCycle || cycle}
+            </small>
+          </div>
+        </div>
+        {official && (
+          <button
+            type="button"
+            onClick={() => act({ type: 'follow-account', accountId: official.id })}
+            aria-pressed={(social.followedAccounts || []).includes(official.id)}
+          >
+            {(social.followedAccounts || []).includes(official.id) ? 'Following ✓' : '+ Follow Page'}
+          </button>
+        )}
+      </header>
+
+      {/* Reusable Graphic Template Slot */}
+      <MediaTemplateRenderer
+        artifact={artifact}
+        density="compact"
+        pollVotes={pollVotes}
+        selectedPollIndex={chosenPoll}
+        onVotePoll={idx => act({ type: 'vote-poll', id: artifact.id, optionIndex: idx })}
+      />
+
+      {/* Platform Engagement Bar & Threaded Comments */}
+      <div className="ms-actions">
+        <button
+          type="button"
+          aria-pressed={likes.includes('you')}
+          onClick={() => act({ type: 'like-template-post', id: artifact.id })}
+        >
+          ♡ {likes.length} {likes.length === 1 ? 'like' : 'likes'}
+        </button>
+        <button type="button" onClick={citeSocialLead}>
+          Cite / Clip Lead
+        </button>
+        {official?.id === 'acct:themeridian' && (
+          <button type="button" onClick={() => useOSStore.getState().openAppWorkspace('browser', 'https://meridian.mer')}>
+            Open meridian.mer →
+          </button>
+        )}
+        {official?.id === 'acct:thesocialregister' && (
+          <button type="button" onClick={() => useOSStore.getState().openAppWorkspace('browser', 'https://socialregister.mer')}>
+            Open socialregister.mer →
+          </button>
+        )}
+      </div>
+      <details>
+        <summary>Comments ({social.comments.filter(c => c.target === artifact.id).length})</summary>
+        <Comments target={artifact.id} />
+      </details>
+    </article>
+  );
+}
+
+export function OfficialAccountsDirectory() {
+  const { social, act } = useSocial();
+  const [familyFilter, setFamilyFilter] = useState<string>('all');
+  const families: ('all' | Exclude<SocialAccountFamily, 'personal'>)[] = ['all', 'media', 'royal', 'institutional', 'creator', 'business'];
+  const accounts = OFFICIAL_SOCIAL_ACCOUNTS.filter(a => familyFilter === 'all' || a.family === familyFilter);
+
+  return (
+    <div className="ms-content-width">
+      <div className="ms-section-heading">
+        <div>
+          <span className="ms-eyebrow">ACROSS THE EIGHT REALMS</span>
+          <h1>Official Pages & Account Families</h1>
+          <p>Follow publications, royal chanceries, universities, cultural creators, and ateliers alongside your personal friend circle.</p>
+        </div>
+      </div>
+
+      <div className="ms-actions" style={{ marginBottom: '1rem', flexWrap: 'wrap' }}>
+        {families.map(f => (
+          <button key={f} type="button" aria-pressed={familyFilter === f} onClick={() => setFamilyFilter(f)}>
+            {f === 'all' ? 'All Account Families' : ACCOUNT_FAMILY_LABELS[f]}
+          </button>
+        ))}
+      </div>
+
+      <div className="ms-people-grid">
+        {accounts.map(acct => {
+          const following = (social.followedAccounts || []).includes(acct.id);
+          return (
+            <article key={acct.id} className="ms-card" style={{ display: 'grid', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <span
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: '9999px',
+                    background: '#48293D',
+                    color: '#FFFFFF',
+                    border: '1.5px solid #C6AE73',
+                    display: 'grid',
+                    placeItems: 'center',
+                    fontWeight: 700,
+                  }}
+                >
+                  {acct.avatarMonogram}
+                </span>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '1.05rem' }}>{acct.name}</h2>
+                  <small>@{acct.handle} · {ACCOUNT_FAMILY_LABELS[acct.family]}</small>
+                </div>
+              </div>
+              <small style={{ color: '#506F8A', fontWeight: 700 }}>✦ {acct.verifiedLabel} · {acct.location}</small>
+              <p style={{ margin: 0 }}>{acct.bio}</p>
+              <div className="ms-actions">
+                <button
+                  type="button"
+                  className={following ? '' : 'ms-primary'}
+                  aria-pressed={following}
+                  onClick={() => act({ type: 'follow-account', accountId: acct.id })}
+                >
+                  {following ? 'Following ✓' : '+ Follow Account'}
+                </button>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function HomeFeed() {
-  const { social, go } = useSocial();
+  const { social, go, act, player } = useSocial();
   const [filter, setFilter] = useState('all');
-  const feed = social.posts.filter(p => !p.draft && canSee(social, p.author, p.audience) && !social.muted.includes(p.author) && (filter !== 'friends' || p.author === 'you' || social.friends.includes(p.author))).slice().sort((a, b) => b.cycle - a.cycle);
-  return <div className="ms-home"><section className="ms-welcome"><span>EST. IN YOUR LITTLE CORNER OF MERIDION</span><h1>Somewhere to belong.</h1><p>Good music. Long conversations. A page that could only be yours.</p><button onClick={() => go('Customize')}>Make your page →</button><span className="ms-welcome-star" aria-hidden="true">✧</span></section><div className="ms-home-grid"><div><div className="ms-feed-heading"><h2>Across the neighborhood</h2><select aria-label="Feed filter" value={filter} onChange={e => setFilter(e.target.value)}><option value="all">Everyone · chronological</option><option value="friends">Friends · chronological</option></select></div>{feed.map(p => <PostCard key={p.id} post={p}/>)}{!feed.length && <p className="ms-empty">A quiet day. Visit a profile or write a little update.</p>}</div><aside><section className="ms-card"><h2>A little inspiration</h2><p>Visit an unfamiliar page. Listen to something new. Leave a thoughtful note.</p><button onClick={() => go('Browse')}>Browse the neighborhood →</button></section><section className="ms-card"><h2>Your invitations</h2><p>{Object.values(social.requests).filter(s => s === 'incoming').length} friendship requests</p><button onClick={() => go('Friends')}>Open Friends</button></section><section className="ms-card"><h2>Community rooms</h2>{social.groups.filter(g => !g.private || g.members.includes('you')).map(g => <button className="ms-journal-link" key={g.id} onClick={() => go('Groups')}>{g.name}</button>)}</section><p className="ms-help">This is an NPC social world. Other real players are not connected.</p></aside></div></div>;
+  const [activeStory, setActiveStory] = useState<SocialStoryItem | null>(null);
+  const [composerOpen, setComposerOpen] = useState(false);
+  const socialTemplates = listTemplatesByChannel('social');
+  const [tplId, setTplId] = useState(socialTemplates[0]?.id || 'tpl-social-personal-photo');
+  const [brandKitId, setBrandKitId] = useState('unbranded-editorial');
+  const [kicker, setKicker] = useState('AURELINE DISPATCH');
+  const [headline, setHeadline] = useState('');
+  const [subhead, setSubhead] = useState('');
+  const [entityId, setEntityId] = useState('REG_ORYNVELL');
+
+  const feed = social.posts
+    .filter(p => !p.draft && canSee(social, p.author, p.audience) && !social.muted.includes(p.author) && (filter !== 'friends' || p.author === 'you' || social.friends.includes(p.author)))
+    .slice()
+    .sort((a, b) => b.cycle - a.cycle);
+
+  const templateFeed = (social.templatePosts || []).filter(tp => {
+    if (filter === 'friends') return tp.authorId === 'you' || social.friends.includes(tp.authorId);
+    if (filter === 'following') return tp.authorId === 'you' || (social.followedAccounts || []).includes(tp.authorId);
+    return true;
+  });
+
+  const handlePublishGraphicCard = (e: React.FormEvent) => {
+    e.preventDefault();
+    const isPoll = tplId === 'tpl-social-poll';
+    const isCarousel = tplId === 'tpl-social-carousel';
+    const ok = act({
+      type: 'publish-template-post',
+      npcVectors: player?.npcVectors,
+      artifact: {
+        templateId: tplId,
+        brandKitId,
+        verificationTier: 'personal_perspective',
+        authorId: 'you',
+        authorName: player?.name || 'You',
+        entityRefs: entityId ? [entityId] : [],
+        slotValues: {
+          kicker,
+          headline,
+          subhead,
+          dateLocation: subhead || 'Aureline, Orynvell',
+          body: subhead,
+          primaryEntityId: entityId,
+          ...(isPoll ? { pollOptions: ['Count me in', 'Curious to learn more', 'Sharing my view in comments'] } : {}),
+          ...(isCarousel
+            ? {
+                slides: [
+                  { id: 's1', headline: headline || 'Slide I', caption: subhead || 'First frame from my studio.' },
+                  { id: 's2', headline: 'Slide II · Details', caption: 'Crafted with Miraverse reusable templates.', entityId },
+                ],
+              }
+            : {}),
+        },
+      },
+    });
+    if (ok) {
+      setHeadline('');
+      setSubhead('');
+      setComposerOpen(false);
+    }
+  };
+
+  return (
+    <div className="ms-home">
+      <section className="ms-welcome">
+        <span>EST. IN YOUR LITTLE CORNER OF MERIDION</span>
+        <h1>Somewhere to belong.</h1>
+        <p>Personal spaces, cultural salons, and live dispatches across all eight realms.</p>
+        <div className="ms-actions">
+          <button onClick={() => go('Customize')}>Make your page →</button>
+          <button onClick={() => setComposerOpen(v => !v)}>✦ Compose Graphic Card (16 Templates)</button>
+          <button onClick={() => go('Accounts')}>Explore Official Pages →</button>
+        </div>
+        <span className="ms-welcome-star" aria-hidden="true">✧</span>
+      </section>
+
+      {/* Stories Strip (9:16 Vertical Story Announcements) */}
+      <section className="ms-card" aria-label="Stories across MAI.SPACE" style={{ marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+          <strong style={{ fontSize: '0.82rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Stories & Moments</strong>
+          <small>Click a ring to view</small>
+        </div>
+        <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', paddingBottom: '0.25rem' }}>
+          {STARTER_SOCIAL_STORIES.map(story => {
+            const seen = (social.seenStoryIds || []).includes(story.id);
+            return (
+              <button
+                key={story.id}
+                type="button"
+                onClick={() => {
+                  setActiveStory(story);
+                  act({ type: 'mark-story-seen', id: story.id });
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.4rem 0.8rem',
+                  borderRadius: '9999px',
+                  border: seen ? '1.5px solid #9EA7B3' : '2px solid #C6AE73',
+                  background: seen ? '#F8FAFC' : '#FAF6F8',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#48293D' }}>@{story.handle}</span>
+                <small>{story.kicker}</small>
+              </button>
+            );
+          })}
+        </div>
+        {activeStory && (
+          <div style={{ marginTop: '0.85rem', padding: '1rem', borderRadius: '10px', background: '#48293D', color: '#FFFFFF', border: '1.5px solid #C6AE73' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <small style={{ color: '#D8C0CB', letterSpacing: '0.12em' }}>
+                @{activeStory.handle} · {ACCOUNT_FAMILY_LABELS[activeStory.family]} · {activeStory.kicker}
+              </small>
+              <button type="button" onClick={() => setActiveStory(null)}>Close ×</button>
+            </div>
+            <h3 style={{ fontFamily: 'var(--font-editorial-masthead)', margin: '0.35rem 0', fontSize: '1.35rem' }}>{activeStory.headline}</h3>
+            <p style={{ margin: 0, color: '#F4EBF0' }}>{activeStory.caption}</p>
+          </div>
+        )}
+      </section>
+
+      {composerOpen && (
+        <form className="ms-card ms-compose" onSubmit={handlePublishGraphicCard} style={{ marginBottom: '1rem' }}>
+          <h2>Compose Reusable Graphic Card</h2>
+          <div className="ms-settings-grid">
+            <label>
+              Master Template (16 Archetypes)
+              <select value={tplId} onChange={e => setTplId(e.target.value)}>
+                {socialTemplates.map(t => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} ({t.aspectRatio})
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Brand Kit / Palette
+              <select value={brandKitId} onChange={e => setBrandKitId(e.target.value)}>
+                {Object.values(BRAND_KITS).map(k => (
+                  <option key={k.id} value={k.id}>
+                    {k.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div className="ms-settings-grid">
+            <label>
+              Kicker / Tag
+              <input value={kicker} onChange={e => setKicker(e.target.value)} maxLength={60} />
+            </label>
+            <label>
+              World Place / Context Reference
+              <select value={entityId} onChange={e => setEntityId(e.target.value)}>
+                {WORLD_PLACES.realms.map(r => (
+                  <option key={r.id} value={r.id}>
+                    {r.name} ({r.capital})
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <label>
+            Headline
+            <input required value={headline} onChange={e => setHeadline(e.target.value)} maxLength={140} placeholder="Announce an event, milestone, release, or observation…" />
+          </label>
+          <label>
+            Supporting Copy / Venue
+            <input value={subhead} onChange={e => setSubhead(e.target.value)} maxLength={220} placeholder="Details, reflection, or location…" />
+          </label>
+          <div className="ms-actions">
+            <button type="submit" className="ms-primary">Publish Graphic Card</button>
+            <button type="button" onClick={() => setComposerOpen(false)}>Cancel</button>
+          </div>
+        </form>
+      )}
+
+      <div className="ms-home-grid">
+        <div>
+          <div className="ms-feed-heading">
+            <h2>Across the neighborhood</h2>
+            <select aria-label="Feed filter" value={filter} onChange={e => setFilter(e.target.value)}>
+              <option value="all">Everyone & Official Pages · chronological</option>
+              <option value="following">Followed Official Pages</option>
+              <option value="friends">Personal Friends · chronological</option>
+            </select>
+          </div>
+          {templateFeed.map(tp => (
+            <TemplateFeedPostCard key={tp.id} artifact={tp} />
+          ))}
+          {filter !== 'following' && feed.map(p => <PostCard key={p.id} post={p} />)}
+          {!feed.length && !templateFeed.length && <p className="ms-empty">A quiet day. Visit a profile or write a little update.</p>}
+        </div>
+        <aside>
+          <section className="ms-card">
+            <h2>Official Pages ({(social.followedAccounts || []).length} followed)</h2>
+            <p>Follow The Meridian, The Social Register, royal chanceries, and cultural guilds.</p>
+            <button onClick={() => go('Accounts')}>Browse 6 Account Families →</button>
+          </section>
+          <section className="ms-card">
+            <h2>A little inspiration</h2>
+            <p>Visit an unfamiliar page. Listen to something new. Leave a thoughtful note.</p>
+            <button onClick={() => go('Browse')}>Browse the neighborhood →</button>
+          </section>
+          <section className="ms-card">
+            <h2>Your invitations</h2>
+            <p>{Object.values(social.requests).filter(s => s === 'incoming').length} friendship requests</p>
+            <button onClick={() => go('Friends')}>Open Friends</button>
+          </section>
+          <section className="ms-card">
+            <h2>Community rooms</h2>
+            {social.groups.filter(g => !g.private || g.members.includes('you')).map(g => (
+              <button className="ms-journal-link" key={g.id} onClick={() => go('Groups')}>
+                {g.name}
+              </button>
+            ))}
+          </section>
+          <p className="ms-help">This is an NPC social world. Engagement reflects NPC relationships, interests, and world context.</p>
+        </aside>
+      </div>
+    </div>
+  );
 }
 
 export function PeopleDirectory({ friendsOnly = false, query = '' }: { friendsOnly?: boolean; query?: string }) {

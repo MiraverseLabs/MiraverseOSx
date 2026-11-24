@@ -1,0 +1,178 @@
+{
+  "version": "1.0.0",
+  "royalLineages": [
+    {
+      "id": "FAC_SERAPHIMA",
+      "name": "House Seraphima (Orynvell Crown)",
+      "title": "House Seraphima",
+      "accentColor": "#D97706",
+      "ideology": "Sovereign matriarchal monarchs of Meridion. Stewards of imperial succession law, AETHERCORE legitimacy, and sanctuary authority.",
+      "influenceLevel": 98,
+      "realm": "Orynvell",
+      "seat": "Aureline"
+    },
+    {
+      "id": "FAC_HOLLY",
+      "name": "House Holly (Wardens of Fross)",
+      "title": "House Holly",
+      "accentColor": "#0284C7",
+      "ideology": "Endurance, northern border vigilance, glacial discipline, and winter survival rites between Southwake and Northwake.",
+      "influenceLevel": 85,
+      "realm": "Fross",
+      "seat": "Southwake / Northwake"
+    },
+    {
+      "id": "FAC_LUCIA",
+      "name": "House Lucia (Sol-Council of Lumia)",
+      "title": "House Lucia",
+      "accentColor": "#F59E0B",
+      "ideology": "Solar philosophy, public illumination, legislative transparency, and academy administration across the sunlit realm.",
+      "influenceLevel": 88,
+      "realm": "Lumia",
+      "seat": "Rhyna"
+    },
+    {
+      "id": "FAC_NERYX",
+      "name": "House Neryx (Estuary Sovereigns of Marlowe)",
+      "title": "House Neryx",
+      "accentColor": "#10B981",
+      "ideology": "Vernal river diplomacy, maritime healing currents, renewal sanctuaries, and tidal preservation.",
+      "influenceLevel": 82,
+      "realm": "Marlowe",
+      "seat": "Island City"
+    },
+    {
+      "id": "FAC_YOKO",
+      "name": "House Yoko (Wind Consortium of Brisland)",
+      "title": "House Yoko",
+      "accentColor": "#EA580C",
+      "ideology": "Global trade winds, cultural message routing, migration logistics, and autumnal legal mediation.",
+      "influenceLevel": 84,
+      "realm": "Brisland",
+      "seat": "Elodia"
+    },
+    {
+      "id": "FAC_EMBER",
+      "name": "House Ember (High Forge Council of Kaji)",
+      "title": "House Ember",
+      "accentColor": "#DC2626",
+      "ideology": "Volcanic mastery, advanced forge engineering, military vigilance, and sacred fire rites across Kailo, Kanifan, and Pyre.",
+      "influenceLevel": 89,
+      "realm": "Kaji",
+      "seat": "Balisya"
+    },
+    {
+      "id": "FAC_KEKET",
+      "name": "House Keket (Ancestral Nether Keepers of Nephele)",
+      "title": "House Keket",
+      "accentColor": "#7C3AED",
+      "ideology": "Ancestral remembrance, deep nether law, grief counseling, obsidian masonry, and veil twilight stewardship.",
+      "influenceLevel": 86,
+      "realm": "Nephele",
+      "seat": "Serafin"
+    },
+    {
+      "id": "FAC_VALMON",
+      "name": "House Valmon (Stewards of Ve’Raylia)",
+      "title": "House Valmon",
+      "accentColor": "#15803D",
+      "ideology": "Earth and nature stewardship, sacred grove preservation, stone heritage, and highland sanctuary governance.",
+      "influenceLevel": 85,
+      "realm": "Ve’Raylia",
+      "seat": "Elmore"
+    }
+  ],
+  "colorHouses": [
+    { "id": "HOUSE_VIOLET", "name": "Violet House", "domain": "Knowledge, Memory & Resonance Inquiry", "color": "#6D28D9" },
+    { "id": "HOUSE_GOLD", "name": "Gold House", "domain": "Civic Stewardship, Law & Ceremonial Duty", "color": "#C6AE73" },
+    { "id": "HOUSE_AZURE", "name": "Azure House", "domain": "Navigation, Clarity & Signal Craft", "color": "#2563EB" },
+    { "id": "HOUSE_EMERALD", "name": "Emerald House", "domain": "Living Systems, Restoration & Ecology", "color": "#059669" },
+    { "id": "HOUSE_AMBER", "name": "Amber House", "domain": "Artistry, Architecture & Material Guilds", "color": "#D97706" },
+    { "id": "HOUSE_CRIMSON", "name": "Crimson House", "domain": "Valor, Forge Craft & Protective Resolve", "color": "#BE123C" },
+    { "id": "HOUSE_OBSIDIAN", "name": "Obsidian House", "domain": "Archival Depth, Veil Vigilance & Remembrance", "color": "#334155" }
+  ],
+  "institutions": [
+    { "id": "FAC_ROYAL_HISTORY", "name": "Royal Historic Society", "title": "Royal Historic Society", "kind": "Archive", "domain": "royalhistory.mer", "accentColor": "#B45309", "ideology": "Preservation of dynastic genealogies, coronation treaties from Year 0, and ancient historical codices.", "influenceLevel": 92, "realm": "Orynvell", "seat": "Aureline" },
+    { "id": "FAC_FAITH_MED", "name": "Faith Medical Group", "title": "Faith Medical Group", "kind": "Healthcare", "domain": "faithmed.aure", "accentColor": "#059669", "ideology": "Universal patient care, bio-aura harmonic stabilization, trauma recovery, and epidemiological monitoring.", "influenceLevel": 94, "realm": "Pan-Meridion", "seat": "Aureline & Regional Clinics" },
+    { "id": "FAC_DGA", "name": "Department of Global Affairs (DGAOS)", "title": "DGAOS & TRACE Forensics", "kind": "Government Security", "domain": "dga.gov", "accentColor": "#4F46E5", "ideology": "Sovereign state security, border surveillance, criminal investigation, and forensic anomaly quarantine.", "influenceLevel": 96, "realm": "Pan-Meridion", "seat": "Command Sector, Aureline" },
+    { "id": "ORG_ORYN_FINANCE", "name": "Oryn Department of Finance", "title": "Oryn Finance", "kind": "Treasury", "domain": "finance.oryn.gov", "accentColor": "#B45309", "ideology": "Public ledgers, municipal payroll, CREDITS/BITS administration, and civic grants.", "influenceLevel": 93, "realm": "Orynvell", "seat": "Treasury Chambers, Aureline" },
+    { "id": "ORG_ORYNVELL_RECORDS", "name": "Orynvell Public Records Administration", "title": "Orynvell Public Records", "kind": "Government Registry", "domain": "records.orynvell.gov", "accentColor": "#1E3A8A", "ideology": "Official administrative filings, published government bulletins, and certified civic records.", "influenceLevel": 90, "realm": "Orynvell", "seat": "Aureline" },
+    { "id": "ORG_CYBERIUM", "name": "Cyberium Academy", "title": "Cyberium Academy", "kind": "Higher Education", "domain": "cyacademy.edu", "accentColor": "#4338CA", "ideology": "Arcane cyberspace, resonance engineering, AI, and technological forensics.", "influenceLevel": 90, "realm": "Orynvell", "seat": "Aureline" },
+    { "id": "ORG_DAWN_UNIV", "name": "Dawn University", "title": "Dawn University", "kind": "Higher Education", "domain": "dawn.edu", "accentColor": "#047857", "ideology": "Balanced scholarship across humanities, public letters, natural sciences, and civic practice.", "influenceLevel": 86, "realm": "Orynvell", "seat": "Dawnson, Aureline" },
+    { "id": "ORG_REGENT_HALL", "name": "Regent Hall University", "title": "Regent Hall", "kind": "Royal Education", "domain": "regenthall.edu", "accentColor": "#6F3045", "ideology": "Eight Realms, One Duty — shared royal, diplomatic, and advisory preparation.", "influenceLevel": 91, "realm": "Pan-Meridion", "seat": "Concord Precinct" }
+  ],
+  "mediaAndBrands": [
+    {
+      "id": "ORG_THE_MERIDIAN",
+      "name": "The Meridian",
+      "kind": "Newspaper Publisher",
+      "domain": "meridian.mer",
+      "legacyDomains": ["dispatch.mer"],
+      "handle": "themeridian",
+      "accountFamily": "media",
+      "brandKitId": "the-meridian",
+      "tagline": "News • Analysis • Perspective",
+      "seat": "Meridian Press House, Aureline",
+      "departments": ["World", "Politics", "Economy", "Society", "Science & Health", "Culture", "Environment", "Opinion", "Life", "Local Editions"],
+      "description": "Meridion’s flagship general-interest daily newspaper, reporting across all eight realms with institutional rigor, public-service clarity, and cultural depth."
+    },
+    {
+      "id": "ORG_SOCIAL_REGISTER",
+      "name": "The Social Register",
+      "kind": "Society & Culture Magazine",
+      "domain": "socialregister.mer",
+      "handle": "thesocialregister",
+      "accountFamily": "media",
+      "brandKitId": "the-social-register",
+      "tagline": "Heritage • Society • Contemporary Distinction",
+      "seat": "Rosemont Editorial House, Aureline",
+      "departments": ["Society", "The Courts", "Style", "The Interview", "Residences", "Heritage", "The Social Calendar", "Arts & Patronage", "Travel", "Modern Life"],
+      "description": "Flagship society and cultural periodical uniting royal court chronicle, architectural estates, patronage, couture, and contemporary life across the Eight Realms."
+    },
+    {
+      "id": "ORG_VELVET_STUDIO",
+      "name": "The Velvet Cultural Studio & Media Guild",
+      "kind": "Creative Guild & Studio",
+      "domain": "velvetstudio.aure",
+      "handle": "velvetcultural",
+      "accountFamily": "creator",
+      "brandKitId": "velvet-studio",
+      "tagline": "Holographic Arts, Photography & Cultural Broadcasts",
+      "seat": "Promenade Quarter, Aureline",
+      "description": "Guild and production house for visual designers, portrait photographers, musicians, and stage directors."
+    },
+    {
+      "id": "ORG_ATELIER_SERAPHINE",
+      "name": "Maison Seraphine",
+      "kind": "Couture & Fine Jewelry House",
+      "handle": "maisonseraphine",
+      "accountFamily": "business",
+      "brandKitId": "the-social-register",
+      "tagline": " silk, starlight, and ceremonial tailoring since Year 412",
+      "seat": "Crown Promenade, Aureline",
+      "description": "Heritage couture and celestial jewelry house dressing court convocations and Velvet premieres."
+    },
+    {
+      "id": "ORG_NORTHWAKE_BOTANICALS",
+      "name": "Northwake Apothecary & Tea Co.",
+      "kind": "Artisan Commerce",
+      "handle": "northwaketea",
+      "accountFamily": "business",
+      "brandKitId": "unbranded-editorial",
+      "tagline": "Steeped for sub-zero clarity and quiet evenings",
+      "seat": "Southwake & Aureline Glassline",
+      "description": "Purveyor of alpine mint blends, Fross frost-bloom infusions, and restorative study teas."
+    },
+    {
+      "id": "ORG_SOLAR_CHRONO",
+      "name": "Rhyna Horology & Optics",
+      "kind": "Precision Instruments",
+      "handle": "rhynahorology",
+      "accountFamily": "business",
+      "brandKitId": "the-meridian",
+      "tagline": "Calibrated to Radiance and Echo",
+      "seat": "Solar Spire Quarter, Rhyna, Lumia",
+      "description": "Makers of twin-moon astronomical chronometers, optical lenses, and archival field cameras."
+    }
+  ]
+}

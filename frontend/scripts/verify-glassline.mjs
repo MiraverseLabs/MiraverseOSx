@@ -1,0 +1,45 @@
+import { chromium } from '@playwright/test';
+import assert from 'node:assert/strict';
+import { mkdir } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+const previewDir=fileURLToPath(new URL('../../output/previews/',import.meta.url));
+const browser=await chromium.launch({headless:true});
+const context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
+await context.route('**/api/**',route=>route.fulfill({status:503,contentType:'application/json',body:'{}'}));
+await context.route('https://**',route=>route.abort());
+const page=await context.newPage();
+const errors=[]; page.on('pageerror',e=>errors.push(e.message));
+try {
+ await page.goto('http://127.0.0.1:4176/',{waitUntil:'domcontentloaded'});
+ await page.waitForTimeout(1500);
+ const acceptance=await page.evaluate(async()=>{
+  const {useOSStore:s}=await import('/src/store/useOSStore.ts');
+  const {initialSocial}=await import('/src/apps/social/socialModel.ts');
+  const {WORKNET_ASSIGNMENTS}=await import('/src/gameplay/ActivityEngine.ts');
+  s.getState().loginUser({name:'Glassline Browser QA',isAdmin:true});
+  s.setState(v=>({gameplay:{...v.gameplay,timeSegmentIndex:0,player:{...v.gameplay.player,stamina:100,maiSpaceWorld:initialSocial({acceptedFriends:['jeremie']})}}}));
+  const actions=[s.getState().acceptEmployment('engineer'),s.getState().openWorknetOrder('ms-shift-04'),s.getState().acknowledgeAssignmentBriefing('ms-shift-04')];
+  const stages=[['preflight',{site:'Terminal Junction 12',kit:'Oscilloscope, flasher and soldering kit'}],['inspect',{node:'C4',loss:'18'}],['diagnose',{test:'Voltage across C4',drop:'4.2',component:'C4'}],['repair',{power:'Isolated and locked out',part:'470 µF capacitor at C4',bus:'Reconnected after replacement'}],['verify',{firmware:'Bus Telemetry v2.4',voltage:'5',loss:'0'}],['report',{report:'GL-12A: isolated power, replaced C4 with 470 µF capacitor, restored v2.4 firmware. Final output 5 V, packet loss 0%.'}]];
+  for(const [stage,values] of stages) actions.push(s.getState().submitWorknetStage('ms-shift-04',stage,values));
+  actions.push(s.getState().completeWorknetMission(WORKNET_ASSIGNMENTS['ms-shift-04']));
+  s.getState().openAppWorkspace('jobs','notices');
+  return {actions,story:s.getState().gameplay.worldPublications.stories[0]};
+ });
+ assert.ok(acceptance.actions.every(a=>a.ok),JSON.stringify(acceptance.actions));
+ await page.getByRole('region',{name:'Released service updates'}).waitFor({timeout:30000});
+ await mkdir(previewDir,{recursive:true});
+ await page.screenshot({path:`${previewDir}glassline-public-bulletin.png`});
+ await page.getByRole('button',{name:'Read the service update in The Meridian'}).click();
+ await page.getByRole('heading',{name:acceptance.story.headline,exact:true}).waitFor({timeout:30000});
+ await page.getByText('Illustration · Aureline Glassline transit infrastructure & carrier relay',{exact:true}).waitFor({timeout:10000});
+ await page.locator('figcaption').filter({hasText:'Aureline Glassline transit infrastructure'}).scrollIntoViewIfNeeded();
+ await page.screenshot({path:`${previewDir}glassline-meridian-story.png`});
+ await page.evaluate(async()=>{const {useOSStore:s}=await import('/src/store/useOSStore.ts');s.getState().advanceTime();s.getState().navigateBrowserTab('https://mai.space.aure');});
+ await page.getByText('Following the Glassline service update',{exact:true}).waitFor({timeout:30000});
+ await page.screenshot({path:`${previewDir}glassline-social-reaction.png`});
+ await page.reload({waitUntil:'domcontentloaded'});
+ const after=await page.evaluate(async()=>{const {useOSStore:s}=await import('/src/store/useOSStore.ts');const g=s.getState().gameplay;return {stories:g.worldPublications.stories.length,posts:g.player.maiSpaceWorld.posts.filter(p=>p.id.startsWith('reaction:')).length,receipts:Object.keys(g.worldPublications.reactionReceipts).length};});
+ assert.deepEqual(after,{stories:1,posts:1,receipts:1});
+ assert.deepEqual(errors,[]);
+ console.log(JSON.stringify({accepted:true,bulletin:true,article:true,illustration:true,social:true,reload:after,errors},null,2));
+} catch(error) { console.log((await page.locator('body').innerText()).slice(-16000)); await page.screenshot({path:`${previewDir}glassline-qa-failure.png`}); throw error; } finally { await context.close();await browser.close(); }

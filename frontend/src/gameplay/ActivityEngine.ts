@@ -169,6 +169,15 @@ export const WORK_DEFINITIONS: Record<string, WorkDefinition> = Object.fromEntri
     stage('shelve', 'Shelve the assigned collection', 'logistics', 'The assigned cart holds 40 volumes for the East Wing reading room.', [number('count', 'Volumes shelved', '40'), text('wing', 'Shelving location', 'East Wing')]),
     stage('preserve', 'Clean the manuscript vitrines', 'equipment', 'Use dry microfiber around unsealed parchment; water will damage the collection.', [pick('method', 'Cleaning method', ['Dry microfiber cloth', 'Pressurized water'], 'Dry microfiber cloth', ['Pressurized water'])]),
   ]),
+  define('ms-press-01', 'press', 'MER-DESK-801', 'shift', ['CreativeStudio', 'PressStylebook'], [
+    stage('factcheck', 'Verify Eight-Realm Concord attributions', 'evidence', 'Confirm the eighth sovereign realm Ve’Raylia’s capital (Elmore) and ruling lineage (House Valmon) against public atlas records.', [text('capital', 'Capital of Ve’Raylia', 'Elmore'), text('lineage', 'Ruling lineage of Ve’Raylia', 'House Valmon')]),
+    stage('standards', 'Apply public-press clearance standards', 'investigation', 'Separate verified public statements from sealed DGAOS case files and private clinical charts before layout.', [pick('policy', 'Editorial clearance rule', ['Publish verified public facts; exclude sealed cases and private charts', 'Publish unverified rumors and private medical records'], 'Publish verified public facts; exclude sealed cases and private charts', ['Publish unverified rumors and private medical records'])]),
+    stage('file', 'File clean broadsheet copy', 'documents', 'Submit MER-DESK-801 naming Elmore, House Valmon, and Eight Realms public standards.', [report('Broadsheet copy filing', ['MER-DESK-801', 'Elmore', 'Valmon', 'Eight Realms'])]),
+  ]),
+  define('qn-04', 'questnotice', 'SR-GALA-CARD', 'quest', ['CreativeStudio', 'ColorProofLoupe'], [
+    stage('palette', 'Confirm Social Register brand proof', 'creative', 'Match the approved Old Burgundy (#48293D) and Pearl Gold (#C6AE73) specification without cream background substitution.', [pick('colors', 'Approved palette proof', ['Old Burgundy #48293D & Pearl Gold #C6AE73', 'Neon cyan & heavy cream'], 'Old Burgundy #48293D & Pearl Gold #C6AE73')]),
+    stage('venue', 'Verify Rosemont Salon address', 'documents', 'Confirm the street number on Rosemont Terrace in Aureline (7 Rosemont Terrace).', [number('streetNumber', 'Rosemont Terrace street number', '7')]),
+  ]),
 ].map(definition => [definition.id, definition]));
 
 export function getWorkDefinition(id: string): WorkDefinition | undefined {

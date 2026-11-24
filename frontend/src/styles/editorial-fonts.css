@@ -1,0 +1,93 @@
+/* ==========================================================================
+   MIRAVERSE EDITORIAL & PUBLICATION TYPOGRAPHY (Self-Hosted SIL OFL Fonts)
+   BJCree is intentionally omitted pending exact font & embedding verification.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'DM Serif Display';
+  src: url('../assets/fonts/DMSerifDisplay-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Serif Display';
+  src: url('../assets/fonts/DMSerifDisplay-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Crimson Text';
+  src: url('../assets/fonts/CrimsonText-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Crimson Text';
+  src: url('../assets/fonts/CrimsonText-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Crimson Text';
+  src: url('../assets/fonts/CrimsonText-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Amiri';
+  src: url('../assets/fonts/Amiri-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Amiri';
+  src: url('../assets/fonts/Amiri-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Limelight';
+  src: url('../assets/fonts/Limelight-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Italianno';
+  src: url('../assets/fonts/Italianno-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pinyon Script';
+  src: url('../assets/fonts/PinyonScript-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-editorial-masthead: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+  --font-editorial-body: 'Crimson Text', Georgia, 'Times New Roman', serif;
+  --font-editorial-heritage: 'Amiri', Georgia, 'Times New Roman', serif;
+  --font-editorial-special: 'Limelight', 'DM Serif Display', Georgia, serif;
+  --font-editorial-romantic: 'Italianno', 'Pinyon Script', cursive, serif;
+  --font-editorial-formal-script: 'Pinyon Script', 'Italianno', cursive, serif;
+}

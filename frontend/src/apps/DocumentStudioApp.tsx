@@ -25,6 +25,8 @@ import { getActiveCitizenContext, openCitizenInApp } from '../integration/citize
 import { citizenSelection, subscribeCitizenUpdates } from '../integration/citizenEvents';
 import { authorizeAuraAction, evaluateAuraRecordPermissions, resolveAuraActor } from '../integration/auraPermissions';
 import { useOSStore } from '../store/useOSStore';
+import { BRAND_KITS, brandKitCssVariables } from '../game-content/worldAssetLibrary';
+import { restoreFyloState } from './files/fyloStore';
 import '../styles/apps/DocumentStudio.css';
 
 const DEFAULT_CITIZEN: CitizenRecord = {
@@ -90,6 +92,16 @@ export default function DocumentStudioApp() {
   const [zoomScale, setZoomScale] = useState<number>(100);
   const [isPortraitModalOpen, setIsPortraitModalOpen] = useState(false);
   const [issuanceNotice, setIssuanceNotice] = useState<string | null>(null);
+  const [studioMode, setStudioMode] = useState<'civic' | 'editorial'>('civic');
+  const [edTitle, setEdTitle] = useState('Aureline Press & Institutional Dispatch');
+  const [edKicker, setEdKicker] = useState('PRESS RELEASE · PUBLIC INFORMATION');
+  const [edBrandKit, setEdBrandKit] = useState('the-meridian');
+  const [edFormat, setEdFormat] = useState<'doc' | 'docx' | 'pdf'>('docx');
+  const [edBody, setEdBody] = useState(
+    'FOR IMMEDIATE RELEASE — MERIDION EIGHT REALMS\n\nPrepared in Document Studio for distribution to Fylo, AureMail, or formal filing with Orynvell Public Records.\n\n1. Summary of Notice\nProvide verified facts, dates, and responsible institutional contacts.\n\n2. Public Access & Provenance\nRetaining or transmitting this document in Fylo preserves its extension and contents without conferring authority to alter sealed registries.',
+  );
+  const fyloRaw = useOSStore(s => s.gameplay.player?.fylo);
+  const fyloDocs = Object.values(restoreFyloState(fyloRaw).files).filter(f => ['doc', 'docx', 'pdf'].includes(f.type) && !f.trashedAt);
   const academicRecords = useOSStore(s => s.gameplay.academics);
   const osPlayer = useOSStore(s => s.gameplay.player);
   const osIdentity = useOSStore(s => s.gameplay.identity);
@@ -239,6 +251,32 @@ export default function DocumentStudioApp() {
     setTimeout(() => setIssuanceNotice(null), 4000);
   };
 
+  const handleSaveEditorialDocToFylo = () => {
+    const cleanSlug = (edTitle || 'untitled-document').trim().replace(/[^a-zA-Z0-9_-]+/g, '_').slice(0, 64) || 'Document';
+    const filename = `${cleanSlug}.${edFormat}`;
+    const res = useOSStore.getState().fyloAction('retainAttachment', {
+      id: `docstudio:ed:${cleanSlug.toLowerCase()}:${edFormat}`,
+      name: filename,
+      desc: `${edKicker} — ${edTitle}`,
+      body: `${edKicker}\n${edTitle}\nBrand Style: ${BRAND_KITS[edBrandKit]?.name || edBrandKit}\n\n${edBody}`,
+      dir: '/documents',
+      publisher: BRAND_KITS[edBrandKit]?.name || 'Document Studio',
+      origin: 'document-studio',
+      version: 'v1.0',
+    });
+    setIssuanceNotice(res.message || `Saved ${filename} to Fylo (/documents).`);
+    setTimeout(() => setIssuanceNotice(null), 4000);
+  };
+
+  const handleFileNoticeToOrynvell = () => {
+    const res = useOSStore.getState().orynvellAction('submitRequest', {
+      serviceType: 'public-filing',
+      details: `[${edKicker}] ${edTitle}\n\n${edBody}`.slice(0, 1900),
+    });
+    setIssuanceNotice(res.message);
+    setTimeout(() => setIssuanceNotice(null), 4500);
+  };
+
   // Render the active document HTML inline
   const renderActiveDocumentContent = () => {
     if (!recordPermissions.allowedDocumentIds.includes(activeDocId)) {
@@ -279,15 +317,131 @@ export default function DocumentStudioApp() {
   return (
     <div className="document-studio">
       <aside className="document-library" aria-label="Official document library">
-        <header><span className="workspace-kicker">Studio / official documents</span><h1>The civil file.</h1><p>Nine records. One identity.</p></header>
-        <label className="document-citizen-label">Prepared for<select id="doc-studio-citizen-select" aria-label="Document citizen" value={selectedCitizen.maid || selectedCitizen.record} onChange={event => handleCitizenChange(event.target.value)}>{citizens.map(citizen => <option key={citizen.maid || citizen.record} value={citizen.maid || citizen.record}>{citizen.name}</option>)}</select></label>
-        <nav aria-label="Choose a document">{DOCUMENT_TABS.map(document => <button key={document.id} aria-pressed={activeDocId === document.id} onClick={() => setActiveDocId(document.id)}><span className="document-file-number">{document.id.toString().padStart(2, '0')}</span><span><strong>{document.title}</strong><small>{document.subtitle}</small></span></button>)}</nav>
-        <div className="document-library-actions"><button className="document-export" onClick={handleExportFullPacket}><Download size={14} />Export complete packet</button><details><summary>Record actions</summary><button onClick={() => openCitizenInApp(selectedCitizen.maid || selectedCitizen.record, 'meridionRegistry', { sourceApp: 'documentStudio' })}>Open citizen dossier</button><button onClick={() => setIsPortraitModalOpen(true)}>Edit portrait</button><button onClick={handleLogIssuance}>Log issuance snapshot</button></details></div>
+        <header>
+          <span className="workspace-kicker">Studio / documents & press</span>
+          <h1>{studioMode === 'civic' ? 'The civil file.' : 'Editorial & Press.'}</h1>
+          <p>{studioMode === 'civic' ? 'Nine records. One identity.' : 'Author .doc, .docx & .pdf reports.'}</p>
+          <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.6rem' }}>
+            <button type="button" aria-pressed={studioMode === 'civic'} onClick={() => setStudioMode('civic')} style={{ flex: 1, padding: '0.35rem 0.5rem', fontSize: '0.72rem', borderRadius: '6px' }}>
+              9-Doc Packet
+            </button>
+            <button type="button" aria-pressed={studioMode === 'editorial'} onClick={() => setStudioMode('editorial')} style={{ flex: 1, padding: '0.35rem 0.5rem', fontSize: '0.72rem', borderRadius: '6px' }}>
+              Press & .docx/.pdf
+            </button>
+          </div>
+        </header>
+        {studioMode === 'civic' ? (
+          <>
+            <label className="document-citizen-label">Prepared for<select id="doc-studio-citizen-select" aria-label="Document citizen" value={selectedCitizen.maid || selectedCitizen.record} onChange={event => handleCitizenChange(event.target.value)}>{citizens.map(citizen => <option key={citizen.maid || citizen.record} value={citizen.maid || citizen.record}>{citizen.name}</option>)}</select></label>
+            <nav aria-label="Choose a document">{DOCUMENT_TABS.map(document => <button key={document.id} aria-pressed={activeDocId === document.id} onClick={() => setActiveDocId(document.id)}><span className="document-file-number">{document.id.toString().padStart(2, '0')}</span><span><strong>{document.title}</strong><small>{document.subtitle}</small></span></button>)}</nav>
+            <div className="document-library-actions"><button className="document-export" onClick={handleExportFullPacket}><Download size={14} />Export complete packet</button><details><summary>Record actions</summary><button onClick={() => openCitizenInApp(selectedCitizen.maid || selectedCitizen.record, 'meridionRegistry', { sourceApp: 'documentStudio' })}>Open citizen dossier</button><button onClick={() => setIsPortraitModalOpen(true)}>Edit portrait</button><button onClick={handleLogIssuance}>Log issuance snapshot</button></details></div>
+          </>
+        ) : (
+          <div style={{ display: 'grid', gap: '0.65rem', padding: '0.5rem 0' }}>
+            <label className="document-citizen-label">
+              Brand / Typography Kit
+              <select value={edBrandKit} onChange={e => setEdBrandKit(e.target.value)}>
+                {Object.values(BRAND_KITS).map(k => (
+                  <option key={k.id} value={k.id}>{k.name}</option>
+                ))}
+              </select>
+            </label>
+            <label className="document-citizen-label">
+              Fylo File Extension
+              <select value={edFormat} onChange={e => setEdFormat(e.target.value as 'doc' | 'docx' | 'pdf')}>
+                <option value="docx">.docx (Modern Editable Document)</option>
+                <option value="doc">.doc (Classic Editable Document)</option>
+                <option value="pdf">.pdf (Fixed-Layout Publication)</option>
+              </select>
+            </label>
+            {fyloDocs.length > 0 && (
+              <label className="document-citizen-label">
+                Open from Fylo (/documents)
+                <select
+                  defaultValue=""
+                  onChange={e => {
+                    const found = fyloDocs.find(d => d.id === e.target.value);
+                    if (found) {
+                      setEdTitle(found.name.replace(/\.(doc|docx|pdf)$/i, ''));
+                      setEdBody(found.body || '');
+                    }
+                  }}
+                >
+                  <option value="">Select saved Fylo document…</option>
+                  {fyloDocs.map(d => (
+                    <option key={d.id} value={d.id}>{d.name}</option>
+                  ))}
+                </select>
+              </label>
+            )}
+            <div className="document-library-actions">
+              <button type="button" className="document-export" onClick={handleSaveEditorialDocToFylo}>
+                <FileText size={14} /> Save .{edFormat} to Fylo
+              </button>
+              <button type="button" onClick={handleFileNoticeToOrynvell} style={{ marginTop: '0.35rem', padding: '0.45rem 0.65rem', fontSize: '0.75rem', borderRadius: '6px' }}>
+                File Public Notice to Orynvell Records
+              </button>
+            </div>
+          </div>
+        )}
       </aside>
       <main className="document-workbench">
-        <header className="document-toolbar"><div><span className="workspace-kicker">Document {activeDocId.toString().padStart(2, '0')} / 09</span><h2>{DOCUMENT_TABS.find(document => document.id === activeDocId)?.title}</h2></div><div className="document-toolbar-actions"><div className="document-zoom"><button aria-label="Zoom out" onClick={() => setZoomScale(Math.max(60, zoomScale - 10))}>−</button><span>{zoomScale}%</span><button aria-label="Zoom in" onClick={() => setZoomScale(Math.min(140, zoomScale + 10))}>+</button></div><button onClick={handlePrintCurrent}><Printer size={14} /><span>Print</span></button><button onClick={handleSaveCurrentToFylo}><FileText size={14} /><span>Save to Fylo</span></button><button onClick={handleDownloadCurrentHtml}><Download size={14} /><span>Save HTML</span></button></div></header>
+        <header className="document-toolbar">
+          <div>
+            <span className="workspace-kicker">
+              {studioMode === 'civic' ? `Document ${activeDocId.toString().padStart(2, '0')} / 09` : `Editorial Desk · .${edFormat.toUpperCase()}`}
+            </span>
+            <h2>{studioMode === 'civic' ? DOCUMENT_TABS.find(document => document.id === activeDocId)?.title : edTitle}</h2>
+          </div>
+          <div className="document-toolbar-actions">
+            <div className="document-zoom"><button aria-label="Zoom out" onClick={() => setZoomScale(Math.max(60, zoomScale - 10))}>−</button><span>{zoomScale}%</span><button aria-label="Zoom in" onClick={() => setZoomScale(Math.min(140, zoomScale + 10))}>+</button></div>
+            <button onClick={handlePrintCurrent}><Printer size={14} /><span>Print</span></button>
+            <button onClick={studioMode === 'civic' ? handleSaveCurrentToFylo : handleSaveEditorialDocToFylo}><FileText size={14} /><span>Save to Fylo</span></button>
+            {studioMode === 'civic' && <button onClick={handleDownloadCurrentHtml}><Download size={14} /><span>Save HTML</span></button>}
+          </div>
+        </header>
         {issuanceNotice && <div className="document-notice" role="status"><CheckCircle2 size={14} /><span>{issuanceNotice}</span><button aria-label="Dismiss issuance notice" onClick={() => setIssuanceNotice(null)}>×</button></div>}
-        <div className="document-pasteboard"><div className="document-paper" style={{ transform: `scale(${zoomScale / 100})`, transformOrigin: 'top center' }}>{renderActiveDocumentContent()}</div></div>
+        <div className="document-pasteboard">
+          <div className="document-paper" style={{ transform: `scale(${zoomScale / 100})`, transformOrigin: 'top center' }}>
+            {studioMode === 'civic' ? (
+              renderActiveDocumentContent()
+            ) : (
+              <div
+                style={{
+                  ...(brandKitCssVariables(edBrandKit) as React.CSSProperties),
+                  background: 'var(--mk-bg-surface)',
+                  color: 'var(--mk-text-primary)',
+                  padding: '2.25rem',
+                  border: '2px solid var(--mk-border-ornament)',
+                  borderRadius: '8px',
+                  fontFamily: 'var(--mk-font-body)',
+                  display: 'grid',
+                  gap: '0.85rem',
+                }}
+              >
+                <input
+                  aria-label="Document kicker"
+                  value={edKicker}
+                  onChange={e => setEdKicker(e.target.value)}
+                  style={{ fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--mk-accent-primary)', fontWeight: 700, background: 'transparent', borderBottom: '1px dashed var(--mk-border-ornament)', paddingBottom: '0.25rem' }}
+                />
+                <input
+                  aria-label="Document title"
+                  value={edTitle}
+                  onChange={e => setEdTitle(e.target.value)}
+                  style={{ fontFamily: 'var(--mk-font-display)', fontSize: '1.85rem', fontWeight: 700, color: 'var(--mk-text-primary)', background: 'transparent', borderBottom: '1px solid var(--mk-border-ornament)', paddingBottom: '0.35rem' }}
+                />
+                <textarea
+                  aria-label="Document body"
+                  rows={14}
+                  value={edBody}
+                  onChange={e => setEdBody(e.target.value)}
+                  style={{ width: '100%', fontFamily: 'var(--mk-font-body)', fontSize: '1rem', lineHeight: 1.68, color: 'var(--mk-text-primary)', background: 'var(--mk-bg-elevated)', padding: '1rem', borderRadius: '6px', border: '1px solid var(--mk-border-ornament)' }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
         <footer className="document-workbench-footer"><span>{selectedCitizen.maid || selectedCitizen.record}</span><span>Sovereign Realm of Meridion · Specimen view</span></footer>
       </main>
       {/* Integrated Portrait Studio Modal */}

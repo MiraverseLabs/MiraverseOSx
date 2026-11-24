@@ -1,7 +1,9 @@
 import { sanitizeMailHtml, mailHtmlToText } from '../mail/richText';
 import { getProfiles } from '../../game-content/characters/collections/PEOPLE';
 import { getCharacterById } from '../../game-content/characters/registry';
-import { processNpcReactivity, handleDirectGuestbookSign } from './npcReactivity';
+import { processNpcReactivity, handleDirectGuestbookSign, generateTemplatePostReactions } from './npcReactivity';
+import { OFFICIAL_SOCIAL_ACCOUNTS, STARTER_TEMPLATE_FEED } from './socialAccountsAndFeed';
+import { validateMediaArtifactInput, type PublishedMediaArtifact } from '../../components/media/templateModel';
 
 export type Audience = 'public' | 'friends' | 'private' | 'group';
 export type WidgetKind = 'badges' | 'marquee' | 'counter' | 'status' | 'quiz';
@@ -31,6 +33,11 @@ export type SocialWorld = {
   events: SocialEvent[]; notifications: { id: string; text: string; destination: string; read: boolean }[];
   memories: string[]; npcLayouts: Record<string, Layout>; assets: { id: string; name: string; type: string; size: number }[];
   viewCount: number; pinnedCommentIds: string[];
+  followedAccounts?: string[];
+  templatePosts?: PublishedMediaArtifact[];
+  templateLikes?: Record<string, string[]>;
+  pollSelections?: Record<string, number>;
+  seenStoryIds?: string[];
 };
 export const PEOPLE = getProfiles();
 export const THEMES = {
@@ -129,7 +136,12 @@ export function initialSocial(legacy: any = {}): SocialWorld {
     ], albums: PEOPLE.slice(0, 3).map(p => ({ id: `album:${p.id}`, author: p.id, name: p.id === 'jeremie' ? 'Lines and structures' : p.id === 'aelita' ? 'Colors I keep' : 'After dark', audience: 'public', photos: [{ id: `photo:${p.id}`, asset: `builtin:${p.id}`, caption: 'An illustrated mood board for this personal page.', tags: [] }] })), comments: [],
     groups: [{ id: 'photo-club', name: 'Aureline Photo Circle', description: 'A local space for photographs and small observations. Recreational membership grants no institutional access.', private: false, owner: 'aelita', members: ['aelita', 'sissi'], pending: [] }, { id: 'quiet-pages', name: 'Quiet Pages', description: 'An invitation-only journal circle. Get acquainted with Rowan through a thoughtful conversation before requesting entry.', private: true, owner: 'rowan', members: ['rowan'], pending: [] }],
     events: [], notifications: [{ id: 'welcome', text: 'Your personal corner is ready. Make it yours in Profile Studio.', destination: 'Customize', read: false }], memories: [], npcLayouts: Object.fromEntries(PEOPLE.map(p => [p.id, makeLayout(p.theme)])), assets: [],
-    viewCount: 42, pinnedCommentIds: [] };
+    viewCount: 42, pinnedCommentIds: [],
+    followedAccounts: ['acct:themeridian', 'acct:thesocialregister', 'acct:velvetcultural'],
+    templatePosts: clone(STARTER_TEMPLATE_FEED as PublishedMediaArtifact[]),
+    templateLikes: { 'soc-post-sr-cover': ['sissi', 'aelita'], 'soc-post-meridian-breaking': ['jeremie', 'rowan'] },
+    pollSelections: {},
+    seenStoryIds: [] };
 }
 export function restoreSocial(raw: any, legacy: any = {}): SocialWorld {
   const base = initialSocial(legacy);
@@ -167,6 +179,23 @@ export function restoreSocial(raw: any, legacy: any = {}): SocialWorld {
   s.npcLayouts = Object.fromEntries(PEOPLE.map(p => [p.id, normalizeLayout(raw.npcLayouts?.[p.id] || base.npcLayouts[p.id])]));
   s.viewCount = Math.max(0, Number.isFinite(raw.viewCount) ? raw.viewCount : 42);
   s.pinnedCommentIds = Array.isArray(raw.pinnedCommentIds) ? raw.pinnedCommentIds.filter(id => typeof id === 'string') : [];
+  const validOfficial = (id: unknown): id is string => typeof id === 'string' && OFFICIAL_SOCIAL_ACCOUNTS.some(a => a.id === id);
+  s.followedAccounts = Array.isArray(raw.followedAccounts)
+    ? [...new Set<string>(raw.followedAccounts.filter(validOfficial))]
+    : base.followedAccounts;
+  s.templatePosts = Array.isArray(raw.templatePosts)
+    ? raw.templatePosts
+        .map((item: any) => validateMediaArtifactInput(item))
+        .filter((res: any) => res.ok && res.artifact)
+        .map((res: any) => res.artifact!)
+    : base.templatePosts;
+  s.templateLikes = raw.templateLikes && typeof raw.templateLikes === 'object'
+    ? Object.fromEntries(Object.entries(raw.templateLikes).map(([k, v]) => [k, participants(v)]))
+    : base.templateLikes;
+  s.pollSelections = raw.pollSelections && typeof raw.pollSelections === 'object'
+    ? Object.fromEntries(Object.entries(raw.pollSelections).filter(([, v]) => Number.isInteger(v) && (v as number) >= 0 && (v as number) < 8)) as Record<string, number>
+    : {};
+  s.seenStoryIds = Array.isArray(raw.seenStoryIds) ? raw.seenStoryIds.filter((x: unknown): x is string => typeof x === 'string').slice(-100) : [];
   if (raw.designVersion !== 2) {
     // Update only the untouched early starter geometry; preserve player designs.
     const starter = (l: any) => l?.theme === 'lavender' && l?.modules?.length === 7 && JSON.stringify(l.modules.map((m: any) => [m.kind, m.x, m.y, m.w, m.h])) === JSON.stringify([['about',24,24,290,250],['music',24,292,290,210],['interests',24,520,290,170],['friends',336,24,600,250],['photos',336,292,600,260],['blogs',336,570,600,230],['guestbook',24,820,912,290]]);
@@ -196,6 +225,7 @@ export function canComment(s: SocialWorld, target: string) {
   if (target.startsWith('profile:')) return target === 'profile:you' || PEOPLE.some(p => `profile:${p.id}` === target && s.friends.includes(p.id) && !s.blocked.includes(p.id));
   const post = s.posts.find(p => p.id === target);
   if (post) return !post.draft && canSee(s, post.author, post.audience);
+  if ((s.templatePosts || []).some(tp => tp.id === target)) return true;
   const album = s.albums.find(a => a.photos?.some(p => p.id === target));
   if (album) return canSeeRecord(s, album);
   const group = s.groups.find(g => g.id === target);
@@ -311,6 +341,53 @@ export function changeSocial(input: SocialWorld, action: SocialAction, cycle: nu
       for (const [key, state] of Object.entries(s.requests)) if (state === 'pending' && cycle > (s.requestCycles[key] ?? cycle) && !s.blocked.includes(key)) { s.requests[key] = 'incoming'; note(`reply-request:${key}`, `${PEOPLE.find(p => p.id === key)?.name} is open to connecting. Accept their returned request in Friends.`, 'Friends'); }
       for (const e of s.events.filter(e => !e.canceled && cycle > e.created)) for (const p of e.invited) if (!e.rsvp[p] && !s.blocked.includes(p) && (!e.groupId || s.groups.some(g => g.id === e.groupId && g.members.includes(p)))) { e.rsvp[p] = p === 'riven' ? 'declined' : 'going'; note(`rsvp:${e.id}:${p}`, `${PEOPLE.find(n => n.id === p)?.name} ${e.rsvp[p] === 'going' ? 'accepted' : 'declined'} your invitation.`, 'Events'); }
       processNpcReactivity(s, cycle);
+      break;
+    }
+    case 'follow-account': {
+      const acct = OFFICIAL_SOCIAL_ACCOUNTS.find(a => a.id === action.accountId);
+      if (!acct) return fail('Official account not found.');
+      const list = s.followedAccounts || [];
+      s.followedAccounts = list.includes(acct.id) ? list.filter(x => x !== acct.id) : [...list, acct.id];
+      break;
+    }
+    case 'publish-template-post': {
+      const checked = validateMediaArtifactInput({
+        ...action.artifact,
+        id: action.artifact?.id || id,
+        channel: 'social',
+        publishedCycle: cycle,
+        authorId: action.artifact?.authorId || 'you',
+        authorName: action.artifact?.authorName || 'You',
+      });
+      if (!checked.ok || !checked.artifact) return fail(checked.errors[0] || 'Complete the required template fields.');
+      s.templatePosts = [checked.artifact, ...(s.templatePosts || []).filter(p => p.id !== checked.artifact!.id)];
+      s.templateLikes ||= {};
+      s.templateLikes[checked.artifact.id] ||= [];
+      generateTemplatePostReactions(s, checked.artifact, cycle, action.npcVectors);
+      break;
+    }
+    case 'like-template-post': {
+      const targetPost = (s.templatePosts || []).find(tp => tp.id === action.id);
+      if (!targetPost) return fail('Graphic post unavailable.');
+      s.templateLikes ||= {};
+      const curr = s.templateLikes[targetPost.id] || [];
+      s.templateLikes[targetPost.id] = curr.includes('you') ? curr.filter(x => x !== 'you') : [...curr, 'you'];
+      break;
+    }
+    case 'vote-poll': {
+      const targetPost = (s.templatePosts || []).find(tp => tp.id === action.id);
+      const opts = targetPost?.slotValues.pollOptions || [];
+      if (!targetPost || !Number.isInteger(action.optionIndex) || action.optionIndex < 0 || action.optionIndex >= opts.length) {
+        return fail('Invalid poll option.');
+      }
+      s.pollSelections ||= {};
+      s.pollSelections[targetPost.id] = action.optionIndex;
+      break;
+    }
+    case 'mark-story-seen': {
+      if (typeof action.id === 'string') {
+        s.seenStoryIds = [...new Set([...(s.seenStoryIds || []), action.id])];
+      }
       break;
     }
     default: return fail('Unsupported social action.');

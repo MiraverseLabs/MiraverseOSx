@@ -92,9 +92,9 @@ def main():
                 obj[to_camel(col)] = transform(table, col, row[col])
             rows.append(obj)
 
-        # Windows ignores filename case. Legacy Careers/Missions tables must not
-        # overwrite the authored gameplay catalogs careers.json / missions.json.
-        table_dir = os.path.join(OUT_DIR, 'generated', 'sqlite') if table.lower() in {'careers', 'missions'} else OUT_DIR
+        # Windows ignores filename case. Legacy SQLite tables must not overwrite
+        # authored gameplay catalogs or create stale top-level empty stubs.
+        table_dir = os.path.join(OUT_DIR, 'generated', 'sqlite') if table.lower() in {'careers', 'missions', 'regions', 'factions'} else OUT_DIR
         os.makedirs(table_dir, exist_ok=True)
         path = os.path.join(table_dir, f'{table}.json')
         with open(path, 'w', encoding='utf-8') as fh:

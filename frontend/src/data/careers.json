@@ -202,10 +202,10 @@
     ],
     "duties": [
       "Stage and live sonic performances",
-      "Commissioned visual art and holographic installations",
-      "Music gigs, soundscapes, and fashion styling",
+      "Commissioned visual art, graphic design, and holographic installations",
+      "Editorial portrait photography, fashion styling, and music gigs",
       "Event hosting and promotional media appearances",
-      "Cultural storytelling and Mai.space broadcast campaigns"
+      "Cultural storytelling and Mai.space visual campaigns"
     ],
     "requirements": "Open to player participation through auditions, public postings, commissions, or social opportunities.",
     "primaryAttribute": "Creativity & Influence",
@@ -408,6 +408,53 @@
       "Resilience"
     ],
     "reputationKey": "questnotice",
+    "xpThresholds": [
+      0,
+      100,
+      220,
+      360,
+      520,
+      700
+    ],
+    "qualificationMissionIds": []
+  },
+  {
+    "id": "press",
+    "name": "Press, Publishing & Public Relations",
+    "category": "Journalism, Periodicals & Communications",
+    "primaryWorkplaces": [
+      "Meridian Press House (The Meridian)",
+      "Rosemont Editorial House (The Social Register)",
+      "Civic & Agency Press Desks"
+    ],
+    "duties": [
+      "Investigative and civic reporting across all eight realms for The Meridian",
+      "Society, heritage, architecture, and interview features for The Social Register",
+      "Copy editing, fact verification, and collectible issue assembly in Creative Studio",
+      "Institutional public statements, press releases, and campaign communications",
+      "Photojournalism captions, media ethics review, and public record corroboration"
+    ],
+    "requirements": "Open at entry stringer level; senior editorial desks and institutional spokespersons require verified reporting credits, Communication/Research proficiency, and clean standards compliance.",
+    "primaryAttribute": "Communication & Intellect",
+    "gameplayConnections": "Unlocks publishing to The Meridian and The Social Register in Miraverse Creative Studio, builds Communication, Research, and Creativity, earns CREDITS/royalties, and shapes public opinion.",
+    "baseSalaryCredits": 215,
+    "tierTitles": [
+      "Newsroom Stringer",
+      "Beat Correspondent",
+      "Department Copy Editor",
+      "Senior Feature Writer",
+      "Managing Periodical Editor",
+      "Editor-in-Chief of Public Letters"
+    ],
+    "specialistLabel": "Principal Investigative & Feature Correspondent",
+    "supervisoryLabel": "Executive Managing Editor",
+    "stationId": "press",
+    "relevantSkills": [
+      "Communication",
+      "Research",
+      "Creativity"
+    ],
+    "reputationKey": "campus",
     "xpThresholds": [
       0,
       100,

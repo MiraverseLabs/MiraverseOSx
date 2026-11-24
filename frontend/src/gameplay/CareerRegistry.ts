@@ -1,7 +1,7 @@
 import careers from '../data/careers.json' with { type: 'json' };
 import { WORKNET_ASSIGNMENTS } from './MissionCatalog';
 
-const CAREER_ALIASES: Record<string, string> = { enforcer: 'dga', faithmed: 'medical', archives: 'archivist' };
+const CAREER_ALIASES: Record<string, string> = { enforcer: 'dga', faithmed: 'medical', archives: 'archivist', journalism: 'press', publishing: 'press' };
 export const canonicalCareerId = (id: string): string => Object.hasOwn(CAREER_ALIASES, id) ? CAREER_ALIASES[id] : id;
 export const CAREER_REGISTRY: Record<string, (typeof careers)[number]> = Object.assign(Object.create(null), Object.fromEntries(careers.map(c => [c.id, c])));
 export const CAREER_CATALOG = Object.values(CAREER_REGISTRY);

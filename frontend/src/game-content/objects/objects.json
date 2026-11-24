@@ -1,0 +1,59 @@
+{
+  "version": "1.0.0",
+  "objects": [
+    {
+      "id": "obj-dual-moon-chronometer",
+      "name": "Radiance & Echo Dual-Phase Chronometer",
+      "category": "Precision Instrument",
+      "makerOrgId": "ORG_SOLAR_CHRONO",
+      "originRealmId": "REG_LUMIA",
+      "priceCredits": 480,
+      "description": "Brushed steel and sapphire pocket chronometer tracking standard Aureline hours alongside the 28-day Radiance and 18-day Echo lunar cycles."
+    },
+    {
+      "id": "obj-thistle-silk-evening-cloak",
+      "name": "Thistle-Embroidered Court Mantle",
+      "category": "Couture & Attire",
+      "makerOrgId": "ORG_ATELIER_SERAPHINE",
+      "originRealmId": "REG_ORYNVELL",
+      "priceCredits": 920,
+      "description": "Deep burgundy velvet mantle worked with Pearl Gold bullion thread and pale thistle silk lining for Concord season receptions."
+    },
+    {
+      "id": "obj-frostbloom-tea-caddy",
+      "name": "Glacial Mint & Frostbloom Tin",
+      "category": "Artisan Goods",
+      "makerOrgId": "ORG_NORTHWAKE_BOTANICALS",
+      "originRealmId": "REG_FROSS",
+      "priceCredits": 38,
+      "description": "Small-batch herbal infusion harvested during the brief Southwake thaw, favored by archivists and late-shift engineers."
+    },
+    {
+      "id": "obj-valmon-carved-reliquary",
+      "name": "Elmore Stone-and-Cedar Folio Box",
+      "category": "Heritage Object",
+      "makerOrgId": "FAC_VALMON",
+      "originRealmId": "REG_VERAYLIA",
+      "priceCredits": 310,
+      "description": "Hand-joined Ve’Raylian cedar chest inlaid with river slate for preserving family charters and correspondence."
+    },
+    {
+      "id": "obj-social-register-issue-01",
+      "name": "The Social Register — Issue 01 Collectible Edition",
+      "category": "Collectible Publication",
+      "makerOrgId": "ORG_SOCIAL_REGISTER",
+      "originRealmId": "REG_ORYNVELL",
+      "priceCredits": 25,
+      "description": "Inaugural collectible print-and-digital folio, 'Between Tradition and Tomorrow,' spanning all ten editorial departments."
+    },
+    {
+      "id": "obj-meridian-field-camera",
+      "name": "Lucian Glassplate Press Camera Mk IV",
+      "category": "Media Equipment",
+      "makerOrgId": "ORG_SOLAR_CHRONO",
+      "originRealmId": "REG_LUMIA",
+      "priceCredits": 640,
+      "description": "Low-distortion optical press camera calibrated for high-frequency auroral light in Aureline and low-light Nephele interiors."
+    }
+  ]
+}

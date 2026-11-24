@@ -12,6 +12,7 @@ export const APPS = [
   { id: 'fieldOperations', title: 'Field Operations', icon: Shield, category: 'Agency Systems' },
   { id: 'dgaos', title: 'DGAOS Command Center', icon: Shield, category: 'Agency Systems' },
   { id: 'documentStudio', title: 'Document Studio', icon: FileText, category: 'Civic Records' },
+  { id: 'creativeStudio', title: 'Creative Studio', icon: Sparkles, category: 'Culture & Media' },
   { id: 'meridionRegistry', title: 'AURA Citizen Registry', icon: UserCheck, category: 'Civic Records' },
   { id: 'jobs', title: 'WORKNET // Federal Access', icon: Briefcase, category: 'Workplace Portals' },
   { id: 'process', title: 'Process Monitor', icon: Cpu, category: 'Security' },
@@ -37,6 +38,7 @@ export const APPS = [
 const DgaosApp = lazy(() => import('../dgaos/apps/DgaosApp'));
 const CommsApp = lazy(() => import('./Comms/CommsApp'));
 const DocumentStudioApp = lazy(() => import('./DocumentStudioApp'));
+const CreativeStudioApp = lazy(() => import('./CreativeStudioApp'));
 const RegistryWorkspaceApp = lazy(() => import('./RegistryWorkspaceApp'));
 const CivicProfileApp = lazy(() => import('./CivicProfileApp'));
 const MaiSpaceApp = lazy(() => import('./MaiSpaceApp'));
@@ -173,6 +175,7 @@ export const CONTENTS = {
   fieldOperations: withSuspense(FieldOperationsApp, 'Field Operations'),
   dgaos: withSuspense(DgaosApp, 'DGAOS Command Center'),
   documentStudio: withSuspense(DocumentStudioApp, 'Document Studio'),
+  creativeStudio: withSuspense(CreativeStudioApp, 'Creative Studio'),
   meridionRegistry: withSuspense(RegistryWorkspaceApp, 'Citizen Registry'),
   files: withSuspense(FileExplorerApp, 'Fylo'),
   comms: withSuspense(CommsApp, 'Comms'),

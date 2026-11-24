@@ -303,7 +303,7 @@ export default function LoreExplorer() {
                   <BookOpen size={14} /> Assigned Reading
                 </button>
                 <button type="button" onClick={() => { setPortalTab('collections'); setActiveCollection('realms'); }}>
-                  <MapPin size={14} /> Seven Realms Atlas
+                  <MapPin size={14} /> Eight Realms Atlas
                 </button>
                 <button type="button" onClick={() => { setPortalTab('collections'); setActiveCollection('chronology'); }}>
                   <Sparkles size={14} /> Twin Moons & Era

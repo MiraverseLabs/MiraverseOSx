@@ -160,20 +160,32 @@ export function createAssignmentActions(set: (update: (state: OSStoreState) => P
       const citedAt = new Date().toISOString();
       const citation: MissionCitation = {
         ...input,
+        certified: input.sourceSystem.endsWith('-lead') ? false : Boolean(input.certified),
         id: `cite:${input.sourceSystem}:${input.recordId}`,
         citedAt,
       };
       const safeId = input.recordId.replace(/[^a-zA-Z0-9_-]+/g, '_');
-      const sourceLabel = input.sourceSystem === 'orynvell-records' ? 'Orynvell Public Records' : 'Royal Archive & Library';
+      const sourceLabel =
+        input.sourceSystem === 'orynvell-records'
+          ? 'Orynvell Public Records'
+          : input.sourceSystem === 'royal-library'
+            ? 'Royal Archive & Library'
+            : input.sourceSystem === 'meridian-press-lead'
+              ? 'The Meridian (Public Press Lead)'
+              : input.sourceSystem === 'versenet-publication-lead'
+                ? 'The Social Register (Public Press Lead)'
+                : 'MAI.SPACE Public Dispatch (Social Lead)';
+      const isPressOrSocialLead = input.sourceSystem.endsWith('-lead');
+      const certified = isPressOrSocialLead ? false : Boolean(input.certified);
       const file: AssignmentFile = {
         id: citation.id,
         name: `CITE_${safeId}.txt`,
         dir: `/assignments/${input.missionId}`,
         type: 'txt',
-        size: input.certified ? 'Certified Cite' : 'Cited Record',
+        size: certified ? 'Certified Cite' : isPressOrSocialLead ? 'Media Lead' : 'Cited Record',
         desc: `${sourceLabel} · ${input.referenceCode}`,
         assignmentId: input.missionId,
-        body: `INSTITUTIONAL EVIDENCE CITATION\nMission: ${opportunity.title} (${input.missionId})\nSource System: ${sourceLabel}\nReference: ${input.referenceCode}\nCustodian: ${input.custodian}\nStatus: ${input.certified ? 'Certified Official Document' : 'Archival / Public Reference'}\nCited At: ${citedAt}\n\nTitle: ${input.title}\n\nFormal Citation:\n${input.citationText}\n\nSummary / Excerpt:\n${input.excerpt}`,
+        body: `INSTITUTIONAL EVIDENCE CITATION\nMission: ${opportunity.title} (${input.missionId})\nSource System: ${sourceLabel}\nReference: ${input.referenceCode}\nCustodian: ${input.custodian}\nStatus: ${certified ? 'Certified Official Document' : isPressOrSocialLead ? 'Public Media Lead / Timestamp Corroboration (Does Not Substitute for Forensic Proof)' : 'Archival / Public Reference'}\nCited At: ${citedAt}\n\nTitle: ${input.title}\n\nFormal Citation:\n${input.citationText}\n\nSummary / Excerpt:\n${input.excerpt}`,
       };
       update(current => ({
         ...current,

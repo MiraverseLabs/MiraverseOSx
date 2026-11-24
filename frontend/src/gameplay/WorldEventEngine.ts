@@ -29,6 +29,10 @@ export interface WorldNarrativeEvent {
   summary: string;
   institution: string;
   citizenMaid?: string;
+  sourceRef?: { kind: 'work-order'; id: string; definitionId: string };
+  occurredAtTick?: number;
+  visibility?: 'private' | 'institution' | 'public';
+  publicSummary?: string;
   cycle: number;
   timestamp: string;
   tags: string[];
@@ -92,6 +96,7 @@ export class WorldEventEngine {
   }): WorldNarrativeEvent {
     return {
       id: `EVT-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
+      visibility: 'private',
       category: params.category,
       title: params.title,
       summary: params.summary,
@@ -166,7 +171,7 @@ export class WorldEventEngine {
     const corruption = gameplay?.prismCorruptionLevel ?? 14.8;
     const cycle = gameplay?.timeCycleCount ?? 28;
     const events: WorldNarrativeEvent[] = Array.isArray(gameplay?.worldEventLog)
-      ? gameplay.worldEventLog.slice(0, 6)
+      ? gameplay.worldEventLog.filter(e => e.visibility === 'public' && typeof e.publicSummary === 'string').slice(0, 6).map(e => ({ ...e, summary: e.publicSummary }))
       : [];
 
     const npcKey = npcName.toLowerCase().split(' ')[0];
@@ -184,6 +189,8 @@ export class WorldEventEngine {
       : [];
 
     const recentTitles = events.slice(0, 3).map((e) => `${e.title} (${e.institution})`);
+    const mediaMemories = (player.mediaMemories || []).filter(m => m.actorIds?.some(id => id.toLowerCase().includes(npcKey))).slice(-2);
+    recentTitles.push(...mediaMemories.map(m => `Published headline: ${m.headline}`));
     const eventsClause = recentTitles.length > 0
       ? `Recent world actions: ${recentTitles.join('; ')}.`
       : 'No major institutional dispatches logged yet this cycle.';
@@ -963,6 +970,28 @@ export const CAREER_TRACK_SPECS: Record<string, CareerTrackSpec> = {
       },
     ],
   },
+  press: {
+    track: 'press',
+    department: 'Meridian Press House & The Social Register',
+    rankTitles: CAREER_REGISTRY.press.tierTitles,
+    xpThresholds: CAREER_REGISTRY.press.xpThresholds,
+    pathways: [
+      {
+        id: 'press-editorial-portfolio',
+        label: 'Verified Bylines, Issues & Standards Compliance',
+        pathwayType: 'portfolio',
+        description: 'Advance by filing verified newsroom assignments and publishing articles or features in Miraverse Creative Studio.',
+        isMet: (player, targetRank) => {
+          const pressMissions = getCompletedMissionsForTrack(player, 'press');
+          const studioCount = Array.isArray(player?.creativePortfolioIds) ? player.creativePortfolioIds.length : 0;
+          const commLvl = player?.skills?.Communication?.level ?? 1;
+          return pressMissions + studioCount >= targetRank && commLvl >= Math.max(1, Math.ceil(targetRank / 2));
+        },
+        requirementSummary: (targetRank) =>
+          `Complete ${targetRank}+ Press assignments or Creative Studio publications and Communication Lv.${Math.max(1, Math.ceil(targetRank / 2))}+`,
+      },
+    ],
+  },
 };
 
 export function evaluateCareerPromotion(
@@ -1043,7 +1072,8 @@ export function evaluateCareerPromotion(
     : track === 'artist' ? Math.max(0, (player?.forgedSpells?.length || 1) - 1) + Math.max(0, (player?.maiSpaceProfile?.bulletinPosts?.length || 4) - 4)
     : track === 'dga' ? (player?.solvedInvestigationCaseIds?.length || 0) + validatedQuarantinePids(player).length
     : track === 'archivist' ? (player?.inspectedFiles || []).filter((id: string) => ['purge-archive', 'aethercore-sys'].includes(id)).length
-    : track === 'warden' ? player?.discoveredShrines?.length || 0 : 0;
+    : track === 'warden' ? player?.discoveredShrines?.length || 0
+    : track === 'press' ? player?.creativePortfolioIds?.length || 0 : 0;
   const experienceMet = acceptedExperience + specialistExperience > 0;
   pathwayStatuses.push({ id: 'professional-competency', label: 'Relevant skills and demonstrated experience', pathwayType: 'practical', met: skillsMet && experienceMet, summary: `${relevantSkills.join('/')} Lv.${skillFloor}+ and verified relevant professional experience` });
   const canPromote = xpMet && Boolean(qualifiedPathway) && skillsMet && experienceMet;
