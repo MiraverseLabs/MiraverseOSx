@@ -7,6 +7,19 @@ export interface AssignmentFile {
   caseSourceId?: string;
   id: string; name: string; dir: string; type: 'txt' | 'log'; size: string; desc: string; body: string; assignmentId: string;
 }
+export interface MissionCitation {
+  id: string;
+  missionId: string;
+  sourceSystem: 'orynvell-records' | 'royal-library';
+  recordId: string;
+  title: string;
+  referenceCode: string;
+  custodian: string;
+  citationText: string;
+  excerpt: string;
+  certified?: boolean;
+  citedAt: string;
+}
 export interface AssignmentJournal {
   selectedId: string;
   selectionVersion: number;
@@ -14,12 +27,13 @@ export interface AssignmentJournal {
   fileRequest: number;
   dispatches: Record<string, { receivedAt: string; channel: 'email' | 'phone'; heardAt?: string }>;
   files: Record<string, AssignmentFile>;
+  citations?: Record<string, MissionCitation[]>;
   started: Record<string, string>;
   claimed: Record<string, string>;
   unlocks: string[];
   chapterClaims: Record<string, string>;
 }
-export const emptyAssignmentJournal = (): AssignmentJournal => ({ selectedId: '', selectionVersion: 0, fileDirectory: '/assignments', fileRequest: 0, dispatches: {}, files: {}, started: {}, claimed: {}, unlocks: [], chapterClaims: {} });
+export const emptyAssignmentJournal = (): AssignmentJournal => ({ selectedId: '', selectionVersion: 0, fileDirectory: '/assignments', fileRequest: 0, dispatches: {}, files: {}, citations: {}, started: {}, claimed: {}, unlocks: [], chapterClaims: {} });
 export interface Opportunity {
   id: string; kind: ActivityKind; title: string; description: string; institution: string; location: string;
   missionIds: string[]; clearance: number; reward: string; unlock?: { name: string; text: string };

@@ -2,6 +2,8 @@ import AcademicProjectDesk from './academic/AcademicProjectDesk';
 import React, { useEffect, useState } from 'react';
 import { miraverseDb } from '../db/miraverseDb';
 import { useOSStore } from '../store/useOSStore';
+import { OPPORTUNITIES } from '../gameplay/AssignmentFlow';
+import { isOpportunityRevealed } from '../gameplay/ProgressionEngine';
 import { ALL_SHRINE_REGIONS } from '../data/notices';
 import {
   BookOpen,
@@ -55,6 +57,7 @@ export default function LoreExplorer() {
   const [authorFilter, setAuthorFilter] = useState('all');
   const [sortCatalog, setSortCatalog] = useState<'relevance' | 'citations'>('relevance');
   const [citationPreview, setCitationPreview] = useState<string | null>(null);
+  const [citeMissionId, setCiteMissionId] = useState<string>('');
 
   // Guides filters
   const [guideMode, setGuideMode] = useState<GuideFilterMode>('all');
@@ -66,6 +69,28 @@ export default function LoreExplorer() {
   const libraryAction = useOSStore(s => s.libraryAction);
   const discoveredShrines = player?.discoveredShrines || [];
   const discoverRegionalShrine = useOSStore(s => s.discoverRegionalShrine);
+  const availableMissions = OPPORTUNITIES.filter(o => isOpportunityRevealed(o.id, player) && !o.unlock);
+  const activeCiteMissionId =
+    citeMissionId ||
+    availableMissions.find(o => player?.worknetOrders?.[o.id]?.status === 'active')?.id ||
+    player?.assignmentJournal?.selectedId ||
+    availableMissions[0]?.id ||
+    'ms-spec-03';
+
+  const handleCiteVolumeToMission = (item: LibraryCatalogItem) => {
+    const res = useOSStore.getState().citeInstitutionalEvidence({
+      missionId: activeCiteMissionId,
+      sourceSystem: 'royal-library',
+      recordId: item.id,
+      title: item.title,
+      referenceCode: item.callNumber,
+      custodian: 'Royal Archive & Library',
+      citationText: formatArchivalCitation(item),
+      excerpt: item.tldr || item.abstract,
+      certified: item.restrictedTier !== 'citizen',
+    });
+    setNotice(res.message);
+  };
   const journalRequest = player.worldJournal?.openRequest;
   const workspaceRequest = useOSStore(state => state.workspaceRequests['lore']);
 
@@ -499,6 +524,13 @@ export default function LoreExplorer() {
                 <option value="relevance">Sort by Relevance</option>
                 <option value="citations">Sort by Citations</option>
               </select>
+              <select aria-label="Target mission for evidence citation" value={activeCiteMissionId} onChange={e => setCiteMissionId(e.target.value)} title="Target WORKNET / Casebook mission for + Mission Evidence">
+                {availableMissions.map(m => (
+                  <option key={m.id} value={m.id}>
+                    Cite → {player?.worknetOrders?.[m.id]?.status === 'active' ? '● ' : ''}{m.title}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Chronicler / Author Spotlight Cards */}
@@ -593,6 +625,15 @@ export default function LoreExplorer() {
                         }}
                       >
                         “ Cite
+                      </button>
+                      <button
+                        type="button"
+                        className="rl-btn-sm"
+                        style={{ flex: 'none', background: '#1e293b', color: '#f8fafc', borderColor: '#1e293b' }}
+                        onClick={() => handleCiteVolumeToMission(item)}
+                        title="Attach this volume as citable evidence in WORKNET & Casebook"
+                      >
+                        + Mission Evidence
                       </button>
                     </div>
                   </article>

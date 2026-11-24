@@ -11,8 +11,8 @@
     "preview": "vite preview",
     "test:phone": "node --test tests/phone-theme-contrast.test.mjs",
     "test:progress": "node --test tests/os-progress.test.mjs",
-    "storybook": "storybook dev -p 6006 --no-open",
-    "build:storybook": "storybook build -o storybook-static --disable-telemetry",
+    "storybook": "node scripts/storybook.mjs dev -p 6006 --no-open",
+    "build:storybook": "node scripts/storybook.mjs build -o storybook-static --disable-telemetry",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -63,5 +63,10 @@
   },
   "allowScripts": {
     "esbuild@0.25.12": true
+  },
+  "overrides": {
+    "@joshwooding/vite-plugin-react-docgen-typescript": {
+      "glob": "^14.0.6"
+    }
   }
 }

@@ -157,6 +157,7 @@ export default function MissionCasebookOverlay({ open, onClose }: { open: boolea
 
   const allMissionFiles = Object.values(player.assignmentJournal?.files || {}) as any[];
   const currentFiles = allMissionFiles.filter(f => f.assignmentId === selectedOpp.id);
+  const citedEvidence = player.assignmentJournal?.citations?.[selectedOpp.id] || [];
   const totalCount = classified.active.length + classified.available.length + classified.completed.length;
   const completionPct = totalCount ? Math.round((classified.completed.length / totalCount) * 100) : 0;
 
@@ -175,7 +176,7 @@ export default function MissionCasebookOverlay({ open, onClose }: { open: boolea
               <BookOpen size={12} /> Overview
             </button>
             <button type="button" className="cb-folder-tab" data-active={tab === 'evidence'} onClick={() => setTab('evidence')}>
-              <FileText size={12} /> Evidence ({currentFiles.length})
+              <FileText size={12} /> Evidence ({currentFiles.length + citedEvidence.length})
             </button>
             <button type="button" className="cb-folder-tab" data-active={tab === 'notes'} onClick={() => setTab('notes')}>
               <StickyNote size={12} /> Personal Notes
@@ -336,6 +337,28 @@ export default function MissionCasebookOverlay({ open, onClose }: { open: boolea
                 {tab === 'evidence' && (
                   <>
                     <div className="cb-section-label" style={{ marginTop: 0 }}>
+                      <span>Cited Deeds, Filings & Manuscripts</span>
+                      <span>{citedEvidence.length} Cited</span>
+                    </div>
+                    {citedEvidence.length ? citedEvidence.map(cite => (
+                      <div key={cite.id} className="cb-file-slip">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                          <span style={{ fontSize: 9.5, fontFamily: 'monospace', fontWeight: 800, textTransform: 'uppercase', color: cite.sourceSystem === 'orynvell-records' ? '#1e3a5f' : '#7c2d12' }}>
+                            {cite.sourceSystem === 'orynvell-records' ? 'Orynvell Public Records' : 'Royal Archive & Library'} · {cite.referenceCode}
+                          </span>
+                          {cite.certified && <span style={{ fontSize: 9, fontFamily: 'monospace', fontWeight: 800, color: '#166534' }}>CERTIFIED</span>}
+                        </div>
+                        <strong style={{ fontSize: 12.5, display: 'block' }}>{cite.title}</strong>
+                        <small style={{ fontSize: 10.5, color: '#5c4b35', display: 'block', marginTop: 2 }}>{cite.custodian}</small>
+                        <p style={{ fontSize: 11, color: '#3b2e1e', margin: '5px 0 0', lineHeight: 1.4, fontStyle: 'italic' }}>{cite.excerpt}</p>
+                      </div>
+                    )) : (
+                      <p style={{ fontSize: 11.5, fontStyle: 'italic', color: '#5c4b35', marginBottom: 10 }}>
+                        No deeds, filings, or manuscripts cited yet. Cite records directly from Orynvell Public Records or Royal Archive & Library to pin them here.
+                      </p>
+                    )}
+
+                    <div className="cb-section-label">
                       <span>Collected Mission Files (Fylo)</span>
                       <span>/assignments/{selectedOpp.id}</span>
                     </div>
@@ -349,15 +372,30 @@ export default function MissionCasebookOverlay({ open, onClose }: { open: boolea
                         No files collected for this mission yet. Open its Fylo folder or accept the assignment in WORKNET to file its Briefing.txt and Assignment_checklist.txt.
                       </p>
                     )}
-                    <button
-                      type="button"
-                      className="cb-track-btn"
-                      data-tracked="true"
-                      style={{ marginTop: 8 }}
-                      onClick={() => jumpTo(() => { useOSStore.getState().saveAssignmentBriefing(selectedOpp.id); useOSStore.getState().openAssignmentFiles(selectedOpp.id); })}
-                    >
-                      <FolderOpen size={12} /> Open Mission Folder in Fylo
-                    </button>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                      <button
+                        type="button"
+                        className="cb-track-btn"
+                        data-tracked="true"
+                        onClick={() => jumpTo(() => { useOSStore.getState().saveAssignmentBriefing(selectedOpp.id); useOSStore.getState().openAssignmentFiles(selectedOpp.id); })}
+                      >
+                        <FolderOpen size={12} /> Fylo Folder
+                      </button>
+                      <button
+                        type="button"
+                        className="cb-track-btn"
+                        onClick={() => jumpTo(() => useOSStore.getState().openAppWorkspace('browser', 'https://records.orynvell.gov'))}
+                      >
+                        <FileText size={12} /> Orynvell Records
+                      </button>
+                      <button
+                        type="button"
+                        className="cb-track-btn"
+                        onClick={() => jumpTo(() => useOSStore.getState().openWindow('lore'))}
+                      >
+                        <BookOpen size={12} /> Royal Library
+                      </button>
+                    </div>
                   </>
                 )}
 
@@ -428,7 +466,11 @@ export default function MissionCasebookOverlay({ open, onClose }: { open: boolea
                       </button>
                       <button type="button" className="cb-pin-card" onClick={() => jumpTo(() => useOSStore.getState().openAppWorkspace('browser', 'https://records.orynvell.gov'))}>
                         <strong><FileText size={12} /> ORYNVELL</strong>
-                        <small>Public records & official filings</small>
+                        <small>Public deeds, filings & certified copies</small>
+                      </button>
+                      <button type="button" className="cb-pin-card" onClick={() => jumpTo(() => useOSStore.getState().openWindow('lore'))}>
+                        <strong><BookOpen size={12} /> ROYAL LIBRARY</strong>
+                        <small>Historical manuscripts & archive volumes</small>
                       </button>
                     </div>
                   </>

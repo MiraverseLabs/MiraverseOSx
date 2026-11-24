@@ -136,6 +136,70 @@ export default function WorknetOrderPanel({ missionId, onFeedback }: { missionId
           {order.incidents.length > 0 && <details><summary className="cursor-pointer text-rose-800">Procedure review ({order.incidents.length})</summary>{order.incidents.map((incident, index) => <p key={index} className="text-slate-700 mt-1">{incident.severity}: {incident.message}</p>)}</details>}
           {order.resultIds.some(id => results[id]?.compensationPaid) && <p className="text-emerald-800">Clinical pay and experience already issued for this patient. Finalization records chart acceptance without paying that work again.</p>}
         </>}
+        {/* Cited Institutional Evidence from Orynvell Public Records & Royal Library */}
+        {(() => {
+          const cited = player.assignmentJournal?.citations?.[missionId] || [];
+          const hasReportField = Boolean(current && current.fields.some(f => f.kind === 'report'));
+          return (
+            <div className="rounded-lg border border-amber-200/80 bg-amber-50/40 p-2.5 space-y-2">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-900">
+                  Cited Deeds, Filings & Manuscripts ({cited.length})
+                </span>
+                <span className="text-[10px] text-slate-500">
+                  Cite records from Orynvell Public Records or Royal Library
+                </span>
+              </div>
+              {cited.length === 0 ? (
+                <p className="text-[11px] text-slate-600">
+                  No institutional deeds, public filings, or archival manuscripts cited yet. Open <strong>Orynvell Records</strong> or <strong>Royal Library</strong> above and click <em>Cite as Mission Evidence</em>.
+                </p>
+              ) : (
+                <div className="space-y-1.5">
+                  {cited.map(item => (
+                    <div key={item.id} className="rounded-md border border-slate-200 bg-white p-2 flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`text-[9.5px] font-mono font-bold uppercase px-1.5 py-0.5 rounded ${item.sourceSystem === 'orynvell-records' ? 'bg-slate-800 text-white' : 'bg-amber-900 text-amber-50'}`}>
+                            {item.sourceSystem === 'orynvell-records' ? 'Orynvell Records' : 'Royal Library'}
+                          </span>
+                          <span className="text-[10px] font-mono text-slate-600">{item.referenceCode}</span>
+                          {item.certified && <span className="text-[9.5px] font-mono font-bold text-emerald-700">CERTIFIED</span>}
+                        </div>
+                        <div className="font-semibold text-slate-900 text-[11.5px] mt-0.5">{item.title}</div>
+                        <div className="text-[10.5px] text-slate-500 truncate">{item.custodian}</div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {hasReportField && order?.status === 'active' && current && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const prevText = draft.report || '';
+                              const nextText = prevText ? `${prevText}\n\n[Cited Evidence] ${item.citationText}` : `[Cited Evidence] ${item.citationText}`;
+                              saveDraft(missionId, current.id, { ...draft, report: nextText });
+                              feedback({ ok: true, message: `Inserted ${item.referenceCode} citation into stage report.` });
+                            }}
+                            className="px-2 py-1 rounded border border-indigo-200 bg-indigo-50 text-indigo-900 text-[10px] font-semibold cursor-pointer hover:bg-indigo-100"
+                          >
+                            Insert in Report
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => useOSStore.getState().removeInstitutionalCitation(missionId, item.id)}
+                          className="px-1.5 py-1 rounded border border-slate-200 bg-slate-50 text-slate-500 text-[10px] cursor-pointer hover:text-rose-700"
+                          title="Remove citation"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
       </div>
       {activities.length > 0 && <div className="work-order-links space-y-3">
         <h3 className="font-bold text-indigo-950">Shared progress</h3>

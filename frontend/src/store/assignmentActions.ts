@@ -1,7 +1,7 @@
 import { PROCESS_MISSION } from '../gameplay/ProcessMonitor';
 import type { OSStoreState } from './useOSStore';
 import { useCommsStore } from './useCommsStore';
-import { getOpportunity, opportunityStatus, assignmentFiles, emptyAssignmentJournal, DISPATCH_SCHEDULE, dispatchEmail, activityReady, type AssignmentJournal, type AssignmentFile } from '../gameplay/AssignmentFlow';
+import { getOpportunity, opportunityStatus, assignmentFiles, emptyAssignmentJournal, DISPATCH_SCHEDULE, dispatchEmail, activityReady, type AssignmentJournal, type AssignmentFile, type MissionCitation } from '../gameplay/AssignmentFlow';
 import { WORKNET_ASSIGNMENTS, evaluateLinkedActivities } from '../gameplay/ActivityEngine';
 import { isOpportunityRevealed } from '../gameplay/ProgressionEngine';
 import { CASE_MISSION, caseCompletionText } from '../gameplay/BroadStreetCase';
@@ -19,6 +19,8 @@ export interface AssignmentFlowActions {
   claimJourneyChapter: (id: string, chapterId: string) => Result;
   recordAssignmentCompletion: (id: string) => void;
   recordAssignmentOpened: (id: string) => void;
+  citeInstitutionalEvidence: (input: Omit<MissionCitation, 'id' | 'citedAt'>) => Result & { citation?: MissionCitation };
+  removeInstitutionalCitation: (missionId: string, citationId: string) => void;
 }
 export function createAssignmentActions(set: (update: (state: OSStoreState) => Partial<OSStoreState>) => void, get: () => OSStoreState): AssignmentFlowActions {
   const journal = (): AssignmentJournal => get().gameplay.player.assignmentJournal || emptyAssignmentJournal();
@@ -147,6 +149,55 @@ export function createAssignmentActions(set: (update: (state: OSStoreState) => P
       sendReceipt(id, 'completed', file);
       get().refreshContextualDiscoveries();
       get().refreshAssignmentDispatches();
+    },
+    citeInstitutionalEvidence: input => {
+      const opportunity = getOpportunity(input.missionId);
+      if (!opportunity) return { ok: false, message: 'Select a valid mission or investigation to attach evidence.' };
+      const existing = journal().citations?.[input.missionId] || [];
+      if (existing.some(c => c.sourceSystem === input.sourceSystem && c.recordId === input.recordId)) {
+        return { ok: false, message: `${input.referenceCode} is already cited in "${opportunity.title}".` };
+      }
+      const citedAt = new Date().toISOString();
+      const citation: MissionCitation = {
+        ...input,
+        id: `cite:${input.sourceSystem}:${input.recordId}`,
+        citedAt,
+      };
+      const safeId = input.recordId.replace(/[^a-zA-Z0-9_-]+/g, '_');
+      const sourceLabel = input.sourceSystem === 'orynvell-records' ? 'Orynvell Public Records' : 'Royal Archive & Library';
+      const file: AssignmentFile = {
+        id: citation.id,
+        name: `CITE_${safeId}.txt`,
+        dir: `/assignments/${input.missionId}`,
+        type: 'txt',
+        size: input.certified ? 'Certified Cite' : 'Cited Record',
+        desc: `${sourceLabel} · ${input.referenceCode}`,
+        assignmentId: input.missionId,
+        body: `INSTITUTIONAL EVIDENCE CITATION\nMission: ${opportunity.title} (${input.missionId})\nSource System: ${sourceLabel}\nReference: ${input.referenceCode}\nCustodian: ${input.custodian}\nStatus: ${input.certified ? 'Certified Official Document' : 'Archival / Public Reference'}\nCited At: ${citedAt}\n\nTitle: ${input.title}\n\nFormal Citation:\n${input.citationText}\n\nSummary / Excerpt:\n${input.excerpt}`,
+      };
+      update(current => ({
+        ...current,
+        citations: {
+          ...(current.citations || {}),
+          [input.missionId]: [...(current.citations?.[input.missionId] || []), citation],
+        },
+        files: { ...current.files, [file.id]: file },
+      }));
+      return { ok: true, message: `Cited ${input.referenceCode} into "${opportunity.title}" (saved to Fylo & Casebook).`, citation };
+    },
+    removeInstitutionalCitation: (missionId, citationId) => {
+      update(current => {
+        const nextFiles = { ...current.files };
+        delete nextFiles[citationId];
+        return {
+          ...current,
+          citations: {
+            ...(current.citations || {}),
+            [missionId]: (current.citations?.[missionId] || []).filter(c => c.id !== citationId),
+          },
+          files: nextFiles,
+        };
+      });
     },
   };
 }

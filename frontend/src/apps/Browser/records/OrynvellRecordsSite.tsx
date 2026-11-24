@@ -15,6 +15,8 @@ import {
   X,
 } from 'lucide-react';
 import { useOSStore } from '../../../store/useOSStore';
+import { OPPORTUNITIES } from '../../../gameplay/AssignmentFlow';
+import { isOpportunityRevealed } from '../../../gameplay/ProgressionEngine';
 import {
   ORYNVELL_DIVISIONS,
   RECORD_CATEGORIES,
@@ -47,6 +49,28 @@ export default function OrynvellRecordsSite() {
   const [selectedStaffRequestId, setSelectedStaffRequestId] = useState<string | null>(null);
   const [staffNote, setStaffNote] = useState('');
   const [notice, setNotice] = useState('');
+  const availableMissions = OPPORTUNITIES.filter(o => isOpportunityRevealed(o.id, player) && !o.unlock);
+  const defaultCiteMission =
+    availableMissions.find(o => player?.worknetOrders?.[o.id]?.status === 'active')?.id ||
+    player?.assignmentJournal?.selectedId ||
+    availableMissions[0]?.id ||
+    'ms-case-002';
+  const [citeMissionId, setCiteMissionId] = useState<string>(defaultCiteMission);
+
+  const handleCiteRecordToMission = (record: PublicRecord) => {
+    const res = useOSStore.getState().citeInstitutionalEvidence({
+      missionId: citeMissionId,
+      sourceSystem: 'orynvell-records',
+      recordId: record.id,
+      title: record.title,
+      referenceCode: `${record.id} (${record.version})`,
+      custodian: `${record.custodian} · ${record.custodianship}`,
+      citationText: `Orynvell Public Records Administration, ${record.id} (${record.version}): "${record.title}", Custodian: ${record.custodian} (${record.district}), Registered ${record.registeredDate}.`,
+      excerpt: record.summary,
+      certified: record.documentClass === 'Official Issued Document',
+    });
+    setNotice(res.message);
+  };
 
   // Persistent search state (Search Continuity)
   const [query, setQuery] = useState('');
@@ -614,9 +638,29 @@ export default function OrynvellRecordsSite() {
                     Custodian: <strong>{selectedRecord.custodian}</strong> ({selectedRecord.jurisdiction})
                   </small>
                   {canReadFullRecord(selectedRecord, actor) && (
-                    <button type="button" className="opr-btn-primary" onClick={() => handleSaveExtractToFylo(selectedRecord)}>
-                      <FolderDown size={14} /> Save Informational Extract to Fylo
-                    </button>
+                    <>
+                      <button type="button" className="opr-btn-primary" onClick={() => handleSaveExtractToFylo(selectedRecord)}>
+                        <FolderDown size={14} /> Save Informational Extract to Fylo
+                      </button>
+                      <div style={{ borderTop: '1px solid #d5dce3', paddingTop: 10, marginTop: 4, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <span className="opr-eyebrow">WORKNET & CASEBOOK EVIDENCE</span>
+                        <select
+                          aria-label="Target mission for citation"
+                          value={citeMissionId}
+                          onChange={e => setCiteMissionId(e.target.value)}
+                          style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 12, background: '#fff', color: '#1e293b' }}
+                        >
+                          {availableMissions.map(m => (
+                            <option key={m.id} value={m.id}>
+                              {player?.worknetOrders?.[m.id]?.status === 'active' ? '● ' : ''}{m.title}
+                            </option>
+                          ))}
+                        </select>
+                        <button type="button" className="opr-btn-secondary" onClick={() => handleCiteRecordToMission(selectedRecord)}>
+                          <Bookmark size={14} /> Cite as Mission Evidence
+                        </button>
+                      </div>
+                    </>
                   )}
                   <button type="button" className="opr-btn-secondary" onClick={() => startServiceForRecord('certified-copy', selectedRecord.id)}>
                     <FileCheck2 size={14} /> Request Certified Copy (25 ₢)

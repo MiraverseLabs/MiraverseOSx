@@ -103,3 +103,61 @@ test('Service requests support staff certification, version-preserving amendment
   const recovered = restoreOrynvellRecordsState({ records: [{ id: 'DEED-99401', title: 'Tampered' }] });
   assert.equal(recovered.records.find(r => r.id === 'DEED-99401').title, 'Subterranean Conduit Sector 7 — Deed & Grid Alignment');
 });
+
+
+test('Orynvell Public Records deeds and Royal Library manuscripts can be cited as persistent mission evidence', async () => {
+  const { useOSStore } = await import('../src/store/useOSStore.ts');
+  const store = useOSStore.getState();
+
+  const deedCite = store.citeInstitutionalEvidence({
+    missionId: 'ms-case-002',
+    sourceSystem: 'orynvell-records',
+    recordId: 'DEED-99401',
+    title: 'Subterranean Conduit Sector 7 — Deed & Grid Alignment',
+    referenceCode: 'DEED-99401 (v1.0)',
+    custodian: 'Land & Property Records · Primary Custodian',
+    citationText: 'Orynvell Public Records Administration, DEED-99401 (v1.0).',
+    excerpt: 'Subterranean conduit alignment under Broad Street.',
+    certified: true,
+  });
+  assert.equal(deedCite.ok, true);
+  assert.ok(deedCite.citation);
+
+  // Duplicate citation is rejected
+  const dup = useOSStore.getState().citeInstitutionalEvidence({
+    missionId: 'ms-case-002',
+    sourceSystem: 'orynvell-records',
+    recordId: 'DEED-99401',
+    title: 'Duplicate',
+    referenceCode: 'DEED-99401 (v1.0)',
+    custodian: 'Land & Property Records',
+    citationText: 'Duplicate',
+    excerpt: 'Duplicate',
+  });
+  assert.equal(dup.ok, false);
+
+  // Royal Library manuscript citation attaches alongside the deed and creates a Fylo mission file
+  const libCite = useOSStore.getState().citeInstitutionalEvidence({
+    missionId: 'ms-case-002',
+    sourceSystem: 'royal-library',
+    recordId: 'vol-seraphima-charter',
+    title: 'Sealed Council Charter of Succession',
+    referenceCode: 'RHS-MS-001',
+    custodian: 'Royal Archive & Library',
+    citationText: 'Royal Archive & Library, RHS-MS-001.',
+    excerpt: 'Pre-Collapse treaty archive reference.',
+  });
+  assert.equal(libCite.ok, true);
+
+  const journal = useOSStore.getState().gameplay.player.assignmentJournal;
+  assert.equal(journal.citations['ms-case-002'].length, 2);
+  assert.ok(journal.files[deedCite.citation.id]);
+  assert.equal(journal.files[deedCite.citation.id].dir, '/assignments/ms-case-002');
+  assert.ok(journal.files[libCite.citation.id]);
+
+  // Removing a citation cleans up both the citation list and the mission Fylo file
+  useOSStore.getState().removeInstitutionalCitation('ms-case-002', deedCite.citation.id);
+  const after = useOSStore.getState().gameplay.player.assignmentJournal;
+  assert.equal(after.citations['ms-case-002'].length, 1);
+  assert.equal(after.files[deedCite.citation.id], undefined);
+});
