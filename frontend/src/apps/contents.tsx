@@ -26,7 +26,6 @@ export const APPS = [
   { id: 'post', title: 'Meridion Post // Packages & Mail', icon: Package, category: 'Personal Apps' },
   { id: 'comms', title: 'COMMS // Institutional Network', icon: MessageSquare, category: 'Workplace Portals' },
   { id: 'passport', title: 'Citizen Hub', icon: UserCheck, category: 'Personal Apps' },
-  { id: 'pulse', title: 'PULSE // News Portal', icon: Radio, category: 'Communication' },
   { id: 'maispace', title: 'mai.space // Social Network', icon: MessageSquare, category: 'Communication' },
   { id: 'files', title: 'Fylo', icon: Folder, category: 'Storage' },
   { id: 'lore', title: 'Royal Archive & Library', icon: BookOpen, category: 'Database' },
@@ -40,7 +39,6 @@ const CommsApp = lazy(() => import('./Comms/CommsApp'));
 const DocumentStudioApp = lazy(() => import('./DocumentStudioApp'));
 const RegistryWorkspaceApp = lazy(() => import('./RegistryWorkspaceApp'));
 const CivicProfileApp = lazy(() => import('./CivicProfileApp'));
-const PulseApp = lazy(() => import('./Pulse/PulseApp'));
 const MaiSpaceApp = lazy(() => import('./MaiSpaceApp'));
 const BrowserApp = lazy(() => import('./Browser/BrowserApp'));
 const MailApp = lazy(() => import('./MailApp'));
@@ -176,26 +174,25 @@ export const CONTENTS = {
   dgaos: withSuspense(DgaosApp, 'DGAOS Command Center'),
   documentStudio: withSuspense(DocumentStudioApp, 'Document Studio'),
   meridionRegistry: withSuspense(RegistryWorkspaceApp, 'Citizen Registry'),
-  files: withSuspense(FileExplorerApp, 'File Explorer'),
+  files: withSuspense(FileExplorerApp, 'Fylo'),
   comms: withSuspense(CommsApp, 'Comms'),
   mail: withSuspense(MailApp, 'AureMail'),
   post: withSuspense(PostalApp, 'Meridion Post'),
   passport: withSuspense(CivicProfileApp, 'Citizen Hub'),
   vitals: withSuspense(VitalsApp, 'VITALS Monitor'),
-  vault: withSuspense(CivicProfileApp, 'VAULT Storage'),
+  vault: withSuspense(CivicProfileApp, 'Fylo Storage'),
   campus: withSuspense(CampusApp, 'CAMPUS Registrar'),
   study: withSuspense(StudyApp, 'AureLearn Student LMS'),
   spellforge: withSuspense(SpellForgeApp, 'SpellForge Lab'),
-  pulse: withSuspense(PulseApp, 'Pulse Network'),
   maispace: withSuspense(MaiSpaceApp, 'mai.space'),
   terminal: TerminalApp,
   browser: withSuspense(BrowserApp, 'Browser'),
   settings: SettingsApp,
-  lore: withSuspense(LoreExplorerApp, 'Lore Explorer'),
+  lore: withSuspense(LoreExplorerApp, 'Royal Archive & Library'),
   process: withSuspense(ProcessMonitorApp, 'Process Monitor'),
   housing: withSuspense(HousingApp, 'My Home · Suite 4B'),
   jobs: withSuspense(JobWorkstationApp, 'Career Workstation'),
-  finance: withSuspense(FinanceTerminal, 'Oryn Personal Treasury'),
+  finance: withSuspense(FinanceTerminal, 'ORYN Vault'),
 };
 
 export const getContent = (key) => CONTENTS[key] || (() => <Panel>Nothing here yet.</Panel>);

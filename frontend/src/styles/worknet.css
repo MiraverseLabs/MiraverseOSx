@@ -49,11 +49,12 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 20px;
-  background-color: var(--wn-inst-header-bg);
+  background: linear-gradient(105deg, var(--wn-inst-header-bg) 0%, color-mix(in srgb, var(--wn-inst-header-bg) 68%, var(--wn-inst-accent)) 100%);
   color: #ffffff;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 3px solid var(--wn-inst-accent);
   flex-shrink: 0;
   gap: 16px;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .worknet-brand-section {
@@ -66,12 +67,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  background: var(--wn-inst-accent);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+  transition: background 0.2s ease;
 }
 
 .worknet-title-group {
@@ -217,9 +220,9 @@
 }
 
 .worknet-nav-btn[data-active='true'] {
-  color: var(--wn-forest);
-  border-bottom-color: var(--wn-forest);
-  font-weight: 600;
+  color: var(--wn-inst-accent);
+  border-bottom-color: var(--wn-inst-accent);
+  font-weight: 700;
   background: #ffffff;
 }
 
@@ -302,8 +305,9 @@
   font-size: 10px;
   text-transform: uppercase;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  color: var(--wn-sage);
+  letter-spacing: 0.07em;
+  color: var(--wn-inst-accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 /* Grid Layouts */
@@ -328,15 +332,15 @@
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  background-color: var(--wn-forest);
+  background-color: var(--wn-inst-accent);
   color: #ffffff;
-  border: 1px solid var(--wn-forest-dark);
+  border: 1px solid color-mix(in srgb, var(--wn-inst-accent) 78%, #000000);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .worknet-btn-primary:hover {
-  background-color: var(--wn-forest-dark);
+  filter: brightness(0.92);
 }
 
 .worknet-btn-secondary {
@@ -356,20 +360,21 @@
 
 .worknet-btn-secondary:hover {
   background-color: var(--wn-mist);
-  border-color: var(--wn-sage);
+  border-color: var(--wn-inst-accent);
 }
 
 .worknet-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   padding: 2px 8px;
   border-radius: 4px;
-  background: var(--wn-mist);
-  color: var(--wn-forest);
-  border: 1px solid var(--wn-border);
+  background: var(--wn-inst-badge-bg);
+  color: var(--wn-inst-badge-text);
+  border: 1px solid var(--wn-inst-badge-border);
 }
 
 /* Two-Panel Opportunities Layout */
@@ -448,9 +453,9 @@
 }
 
 .worknet-opp-item[data-selected='true'] {
-  border-color: var(--wn-forest);
-  background: #f3f7f5;
-  box-shadow: inset 3px 0 0 var(--wn-forest);
+  border-color: var(--wn-inst-accent);
+  background: color-mix(in srgb, var(--wn-inst-accent) 6%, #ffffff);
+  box-shadow: inset 3px 0 0 var(--wn-inst-accent);
 }
 
 /* Workplace Coworker Card */
@@ -635,4 +640,171 @@
   .wn-list-count { padding:8px 14px; }
   .wn-list-art { width:55px;height:64px; }
   .wn-list-copy>strong { font-size:15px; }
+}
+
+
+/* ==========================================================================
+   STEPPED-UP CONSOLE & DOSSIER STYLING (Career Record + Field Bulletins)
+   ========================================================================== */
+.wn-dossier-shell {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.wn-dossier-banner {
+  background: var(--wn-card-bg);
+  border: 1px solid var(--wn-border);
+  border-top: 3px solid var(--wn-inst-accent);
+  border-radius: 10px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.wn-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--wn-border);
+}
+
+.wn-kpi-tile {
+  background: var(--wn-mist);
+  border: 1px solid var(--wn-border);
+  border-radius: 7px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wn-kpi-tile small {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--wn-muted);
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.wn-kpi-tile strong {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--wn-charcoal);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+}
+
+.wn-kpi-tile span {
+  font-size: 10.5px;
+  color: var(--wn-muted);
+}
+
+/* Institutional Employment Contract Cards Grid */
+.wn-contracts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+  gap: 12px;
+}
+
+.wn-contract-card {
+  background: var(--wn-card-bg);
+  border: 1px solid var(--wn-border);
+  border-left: 4px solid var(--card-accent, var(--wn-inst-accent));
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+  cursor: pointer;
+}
+
+.wn-contract-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.07);
+}
+
+.wn-contract-card[data-selected='true'] {
+  border-color: var(--card-accent, var(--wn-inst-accent));
+  box-shadow: 0 0 0 1px var(--card-accent, var(--wn-inst-accent)), 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.wn-contract-card[data-active-contract='true'] {
+  background: color-mix(in srgb, var(--card-accent, var(--wn-inst-accent)) 4%, var(--wn-card-bg));
+}
+
+.wn-progress-track {
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--wn-mist-dark);
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.wn-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--wn-inst-accent);
+  transition: width 0.25s ease;
+}
+
+/* Field Bulletins Command Bar */
+.wn-bulletins-header {
+  background: var(--wn-card-bg);
+  border-bottom: 1px solid var(--wn-border);
+  border-left: 4px solid var(--wn-inst-accent);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.wn-bulletins-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wn-bulletins-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: var(--wn-mist);
+  border: 1px solid var(--wn-border);
+  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--wn-charcoal);
+}
+
+.wn-bulletins-pill strong {
+  color: var(--wn-inst-accent);
+  font-weight: 800;
+}
+
+/* Dark Appearance Support for Dossier & Contract Cards */
+.worknet-enterprise-shell[data-appearance='dark'] .wn-dossier-banner,
+.worknet-enterprise-shell[data-appearance='dark'] .wn-contract-card,
+.worknet-enterprise-shell[data-appearance='dark'] .wn-bulletins-header {
+  background: #141923;
+  border-color: #263042;
+  color: #e2e8f0;
+}
+
+.worknet-enterprise-shell[data-appearance='dark'] .wn-kpi-tile,
+.worknet-enterprise-shell[data-appearance='dark'] .wn-bulletins-pill {
+  background: #1b2230;
+  border-color: #2c374c;
+  color: #cbd5e1;
+}
+
+.worknet-enterprise-shell[data-appearance='dark'] .wn-kpi-tile strong {
+  color: #f8fafc;
 }

@@ -390,7 +390,7 @@ export function buildVerifiedEmailAccountsForPerson(person: Partial<CanonicalPer
   }
 
   if (aff.includes('cyacademy') || aff.includes('student') || aff.includes('scholar')) {
-    const addr = `${slug}@cyacademy.edu`;
+    const addr = `${slug}@cyberium.edu`;
     if (!accounts.some((a) => a.address.toLowerCase() === addr)) {
       accounts.push({
         address: addr,

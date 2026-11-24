@@ -114,7 +114,7 @@ export type CareerId =
   | 'archivist' 
   | 'engineer' 
   | 'diplomat' 
-  | 'enforcer' 
+  | 'dga'
   | 'artist' 
   | 'medical' 
   | 'warden' 

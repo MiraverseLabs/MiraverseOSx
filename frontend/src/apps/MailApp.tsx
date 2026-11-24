@@ -66,37 +66,6 @@ import { useToastStore } from '../store/useToastStore';
 import CommunicationsAccessPanel from './CommunicationsAccessPanel';
 import { senderAccess } from '../integration/communicationsAccess';
 
-const VAULT_ATTACHABLE_FILES: EmailAttachment[] = [
-  {
-    id: 'vault-aura-log',
-    name: 'AURA_BASELINE_TELEMETRY.log',
-    kind: 'file',
-    isReward: false,
-    type: 'file',
-    amount: 0,
-    xp: 0,
-    claimed: false,
-    previewTitle: 'Citizen Aura Baseline Telemetry Log',
-    previewText: 'Exported personal telemetry packet from Aura Passport.',
-    version: 'v1.0',
-    provenance: 'Exported by Citizen MAID-OR-00481926',
-  },
-  {
-    id: 'vault-case-brief',
-    name: 'SECTOR4_ANOMALY_NOTES.pdf',
-    kind: 'record',
-    isReward: false,
-    type: 'document',
-    amount: 0,
-    xp: 0,
-    claimed: false,
-    previewTitle: 'Sector 4 Anomaly Field Observation Notes',
-    previewText: 'Compiled citizen field notes regarding Sub-Conduit signal bleed.',
-    version: 'v1.2',
-    provenance: 'Signed by Citizen MAID-OR-00481926',
-  },
-];
-
 export default function MailApp() { return <MailProvider><MailWorkspace /></MailProvider>; }
 
 function MailWorkspace() {
@@ -143,7 +112,7 @@ function MailWorkspace() {
   const [isComposing, setIsComposing] = useState<boolean>(false);
   const [activeDraftId, setActiveDraftId] = useState<string | undefined>(undefined);
   const [composeFrom, setComposeFrom] = useState<string>('citizen@auremail.aure');
-  const [composeRecipient, setComposeRecipient] = useState<string>('registrar@cyacademy.edu');
+  const [composeRecipient, setComposeRecipient] = useState<string>('registrar@cyberium.edu');
   const [composeCc, setComposeCc] = useState<string>('');
   const [composeBcc, setComposeBcc] = useState<string>('');
   const [composeSubject, setComposeSubject] = useState<string>('');
@@ -1094,7 +1063,7 @@ function MailWorkspace() {
                       aria-label="Recipient"
                       value={composeRecipient}
                       onChange={(e) => setComposeRecipient(e.target.value)}
-                      placeholder="e.g. registrar@cyacademy.edu or MAID..."
+                      placeholder="e.g. registrar@cyberium.edu or MAID..."
                       className="text-xs flex-1"
                     />
                     <select
@@ -1172,42 +1141,18 @@ function MailWorkspace() {
                         </option>
                       ))}
                   </select>
-                  {VAULT_ATTACHABLE_FILES.map((vf) => {
-                    const attached = composeAttachments.some((a) => a.id === vf.id);
-                    return (
-                      <button
-                        key={vf.id}
-                        type="button"
-                        onClick={() =>
-                          setComposeAttachments((prev) =>
-                            attached ? prev.filter((a) => a.id !== vf.id) : [...prev, vf]
-                          )
-                        }
-                        className={`rounded-lg border px-2 py-0.5 text-[10px] font-mono transition ${
-                          attached
-                            ? 'border-indigo-500 bg-indigo-50 text-indigo-800 font-bold'
-                            : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
-                        }`}
-                      >
-                        <Paperclip size={10} className="inline mr-1" />
-                        {vf.name}
-                      </button>
-                    );
-                  })}
-                  {composeAttachments
-                    .filter((a) => !VAULT_ATTACHABLE_FILES.some((vf) => vf.id === a.id))
-                    .map((att) => (
-                      <button
-                        key={att.id}
-                        type="button"
-                        title={`Remove ${att.name} (${resolveFileExtension(att.name).associatedApp})`}
-                        onClick={() => setComposeAttachments((prev) => prev.filter((a) => a.id !== att.id))}
-                        className="rounded-lg border border-indigo-500 bg-indigo-50 px-2 py-0.5 text-[10px] font-mono font-bold text-indigo-800"
-                      >
-                        <Paperclip size={10} className="inline mr-1" />
-                        {att.name} ×
-                      </button>
-                    ))}
+                  {composeAttachments.map((att) => (
+                    <button
+                      key={att.id}
+                      type="button"
+                      title={`Remove ${att.name} (${resolveFileExtension(att.name).associatedApp})`}
+                      onClick={() => setComposeAttachments((prev) => prev.filter((a) => a.id !== att.id))}
+                      className="rounded-lg border border-indigo-500 bg-indigo-50 px-2 py-0.5 text-[10px] font-mono font-bold text-indigo-800"
+                    >
+                      <Paperclip size={10} className="inline mr-1" />
+                      {att.name} ×
+                    </button>
+                  ))}
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -1455,7 +1400,7 @@ function MailWorkspace() {
                                 variant="ghost"
                                 className="text-xs font-bold text-slate-700 border border-slate-200 flex items-center gap-1"
                               >
-                                <FolderDown size={12} /> {isSaved ? 'Saved in Vault' : 'Save to Vault'}
+                                <FolderDown size={12} /> {isSaved ? 'Saved in Fylo' : 'Save to Fylo'}
                               </Button>
 
                               {att.targetApp && (

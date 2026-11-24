@@ -1,3 +1,4 @@
+import { CAREER_REGISTRY, canonicalCareerId, completedCareerAssignments, careerXP } from './CareerRegistry';
 import { validatedQuarantinePids, PROCESS_MISSION, restoreProcessMonitor, processReportIssues } from './ProcessMonitor';
 import { getProfile as FORMAL_INVESTIGATION_CASESProfile } from '../game-content/characters/collections/FORMAL_INVESTIGATION_CASES';
 import { getProfile as PATIENT_CARE_ASSIGNMENTSProfile } from '../game-content/characters/collections/PATIENT_CARE_ASSIGNMENTS';
@@ -668,25 +669,15 @@ export interface CareerTrackSpec {
 }
 
 function getCompletedMissionsForTrack(player: any, track: string): number {
-  const completed: string[] = Array.isArray(player?.completedWorknetMissionIds)
-    ? player.completedWorknetMissionIds
-    : [];
-  return completed.filter((id) => (WORKNET_DOMAIN_TASKS[id]?.track === track || (id === PROCESS_MISSION && track === 'dga'))).length;
+  return completedCareerAssignments(player, track).length;
 }
 
 export const CAREER_TRACK_SPECS: Record<string, CareerTrackSpec> = {
   medical: {
     track: 'medical',
     department: 'Faith Medical Group',
-    rankTitles: [
-      'Clinical Intake Aide',
-      'Junior Bio-Aura Clinician',
-      'Attending Ward Physician',
-      'Senior Resonance Diagnostician',
-      'Chief of Clinical Telemetry',
-      'Grand Sanctum Physician',
-    ],
-    xpThresholds: [0, 100, 220, 360, 520, 700],
+    rankTitles: CAREER_REGISTRY.medical.tierTitles,
+    xpThresholds: CAREER_REGISTRY.medical.xpThresholds,
     pathways: [
       {
         id: 'med-clinical-credential',
@@ -728,15 +719,8 @@ export const CAREER_TRACK_SPECS: Record<string, CareerTrackSpec> = {
   artist: {
     track: 'artist',
     department: 'The Velvet Cultural Studio & Media Guild',
-    rankTitles: [
-      'Apprentice Performer',
-      'Independent Commission Artist',
-      'Resident Holo-Sculptor',
-      'Featured Velvet Luminary',
-      'Cultural Broadcast Director',
-      'Paragon of the Arts',
-    ],
-    xpThresholds: [0, 100, 220, 360, 520, 700],
+    rankTitles: CAREER_REGISTRY.artist.tierTitles,
+    xpThresholds: CAREER_REGISTRY.artist.xpThresholds,
     pathways: [
       {
         id: 'art-portfolio-reputation',
@@ -778,15 +762,8 @@ export const CAREER_TRACK_SPECS: Record<string, CareerTrackSpec> = {
   dga: {
     track: 'dga',
     department: 'Department of Global Affairs',
-    rankTitles: [
-      'Provisional Field Analyst',
-      'Tactical Counter-Intrusion Agent',
-      'Special Directive Operative',
-      'Senior SIGINT & TRACE Inspector',
-      'Division Deputy Commander',
-      'DGA High Commander',
-    ],
-    xpThresholds: [0, 100, 220, 360, 520, 700],
+    rankTitles: CAREER_REGISTRY.dga.tierTitles,
+    xpThresholds: CAREER_REGISTRY.dga.xpThresholds,
     pathways: [
       {
         id: 'dga-institutional-clearance',
@@ -826,15 +803,8 @@ export const CAREER_TRACK_SPECS: Record<string, CareerTrackSpec> = {
   archivist: {
     track: 'archivist',
     department: 'City Library & Royal Historical Society',
-    rankTitles: [
-      'Stacks Junior Clerk',
-      'Manuscript Preservationist',
-      'Curator of Restricted Folios',
-      'Senior Resonance Archivist',
-      'Keeper of the Purge Ledger',
-      'Grand Master of Records',
-    ],
-    xpThresholds: [0, 100, 220, 360, 520, 700],
+    rankTitles: CAREER_REGISTRY.archivist.tierTitles,
+    xpThresholds: CAREER_REGISTRY.archivist.xpThresholds,
     pathways: [
       {
         id: 'arch-scholarly-credential',
@@ -869,15 +839,8 @@ export const CAREER_TRACK_SPECS: Record<string, CareerTrackSpec> = {
   engineer: {
     track: 'engineer',
     department: 'Tech Labs & Municipal Infrastructure',
-    rankTitles: [
-      'Bench Apprentice',
-      'Junior Conduit Technician',
-      'Systems Integration Engineer',
-      'Senior Firmware Architect',
-      'Principal Grid Synthesizer',
-      'Chief Systems Synthesizer',
-    ],
-    xpThresholds: [0, 100, 220, 360, 520, 700],
+    rankTitles: CAREER_REGISTRY.engineer.tierTitles,
+    xpThresholds: CAREER_REGISTRY.engineer.xpThresholds,
     pathways: [
       {
         id: 'eng-accredited-exam',
@@ -915,15 +878,8 @@ export const CAREER_TRACK_SPECS: Record<string, CareerTrackSpec> = {
   finance: {
     track: 'finance',
     department: 'Oryn Department of Finance',
-    rankTitles: [
-      'Junior Ledger Clerk',
-      'Disbursement Auditor',
-      'Senior Treasury Examiner',
-      'Municipal Comptroller',
-      'Director of Fiscal Routing',
-      'Master of the Treasury',
-    ],
-    xpThresholds: [0, 100, 220, 360, 520, 700],
+    rankTitles: CAREER_REGISTRY.finance.tierTitles,
+    xpThresholds: CAREER_REGISTRY.finance.xpThresholds,
     pathways: [
       {
         id: 'fin-audit-credential',
@@ -946,15 +902,8 @@ export const CAREER_TRACK_SPECS: Record<string, CareerTrackSpec> = {
   diplomat: {
     track: 'diplomat',
     department: 'Civic Administration & Council Chambers',
-    rankTitles: [
-      'Council Aide',
-      'Regional Liaison Attaché',
-      'Bilateral Treaty Mediator',
-      'Senior Envoy of Aureline',
-      'High Council Chancellor',
-      'Plenipotentiary Ambassador',
-    ],
-    xpThresholds: [0, 100, 220, 360, 520, 700],
+    rankTitles: CAREER_REGISTRY.diplomat.tierTitles,
+    xpThresholds: CAREER_REGISTRY.diplomat.xpThresholds,
     pathways: [
       {
         id: 'dip-treaty-credential',
@@ -975,15 +924,8 @@ export const CAREER_TRACK_SPECS: Record<string, CareerTrackSpec> = {
   warden: {
     track: 'warden',
     department: 'Arcadia Ecological Reserve',
-    rankTitles: [
-      'Botanical Trainee',
-      'Perimeter Field Warden',
-      'Bio-Assay Conservationist',
-      'Senior Biosphere Keeper',
-      'High Steward of the Domes',
-      'Guardian of Arcadia',
-    ],
-    xpThresholds: [0, 100, 220, 360, 520, 700],
+    rankTitles: CAREER_REGISTRY.warden.tierTitles,
+    xpThresholds: CAREER_REGISTRY.warden.xpThresholds,
     pathways: [
       {
         id: 'war-field-stewardship',
@@ -1003,15 +945,8 @@ export const CAREER_TRACK_SPECS: Record<string, CareerTrackSpec> = {
   questnotice: {
     track: 'questnotice',
     department: 'QUESTNOTICE Civic Dispatch',
-    rankTitles: [
-      'Errand Runner',
-      'Reliable Courier',
-      'District Troubleshooter',
-      'Senior Civic Contractor',
-      'Prime Field Coordinator',
-      'Aureline Fixer',
-    ],
-    xpThresholds: [0, 100, 220, 360, 520, 700],
+    rankTitles: CAREER_REGISTRY.questnotice.tierTitles,
+    xpThresholds: CAREER_REGISTRY.questnotice.xpThresholds,
     pathways: [
       {
         id: 'qn-practical-contracts',
@@ -1046,9 +981,10 @@ export function evaluateCareerPromotion(
   canPromote: boolean;
   reason: string;
 } {
+  track = canonicalCareerId(track);
   const careerObj = player?.careers?.[track] || { rankIndex: 0, xp: 0, title: track };
   const currentRankIndex = typeof careerObj.rankIndex === 'number' ? careerObj.rankIndex : 0;
-  const currentXP = typeof careerObj.xp === 'number' ? careerObj.xp : 0;
+  const currentXP = careerXP(player, track);
 
   const spec = CAREER_TRACK_SPECS[track] || {
     track,
@@ -1099,8 +1035,7 @@ export function evaluateCareerPromotion(
   }));
 
   const qualifiedPathway = spec.pathways.find((pw) => pw.isMet(player, nextRankIndex)) || null;
-  const primarySkills: Record<string, string[]> = { engineer: ['Engineering', 'Programming'], medical: ['Research', 'Communication'], artist: ['Creativity', 'Communication'], dga: ['CyberSecurity', 'Research'], archivist: ['Research'], finance: ['Research'], diplomat: ['Communication'], warden: ['Research'], questnotice: ['Communication', 'Resilience'] };
-  const relevantSkills = primarySkills[track] || ['Research'];
+  const relevantSkills = CAREER_REGISTRY[track]?.relevantSkills || [];
   const skillFloor = Math.max(1, Math.ceil(nextRankIndex / 2));
   const skillsMet = relevantSkills.some(skill => (player?.skills?.[skill]?.level || 1) >= skillFloor);
   const acceptedExperience = getCompletedMissionsForTrack(player, track) - (track === 'dga' && player?.completedWorknetMissionIds?.includes(PROCESS_MISSION) ? 1 : 0);

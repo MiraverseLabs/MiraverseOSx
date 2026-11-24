@@ -33,7 +33,7 @@ export const TOPIC_PACKS: TopicPack[] = [
     steps: [
       'Present MAID credential at civic gateway kiosks for sector clearance check.',
       'Consult the heraldic ledger for active council edicts and administrative notices.',
-      'Verify civic tax filings and municipal balances at First Federal Bank or Bank of Aureline.',
+      'Verify civic tax filings and municipal balances in ORYN Vault.',
       'Report unresolved conduit telemetry anomalies directly to the DGA Citadel desk.'
     ],
     places: ['Capital Citadel', 'Glassline Botanical Garden', 'Aureline Grand Archive'],
@@ -273,7 +273,7 @@ export const TOPIC_PACKS: TopicPack[] = [
     ],
     guide: 'Financial Crime Analysis and Evidence Collection',
     steps: [
-      'Examine financial ledgers on bank.aure for unauthorized overseas wire dispatches.',
+      'Examine financial ledgers in ORYN Vault for unauthorized overseas wire dispatches.',
       'Correlate security badge logs with municipal personnel records on dga.gov.aure.',
       'Analyze physical vault debris for harmonic resonance signatures matching Kaelis mining lasers.',
       'Submit corroborated case hypotheses to the formal investigation reasoning board.'
@@ -305,24 +305,24 @@ export const TOPIC_PACKS: TopicPack[] = [
   },
   {
     id: 'bank',
-    label: 'First Federal Bank of Aureline',
-    aliases: ['bank', 'finance', 'credits', 'bits', 'account', 'transfer', 'ledger', 'currency'],
+    label: 'ORYN Vault & Aureline Treasury',
+    aliases: ['bank', 'oryn', 'oryn vault', 'finance', 'credits', 'bits', 'account', 'transfer', 'ledger', 'currency'],
     publisher: 'Municipal Banking Authority of Aureline',
-    headline: 'Civic Accounts, High-Yield Staking, and Wire Settlements',
-    introduction: 'The primary financial repository for citizens, commercial guilds, and municipal departments of Aureline.',
+    headline: 'Civic Accounts, Payroll Deposits, and Wire Settlements',
+    introduction: 'The primary financial application for citizens, commercial guilds, and municipal departments of Aureline.',
     paragraphs: [
-      'First Federal Bank maintains secure credit reserves and facilitates intra-realm commerce. Citizen accounts are linked directly to personal MAID numbers, providing streamlined access through the bank.aure web portal.',
-      'In addition to standard municipal Credits (₡), the bank interfaces with decentralized digital currencies including Bits (◈), offering anonymous cryptographic escrow services for licensed merchants.',
+      'ORYN Vault maintains secure credit reserves and facilitates intra-realm commerce. Citizen accounts are linked directly to personal MAID numbers, providing streamlined access through the installed ORYN Vault desktop application.',
+      'In addition to standard municipal Credits (₡), ORYN Vault interfaces with decentralized digital currencies including Bits (◈), offering cryptographic escrow services for licensed merchants.',
       'Recent security upgrades following the Broad Street incident include multi-factor biometric cipher verification and real-time wire fraud auditing to prevent illegal capital flight into underground syndicates.'
     ],
     guide: 'Managing Civic Financial Accounts',
     steps: [
-      'Verify account credentials and current Credit / Bit balance on bank.aure.',
+      'Verify account credentials and current Credit / Bit balance in ORYN Vault.',
       'Initiate secure wire transfers by specifying recipient MAID and transaction memo.',
-      'Review transaction ledgers regularly for unexpected audit holds or fee debits.',
+      'Review transaction ledgers regularly for payroll settlements, tax levies, or audit holds.',
       'Utilize encrypted escrow services when transacting with unverified merchants.'
     ],
-    places: ['First Federal Broad Street Tower', 'Citadel Financial Annex', 'Municipal Treasury Office'],
+    places: ['Citadel Financial Annex', 'Municipal Treasury Office', 'ORYN Vault Desk'],
     related: 'broadstreet'
   }
 ];

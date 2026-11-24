@@ -3,19 +3,21 @@ import { useOSStore } from '../../store/useOSStore';
 import { createPortal } from 'react-dom';
 import { APPS_DIRECTORY, launchDesktopApp } from './appDirectory';
 
-import { Grid2X2, PanelsTopLeft, SlidersHorizontal, Check, ChevronUp, ChevronDown } from 'lucide-react';
+import { Grid2X2, PanelsTopLeft, SlidersHorizontal, Check, ChevronUp, ChevronDown, BookOpen } from 'lucide-react';
 import { useSystemStore } from '../../store/useSystemStore';
 import { SoundFX } from '../../utils/audio';
 
 export interface DesktopTaskbarProps {
   onTogglePhone: () => void;
+  onToggleCasebook?: () => void;
+  isCasebookOpen?: boolean;
   onOpenLauncher: () => void;
   isLauncherOpen: boolean;
   editing?: boolean;
   onToggleEditing?: () => void;
 }
 
-export default function DesktopTaskbar({ onTogglePhone, onOpenLauncher, isLauncherOpen, editing = false, onToggleEditing }: DesktopTaskbarProps) {
+export default function DesktopTaskbar({ onTogglePhone, onToggleCasebook, isCasebookOpen = false, onOpenLauncher, isLauncherOpen, editing = false, onToggleEditing }: DesktopTaskbarProps) {
   const taskbar = React.useRef<HTMLElement>(null);
   const corner = React.useRef<HTMLButtonElement>(null);
   const [revealed, setRevealed] = React.useState(false);
@@ -64,6 +66,21 @@ export default function DesktopTaskbar({ onTogglePhone, onOpenLauncher, isLaunch
         })}
       </div>
       <span className="dock-divider"/>
+      {onToggleCasebook && (
+        <button
+          className={`dock-app ${isCasebookOpen ? 'is-active' : ''}`}
+          aria-label="Toggle Casebook"
+          title="Journal — The Casebook"
+          aria-pressed={isCasebookOpen}
+          onMouseEnter={event => showTooltip(event, 'Casebook & Briefings')}
+          onMouseLeave={() => setTooltip(null)}
+          onFocus={event => showTooltip(event, 'Casebook & Briefings')}
+          onBlur={() => setTooltip(null)}
+          onClick={() => { setTooltip(null); playClick(); onToggleCasebook(); }}
+        >
+          <BookOpen size={19}/>
+        </button>
+      )}
       {onToggleEditing && (
         <button
           className={`dock-app ${editing ? 'is-active' : ''}`}

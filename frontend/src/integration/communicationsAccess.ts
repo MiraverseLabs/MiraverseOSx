@@ -1,7 +1,7 @@
 import type { AureMailAccount } from '../data/commsData';
 
 export const ORGANIZATIONS = [
-  { id: 'cyacademy', name: 'Cyberium Academy', domain: 'cyacademy.edu', type: 'academic' },
+  { id: 'cyacademy', name: 'Cyberium Academy', domain: 'cyberium.edu', type: 'academic' },
   { id: 'dawn', name: 'Dawn University', domain: 'dawn.edu', type: 'academic' },
   { id: 'regent', name: 'Regent Hall', domain: 'regenthall.edu', type: 'academic' },
   { id: 'dga', name: 'Department of Global Affairs', domain: 'dga.gov', type: 'institutional' },

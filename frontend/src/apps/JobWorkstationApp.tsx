@@ -1,3 +1,4 @@
+import { careerStation } from '../gameplay/CareerRegistry';
 import AcademicProjectDesk from './academic/AcademicProjectDesk';
 import React, { useEffect, useState } from 'react';
 import { useOSStore } from '../store/useOSStore';
@@ -32,7 +33,7 @@ export default function JobWorkstationApp() {
     setAcademicProjects(workspaceRequest.section === 'academic-projects');
     if (workspaceRequest.section === 'assignment' && selectedOpportunity) {
       const def = WORK_DEFINITIONS[selectedOpportunity];
-      if (def) setStation((( { medical: 'faithmed', archivist: 'archives' } as Record<string, string>)[def.track] || def.track) as WorkplaceStationId);
+      if (def) setStation(careerStation(def.track) as WorkplaceStationId);
       setMissionId(selectedOpportunity);
       setTab('opportunities');
     } else if (workspaceRequest.section === 'notices') {

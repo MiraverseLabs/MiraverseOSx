@@ -130,8 +130,10 @@ test('NPC decision model enforces safety and authorization boundaries over urgen
     safetyCompliant: true,
     urgent: true,
   });
-  assert.equal(urgentValid.decision, 'execute');
-  assert.equal(urgentValid.autonomyUsed, 'situational');
+  assert.equal(urgentValid.decision, 'defer');
+  const available = evaluateNpcDecision({ ...{ npcId: 'npc-2', role: 'Archivist', autonomy: 'routine', authorizedForTask: true, withinRoleRemit: true, hasRequiredInformation: true, trust: 70, cooperation: 80, status: 'Desk', hasOpenCommitment: false, safetyCompliant: true, urgent: true } });
+  assert.equal(available.decision, 'execute');
+  assert.equal(available.autonomyUsed, 'situational');
 });
 
 test('Career dimensions separate development tier from job title, and compensation prevents duplicate payouts', () => {

@@ -28,15 +28,6 @@ export const IN_GAME_PORTALS: InGamePortal[] = [
     badge: 'SUITE' 
   },
   { 
-    id: 'bank', 
-    name: 'First Federal Bank', 
-    domain: 'bank.aure', 
-    url: 'https://bank.aure', 
-    category: 'Finance & Treasury', 
-    description: 'Municipal Credit & Bit accounts, authenticated wire transfer terminal, and live transaction ledger.', 
-    badge: 'SECURE' 
-  },
-  { 
     id: 'dga', 
     name: 'Directorate of Global Affairs', 
     domain: 'dga.gov.aure', 
@@ -71,15 +62,6 @@ export const IN_GAME_PORTALS: InGamePortal[] = [
     category: 'DarkNet Onion Relay', 
     description: 'Encrypted onion route, classified intel broker market, and interactive hacker terminal.', 
     badge: 'ONION' 
-  },
-  { 
-    id: 'cyacademy', 
-    name: 'Cyberium Academy',
-    domain: 'cyacademy.edu', 
-    url: 'https://cyacademy.edu', 
-    category: 'Academic Research', 
-    description: 'Compiler Lab 4, algorithmic spell engineering, faculty roster, and research student directory.', 
-    badge: 'ACADEMIC' 
   },
   { 
     id: 'records', 
@@ -164,14 +146,12 @@ export function browserTitle(url: string): string {
       'gardenreview.aure': 'Glassline Garden Review', 
       'readingroom.aure': 'Aureline Open Reading Room',
       'auresuite.aure': 'AureSuite Cloud',
-      'bank.aure': 'First Federal Bank',
       'dga.gov.aure': 'Directorate of Global Affairs',
       'dga.gov': 'Directorate of Global Affairs',
       'faithmed.aure': 'Faith Medical Group',
       'worknet.aure': 'WorkNet',
       'shipping.aure': 'CargoTrack Logistics',
       'vectornet.aure': 'VectorNet Underground',
-      'cyacademy.edu': 'Cyberium Academy',
       'records.orynvell.gov': 'Orynvell Public Records',
       'royalhistory.mer': 'Royal Historic Society',
       'mai.space': 'MAI Space Social',
@@ -186,7 +166,6 @@ export function browserTitle(url: string): string {
       return section ? `${section} · ${name}` : name;
     }
     if (parsed.hostname === 'fieldnotes.aure') return parsed.searchParams.get('title')?.slice(0, 200) || 'Fieldnotes · Public reading';
-    if (parsed.hostname === 'services.aure') return 'Service Directory';
     if (['versenet.aure', 'search.aure', 'versenet'].includes(parsed.hostname)) return parsed.pathname === '/find' ? `${parsed.searchParams.get('q') || 'Search'} — Versenet` : 'Versenet';
     const portal = IN_GAME_PORTALS.find(site => site.domain === parsed.hostname);
     return portal?.name || parsed.hostname;

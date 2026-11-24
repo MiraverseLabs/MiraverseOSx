@@ -13,7 +13,8 @@ import PurpleWallpaper from './PurpleWallpaper';
 import DesktopSurface from './DesktopSurface';
 import { DesktopMusicProvider } from './DesktopMusic';
 import MAIDock from '../widgets/MAIDock';
-import { Smartphone, Volume2, VolumeX, Power } from 'lucide-react';
+import MissionCasebookOverlay from '../phone/MissionCasebook';
+import { Smartphone, Volume2, VolumeX, BookOpen } from 'lucide-react';
 import { useSystemStore } from '../../store/useSystemStore';
 
 import logoIcon from '../../assets/images/logo_icon.png';
@@ -26,7 +27,9 @@ import { useCommsStore } from '../../store/useCommsStore';
 import { getCelestialState } from '../../data/meridionWorld';
 
 export default function Desktop() {
-  const { isLoggedIn, windows, isSanctuary, gameplay, wallpaper, logoutUser } = useOSStore();
+  const { isLoggedIn, windows, isSanctuary, gameplay, wallpaper } = useOSStore();
+  const [isCasebookOpen, setIsCasebookOpen] = useState(false);
+  const activeMissionCount = Object.values(gameplay.player.worknetOrders || {}).filter((o: any) => o.status === 'active').length;
   const [editing,setEditing]=useState(false);
   const editingWindows = useRef<{ ids: string[]; active: string | null } | null>(null);
   const finishEditing = () => {
@@ -107,7 +110,7 @@ export default function Desktop() {
             <span className="moon-icon opacity-80" title={`Echo: ${celestial.echo.phaseName}`}>{celestial.echo.phaseIcon}</span>
             <span className="celestial-cycle font-mono text-[11px] font-semibold opacity-90">C{celestial.cycle}</span>
           </button>
-          <div className="desktop-system-controls" role="group" aria-label="System tray"><MAIDock/><button className="shell-icon-button" aria-label="Toggle phone" title={incomingCalls?`${incomingCalls} incoming work call`:'Phone'} onClick={()=>setIsPhoneOpen(v=>!v)}><Smartphone size={17}/>{incomingCalls>0&&<span className="desktop-call-count">{incomingCalls}</span>}</button><button className="shell-icon-button" aria-label={soundEnabled?'Mute audio':'Unmute audio'} aria-pressed={soundEnabled} onClick={toggleSound}>{soundEnabled?<Volume2 size={17}/>:<VolumeX size={17}/>}</button><button className="shell-icon-button" aria-label="Log out" onClick={logoutUser}><Power size={17}/></button></div>
+          <div className="desktop-system-controls" role="group" aria-label="System tray"><MAIDock/><button className="shell-icon-button" aria-label="Open Casebook" title="Journal — The Casebook" aria-pressed={isCasebookOpen} onClick={()=>setIsCasebookOpen(v=>!v)}><BookOpen size={17}/>{activeMissionCount>0&&<span className="desktop-call-count">{activeMissionCount}</span>}</button><button className="shell-icon-button" aria-label="Toggle phone" title={incomingCalls?`${incomingCalls} incoming work call`:'Phone'} onClick={()=>setIsPhoneOpen(v=>!v)}><Smartphone size={17}/>{incomingCalls>0&&<span className="desktop-call-count">{incomingCalls}</span>}</button><button className="shell-icon-button" aria-label={soundEnabled?'Mute audio':'Unmute audio'} aria-pressed={soundEnabled} onClick={toggleSound}>{soundEnabled?<Volume2 size={17}/>:<VolumeX size={17}/>}</button></div>
           <time dateTime={now.toISOString()}>{now.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}<span>{now.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</span></time>
         </div>
       </header>
@@ -117,8 +120,9 @@ export default function Desktop() {
       </div>
       <AnimatePresence>{windows.filter((win) => !win.isMinimized).map((win) => <Window key={win.id} win={win} windowIndex={windows.findIndex((candidate) => candidate.id === win.id)} isFocusMode={true} workspaceRef={appWorkspaceRef} />)}</AnimatePresence>
       {isPhoneOpen && <div className="desktop-phone"><PhoneWidget onClose={() => setIsPhoneOpen(false)} /></div>}
+      <MissionCasebookOverlay open={isCasebookOpen} onClose={() => setIsCasebookOpen(false)} />
       <AppLauncherModal isOpen={isLauncherOpen} onClose={() => setIsLauncherOpen(false)} editing={editing} onToggleEditing={() => { setIsLauncherOpen(false); toggleEditing(); }} />
-      <DesktopTaskbar onTogglePhone={() => setIsPhoneOpen((open) => !open)} onOpenLauncher={() => setIsLauncherOpen(true)} isLauncherOpen={isLauncherOpen} editing={editing} onToggleEditing={toggleEditing} />
+      <DesktopTaskbar onTogglePhone={() => setIsPhoneOpen((open) => !open)} onToggleCasebook={() => setIsCasebookOpen((open) => !open)} isCasebookOpen={isCasebookOpen} onOpenLauncher={() => setIsLauncherOpen(true)} isLauncherOpen={isLauncherOpen} editing={editing} onToggleEditing={toggleEditing} />
       <ToastViewport />
     </main></DesktopMusicProvider>
   );

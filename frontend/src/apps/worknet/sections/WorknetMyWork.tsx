@@ -156,7 +156,7 @@ export default function WorknetMyWork({ onOpenOpportunity, onNavigate }: Worknet
                       onClick={() => useOSStore.getState().openAssignmentFiles(order.definitionId)}
                       className="text-[11px] text-slate-600 hover:text-slate-900 underline flex items-center gap-1"
                     >
-                      <FileText size={12} /> Briefing in VAULT
+                      <FileText size={12} /> Briefing in Fylo
                     </button>
                   </div>
                 </div>

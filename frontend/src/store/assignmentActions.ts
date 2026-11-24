@@ -37,7 +37,7 @@ export function createAssignmentActions(set: (update: (state: OSStoreState) => P
     mailbox.addEmail({ id: mailId, assignmentId: id, threadId: `JOB-DISPATCH:${id}`, sender: opportunity.institution, senderAddress: 'dispatch@worknet.aure', recipientAddress: recipient,
       faction: 'WORKNET', subject: `${phase === 'opened' ? 'Assignment accepted' : 'Work accepted'}: ${opportunity.title}`, timestamp: new Date().toISOString(), time: 'Just now', read: false, folder: 'inbox', verifiedSender: true, deliveryStatus: 'delivered', linkedApp: 'jobs', attachment: null,
       attachments: [{ id: file.id, name: file.name, kind: 'record', isReward: false, type: 'document', amount: 0, xp: 0, claimed: false, previewTitle: file.desc, previewText: file.body }],
-      body: phase === 'opened' ? `Your work order ${order.id} is active.\n\nThe briefing and assignment checklist are ready in VAULT at ${file.dir}. Review the briefing in WorkNet before beginning. Accepting this assignment does not issue payment.` : `Work order ${order.id} has been accepted.\n\nYour completion receipt is saved in VAULT at ${file.dir}. Your career and compensation records have been updated by the verified work result. This message is a record, not an additional payment.\n\n${file.body}` });
+      body: phase === 'opened' ? `Your work order ${order.id} is active.\n\nThe briefing and assignment checklist are ready in Fylo at ${file.dir}. Review the briefing in WorkNet before beginning. Accepting this assignment does not issue payment.` : `Work order ${order.id} has been accepted.\n\nYour completion receipt is saved in Fylo at ${file.dir}. Your career and compensation records have been updated by the verified work result. This message is a record, not an additional payment.\n\n${file.body}` });
   };
   return {
     recordAssignmentOpened: id => {
@@ -84,7 +84,7 @@ export function createAssignmentActions(set: (update: (state: OSStoreState) => P
       if (!opportunity.unlock) return get().openWorknetOrder(id);
       get().saveAssignmentBriefing(id);
       if (!journal().started[id]) update(current => ({ ...current, started: { ...current.started, [id]: new Date().toISOString() } }));
-      return { ok: true, message: 'Briefing and assignment checklist saved in VAULT. Choose the next required assignment below.' };
+      return { ok: true, message: 'Briefing and assignment checklist saved in Fylo. Choose the next required assignment below.' };
     },
     acknowledgeAssignmentBriefing: id => {
       const order = get().gameplay.player.worknetOrders?.[id];
@@ -117,7 +117,7 @@ export function createAssignmentActions(set: (update: (state: OSStoreState) => P
       const branch = get().gameplay.player.worldJournal?.branches?.[id];
       const file: AssignmentFile = { id: `unlock:${id}`, name: `${name}.txt`, dir: `/assignments/${id}`, type: 'txt', size: 'Unlocked record', desc: name, body: `${text}${branch ? `\n\nYour approach: ${branch.choice}\n${branch.consequence}` : ''}`, assignmentId: id };
       update(current => ({ ...current, claimed: { ...current.claimed, [id]: new Date().toISOString() }, unlocks: [...current.unlocks, name], files: { ...current.files, [file.id]: file } }));
-      return { ok: true, message: `${name} unlocked. Open its record in VAULT.` };
+      return { ok: true, message: `${name} unlocked. Open its record in Fylo.` };
     },
     claimJourneyChapter: (id, chapterId) => {
       const activity = evaluateLinkedActivities(get().gameplay.player.taskResults || {}).find(item => item.id === id && item.kind === 'journey');

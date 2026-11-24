@@ -3,11 +3,10 @@
  * Interfaces, Portals, Career Systems & Missions Database
  */
 
-import careersData from '../data/careers.json';
+import { CAREER_CATALOG, canonicalCareerId } from '../gameplay/CareerRegistry';
 import { getProfiles } from '../game-content/characters/collections/NPCS';
-import missionsData from '../data/missions.json';
-import caseAssignment from '../data/broad-street-assignment.json';
-import { CareerTrackInfo, WorknetMission } from '../types';
+import { MISSION_CATALOG } from '../gameplay/MissionCatalog';
+import type { CareerTrackInfo, WorknetMission } from '../types';
 
 export interface AppMetadata {
   id: string;
@@ -84,17 +83,6 @@ export const APPS: AppMetadata[] = [
     lore: 'Dual-pane communication hub featuring real-time IM alongside a formal encrypted email inbox for academic/career dispatches.' 
   },
   { 
-    id: 'pulse',      
-    title: 'PULSE // News Portal',
-    formName: 'News Access Portal',
-    accessType: 'Subsystem Feed',
-    category: 'Social',          
-    dev: 'FAC_NEO_CITIZENS', 
-    version: '1.5.0', 
-    primary: 'News publication access, headlines and saved reading through VerseNet',
-    lore: 'A personal news portal connecting residents to the Meridion Dispatch and their saved reading.'
-  },
-  { 
     id: 'browser',    
     title: 'VERSENET // Browser Terminal', 
     formName: 'Versenet Browser Terminal',
@@ -151,7 +139,7 @@ export const APPS: AppMetadata[] = [
   },
   { 
     id: 'files',      
-    title: 'File Explorer',        
+    title: 'Fylo',        
     formName: 'Virtual Drive & Archive Explorer',
     accessType: 'Utility',
     category: 'Storage',         
@@ -236,9 +224,9 @@ export const ORGANIZATIONS: OrganizationInfo[] = [
   {
     id: 'oryn-finance',
     name: 'Oryn Department of Finance',
-    accessTier: 'Banking and treasury portal',
-    gameplayFunction: 'Handles banking, CREDITS/BITS accounts, salary deposits, rent payments, taxes, scholarships, and player financial records.',
-    domain: 'finance.oryn.gov',
+    accessTier: 'ORYN Vault desktop banking application',
+    gameplayFunction: 'Handles banking, CREDITS/BITS accounts, salary deposits, rent payments, taxes, scholarships, and player financial records via ORYN Vault.',
+    domain: '',
     portalCategory: 'Treasury & Banking'
   },
   {
@@ -264,10 +252,10 @@ import {
   GEOGRAPHIC_LANDMARKS, 
   HISTORICAL_CHRONOLOGY, 
   getCelestialState,
-  RealmDefinition,
-  GeographicLandmark,
-  ChronologyEra,
-  CelestialState
+  type RealmDefinition,
+  type GeographicLandmark,
+  type ChronologyEra,
+  type CelestialState
 } from '../data/meridionWorld';
 
 // ─── Department of Global Affairs Divisions (§10.1B) ────────────────────────
@@ -423,8 +411,8 @@ export const FACTIONS: any[] = [
   }
 ];
 export const NPCS: any[] = getProfiles();
-export const CAREERS: CareerTrackInfo[] = careersData as CareerTrackInfo[];
-export const MISSIONS: WorknetMission[] = [...(missionsData as WorknetMission[]).filter(mission => mission.id !== caseAssignment.id), caseAssignment as WorknetMission];
+export const CAREERS: CareerTrackInfo[] = CAREER_CATALOG as CareerTrackInfo[];
+export const MISSIONS: WorknetMission[] = MISSION_CATALOG;
 export const LORE_ENTRIES: any[] = [
   ...HISTORICAL_CHRONOLOGY.map((era) => ({
     id: era.id,
@@ -459,9 +447,9 @@ export const miraverseDb = {
   getFactions: () => FACTIONS,
   getNPCs: () => NPCS,
   getCareers: (): CareerTrackInfo[] => CAREERS,
-  getCareer: (id: string): CareerTrackInfo | undefined => CAREERS.find((c) => c.id === id),
+  getCareer: (id: string): CareerTrackInfo | undefined => CAREERS.find((c) => c.id === canonicalCareerId(id)),
   getMissions: (): WorknetMission[] => MISSIONS,
-  getMissionsByTrack: (track: string): WorknetMission[] => MISSIONS.filter((m) => m.track === track),
+  getMissionsByTrack: (track: string): WorknetMission[] => MISSIONS.filter((m) => m.track === canonicalCareerId(track)),
   getMissionsByType: (type: string): WorknetMission[] => MISSIONS.filter((m) => m.type === type),
   getOrganizations: (): OrganizationInfo[] => ORGANIZATIONS,
   getDgaDivisions: (): DgaDivision[] => DGA_DIVISIONS,

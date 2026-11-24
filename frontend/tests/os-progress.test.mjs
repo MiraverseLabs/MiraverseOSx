@@ -371,7 +371,7 @@ test('AureMail Decisions 006-011 enforce multi-account MAID links, persisted mai
   // Rev06: one starter mailbox; membership and institutional issuance are separate.
   assert.equal(comms.getState().playerAccounts.length, 1);
   osStore.getState().loginUser({ name: 'Mail Test Administrator', isAdmin: true });
-  for (const [organizationId, address] of [['cyacademy', 'scholar@cyacademy.edu'], ['dga', 'liaison@dga.gov']]) {
+  for (const [organizationId, address] of [['cyacademy', 'scholar@cyberium.edu'], ['dga', 'liaison@dga.gov']]) {
     osStore.getState().setOrganizationMembership(organizationId, 'active');
     assert.equal(comms.getState().issueInstitutionalAccount({ organizationId, address }).ok, true);
   }
@@ -421,7 +421,7 @@ test('AureMail Decisions 006-011 enforce multi-account MAID links, persisted mai
 
   // 4. Decision 007 & 008: Replying to an email appends to thread and generates a hybrid institutional/NPC response
   const replyRes = comms.getState().replyToEmail('MSG-009', 'I analyzed the 88.2 MHz harmonic trace in Lab 4!', {
-    fromAddress: 'scholar@cyacademy.edu',
+    fromAddress: 'scholar@cyberium.edu',
     playerClearance: 1,
   });
   assert.equal(replyRes.ok, true);

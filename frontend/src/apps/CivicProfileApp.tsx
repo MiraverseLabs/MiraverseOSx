@@ -789,7 +789,7 @@ export default function CivicProfileApp() {
                   {[
                     {
                       key: 'explorer',
-                      app: 'File Explorer',
+                      app: 'Fylo',
                       icon: Folder,
                       growth: 'Exploration depth',
                       loop: 'Find files, decrypt folders, restore corrupted records, collect evidence.',

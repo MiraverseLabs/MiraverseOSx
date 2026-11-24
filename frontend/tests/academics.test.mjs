@@ -51,7 +51,7 @@ test('all three schools are internal Versenet websites with route-aware titles a
     assert.deepEqual(parseEduUrl(`https://${domain}/faculty`), { institution: id, section: 'faculty', valid: true });
     assert.ok(IN_GAME_PORTALS.find(p => p.domain === domain && p.name === name));
   }
-  assert.equal(browserTitle('https://cyacademy.edu'), 'Cyberium Academy');
+  assert.equal(IN_GAME_PORTALS.some(p => p.domain === 'cyacademy.edu' || p.domain === 'bank.aure'), false);
 });
 
 test('eighteen courses across three schools have valid prerequisites, lessons, assessments, and unique project identities', () => {

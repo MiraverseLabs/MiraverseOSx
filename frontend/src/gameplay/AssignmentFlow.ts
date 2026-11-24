@@ -94,7 +94,7 @@ export function dispatchEmail(opportunity: Opportunity, recipient: string, times
     recipientAddress: recipient, faction: 'WORKNET', subject: `Opportunity: ${opportunity.title}`, time: 'Dispatch', timestamp, read: false, folder: 'inbox',
     deliveryStatus: 'delivered', verifiedSender: true, linkedApp: 'jobs', attachment: null,
     attachments: [{ id: `briefing:${opportunity.id}`, name: 'Briefing.txt', kind: 'record', isReward: false, type: 'document', amount: 0, claimed: false, previewTitle: opportunity.title, previewText: briefingText(opportunity) }],
-    body: `A new ${opportunity.kind} is available.\n\n${opportunity.description}\n\nLocation: ${opportunity.location}\nReward: ${opportunity.reward}\n\nReview the briefing in WorkNet. Accepting creates your briefing and assignment checklist in VAULT. Published opportunities are also listed at versenet.aure/jobs.` };
+    body: `A new ${opportunity.kind} is available.\n\n${opportunity.description}\n\nLocation: ${opportunity.location}\nReward: ${opportunity.reward}\n\nReview the briefing in WorkNet. Accepting creates your briefing and assignment checklist in Fylo. Published opportunities are also listed at versenet.aure/jobs.` };
 }
 export function activityReady(id: string, player: any): boolean {
   const activity = evaluateLinkedActivities(player.taskResults || {}).find(item => item.id === id);

@@ -63,7 +63,7 @@ export const NOTICES: NoticeItem[] = [
     rewardXP: 250,
     rewardCredits: 300,
     rewardBits: 2,
-    objectiveHint: 'Quarantine an anomalous PRISM/AETHERCORE process in SYSTEM Process Monitor or inspect AETHERCORE.sys in VAULT.',
+    objectiveHint: 'Quarantine an anomalous PRISM/AETHERCORE process in SYSTEM Process Monitor or inspect AETHERCORE.sys in Fylo.',
     targetAppId: 'process',
   },
   {
@@ -93,7 +93,7 @@ export const NOTICES: NoticeItem[] = [
     rewardXP: 500,
     rewardCredits: 600,
     rewardBits: 5,
-    objectiveHint: 'Inspect Purge_Record_01.arch in VAULT File Explorer or complete an Archivist WorkNet directive.',
+    objectiveHint: 'Inspect Purge_Record_01.arch in Fylo or complete an Archivist WorkNet directive.',
     targetAppId: 'files',
   },
   {
@@ -143,7 +143,7 @@ export function evaluateNoticeObjective(player: any, noticeId: string): NoticeOb
         current,
         required: 1,
         progressText: `${current} / 1 Anomaly Traced`,
-        hint: 'Complete the shared Process Monitor investigation or inspect an authorized anomaly record in VAULT.',
+        hint: 'Complete the shared Process Monitor investigation or inspect an authorized anomaly record in Fylo.',
         targetAppId: 'process',
       };
     }
@@ -169,7 +169,7 @@ export function evaluateNoticeObjective(player: any, noticeId: string): NoticeOb
         current,
         required: 1,
         progressText: `${current} / 1 Archive Decrypted`,
-        hint: 'Open Purge_Record_01.arch in VAULT File Explorer or complete an Archivist directive in WORKNET.',
+        hint: 'Open Purge_Record_01.arch in Fylo or complete an Archivist directive in WORKNET.',
         targetAppId: 'files',
       };
     }

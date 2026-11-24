@@ -123,7 +123,7 @@ export const LEGACY_PLAYER_EMAIL_ACCOUNTS: AureMailAccount[] = [
   },
   {
     id: 'acc-academic',
-    address: 'scholar@cyacademy.edu',
+    address: 'scholar@cyberium.edu',
     label: 'Cyberium Academy Academic Mail',
     accountType: 'academic',
     institution: 'Cyberium Academy',
@@ -183,7 +183,7 @@ export const AUREMAIL_DIRECTORY: AureMailDirectoryContact[] = [
   {
     id: 'dir-cyacademy-reg',
     name: 'Cyberium Academy Registration Office',
-    address: 'registrar@cyacademy.edu',
+    address: 'registrar@cyberium.edu',
     category: 'institution',
     accountType: 'institutional',
     role: 'Academic Registrar & Enrollment',
@@ -197,7 +197,7 @@ export const AUREMAIL_DIRECTORY: AureMailDirectoryContact[] = [
   {
     id: 'dir-cyacademy-housing',
     name: 'Cyberium Academy Residential Services',
-    address: 'housing@cyacademy.edu',
+    address: 'housing@cyberium.edu',
     category: 'institution',
     accountType: 'institutional',
     role: 'Residential & Housing Operations',
@@ -324,10 +324,10 @@ export const INITIAL_EMAILS: EmailItem[] = [
     id: 'MSG-001',
     threadId: 'THR-001',
     sender: 'Cyberium Academy Registration Office',
-    senderAddress: 'registrar@cyacademy.edu',
+    senderAddress: 'registrar@cyberium.edu',
     senderMaid: 'MAID-OR-00000101',
     recipient: 'Player Scholar',
-    recipientAddress: 'scholar@cyacademy.edu',
+    recipientAddress: 'scholar@cyberium.edu',
     faction: 'Cyberium Academy Admin',
     subject: 'Welcome to MiraverseOSx',
     time: '08:00 AM',
@@ -378,7 +378,7 @@ Your provisional Cyberium Academy registration has been received. Your record cu
 This is expected. MiraverseOSx begins from a clean state so every player builds their identity through choices, work, study, relationships, and discovery.
 
 Enclosed are two separate items:
-1. Your official REGISTRATION_CARD.pdf record (for inspection or archiving in File Explorer / Document Studio).
+1. Your official REGISTRATION_CARD.pdf record (for inspection or archiving in Fylo / Document Studio).
 2. Your one-time verified Orientation Stipend Grant (+₡100 / +50 XP).
 
 Regards,
@@ -407,7 +407,7 @@ Registration Office`,
     body: `Your canonical citizen identity (MAID-OR-00481926) has been linked to your verified AureMail accounts:
 
 • Personal: citizen@auremail.aure
-• Academic: scholar@cyacademy.edu
+• Academic: scholar@cyberium.edu
 • Professional: contractor@worknet.aure
 • Institutional Liaison: liaison@dga.gov & intake.fellow@faithmed.aure
 
@@ -417,10 +417,10 @@ You can view all incoming messages in the Combined Inbox, switch to an individua
     id: 'MSG-003',
     threadId: 'THR-003',
     sender: 'Cyberium Academy Residential Services',
-    senderAddress: 'housing@cyacademy.edu',
+    senderAddress: 'housing@cyberium.edu',
     senderMaid: 'MAID-OR-00000102',
     recipient: 'Player Scholar',
-    recipientAddress: 'scholar@cyacademy.edu',
+    recipientAddress: 'scholar@cyberium.edu',
     faction: 'Cyberium Academy Admin',
     subject: 'Housing Assignment: Unit 4B Access Pending',
     time: '08:10 AM',
@@ -544,7 +544,7 @@ Open Aura Passport or complete and submit the attached AURA_CONSENT_FORM.osform 
         xp: 0,
         claimed: false,
         previewTitle: 'Clinical Intake Order & Baseline Aura Chart',
-        previewText: 'Clinical referral for Veilwilt screening at Faith Medical Group. Save to Vault or inspect.',
+        previewText: 'Clinical referral for Veilwilt screening at Faith Medical Group. Save to Fylo or inspect.',
         targetApp: 'browser',
         version: 'v1.2-clinical',
         provenance: 'Dr. Miracle Jerome · Faith Medical Intake (MAID-OR-00000002)',
@@ -577,7 +577,7 @@ Visit faithmed.aure in Browser or reply to this thread to coordinate with Dr. Mi
     attachments: [],
     body: `Welcome to the MiraverseOSx Communications Suite:
 
-• AureMail (Universal Email): Handles all personal, academic, professional, and institutional correspondence across your verified MAID-linked addresses (@auremail.aure, @cyacademy.edu, @worknet.aure, @dga.gov, @faithmed.aure), including threaded conversations, official document filings, and verified disbursements.
+• AureMail (Universal Email): Handles all personal, academic, professional, and institutional correspondence across your verified MAID-linked addresses (@auremail.aure, @cyberium.edu, @worknet.aure, @dga.gov, @faithmed.aure), including threaded conversations, official document filings, and verified disbursements.
 • COMMS Portal: Handles real-time OS-native chat rooms, municipal alert feeds, tactical squad channels, and instant direct messaging.
 • Mai.space / Pulse: Handles social profiles, public bulletins, friendships, and community reputation.
 
@@ -587,10 +587,10 @@ As you build trust, clearance, and institutional standing, additional contacts i
     id: 'MSG-007',
     threadId: 'THR-007',
     sender: 'Cyberium Academy Student Systems',
-    senderAddress: 'systems@cyacademy.edu',
+    senderAddress: 'systems@cyberium.edu',
     senderMaid: 'MAID-OR-00000101',
     recipient: 'Player Scholar',
-    recipientAddress: 'scholar@cyacademy.edu',
+    recipientAddress: 'scholar@cyberium.edu',
     faction: 'Cyberium Academy Admin',
     subject: 'Chronicle & Notice Board Access Granted',
     time: '08:30 AM',
@@ -616,10 +616,10 @@ As you build trust, clearance, and institutional standing, additional contacts i
     id: 'MSG-008',
     threadId: 'THR-008',
     sender: 'Dean Cassian Rook',
-    senderAddress: 'c.rook@cyacademy.edu',
+    senderAddress: 'c.rook@cyberium.edu',
     senderMaid: 'MAID-OR-00010201',
     recipient: 'Player Scholar',
-    recipientAddress: 'scholar@cyacademy.edu',
+    recipientAddress: 'scholar@cyberium.edu',
     faction: 'Cyberium Academy Faculty',
     subject: 'Orientation Schedule: Day One & Dean’s Fellowship',
     time: '08:35 AM',
@@ -678,7 +678,7 @@ Dean of Students`,
     id: 'MSG-009',
     threadId: 'THR-009',
     sender: 'Aelita Schaeffer',
-    senderAddress: 'aelita.s@cyacademy.edu',
+    senderAddress: 'aelita.s@cyberium.edu',
     senderMaid: 'MAID-OR-00010203',
     recipient: 'Player Citizen',
     recipientAddress: 'citizen@auremail.aure',
@@ -705,7 +705,7 @@ Dean of Students`,
         xp: 0,
         claimed: false,
         previewTitle: 'Sub-Conduit Harmonic Waveform Log #04',
-        previewText: 'Captured 88.2 MHz resonance trace from the subterranean lab. Save to File Explorer for analysis.',
+        previewText: 'Captured 88.2 MHz resonance trace from the subterranean lab. Save to Fylo for analysis.',
         targetApp: 'files',
         version: 'v1.1-trace',
         provenance: 'Aelita Schaeffer · MAID-OR-00010203',
@@ -713,7 +713,7 @@ Dean of Students`,
     ],
     body: `Hey! I noticed your AureMail relay just came online.
 
-Jeremie and I captured an unusual 88.2 MHz resonance trace near Lab 4 this morning. I attached the raw waveform log (VEIL_HARMONIC_TRACE_04.log) so you can inspect it or save it to your File Explorer vault.
+Jeremie and I captured an unusual 88.2 MHz resonance trace near Lab 4 this morning. I attached the raw waveform log (VEIL_HARMONIC_TRACE_04.log) so you can inspect it or save it to Fylo.
 
 Reply to this email whenever you have a moment—let me know if you want to cross-check it with Dr. Voss or test a filter in SpellForge!
 

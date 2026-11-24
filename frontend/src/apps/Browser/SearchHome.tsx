@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowRight, ArrowUpRight, Search, Globe, BookOpen, Landmark, Newspaper, Compass } from 'lucide-react';
-import { SERVICE_DIRECTORY } from './externalWeb';
 import { resolveBrowserInput, IN_GAME_PORTALS, BROWSER_HOME, type InGamePortal } from './browserModel';
 import { useOSStore } from '../../store/useOSStore';
 
@@ -39,7 +38,6 @@ export default function SearchHome({ navigateTab, openTab }: SearchHomeProps) {
       <a href={BROWSER_HOME} className="vn-wordmark" onClick={event => { event.preventDefault(); navigateTab(BROWSER_HOME); }}>
         <Compass size={23} strokeWidth={1.4} aria-hidden="true" /> versenet<span>Meridion’s public web</span>
       </a>
-      <button className="vn-directory-access" onClick={() => navigateTab(SERVICE_DIRECTORY)}>Services & external web <ArrowUpRight size={14} /></button>
     </header>
     <section className="vn-discovery-hero" aria-label="Versenet search">
       <span className="vn-section-label">Explore the network</span><h1>Search Meridion.</h1>
@@ -72,6 +70,6 @@ export default function SearchHome({ navigateTab, openTab }: SearchHomeProps) {
         {recent.length > 0 && <section className="vn-recent-pages"><span className="vn-section-label">Pick up where you left off</span>{recent.map(page => <a key={page.url} href={page.url} onClick={event => visit(event, { url: page.url, name: page.title })}><strong>{page.title}</strong><small>{new URL(page.url).hostname}</small><ArrowUpRight size={14} /></a>)}</section>}
       </aside>
     </div>
-    <footer className="vn-discovery-footer"><span>VerseNet · The public web of Meridion</span><button onClick={() => navigateTab(SERVICE_DIRECTORY)}>Browse connected services <ArrowUpRight size={13} /></button></footer>
+    <footer className="vn-discovery-footer"><span>VerseNet · The public web of Meridion</span></footer>
   </div>;
 }

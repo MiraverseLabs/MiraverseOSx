@@ -26,6 +26,7 @@ export default function WorknetSchedule({
   onRequestLeave,
   onFeedback
 }: WorknetScheduleProps) {
+  const openAssignment = useOSStore(s => s.openAssignment);
   const [selectedShiftForLeave, setSelectedShiftForLeave] = useState<string>('');
   const [leaveReason, setLeaveReason] = useState<string>('');
 
@@ -68,7 +69,7 @@ export default function WorknetSchedule({
             Suggested Shifts & Meeting Times
           </h3>
           <span className="text-xs text-slate-500 font-medium">
-            Multi-Employer Conflict Status: <strong className="text-emerald-700">✓ No Overlaps Detected</strong>
+            Multi-Employer Conflict Status: <strong className="text-emerald-700">Suggested roster</strong>
           </span>
         </div>
 
@@ -116,6 +117,7 @@ export default function WorknetSchedule({
                   </span>
                 </td>
                 <td>
+                  <button onClick={() => openAssignment(shift.assignmentId)} className="text-[11px] text-slate-700 font-semibold underline mr-3">Open Assignment</button>
                   {shift.status === 'Scheduled' && (
                     <button
                       onClick={() => setSelectedShiftForLeave(shift.id)}

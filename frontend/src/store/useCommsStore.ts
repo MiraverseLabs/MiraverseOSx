@@ -89,7 +89,7 @@ function buildHybridReplyForContact(
     let replyBody = '';
     const attachments: EmailAttachment[] = [];
 
-    if (contact.id === 'dir-cyacademy-reg' || contact.address === 'registrar@cyacademy.edu') {
+    if (contact.id === 'dir-cyacademy-reg' || contact.address === 'registrar@cyberium.edu') {
       replyBody = `Automated & Clerk-Verified Response — Cyberium Academy Registration Office:
 
 We have received your transmission regarding "${cleanSubj}" from ${fromAccount.address}.
@@ -100,7 +100,7 @@ ${
 }
 
 — Office of the Registrar (Seal #CYA-101)`;
-    } else if (contact.id === 'dir-cyacademy-housing' || contact.address === 'housing@cyacademy.edu') {
+    } else if (contact.id === 'dir-cyacademy-housing' || contact.address === 'housing@cyberium.edu') {
       replyBody = `Cyberium Academy Residential Services — Unit 4B Operations Desk:
 
 Your housing correspondence ("${cleanSubj}") has been recorded against Suite 4B.

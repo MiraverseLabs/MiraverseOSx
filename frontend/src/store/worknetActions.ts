@@ -1,3 +1,7 @@
+import { INSTITUTIONAL_REGISTRY } from '../gameplay/WorkplaceDefinitions';
+import { CAREER_REGISTRY, canonicalCareerId, careerStation, contractSalary } from '../gameplay/CareerRegistry';
+import { workOrderId } from '../gameplay/WorkSchedule';
+import { hasWorkReceipt } from '../gameplay/WorkRewards';
 import { isWorldPaused } from '../integration/worldStateManager';
 import { PROCESS_MISSION } from '../gameplay/ProcessMonitor';
 import { changeWorkplace, workTick, stationTrack, employed } from '../apps/worknet/workplaceModel';
@@ -7,7 +11,7 @@ import { CASE_MISSION, restoreCaseProgress, reviewBroadStreet } from '../gamepla
 import { WORK_DEFINITIONS, getWorkDefinition, WORKNET_ASSIGNMENTS, nextWorkStage, resolveWorkStage, validateWorkStage, stageActionTypes, type WorkOrder, type WorkValues, type TaskResult, type EmploymentContract } from '../gameplay/ActivityEngine';
 import { CAREER_TRACK_SPECS, WORKNET_DOMAIN_TASKS, evaluateWorknetObjective } from '../gameplay/WorldEventEngine';
 import { evaluateHybridOutcome, type ExecutionMode } from '../gameplay/WorknetCoreSystems';
-import { appendCareerMilestone } from '../gameplay/WorknetSimulation';
+import { appendCareerMilestone, availableExecutionModes, availableStageColleague } from '../gameplay/WorknetSimulation';
 
 export function createWorknetActions(set: (update: (state: OSStoreState) => Partial<OSStoreState>) => void, get: () => OSStoreState) {
   const updatePlayer = (update: (player: any) => any) => set(state => ({ gameplay: { ...state.gameplay, player: update(state.gameplay.player) } }));
@@ -22,17 +26,20 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
     },
 
     acceptEmployment: (track: string) => {
-      const definition = Object.values(WORK_DEFINITIONS).find(item => item.track === track);
-      if (!definition) return { ok: false, message: 'No institutional position is available for this career track.' };
+      track = canonicalCareerId(track);
+      const definition = CAREER_REGISTRY[track];
+      const institution = INSTITUTIONAL_REGISTRY[careerStation(track)];
+      if (!definition || !institution) return { ok: false, message: 'No institutional position is available for this career track.' };
       const player = get().gameplay.player;
       if (player.employmentContracts?.[track]) return { ok: false, message: 'Your employment contract is already active.' };
-      if ((player.clearanceLevel ?? 2) < definition.clearance) return { ok: false, message: 'Institutional clearance is required for this position.' };
+      if ((player.clearanceLevel ?? 2) < institution.clearanceRequired) return { ok: false, message: 'Institutional clearance is required for this position.' };
+      const salary = CAREER_REGISTRY[track].baseSalaryCredits;
       const contract: EmploymentContract = {
         id: `EMP:${track}`, track, position: CAREER_TRACK_SPECS[track]?.rankTitles[0] || track,
-        duties: Object.values(WORK_DEFINITIONS).filter(item => item.track === track).map(item => item.subject),
+        duties: [...definition.duties],
         schedule: 'Available shifts; accept an individual work order when ready.',
-        payTerms: '150 credits per cycle plus published assignment compensation. Patient charts and work receipts are paid once.',
-        baseSalaryCredits: 150, lastStipendClaimedCycle: (get().gameplay.timeCycleCount ?? 0) - 1, pathwayChoice: 'specialist',
+        payTerms: `${salary} credits per cycle plus published assignment compensation. Patient charts and work receipts are paid once.`,
+        baseSalaryCredits: salary, signedAtTick: workTick(get().gameplay), lastStipendClaimedCycle: (get().gameplay.timeCycleCount ?? 0) - 1, pathwayChoice: 'specialist',
       };
       updatePlayer(current => ({ ...current, employmentContracts: { ...current.employmentContracts, [track]: contract } }));
       set(s => ({
@@ -64,8 +71,8 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
       if (definition.kind === 'shift' && !contract) return { ok: false, message: 'Accept the employment contract before opening a work shift.' };
       if ((player.clearanceLevel ?? 2) < definition.clearance) return { ok: false, message: `This assignment requires clearance ${definition.clearance}.` };
       if (player.stamina < 10) return { ok: false, message: 'A work order requires 10 stamina. Rest before accepting the assignment.' };
-      const id = `WORK:${missionId}:${repeatable ? state.gameplay.timeCycleCount : 'once'}`;
-      if (player.rewardedWorkOrderIds?.includes(id)) return { ok: false, message: 'This work order has already been paid.' };
+      const id = workOrderId(missionId, state.gameplay.timeCycleCount, repeatable);
+      if (hasWorkReceipt(player, id, state.worknetSim.payrollLedger)) return { ok: false, message: 'This work order has already been paid.' };
       const order: WorkOrder = {
         id, definitionId: missionId, subject: definition.subject, cycle: state.gameplay.timeCycleCount,
         employmentContractId: definition.kind === 'shift' ? contract?.id : undefined,
@@ -126,6 +133,9 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
       const mode: ExecutionMode = (['direct', 'guided', 'assisted', 'delegated'].includes(values?._executionMode)
         ? values._executionMode
         : 'guided') as ExecutionMode;
+      const colleague = availableStageColleague(player, getWorkDefinition(missionId)!.track, workTick(get().gameplay));
+      const modeOption = availableExecutionModes(player, getWorkDefinition(missionId)!.track, Boolean(colleague)).find(option => option.mode === mode)!;
+      if (!modeOption.enabled) return { ok: false, message: modeOption.reason };
       const hybridEval = evaluateHybridOutcome({
         action: stageActionTypes(selected)[0],
         mode,
@@ -139,6 +149,7 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
         id: `${order.id}:${stageId}`, workOrderId: order.id, definitionId: missionId,
         stageId, subject: order.subject, mechanic: selected.mechanic,
         executionMode: mode, resultQuality: hybridEval.resultQuality,
+        ...(mode === 'delegated' && colleague ? { assignedBy: player.name || 'Supervisor', assigneeId: colleague.id, assigneeName: colleague.name, approvedBy: player.name || 'Supervisor' } : {}),
         output: { ...Object.fromEntries(selected.fields.map(field => [field.id, values[field.id]])), ...Object.fromEntries(Object.entries(get().gameplay.player.worknetOrders[missionId].drafts[stageId] || {}).filter(([key]) => key.endsWith('__html'))), ...(values._approach ? { _approach: values._approach } : {}), _executionMode: mode }, completedAt: new Date().toISOString(),
         // A legacy paid chart can be reviewed again for proof, without another clinical reward.
         compensationPaid: missionId === 'ms-shift-01' && stageId === 'care' ? true : undefined,
@@ -176,8 +187,8 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
       const order: WorkOrder | undefined = player.worknetOrders?.[mission?.id];
       const definition = getWorkDefinition(mission?.id);
       const assignment = WORKNET_ASSIGNMENTS[mission?.id];
-      if (!definition || !order || order.status !== 'active' || player.rewardedWorkOrderIds?.includes(order.id)) return { ok: false, reason: 'No unpaid active work order is available.' };
-      const evaluation = evaluateWorknetObjective(mission.id, mission.track, player);
+      if (!definition || !order || order.status !== 'active' || hasWorkReceipt(player, order.id, state.worknetSim.payrollLedger)) return { ok: false, reason: 'No unpaid active work order is available.' };
+      const evaluation = evaluateWorknetObjective(definition.id, definition.track, player);
       if (!evaluation.verified) return { ok: false, reason: evaluation.requirementText };
       if (player.stamina < 10) return { ok: false, reason: 'Finalization requires 10 stamina. Rest and return to your saved work.' };
       const completedIds: string[] = player.completedWorknetMissionIds || [];
@@ -192,6 +203,7 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
         player: { ...current.gameplay.player,
           completedWorknetMissionIds: completedIds.includes(mission.id) ? completedIds : [...completedIds, mission.id],
           rewardedWorkOrderIds: [...(player.rewardedWorkOrderIds || []), order.id],
+          compensationReceiptIds: [...new Set([...(player.compensationReceiptIds || []), order.id])],
           worknetOrders: { ...player.worknetOrders, [mission.id]: { ...order, status: 'accepted' } },
           credits: player.credits + credits, bits: player.bits + bits, xp: newXP,
           level: Math.floor(newXP / 100) + 1, stamina: player.stamina - 10,
@@ -228,16 +240,19 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
       const player = state.gameplay.player;
       const contracts = (player.employmentContracts || {}) as Record<string, { lastStipendClaimedCycle?: number; [key: string]: any }>;
       const currentCycle = Math.max(0, state.gameplay.timeCycleCount ?? 0);
+      const receiptIds = new Set<string>(player.compensationReceiptIds || []);
       let totalClaimed = 0;
       let eligibleCount = 0;
       const updatedContracts = { ...contracts };
 
       for (const [track, contract] of Object.entries(contracts)) {
-        const station = track === 'medical' ? 'faithmed' : track === 'archivist' ? 'archives' : track;
+        const station = careerStation(track);
         if (!employed(player, station)) continue;
         const lastClaim = Number.isSafeInteger(contract.lastStipendClaimedCycle) ? contract.lastStipendClaimedCycle! : currentCycle - 1;
-        if (lastClaim < currentCycle) {
-          const stipend = 150;
+        const receiptId = `SALARY:${track}:${currentCycle}`;
+        if (lastClaim < currentCycle && !receiptIds.has(receiptId)) {
+          receiptIds.add(receiptId);
+          const stipend = contractSalary(contract, track);
           totalClaimed += stipend;
           eligibleCount += 1;
           updatedContracts[track] = { ...contract, lastStipendClaimedCycle: currentCycle };
@@ -251,7 +266,7 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
       updatePlayer(current => ({
         ...current,
         credits: current.credits + totalClaimed,
-        employmentContracts: updatedContracts
+        employmentContracts: updatedContracts, compensationReceiptIds: [...receiptIds]
       }));
 
       get().recordWorldEvent({
@@ -269,10 +284,11 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
     },
 
     setCareerPathwayChoice: (track: string, pathway: 'specialist' | 'supervisor') => {
+      track = canonicalCareerId(track);
       const player = get().gameplay.player;
       if (!['specialist', 'supervisor'].includes(pathway)) return { ok: false, message: 'Choose a valid career pathway.' };
       const contract = player.employmentContracts?.[track];
-      const station = track === 'medical' ? 'faithmed' : track === 'archivist' ? 'archives' : track;
+      const station = careerStation(track);
       if (!employed(player, station) || !contract) return { ok: false, message: 'An active employment contract is required to select a career pathway.' };
 
       updatePlayer(current => ({

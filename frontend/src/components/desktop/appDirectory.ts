@@ -163,19 +163,6 @@ export const PROTOCOLS: ProtocolItem[] = [
     border: 'border-slate-300'
   },
   {
-    id: 'pulse',
-    code: 'PULSE',
-    name: 'PULSE // News Portal',
-    sector: 'Aureline Broadcast Array',
-    clearance: 'Observer Clearance',
-    aetherTrace: 'AT-0x0732',
-    flux: '22.0 MHz',
-    desc: 'Your news portal: open the Meridion Dispatch in VerseNet, follow headlines, and return to saved stories.',
-    color: 'text-purple-800',
-    bg: 'bg-purple-50',
-    border: 'border-purple-300'
-  },
-  {
     id: 'vitals',
     code: 'VITALS',
     name: 'VITALS // Bio-Aura Matrix',

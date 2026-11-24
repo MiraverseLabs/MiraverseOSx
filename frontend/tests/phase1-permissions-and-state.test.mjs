@@ -101,7 +101,7 @@ test('AureMail enforces one active starter personal account and supports revokin
   assert.equal(
     comms.getState().issueInstitutionalAccount({
       organizationId: 'cyacademy',
-      address: 'scholar@cyacademy.edu',
+      address: 'scholar@cyberium.edu',
     }).ok,
     true
   );
@@ -112,22 +112,22 @@ test('AureMail enforces one active starter personal account and supports revokin
   assert.equal(comms.getState().revokeInstitutionalAccount('citizen@auremail.aure').ok, false);
 
   // Select institutional account, save draft, send email, then revoke institutional account
-  comms.getState().setSelectedSenderAddress('scholar@cyacademy.edu');
-  assert.equal(comms.getState().selectedSenderAddress, 'scholar@cyacademy.edu');
+  comms.getState().setSelectedSenderAddress('scholar@cyberium.edu');
+  assert.equal(comms.getState().selectedSenderAddress, 'scholar@cyberium.edu');
   const draft = comms.getState().saveDraft({
-    fromAddress: 'scholar@cyacademy.edu',
-    toAddress: 'registrar@cyacademy.edu',
+    fromAddress: 'scholar@cyberium.edu',
+    toAddress: 'registrar@cyberium.edu',
     subject: 'Thesis Draft',
     body: 'Retain this draft after revocation.',
   });
 
-  const revokeRes = comms.getState().revokeInstitutionalAccount('scholar@cyacademy.edu');
+  const revokeRes = comms.getState().revokeInstitutionalAccount('scholar@cyberium.edu');
   assert.equal(revokeRes.ok, true);
   assert.equal(comms.getState().selectedSenderAddress, 'citizen@auremail.aure');
   assert.equal(
     comms.getState().sendEmail({
-      fromAddress: 'scholar@cyacademy.edu',
-      toAddress: 'registrar@cyacademy.edu',
+      fromAddress: 'scholar@cyberium.edu',
+      toAddress: 'registrar@cyberium.edu',
       subject: 'Blocked after revoke',
       body: 'Should not send',
     }).ok,

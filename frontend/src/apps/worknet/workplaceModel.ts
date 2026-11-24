@@ -1,7 +1,9 @@
+import { stationCareer } from '../../gameplay/CareerRegistry';
+import { worldWorkTick, actorStatus, actorHasCommitment } from '../../gameplay/WorkSchedule';
 import { INSTITUTIONAL_REGISTRY as REGISTRY, INITIAL_DELEGATION_TASKS as TASKS, INITIAL_SUBORDINATE_LEAVES as LEAVES, INITIAL_SCHEDULE_ITEMS as SHIFTS, CANONICAL_DYNAMIC_EVENTS as EVENTS } from './worknetData';
 
-export const stationTrack = (station: string) => station === 'faithmed' ? 'medical' : station === 'archives' ? 'archivist' : station;
-export const workTick = (game: any) => Math.max(0, Math.floor((game.timeCycleCount ?? 0) * 4 + (game.timeSegmentIndex ?? 0)));
+export const stationTrack = stationCareer;
+export const workTick = worldWorkTick;
 const copy = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
 const finite = (v: any, fallback = 0) => Number.isFinite(v) ? v : fallback;
 export function employed(player: any, station: string) {
@@ -9,7 +11,7 @@ export function employed(player: any, station: string) {
   return !!org && !!c && c.track === track && c.id === `EMP:${track}` && (player.clearanceLevel ?? 2) >= org.clearanceRequired;
 }
 export const canSupervise = (player: any, station: string) => employed(player, station) && player.employmentContracts[stationTrack(station)].pathwayChoice === 'supervisor';
-export function restoreWorkplace(raw: any = {}, tick = 0): any {
+export function restoreWorkplace(raw: any = {}, tick = 0, player?: any): any {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) raw = {};
   const coworkers = Object.fromEntries(Object.values(REGISTRY).flatMap(org => org.coworkers.map(c => [c.id, { trust: c.trust, competence: c.competence, familiarity: c.familiarity, cooperation: c.cooperation, conflictHistory: c.conflictHistory, ...raw.coworkerStats?.[c.id], status: c.status }])));
   const budgets = Object.fromEntries(Object.values(REGISTRY).map(org => {
@@ -26,16 +28,18 @@ export function restoreWorkplace(raw: any = {}, tick = 0): any {
   });
   const s = { version: 1, originTick: finite(raw.originTick, tick), coworkerStats: coworkers, divisionBudgets: budgets, delegatedTasks: delegated,
     subordinateLeaves: LEAVES.map(l => { const saved = Array.isArray(raw.subordinateLeaves) ? raw.subordinateLeaves.find(x => x?.id === l.id && ['Pending','Approved','Denied'].includes(x.status)) : undefined; return { ...l, status: saved?.status || l.status, untilTick: finite(saved?.untilTick), coverage: saved?.coverage === 'Reserve roster' ? saved.coverage : '' }; }),
-    scheduleItems: SHIFTS.map(l => { const saved = Array.isArray(raw.scheduleItems) ? raw.scheduleItems.find(x => x?.id === l.id) : undefined; return { ...l, isMandatory: false, status: ['Scheduled','Completed','Leave Approved','Pending'].includes(saved?.status) ? saved.status : l.status }; }),
+    scheduleItems: SHIFTS.map(l => { const saved = Array.isArray(raw.scheduleItems) ? raw.scheduleItems.find(x => x?.id === l.id) : undefined; return { ...l, startTick: Math.floor(finite(raw.originTick, tick) / 4) * 4 + l.cycleOffset * 4 + l.segmentIndex, day: `Cycle ${Math.floor(finite(raw.originTick, tick) / 4) + l.cycleOffset}`, timeSlot: ['Morning', 'Afternoon', 'Evening', 'Night'][l.segmentIndex], isMandatory: false, status: ['Scheduled','Completed','Leave Approved','Pending'].includes(saved?.status) ? saved.status : l.status }; }),
     leaveRequests: Array.isArray(raw.leaveRequests) ? raw.leaveRequests.filter(r => r && SHIFTS.some(s => s.id === r.shiftId)) : [],
     resolvedEventIds: Array.isArray(raw.resolvedEventIds) ? raw.resolvedEventIds.filter(id => EVENTS.some(e => e.id === id)) : [],
     interactions: raw.interactions && typeof raw.interactions === 'object' ? raw.interactions : {}, breakRoomVisitCount: Math.max(0, finite(raw.breakRoomVisitCount)) };
-  const statuses = ['Desk', 'In Meeting', 'In Field', 'On Break'];
+  for (const shift of s.scheduleItems) {
+    const order = player?.worknetOrders?.[shift.assignmentId];
+    if (order?.status === 'accepted') shift.status = 'Completed';
+    else if (order?.status === 'active') shift.status = 'Pending';
+  }
   for (const org of Object.values(REGISTRY)) for (const cw of org.coworkers) {
     for (const key of ['trust', 'competence', 'familiarity', 'cooperation', 'conflictHistory']) s.coworkerStats[cw.id][key] = Math.max(0, Math.min(100, finite(s.coworkerStats[cw.id][key], cw[key])));
-    const offset = Math.max(0, tick - s.originTick);
-    s.coworkerStats[cw.id].status = statuses[(Math.max(0, statuses.indexOf(cw.status)) + offset) % 4];
-    if (s.subordinateLeaves.some(l => l.subordinateId === cw.id && l.status === 'Approved' && tick < (l.untilTick ?? 0))) s.coworkerStats[cw.id].status = 'On Break';
+    s.coworkerStats[cw.id].status = actorStatus(cw.status, s.originTick, tick, cw.id, s);
   }
   for (const d of s.delegatedTasks) if ((d.status === 'In Progress' && tick >= d.dueTick) || (d.status === 'Review Ready' && !d.output)) {
     const task = TASKS.find(t => t.id === d.taskId)!, b = s.divisionBudgets[d.stationId];
@@ -46,7 +50,7 @@ export function restoreWorkplace(raw: any = {}, tick = 0): any {
   return s;
 }
 export function changeWorkplace(raw: any, action: any, player: any, tick: number) {
-  const s = restoreWorkplace(raw, tick), cycle = Math.floor(tick / 4);
+  const s = restoreWorkplace(raw, tick, player), cycle = Math.floor(tick / 4);
   const fail = (message: string) => ({ ok: false, message, state: s, credits: 0, xp: 0, stamina: 0, track: '' });
   let credits = 0, xp = 0, stamina = 0, track = '', message = 'Workplace record saved.';
   if (action.type === 'tick' || action.type === 'initialize') return { ok: true, message: '', state: s, credits, xp, stamina, track };
@@ -60,7 +64,7 @@ export function changeWorkplace(raw: any, action: any, player: any, tick: number
       const cw = REGISTRY[station].coworkers.find(c => c.id === action.person), stats = s.coworkerStats[action.person], b = s.divisionBudgets[station];
       if (!cw || !stats) return fail('Choose a colleague in this division.');
       if (stats.status !== 'Desk') return fail('Choose a colleague at their desk; workplace availability changes throughout the day.');
-      if (s.delegatedTasks.some(d => (d.taskId === task.id && d.cycle === cycle) || (d.assigneeId === cw.id && d.status !== 'Approved'))) return fail('That duty is already assigned this cycle, or this colleague has an open docket.');
+      if ((s.delegatedTasks.some(d => d.taskId === task.id && d.cycle === cycle) || actorHasCommitment(s, cw.id))) return fail('That duty is already assigned this cycle, or this colleague has an open docket.');
       const competence = finite(stats.competence) + Math.floor(b.training / 1000);
       if (competence < task.minCompetence) return fail(`This duty requires ${task.minCompetence}% competence. Training allocations can add one point per 1,000 credits.`);
       s.delegatedTasks.unshift({ id: `delegation:${task.id}:${cycle}`, taskId: task.id, stationId: station, title: task.title, assignedBy: player?.name || 'Supervisor', assigneeId: cw.id, assigneeName: cw.name, status: 'In Progress', cycle, assignedAt: `Cycle ${cycle}, segment ${tick % 4 + 1}`, dueTick: tick + task.estUnits, competence, revisions: 0, opened: false, paid: false, issues: [], output: '' });
@@ -72,7 +76,7 @@ export function changeWorkplace(raw: any, action: any, player: any, tick: number
       if (!action.approved) { docket.status = 'In Progress'; docket.revisions++; docket.opened = false; docket.dueTick = tick + 1; message = 'Revision requested. The revised docket returns after one work segment.'; break; }
       if (s.delegatedTasks.some(d => d.id !== docket.id && d.taskId === docket.taskId && d.cycle === docket.cycle && (d.paid || d.status === 'Approved'))) return fail('This duty already has a compensation receipt for this cycle.');
       if (docket.issues.length) return fail('Resolve the recorded exception and request a revised docket before signing off.');
-      const task = TASKS.find(t => t.id === docket.taskId)!, funds = Number(task.rewardDesc.match(/\+(\d+) ₢/)?.[1] || 0), merit = Number(task.rewardDesc.match(/\+(\d+) Department Merit/)?.[1] || 0);
+      const task = TASKS.find(t => t.id === docket.taskId)!, funds = task.rewardCredits, merit = task.rewardMerit;
       docket.status = 'Approved'; docket.paid = true; docket.approvedBy = player?.name || 'Supervisor';
       s.divisionBudgets[station].total += funds; s.divisionBudgets[station].merit += merit;
       message = `Docket archived: +${merit} department merit and +${funds} department funds. Personal pay is unchanged.`; break;

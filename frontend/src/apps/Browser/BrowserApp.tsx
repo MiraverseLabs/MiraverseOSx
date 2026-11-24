@@ -6,9 +6,9 @@ import { WindowTitlebarContent } from '../../components/ui/WindowChrome';
 import BrowserTabGroups from './BrowserTabGroups';
 import { NEWS_SITE } from './news/newsSite';
 import { BROWSER_HOME, MAX_BROWSER_TABS, resolveBrowserInput, IN_GAME_PORTALS } from './browserModel';
-import { externalWebUrl, SERVICE_DIRECTORY } from './externalWeb';
+import { externalWebUrl } from './externalWeb';
 import ExternalWebPage from './ExternalWebPage';
-import ServiceDirectory from './ServiceDirectory';
+import OrynvellRecordsSite from './records/OrynvellRecordsSite';
 import '../../styles/apps/versenet-browser.css';
 import WebContentPage from './WebContentPage';
 import UniversalSearch, { IndexedArchivePage } from './UniversalSearch';
@@ -17,14 +17,13 @@ import { INTERACTIVE_SITES } from './interactiveSites';
 import BroadStreetPublicPage from '../investigation/BroadStreetPublicPage';
 import AureSuiteApp from './AureSuiteApp';
 import {
-    FaithMedPortal, DGAPortal, CyacademyPortal, OrynvellRecordsPortal,
-    BankPortal, ShippingPortal, DarkWebOnionPortal,
+    DGAPortal, ShippingPortal, DarkWebOnionPortal,
     CivinetPortal, QuestNoticePortal, RoyalHistoryPortal
 } from './Portals';
 import { MaiSpacePortal } from './MaiSpacePortal';
 import { useOSStore } from '../../store/useOSStore';
 import {
-    X, Plus, ChevronLeft, ChevronRight, RotateCw, Globe, Home, Star, History, Bookmark, Search, Grid2X2,
+    X, Plus, ChevronLeft, ChevronRight, RotateCw, Globe, Home, Star, History, Bookmark, Search,
     ShieldCheck, Lock, Sparkles, Terminal, Shield, ArrowUpRight, Briefcase, Folder
 } from 'lucide-react';
 
@@ -77,7 +76,6 @@ function ContentFrame({ url, openTab, navigateTab, openService }: any) {
     if (isEduUrl(url)) return <Suspense fallback={<p role="status">Loading academic portal…</p>}><EduSiteRouter url={url} navigateTab={navigateTab}/></Suspense>;
     if (isFaithMedUrl(url)) return <Suspense fallback={<p role="status">Connecting to Faith Medical…</p>}><FaithMedSite url={url} navigateTab={navigateTab}/></Suspense>;
     if (new URL(url).hostname === 'firstfederal.aure' && new URL(url).pathname === '/maintenance') return <BroadStreetPublicPage />;
-    if (new URL(url).hostname === 'services.aure') return <ServiceDirectory navigateTab={openService}/>;
     if (externalWebUrl(url)) return <ExternalWebPage url={url}/>;
     
     const stripped = url.replace(/^https?:\/\//, '');
@@ -108,10 +106,8 @@ function ContentFrame({ url, openTab, navigateTab, openService }: any) {
     if (domain === 'civinet.mer' || domain === 'civinet.aure' || domain === 'civinet') return <CivinetPortal />;
     if (domain === 'questnotice.mer' || domain === 'questnotice.aure' || domain === 'questnotice') return <QuestNoticePortal />;
     if (domain === 'royalhistory.mer' || domain === 'royalhistory.aure' || domain === 'royalhistory') return <RoyalHistoryPortal />;
-    if (domain === 'faithmed.aure') return <FaithMedPortal />;
     if (domain === 'dga.gov' || domain === 'dga.gov.aure') return <DGAPortal />;
-    if (domain === 'records.orynvell.gov') return <OrynvellRecordsPortal />;
-    if (domain === 'bank.aure' || domain === 'finance.oryn.gov' || domain === 'finance.mer') return <BankPortal />;
+    if (domain === 'records.orynvell.gov') return <OrynvellRecordsSite />;
     if (domain === 'shipping.aure' || domain === 'cargotrack.aure') return <ShippingPortal />;
     if (domain.endsWith('.onion') || domain === 'vectornet.aure') return <DarkWebOnionPortal />;
     if (domain === 'auresuite.aure') return <AureSuiteApp />;
@@ -155,9 +151,6 @@ export default function BrowserApp() {
         if (!workspaceRequest) return;
         if (workspaceRequest.section === 'home') {
             goHome();
-            useOSStore.getState().consumeWorkspaceRequest('browser', workspaceRequest.revision);
-        } else if (workspaceRequest.section === 'services') {
-            openService(SERVICE_DIRECTORY);
             useOSStore.getState().consumeWorkspaceRequest('browser', workspaceRequest.revision);
         } else if (/^https?:\/\//i.test(workspaceRequest.section)) {
             openService(workspaceRequest.section);
@@ -362,9 +355,6 @@ export default function BrowserApp() {
                     )}
                 </div>
 
-                <button className="vn-icon" aria-label="Service Directory" title="Service Directory" onClick={() => navigateTab(SERVICE_DIRECTORY)}>
-                    <Grid2X2 size={16}/>
-                </button>
                 <button className="vn-icon" aria-label="Bookmarks" aria-expanded={panel === 'bookmarks'} onClick={() => togglePanel('bookmarks')}>
                     <Bookmark size={16}/>
                 </button>

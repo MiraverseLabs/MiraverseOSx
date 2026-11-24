@@ -111,7 +111,7 @@ export default function WorknetApp({
           <div className="worknet-title-group">
             <h1>
               <span>WorkNet</span>
-              <span className="worknet-network-pill">Federal career network</span>
+              <span className="worknet-network-pill">Career & operations network</span>
             </h1>
             <p>{currentTheme.fullName}</p>
           </div>
@@ -213,7 +213,7 @@ export default function WorknetApp({
           aria-current={activeTab === 'civic-notices' ? 'page' : undefined}
           onClick={() => setActiveTab('civic-notices')}
         >
-          <CheckCircle2 size={14} /> Civic Notices
+          <CheckCircle2 size={14} /> Field Bulletins
         </button>
         <button
           className="worknet-nav-btn"

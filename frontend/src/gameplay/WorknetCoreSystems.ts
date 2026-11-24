@@ -1,3 +1,4 @@
+import { CAREER_CATALOG, CAREER_REGISTRY, canonicalCareerId, careerXP, completedCareerAssignments } from './CareerRegistry';
 import type { InteractionMechanic } from './ActivityEngine';
 
 /** Part I — Section 2: Activity Hierarchy */
@@ -30,17 +31,7 @@ export interface CareerDefinition {
   supervisoryLabel: string;
 }
 
-export const ESTABLISHED_CAREERS: readonly CareerDefinition[] = [
-  { id: 'archivist', title: 'Archivist / Researcher', specialistLabel: 'Senior Archival Specialist', supervisoryLabel: 'Archive Director' },
-  { id: 'engineer', title: 'Systems Engineer', specialistLabel: 'Principal Systems Specialist', supervisoryLabel: 'Engineering Lead' },
-  { id: 'diplomat', title: 'Council Diplomat', specialistLabel: 'Senior Envoy', supervisoryLabel: 'Delegation Chair' },
-  { id: 'dga', title: 'Enforcer / Guardian', specialistLabel: 'Senior Field Investigator', supervisoryLabel: 'Division Commander' },
-  { id: 'artist', title: 'Artist / Performer', specialistLabel: 'Master Artisan', supervisoryLabel: 'Curatorial Director' },
-  { id: 'medical', title: 'Healer / Medical Support', specialistLabel: 'Lead Clinical Specialist', supervisoryLabel: 'Chief Medical Coordinator' },
-  { id: 'warden', title: 'Ecological Warden', specialistLabel: 'Senior Ecological Specialist', supervisoryLabel: 'Sector Warden Lead' },
-  { id: 'finance', title: 'Finance Clerk / Banking Support', specialistLabel: 'Senior Treasury Auditor', supervisoryLabel: 'Disbursement Supervisor' },
-  { id: 'questnotice', title: 'QUESTNOTICE Odd Jobs', specialistLabel: 'Independent Contractor', supervisoryLabel: 'Guild Coordinator' },
-] as const;
+export const ESTABLISHED_CAREERS: readonly CareerDefinition[] = CAREER_CATALOG.map(c => ({ ...c, title: c.name }));
 
 /** Part I — Section 5: Mission Action Vocabulary (16 logical operations) */
 export const MISSION_ACTION_VOCABULARY = [
@@ -219,7 +210,7 @@ export function evaluateNpcDecision(ctx: NpcDecisionContext): NpcDecisionOutcome
       reason: 'Deferred: employee lacks necessary situational information and requests clarification.',
     };
   }
-  if (ctx.status === 'On Break' || (ctx.hasOpenCommitment && !ctx.urgent)) {
+  if (ctx.status === 'On Break' || ctx.hasOpenCommitment) {
     return {
       decision: 'defer',
       autonomyUsed: ctx.autonomy,
@@ -259,9 +250,11 @@ export interface FiveProfessionalDimensions {
 }
 
 export function evaluateFiveDimensions(track: string, player: any): FiveProfessionalDimensions {
-  const career = ESTABLISHED_CAREERS.find(c => c.id === track) || ESTABLISHED_CAREERS[0];
+  track = canonicalCareerId(track);
+  const career = ESTABLISHED_CAREERS.find(c => c.id === track) || { id: track, title: track, specialistLabel: 'Unemployed', supervisoryLabel: 'Unemployed' };
+  const definition = CAREER_REGISTRY[track];
   const skillsObj = player?.skills || {};
-  const skillLevels = Object.values(skillsObj)
+  const skillLevels = (definition?.relevantSkills || []).filter(id => skillsObj[id]).map(id => skillsObj[id])
     .map((s: any) => (typeof s?.level === 'number' ? s.level : 1))
     .filter(n => Number.isFinite(n));
   const avgSkill = skillLevels.length
@@ -270,16 +263,20 @@ export function evaluateFiveDimensions(track: string, player: any): FiveProfessi
 
   const contract = player?.employmentContracts?.[track];
   const pathway: 'specialist' | 'supervisor' = contract?.pathwayChoice === 'supervisor' ? 'supervisor' : 'specialist';
-  const careerXp = Number(player?.careerTrackXp?.[track] ?? player?.xp ?? 0);
-  const completedCount = Array.isArray(player?.completedWorknetMissionIds) ? player.completedWorknetMissionIds.length : 0;
+  const careerXp = careerXP(player, track);
+  const completedCount = completedCareerAssignments(player, track).length;
   const clearance = Number(player?.clearanceLevel ?? 1);
-  const credentialsCount = Array.isArray(player?.certificates) ? player.certificates.length : 0;
+  const credentials = new Set<string>(completedCareerAssignments(player, track).filter(id => definition?.qualificationMissionIds.includes(id)));
+  for (const certificate of Array.isArray(player?.certificates) ? player.certificates : []) {
+    if (certificate && typeof certificate === 'object' && canonicalCareerId(certificate.track) === track && typeof certificate.id === 'string') credentials.add(certificate.id);
+  }
+  const credentialsCount = credentials.size;
 
   // Section 31: Career development tier is distinct from active organizational job title
   const careerDevelopmentTier =
     careerXp >= 800 ? 'Established Veteran' : careerXp >= 350 ? 'Experienced Practitioner' : careerXp >= 100 ? 'Developing Practitioner' : 'Entry Practitioner';
 
-  const standing = Math.min(100, Math.max(0, Number(player?.reputation?.[track] ?? 50 + Math.min(40, completedCount * 6))));
+  const standing = Math.min(100, Math.max(0, Number(player?.reputation?.[definition?.reputationKey || track] ?? 50 + Math.min(40, completedCount * 6))));
   const repLabel = standing >= 80 ? 'Highly Trusted' : standing >= 60 ? 'Respected' : standing >= 40 ? 'Established' : 'Unproven';
 
   return {
@@ -290,7 +287,7 @@ export function evaluateFiveDimensions(track: string, player: any): FiveProfessi
     professionalExperience: { careerXp, completedAssignments: completedCount },
     employmentPosition: {
       hasContract: Boolean(contract),
-      jobTitle: contract?.position || (pathway === 'supervisor' ? career.supervisoryLabel : career.specialistLabel),
+      jobTitle: contract?.position || 'Unemployed',
       pathway,
       careerDevelopmentTier,
     },
@@ -333,7 +330,7 @@ export function calculateCompensation(claim: CompensationClaim): CompensationRes
       reason: 'A compensation receipt already exists for this entitlement.',
     };
   }
-  if (!claim.verified && (claim.model === 'assignment' || claim.model === 'commission' || claim.model === 'bonus')) {
+  if (!claim.verified) {
     return {
       ok: false,
       stage: 'performed',
@@ -342,6 +339,8 @@ export function calculateCompensation(claim: CompensationClaim): CompensationRes
       reason: 'Deliverable or authorization must be verified before payment is earned.',
     };
   }
+
+  if ([claim.authorizedPremiums, claim.verifiedUnits, claim.ratePerUnit, claim.agreedFee].some(value => value !== undefined && (!Number.isFinite(value) || value < 0))) return { ok: false, stage: 'performed', grossCredits: 0, duplicate: false, reason: 'Compensation amounts must be finite and nonnegative.' };
 
   const premiums = Math.max(0, Number(claim.authorizedPremiums || 0));
   let grossCredits = 0;

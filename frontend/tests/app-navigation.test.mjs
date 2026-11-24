@@ -18,7 +18,8 @@ const destinations = [
   ['board', 'jobs', 'notices'],
   ['chronicle', 'jobs', 'notices'],
   ['questnotice', 'jobs', 'civic-jobs'],
-  ['serviceDirectory', 'browser', 'services'],
+  ['pulse', 'browser', 'https://dispatch.mer'],
+  ['serviceDirectory', 'dgaos', 'services'],
 ];
 let sequence = 0;
 function storage() {
@@ -57,7 +58,7 @@ test('legacy destinations resolve without treating inherited object keys as alia
     assert.deepEqual(resolveAppDestination(oldId), { appId, section });
     assert.deepEqual(retiredWindowDestination({ id: 'old-custom-window', contentKey: oldId }), { appId, section });
   }
-  for (const id of ['constructor', '__proto__', 'toString', 'maispace', 'pulse']) {
+  for (const id of ['constructor', '__proto__', 'toString', 'maispace']) {
     assert.deepEqual(resolveAppDestination(id), { appId: id });
     assert.equal(retiredWindowDestination(id), null);
   }
@@ -106,13 +107,13 @@ test('repeated section requests survive stale consumption and refocus a minimize
 });
 
 test('old shortcuts migrate in order, merge duplicate owners and preserve appearance', () => {
-  const preferences = restoreDesktopPreferences({ themeId: 'pine', shortcutIds: ['traceForensics', 'dgaos', 'board', 'spellforge', 'serviceDirectory', 'questnotice', 'maispace'] });
+  const preferences = restoreDesktopPreferences({ themeId: 'pine', shortcutIds: ['traceForensics', 'dgaos', 'board', 'spellforge', 'pulse', 'serviceDirectory', 'questnotice', 'maispace'] });
   assert.equal(preferences.themeId, 'pine');
   assert.deepEqual(preferences.shortcutIds, ['dgaos', 'jobs', 'spellforge', 'browser', 'maispace']);
   assert.equal(preferences.layoutVersion, 1);
   for (const [id] of destinations) assert.equal(DESKTOP_APP_IDS.includes(id), false);
   assert.ok(DESKTOP_APP_IDS.includes('maispace'));
-  assert.ok(DESKTOP_APP_IDS.includes('pulse'));
+  assert.ok(DESKTOP_APP_IDS.includes('finance'));
   assert.ok(DESKTOP_APP_IDS.includes('study'));
   assert.ok(DESKTOP_APP_IDS.includes('spellforge'));
 });

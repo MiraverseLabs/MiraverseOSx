@@ -11,7 +11,8 @@ const LEGACY_DESTINATIONS: Record<string, AppDestination> = {
   board: { appId: 'jobs', section: 'notices' },
   chronicle: { appId: 'jobs', section: 'notices' },
   questnotice: { appId: 'jobs', section: 'civic-jobs' },
-  serviceDirectory: { appId: 'browser', section: 'services' },
+  pulse: { appId: 'browser', section: 'https://dispatch.mer' },
+  serviceDirectory: { appId: 'dgaos', section: 'services' },
 };
 export const isRetiredDesktopApp = (id: unknown): id is string => typeof id === 'string' && Object.hasOwn(LEGACY_DESTINATIONS, id);
 export function resolveAppDestination(id: string): AppDestination {

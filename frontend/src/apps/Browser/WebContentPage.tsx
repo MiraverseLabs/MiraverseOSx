@@ -21,7 +21,7 @@ export default function WebContentPage({ url, navigateTab }: { url: string; navi
     <header className="vs-publication">{publisherSite ? <button className="vs-publisher-link" onClick={() => navigateTab(`https://${publisherSite.domain}`,publisherSite.name)}>{record.publisher}<ArrowUpRight size={13}/></button> : <strong>{record.publisher}</strong>}<span>FIELDNOTES / AURELINE</span></header>
     <button className="vs-back-link" onClick={() => navigateTab(`https://versenet.aure/find?q=${encodeURIComponent(bundle.query)}`)}><ArrowLeft size={13}/> Search collection</button>
     <div className="vs-content-heading"><span className="vs-eyebrow">{record.type === 'site' ? 'PUBLIC READING' : record.type.toUpperCase()}</span><h1>{record.title}</h1><p>{record.summary}</p></div>
-    {['folder','document'].includes(record.type) && <div className="vs-save-row"><button className="vs-primary" onClick={() => setNotice(save(record.id).message)}><Download size={14}/> Save to File Explorer</button><p role="status">{notice}</p></div>}
+    {['folder','document'].includes(record.type) && <div className="vs-save-row"><button className="vs-primary" onClick={() => setNotice(save(record.id).message)}><Download size={14}/> Save to Fylo</button><p role="status">{notice}</p></div>}
     <div className="vs-reading-body">{record.paragraphs.map((text, index) => <p key={index}>{text}</p>)}</div>
     {record.type === 'image' && <figure className="vs-image-detail"><WebImage record={record}/><figcaption>{record.credit}{record.source && <a href={record.source} target="_blank" rel="noopener noreferrer">Source & rights <ArrowUpRight size={12}/></a>}</figcaption></figure>}
     {record.type === 'map' && <CityMap record={record} navigateTab={navigateTab}/>}

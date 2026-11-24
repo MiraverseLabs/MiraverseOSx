@@ -20,13 +20,29 @@
     "gameplayConnections": "Builds Intellect, unlocks archive quests, supports PRISM lore discovery, and connects to public records, royal records, and AETHERCORE research.",
     "baseSalaryCredits": 180,
     "tierTitles": [
-      "Junior Indexer",
-      "Archive Cataloger",
-      "Senior Research Associate",
-      "Restricted Codex Curator",
-      "Royal Archivist",
+      "Stacks Junior Clerk",
+      "Manuscript Preservationist",
+      "Curator of Restricted Folios",
+      "Senior Resonance Archivist",
+      "Keeper of the Purge Ledger",
       "Grand Master of Records"
-    ]
+    ],
+    "specialistLabel": "Senior Archival Specialist",
+    "supervisoryLabel": "Archive Director",
+    "stationId": "archives",
+    "relevantSkills": [
+      "Research"
+    ],
+    "reputationKey": "archive",
+    "xpThresholds": [
+      0,
+      100,
+      220,
+      360,
+      520,
+      700
+    ],
+    "qualificationMissionIds": []
   },
   {
     "id": "engineer",
@@ -50,12 +66,31 @@
     "gameplayConnections": "Builds Intellect and Creativity, supports interface customization, hidden data routes, and systems-based quests.",
     "baseSalaryCredits": 220,
     "tierTitles": [
-      "Terminal Technician",
-      "Hardware Integrator",
-      "Systems Architect",
-      "Lead Cyber Engineer",
-      "Infrastructure Director",
+      "Bench Apprentice",
+      "Junior Conduit Technician",
+      "Systems Integration Engineer",
+      "Senior Firmware Architect",
+      "Principal Grid Synthesizer",
       "Chief Systems Synthesizer"
+    ],
+    "specialistLabel": "Principal Systems Specialist",
+    "supervisoryLabel": "Engineering Lead",
+    "stationId": "engineer",
+    "relevantSkills": [
+      "Engineering",
+      "Programming"
+    ],
+    "reputationKey": "engineer",
+    "xpThresholds": [
+      0,
+      100,
+      220,
+      360,
+      520,
+      700
+    ],
+    "qualificationMissionIds": [
+      "ms-dev-01"
     ]
   },
   {
@@ -80,16 +115,34 @@
     "gameplayConnections": "Builds Influence and Empathy, opens political quests, civic reputation events, and negotiation-based outcomes.",
     "baseSalaryCredits": 250,
     "tierTitles": [
-      "Civic Intern",
-      "Diplomatic Attaché",
-      "Council Mediator",
-      "Senior Envoy",
-      "High Commissioner",
+      "Council Aide",
+      "Regional Liaison Attaché",
+      "Bilateral Treaty Mediator",
+      "Senior Envoy of Aureline",
+      "High Council Chancellor",
       "Plenipotentiary Ambassador"
+    ],
+    "specialistLabel": "Senior Envoy",
+    "supervisoryLabel": "Delegation Chair",
+    "stationId": "diplomat",
+    "relevantSkills": [
+      "Communication"
+    ],
+    "reputationKey": "delegation",
+    "xpThresholds": [
+      0,
+      100,
+      220,
+      360,
+      520,
+      700
+    ],
+    "qualificationMissionIds": [
+      "ms-dev-02"
     ]
   },
   {
-    "id": "enforcer",
+    "id": "dga",
     "name": "Enforcer / Guardian",
     "category": "Security & Defense",
     "primaryWorkplaces": [
@@ -110,13 +163,31 @@
     "gameplayConnections": "Builds Resilience, supports conflict encounters, emergency-response quests, and sector safety events.",
     "baseSalaryCredits": 240,
     "tierTitles": [
-      "Patrol Trainee",
-      "District Guardian",
-      "Tactical Enforcer",
-      "Strike Unit Specialist",
-      "Defense Commander",
-      "Warden of the Shield"
-    ]
+      "Provisional Field Analyst",
+      "Tactical Counter-Intrusion Agent",
+      "Special Directive Operative",
+      "Senior SIGINT & TRACE Inspector",
+      "Division Deputy Commander",
+      "DGA High Commander"
+    ],
+    "specialistLabel": "Senior Field Investigator",
+    "supervisoryLabel": "Division Commander",
+    "stationId": "dga",
+    "relevantSkills": [
+      "CyberSecurity",
+      "Cryptography",
+      "Research"
+    ],
+    "reputationKey": "dga",
+    "xpThresholds": [
+      0,
+      100,
+      220,
+      360,
+      520,
+      700
+    ],
+    "qualificationMissionIds": []
   },
   {
     "id": "artist",
@@ -141,13 +212,30 @@
     "gameplayConnections": "Builds Creativity and Influence, generates CREDITS, unlocks social events, and affects public reputation.",
     "baseSalaryCredits": 200,
     "tierTitles": [
-      "Street Busker",
-      "Venue Performer",
-      "Resident Artist",
-      "Celebrated Maestro",
-      "Cultural Luminary",
+      "Apprentice Performer",
+      "Independent Commission Artist",
+      "Resident Holo-Sculptor",
+      "Featured Velvet Luminary",
+      "Cultural Broadcast Director",
       "Paragon of the Arts"
-    ]
+    ],
+    "specialistLabel": "Master Artisan",
+    "supervisoryLabel": "Curatorial Director",
+    "stationId": "artist",
+    "relevantSkills": [
+      "Creativity",
+      "Communication"
+    ],
+    "reputationKey": "campus",
+    "xpThresholds": [
+      0,
+      100,
+      220,
+      360,
+      520,
+      700
+    ],
+    "qualificationMissionIds": []
   },
   {
     "id": "medical",
@@ -170,13 +258,30 @@
     "gameplayConnections": "Builds Empathy, connects to VITALS, supports healing quests, and improves wellness-related outcomes.",
     "baseSalaryCredits": 210,
     "tierTitles": [
-      "Clinical Aide",
-      "Triage Specialist",
-      "Bio-Aura Practitioner",
-      "Senior Attending Healer",
-      "Chief Medical Director",
+      "Clinical Intake Aide",
+      "Junior Bio-Aura Clinician",
+      "Attending Ward Physician",
+      "Senior Resonance Diagnostician",
+      "Chief of Clinical Telemetry",
       "Grand Sanctum Physician"
-    ]
+    ],
+    "specialistLabel": "Lead Clinical Specialist",
+    "supervisoryLabel": "Chief Medical Coordinator",
+    "stationId": "faithmed",
+    "relevantSkills": [
+      "Research",
+      "Communication"
+    ],
+    "reputationKey": "faith",
+    "xpThresholds": [
+      0,
+      100,
+      220,
+      360,
+      520,
+      700
+    ],
+    "qualificationMissionIds": []
   },
   {
     "id": "warden",
@@ -200,13 +305,29 @@
     "gameplayConnections": "Builds Empathy and Resilience, supports nature quests, resource gathering, and environmental world-state changes.",
     "baseSalaryCredits": 190,
     "tierTitles": [
-      "Botanical Assistant",
-      "Reserve Ranger",
-      "Ecological Conservator",
-      "Senior Habitat Warden",
-      "Chief Biome Overseer",
+      "Botanical Trainee",
+      "Perimeter Field Warden",
+      "Bio-Assay Conservationist",
+      "Senior Biosphere Keeper",
+      "High Steward of the Domes",
       "Guardian of Arcadia"
-    ]
+    ],
+    "specialistLabel": "Senior Ecological Specialist",
+    "supervisoryLabel": "Sector Warden Lead",
+    "stationId": "warden",
+    "relevantSkills": [
+      "Research"
+    ],
+    "reputationKey": "warden",
+    "xpThresholds": [
+      0,
+      100,
+      220,
+      360,
+      520,
+      700
+    ],
+    "qualificationMissionIds": []
   },
   {
     "id": "finance",
@@ -229,13 +350,29 @@
     "gameplayConnections": "Builds Intellect and Influence, connects to CREDITS, rent, taxes, permits, scholarships, and economy quests.",
     "baseSalaryCredits": 230,
     "tierTitles": [
-      "Ledger Clerk",
-      "Accounts Auditor",
-      "Treasury Specialist",
-      "Senior Fiscal Analyst",
-      "Chief Comptroller",
+      "Junior Ledger Clerk",
+      "Disbursement Auditor",
+      "Senior Treasury Examiner",
+      "Municipal Comptroller",
+      "Director of Fiscal Routing",
       "Master of the Treasury"
-    ]
+    ],
+    "specialistLabel": "Senior Treasury Auditor",
+    "supervisoryLabel": "Disbursement Supervisor",
+    "stationId": "finance",
+    "relevantSkills": [
+      "Research"
+    ],
+    "reputationKey": "finance",
+    "xpThresholds": [
+      0,
+      100,
+      220,
+      360,
+      520,
+      700
+    ],
+    "qualificationMissionIds": []
   },
   {
     "id": "questnotice",
@@ -256,12 +393,29 @@
     "gameplayConnections": "Provides flexible income, skill practice, local reputation, exploration prompts, and low-pressure side content.",
     "baseSalaryCredits": 100,
     "tierTitles": [
-      "Neighborhood Helper",
+      "Errand Runner",
       "Reliable Courier",
-      "District Problem-Solver",
-      "Civic Handyperson",
-      "Master Expediter",
+      "District Troubleshooter",
+      "Senior Civic Contractor",
+      "Prime Field Coordinator",
       "Aureline Fixer"
-    ]
+    ],
+    "specialistLabel": "Independent Contractor",
+    "supervisoryLabel": "Guild Coordinator",
+    "stationId": "questnotice",
+    "relevantSkills": [
+      "Communication",
+      "Resilience"
+    ],
+    "reputationKey": "questnotice",
+    "xpThresholds": [
+      0,
+      100,
+      220,
+      360,
+      520,
+      700
+    ],
+    "qualificationMissionIds": []
   }
 ]

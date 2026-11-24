@@ -108,15 +108,15 @@ const memory = new Map();
 globalThis.localStorage={getItem:k=>memory.get(k)??null,setItem:(k,v)=>memory.set(k,String(v)),removeItem:k=>memory.delete(k)};
 globalThis.window={localStorage:globalThis.localStorage};
 const {useOSStore:store}=await import('../src/store/useOSStore.ts?oversight=initial');
-function setup() { store.setState(s=>({gameplay:{...s.gameplay,timeCycleCount:28,timeSegmentIndex:0,player:{...s.gameplay.player,clearanceLevel:5,credits:1000,stamina:100,employmentContracts:{},worknetWorkplace:undefined}}})); }
+function setup() { store.setState(s=>({gameplay:{...s.gameplay,timeCycleCount:28,timeSegmentIndex:0,player:{...s.gameplay.player,clearanceLevel:5,credits:1000,stamina:100,employmentContracts:{},compensationReceiptIds:[],worknetWorkplace:undefined}}})); }
 
-test('store salary is 150 per current cycle, honors clearance, rejects unknown contracts, and does not backpay skipped cycles',()=>{
+test('store salary follows career terms per current cycle, honors clearance, rejects unknown contracts, and does not backpay skipped cycles',()=>{
   setup(); assert.equal(store.getState().acceptEmployment('dga').ok,true);
-  assert.equal(store.getState().gameplay.player.employmentContracts.dga.baseSalaryCredits,150);
-  assert.equal(store.getState().claimCycleStipends().creditsClaimed,150);
+  assert.equal(store.getState().gameplay.player.employmentContracts.dga.baseSalaryCredits,240);
+  assert.equal(store.getState().claimCycleStipends().creditsClaimed,240);
   assert.equal(store.getState().claimCycleStipends().ok,false);
   store.setState(s=>({gameplay:{...s.gameplay,timeCycleCount:33,player:{...s.gameplay.player,employmentContracts:{...s.gameplay.player.employmentContracts,forged:{id:'EMP:forged',track:'forged',baseSalaryCredits:999999}}}}}));
-  assert.equal(store.getState().claimCycleStipends().creditsClaimed,150);
+  assert.equal(store.getState().claimCycleStipends().creditsClaimed,240);
   store.setState(s=>({gameplay:{...s.gameplay,timeCycleCount:34,player:{...s.gameplay.player,clearanceLevel:0}}}));
   assert.equal(store.getState().claimCycleStipends().ok,false);
 });

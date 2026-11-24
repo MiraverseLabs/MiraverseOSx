@@ -1,5 +1,4 @@
-import AcademicPortal from '../academic/AcademicPortal';
-import '../../styles/apps/versenet-portals.css';
+﻿import '../../styles/apps/versenet-portals.css';
 import React, { useState } from 'react';
 import { 
     Activity, Shield, Building, FileText, Landmark, Truck, Eye, 
@@ -7,9 +6,8 @@ import {
     Coins, ArrowUpRight, Download, Send, Terminal, Radio, Sparkles, Compass
 } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
-import { FORMAL_INVESTIGATION_CASES, PATIENT_CARE_ASSIGNMENTS } from '../../gameplay/WorldEventEngine';
+import { FORMAL_INVESTIGATION_CASES } from '../../gameplay/WorldEventEngine';
 import Button from '../../components/ui/button';
-import BankingWorkspace from '../banking/BankingWorkspace';
 import { syncFaithMedicalUpdate, syncDgaInvestigativeUpdate } from '../../integration/citizenBridge';
 import { SoundFX } from '../../utils/audio';
 
@@ -66,7 +64,7 @@ function FormalCaseReasoningBoard({ filterInstitution }: { filterInstitution?: s
                 if (caseDef.institution.toLowerCase().includes('faith medical')) {
                     await syncFaithMedicalUpdate(caseDef.subjectMaid, {
                         medicalSummary: `Forensic case ${caseDef.id} resolved: ${res.message}`,
-                        auraStatus: 'Stabilized Tier II · Investigation Closed',
+                        auraStatus: 'Stabilized Tier II Â· Investigation Closed',
                         attendingClinician: 'Faith Medical & TRACE Forensics'
                     });
                 } else {
@@ -105,7 +103,7 @@ function FormalCaseReasoningBoard({ filterInstitution }: { filterInstitution?: s
                                     [{c.id}] {c.title}
                                 </div>
                                 <div className="text-[11px] font-mono text-slate-500">
-                                    Subject: {c.subjectName} ({c.subjectMaid}) • Institution: {c.institution}
+                                    Subject: {c.subjectName} ({c.subjectMaid}) â€¢ Institution: {c.institution}
                                 </div>
                             </div>
                             <span
@@ -115,7 +113,7 @@ function FormalCaseReasoningBoard({ filterInstitution }: { filterInstitution?: s
                                         : 'bg-amber-50 text-amber-800 border border-amber-200'
                                 }`}
                             >
-                                {isSolved ? '✓ VERIFIED DETERMINATION' : `REWARD: +${c.rewardCredits} ₡ / +${c.rewardXP} XP / +${c.rewardBits} ◈`}
+                                {isSolved ? 'âœ“ VERIFIED DETERMINATION' : `REWARD: +${c.rewardCredits} â‚¡ / +${c.rewardXP} XP / +${c.rewardBits} â—ˆ`}
                             </span>
                         </div>
 
@@ -210,187 +208,12 @@ function FormalCaseReasoningBoard({ filterInstitution }: { filterInstitution?: s
                                 disabled={isSolved}
                                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl text-xs font-bold transition cursor-pointer"
                             >
-                                {isSolved ? '✓ Case Filed in Canonical Registry' : 'Submit Formal Determination'}
+                                {isSolved ? 'âœ“ Case Filed in Canonical Registry' : 'Submit Formal Determination'}
                             </button>
                         </div>
                     </div>
                 );
             })}
-        </div>
-    );
-}
-
-// ==========================================
-// 1. Faith Medical Intranet (faithmed.aure)
-// ==========================================
-export function FaithMedPortal() {
-    const player = useOSStore((s) => s.gameplay?.player);
-    const identity = useOSStore(s => s.gameplay.identity);
-    const isLoggedIn = useOSStore(s => s.isLoggedIn);
-    const timeCycleCount = useOSStore((s) => s.gameplay?.timeCycleCount ?? 0);
-    const runFaithDiagnosticScan = useOSStore((s) => s.runFaithDiagnosticScan);
-    const treatFaithCondition = useOSStore((s) => s.treatFaithCondition);
-    const completePatientCareAssignment = useOSStore((s) => s.completePatientCareAssignment);
-
-    const [clinicalMessage, setClinicalMessage] = useState<string | null>(null);
-    const [selectedDiagByCase, setSelectedDiagByCase] = useState<Record<string, string>>({});
-    const [selectedTxByCase, setSelectedTxByCase] = useState<Record<string, string>>({});
-    const [patientFeedbackByCase, setPatientFeedbackByCase] = useState<Record<string, { ok: boolean; message: string }>>({});
-    const [downloadedChart, setDownloadedChart] = useState(false);
-
-    const isDiagnosed = Boolean(player?.faithDiagnosed);
-    const scannedThisCycle = player?.lastFaithDiagnosticCycle === timeCycleCount;
-    const activeConditions = player?.conditions || [];
-
-    const handleIntakeScan = () => {
-        if (!runFaithDiagnosticScan) return;
-        const res = runFaithDiagnosticScan();
-        setClinicalMessage(res.message);
-        SoundFX.playCoin();
-    };
-
-    const handleTreatCondition = (conditionName: string) => {
-        if (!treatFaithCondition) return;
-        const res = treatFaithCondition(conditionName);
-        setClinicalMessage(res.message);
-        SoundFX.playCoin();
-    };
-
-    const handleDownloadChart = () => {
-        if (!isLoggedIn) {
-            setClinicalMessage('Sign in to export your personal baseline chart.');
-            return;
-        }
-        const chart = [
-            'Faith Medical Group',
-            'Personal bio-aura baseline',
-            '',
-            `Citizen: ${player.name || 'Citizen'}`,
-            `MAID: ${identity.citizenId || 'Not linked'}`,
-            `World cycle: ${timeCycleCount}`,
-            `Aura integrity: ${player.auraHealth ?? 100}%`,
-            `Stamina: ${player.stamina ?? 0}`,
-            `Baseline assessment: ${isDiagnosed ? 'Recorded' : 'Not yet assessed'}`,
-            `Active conditions: ${activeConditions.length ? activeConditions.join(', ') : 'None recorded'}`,
-            '',
-            'A snapshot of your current personal readings. No new diagnosis or treatment is recorded by this export.',
-        ].join('\n');
-        const url = URL.createObjectURL(new Blob([chart], { type: 'text/plain;charset=utf-8' }));
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'faith-medical-baseline.txt';
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        setDownloadedChart(true);
-    };
-
-    const handleCompletePatientCare = async (caseId: string) => {
-        if (!completePatientCareAssignment) return;
-        const diagId = selectedDiagByCase[caseId] || '';
-        const txId = selectedTxByCase[caseId] || '';
-        const res = completePatientCareAssignment(caseId, diagId, txId);
-        setPatientFeedbackByCase({
-            ...patientFeedbackByCase,
-            [caseId]: res
-        });
-        if (res.ok) {
-            SoundFX.playCoin();
-            const caseDef = PATIENT_CARE_ASSIGNMENTS.find(p => p.id === caseId);
-            if (caseDef?.patientMaid) {
-                const diagLabel = caseDef.diagnoses.find(d => d.id === diagId)?.label || diagId;
-                const txLabel = caseDef.treatments.find(t => t.id === txId)?.label || txId;
-                await syncFaithMedicalUpdate(caseDef.patientMaid, {
-                    medicalSummary: `Inpatient discharge sign-off: Diagnosed ${diagLabel}, administered ${txLabel}`,
-                    auraStatus: 'Stabilized Tier II',
-                    attendingClinician: player?.name || 'Staff Clinician'
-                });
-            }
-        }
-    };
-
-    const treatmentProtocols = [
-        { id: 'Frostlung', title: 'Frostlung Syndrome', desc: 'Warm-essence thermal thaw', btnLabel: 'Apply Thaw' },
-        { id: 'Sunspire Burn Fever', title: 'Sunspire Burn Fever', desc: 'Thermal cooling mapping', btnLabel: 'Cool Aura' },
-        { id: 'Veilwilt', title: 'Veilwilt Disorder', desc: 'Aura rest & memory seal', btnLabel: 'Seal Veil' },
-        { id: 'Riftspine Fracture', title: 'Riftspine Fracture', desc: 'Timeline drift stabilization', btnLabel: 'Re-align Spine' }
-    ];
-
-    return (
-        <div className="vn-service-portal vn-service-medical p-6 space-y-6 bg-[#FAFBFD] min-h-full text-slate-800 font-sans select-none">
-            <CitizenAureIdBar portalName="Faith Medical Intranet" />
-
-            <header className="flex items-center justify-between border-b border-emerald-100 pb-4">
-                <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold shadow-xs">
-                        <Activity size={22} />
-                    </div>
-                    <div>
-                        <h1 className="text-xl font-bold font-display text-slate-900">Faith Medical Group</h1>
-                        <p className="text-xs text-emerald-700 font-mono">Civic Health & Telemetry Intranet // faithmed.aure</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={handleDownloadChart}
-                        className="px-3 py-1.5 bg-white border border-emerald-300 text-emerald-800 hover:bg-emerald-50 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
-                    >
-                        <Download size={13} /> {downloadedChart ? 'Download chart again' : 'Download clinical chart'}
-                    </button>
-                    <div className="text-right text-xs">
-                        <div className="text-slate-500">Patient Baseline ({isDiagnosed ? 'Calibrated' : 'Uncalibrated'})</div>
-                        <div className="text-emerald-700 font-bold">Aura Integrity: {player?.auraHealth ?? 100}%</div>
-                    </div>
-                </div>
-            </header>
-
-            {/* Baseline Aura Diagnostic Banner */}
-            <div className="p-5 border border-emerald-200 bg-emerald-50/70 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
-                <div className="space-y-1">
-                    <h2 className="text-sm font-bold text-emerald-950 flex items-center gap-2 font-display">
-                        <Activity size={18} className="text-emerald-700" /> Personal Baseline Aura Telemetry Scan
-                    </h2>
-                    <p className="text-xs text-emerald-800 leading-relaxed">
-                        Review your personal bio-aura baseline and support aura and stamina recovery. Clinical care is available below.
-                    </p>
-                </div>
-                <button
-                    onClick={handleIntakeScan}
-                    disabled={scannedThisCycle}
-                    className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer shrink-0"
-                >
-                    {scannedThisCycle ? '✓ Baseline Scanned' : 'Run baseline scan'}
-                </button>
-            </div>
-
-            {clinicalMessage && (
-                <div className="p-3 bg-emerald-100 border border-emerald-300 text-emerald-950 rounded-xl text-xs font-mono">
-                    {clinicalMessage}
-                </div>
-            )}
-
-            {/* Treatment Protocols */}
-            <div className="space-y-3">
-                <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Clinical Treatment Protocols</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    {treatmentProtocols.map(proto => (
-                        <div key={proto.id} className="p-3.5 bg-white border border-slate-200 rounded-xl space-y-2 shadow-2xs">
-                            <div className="font-bold text-xs text-slate-900">{proto.title}</div>
-                            <div className="text-[11px] text-slate-500">{proto.desc}</div>
-                            <button
-                                onClick={() => handleTreatCondition(proto.id)}
-                                className="w-full py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-bold transition cursor-pointer"
-                            >
-                                {proto.btnLabel}
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Formal Case Reasoning Board */}
-            <FormalCaseReasoningBoard filterInstitution="Faith Medical" />
         </div>
     );
 }
@@ -434,7 +257,7 @@ export function DGAPortal() {
                 maid: player.identity?.citizenId || 'MAID-9041-AURE',
                 dept: 'Provisional Citizenry & Field Investigations',
                 clearance: `Tier ${player.clearanceLevel ?? 1} (${(player.clearanceLevel ?? 1) >= 2 ? 'AUTHORIZED' : 'PROVISIONAL'})`,
-                status: 'ONLINE · CITIZEN SSO ACTIVE'
+                status: 'ONLINE Â· CITIZEN SSO ACTIVE'
             });
             SoundFX.playSnap();
         } else {
@@ -466,7 +289,7 @@ export function DGAPortal() {
                     </div>
                     <div>
                         <h1 className="text-xl font-bold text-slate-900">Directorate of Global Affairs</h1>
-                        <p className="text-xs text-blue-600 font-mono">DGA Public Security & Clearance Registry • dga.gov.aure</p>
+                        <p className="text-xs text-blue-600 font-mono">DGA Public Security & Clearance Registry â€¢ dga.gov.aure</p>
                     </div>
                 </div>
                 <span className="px-3 py-1 bg-blue-50 border border-blue-200 text-blue-800 font-bold text-xs rounded-full">
@@ -560,51 +383,6 @@ export function DGAPortal() {
 }
 
 // ==========================================
-// 3. Cyberium Academy Academic Portal (cyacademy.edu)
-// ==========================================
-export function CyacademyPortal() {
-    return <AcademicPortal institution="cyberium" website/>;
-}
-
-// ==========================================
-// 4. Orynvell Public Records (records.orynvell.gov)
-// ==========================================
-export function OrynvellRecordsPortal() {
-    return (
-        <div className="vn-service-portal vn-service-records p-6 space-y-6 bg-[#FAFBFD] min-h-full text-slate-800 font-sans select-none">
-            <CitizenAureIdBar portalName="Orynvell Deeds Bureau" />
-
-            <header className="flex items-center justify-between border-b border-amber-100 pb-4">
-                <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold shadow-xs">
-                        <FileText size={22} />
-                    </div>
-                    <div>
-                        <h1 className="text-xl font-bold text-slate-900">Orynvell Public Records</h1>
-                        <p className="text-xs text-amber-700 font-mono">Property Deeds & Background Filings • records.orynvell.gov</p>
-                    </div>
-                </div>
-            </header>
-
-            <div className="p-4 border border-amber-200 bg-white rounded-xl space-y-2 font-mono text-xs shadow-xs">
-                <h3 className="font-bold text-amber-900">Deed Record #DEED-99401</h3>
-                <div className="text-slate-700">Property: Subterranean Conduit Sector 7</div>
-                <div className="text-slate-700">Owner: Aethercore Energy Trust (Pre-Collapse)</div>
-                <div className="text-slate-700">Access Key: Cipher #0x8891 Verified</div>
-                <div className="text-slate-700">Status: Classified Energy Grid Alignment</div>
-            </div>
-        </div>
-    );
-}
-
-// ==========================================
-// 5. First Federal Bank of Aureline (bank.aure)
-// ==========================================
-export function BankPortal() {
-    return <BankingWorkspace bankSite />;
-}
-
-// ==========================================
 // 6. CIVINET Municipal Services Hub (civinet.mer)
 // ==========================================
 export function CivinetPortal() {
@@ -670,7 +448,7 @@ export function RoyalHistoryPortal() {
                     </div>
                     <div>
                         <h1 className="text-xl font-bold text-slate-900">Royal Historic Society</h1>
-                        <p className="text-xs text-cyan-700 font-mono">Restricted Dynastic & Succession Archive • royalhistory.mer</p>
+                        <p className="text-xs text-cyan-700 font-mono">Restricted Dynastic & Succession Archive â€¢ royalhistory.mer</p>
                     </div>
                 </div>
                 <span className="px-3 py-1 bg-cyan-50 border border-cyan-200 text-cyan-800 text-xs font-mono rounded-full font-bold">
@@ -715,7 +493,7 @@ export function ShippingPortal() {
             scheduledDest: 'Faith Medical Central Hospital',
             status: 'IN TRANSIT // ON SCHEDULE',
             courier: 'Aureline Medical Transit',
-            notes: 'Temperature regulation steady at 37.2°C.'
+            notes: 'Temperature regulation steady at 37.2Â°C.'
         },
         'AURA-109': {
             id: 'AURA-109',
@@ -748,7 +526,7 @@ export function ShippingPortal() {
                     </div>
                     <div>
                         <h1 className="text-xl font-bold text-slate-900">CargoTrack Logistics</h1>
-                        <p className="text-xs text-orange-600 font-mono">Consignment Manifests & Route Audits • shipping.aure</p>
+                        <p className="text-xs text-orange-600 font-mono">Consignment Manifests & Route Audits â€¢ shipping.aure</p>
                     </div>
                 </div>
             </header>
@@ -806,7 +584,7 @@ export function ShippingPortal() {
                                     disabled={auditRevealed}
                                     className="px-3 py-1.5 bg-orange-600 hover:bg-orange-700 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-lg text-xs font-bold transition cursor-pointer"
                                 >
-                                    {auditRevealed ? '✓ Route Discrepancy Filed (+75 ₡, +30 XP)' : 'Audit Route Discrepancy'}
+                                    {auditRevealed ? 'âœ“ Route Discrepancy Filed (+75 â‚¡, +30 XP)' : 'Audit Route Discrepancy'}
                                 </button>
                             </div>
                         )}
@@ -833,7 +611,7 @@ export function DarkWebOnionPortal() {
     const [terminalInput, setTerminalInput] = useState('');
     const [terminalOutput, setTerminalOutput] = useState<string[]>([
         'VECTORNET ANONYMOUS ONION ROUTER v2.4',
-        'Connected through encrypted relay #88.4 MHz · Identity masked.',
+        'Connected through encrypted relay #88.4 MHz Â· Identity masked.',
         'Type "/help" for available underground commands.'
     ]);
 
@@ -847,7 +625,7 @@ export function DarkWebOnionPortal() {
         if (purchasedIntel.includes(item.id)) return;
         const currentBits = player?.bits ?? 0;
         if (currentBits < item.cost) {
-            setTerminalOutput(prev => [...prev, `[ERROR]: Insufficient Bits. Required: ${item.cost} ◈, You have: ${currentBits} ◈.`]);
+            setTerminalOutput(prev => [...prev, `[ERROR]: Insufficient Bits. Required: ${item.cost} â—ˆ, You have: ${currentBits} â—ˆ.`]);
             return;
         }
 
@@ -865,7 +643,7 @@ export function DarkWebOnionPortal() {
         setPurchasedIntel(prev => [...prev, item.id]);
         setTerminalOutput(prev => [
             ...prev,
-            `[PURCHASE VERIFIED]: -${item.cost} ◈ Bits. Unlocked: "${item.title}".`,
+            `[PURCHASE VERIFIED]: -${item.cost} â—ˆ Bits. Unlocked: "${item.title}".`,
             `[DECRYPTED DOSSIER]: ${item.secret}`
         ]);
         SoundFX.playCoin();
@@ -893,8 +671,8 @@ export function DarkWebOnionPortal() {
         } else if (cmd === '/status') {
             setTerminalOutput(prev => [
                 ...prev,
-                `Onion Proxy: ONLINE (Node #88.4 MHz) · Encryption: 4096-bit AES`,
-                `Player Bits: ${player?.bits ?? 0} ◈ · Credits: ${player?.credits ?? 0} ₡`
+                `Onion Proxy: ONLINE (Node #88.4 MHz) Â· Encryption: 4096-bit AES`,
+                `Player Bits: ${player?.bits ?? 0} â—ˆ Â· Credits: ${player?.credits ?? 0} â‚¡`
             ]);
         } else if (cmd === '/clearance') {
             setTerminalOutput(prev => [
@@ -940,7 +718,7 @@ export function DarkWebOnionPortal() {
                 </div>
                 <div className="flex items-center gap-3">
                     <span className="px-2.5 py-1 bg-purple-950 border border-purple-700 text-purple-300 rounded-lg text-xs font-bold">
-                        Bits: <strong className="text-emerald-400">{player?.bits ?? 0} ◈</strong>
+                        Bits: <strong className="text-emerald-400">{player?.bits ?? 0} â—ˆ</strong>
                     </span>
                     <span className="px-3 py-1 bg-purple-900 border border-purple-600 text-purple-200 text-xs rounded-full font-bold">
                         Onion Proxy Active
@@ -959,7 +737,7 @@ export function DarkWebOnionPortal() {
                                 <div className="space-y-1">
                                     <div className="font-bold text-xs text-purple-200 flex items-center justify-between">
                                         <span>{item.title}</span>
-                                        <span className="text-emerald-400 font-bold">{item.cost} ◈</span>
+                                        <span className="text-emerald-400 font-bold">{item.cost} â—ˆ</span>
                                     </div>
                                     <p className="text-[11px] text-slate-400 leading-relaxed">{item.desc}</p>
                                     {isBought && (
@@ -973,7 +751,7 @@ export function DarkWebOnionPortal() {
                                     disabled={isBought}
                                     className="w-full py-2 bg-purple-700 hover:bg-purple-600 disabled:bg-slate-800 disabled:text-slate-500 text-white font-bold rounded-lg text-xs transition cursor-pointer"
                                 >
-                                    {isBought ? '✓ Decrypted' : `Purchase for ${item.cost} ◈`}
+                                    {isBought ? 'âœ“ Decrypted' : `Purchase for ${item.cost} â—ˆ`}
                                 </button>
                             </div>
                         );

@@ -1,3 +1,4 @@
+import { stationCareer } from '../../../gameplay/CareerRegistry';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Briefcase, Search, MapPin, Key, Zap, CheckCircle2, Lock, Play, FileText, ArrowRight, Compass, Clock, Coins, Shield, Building2, FolderOpen, ChevronRight, CircleHelp
@@ -59,18 +60,7 @@ export default function WorknetOpportunities({
   const filteredMissions = useMemo(() => {
     return missions.filter(m => {
       // Station / track filter
-      let stationMatch = true;
-      if (stationFilter !== 'all') {
-        if (stationFilter === 'dga') stationMatch = m.track === 'dga' || m.department.includes('DGA');
-        else if (stationFilter === 'faithmed') stationMatch = m.track === 'medical';
-        else if (stationFilter === 'finance') stationMatch = m.track === 'finance';
-        else if (stationFilter === 'archives') stationMatch = m.track === 'archivist';
-        else if (stationFilter === 'engineer') stationMatch = m.track === 'engineer';
-        else if (stationFilter === 'diplomat') stationMatch = m.track === 'diplomat';
-        else if (stationFilter === 'warden') stationMatch = m.track === 'warden';
-        else if (stationFilter === 'artist') stationMatch = m.track === 'artist';
-        else if (stationFilter === 'questnotice') stationMatch = m.track === 'questnotice' || m.type === 'QUESTNOTICE';
-      }
+      const stationMatch = stationFilter === 'all' || m.track === stationCareer(stationFilter);
 
       // Category filter
       const categoryMatch = categoryFilter === 'All' || m.type === categoryFilter;
@@ -145,7 +135,7 @@ export default function WorknetOpportunities({
       </button>})}{!filteredMissions.length&&<div className="wn-empty"><Briefcase/><div><strong>No matching opportunities</strong><p>Try another institution or reset the search.</p><button className="wn-text-link" onClick={()=>{setSearchQuery('');setCategoryFilter('All');setStationFilter('all');}}>Reset filters</button></div></div>}</div>
     </aside>
     <main ref={detailScroll} className="worknet-panel-right" aria-label="Selected opportunity detail">{selectedMission ? <div className="wn-assignment-detail">
-      <div className="wn-scope-trail"><div><span>Journey <ChevronRight/> Adventure <ChevronRight/> Mission <ChevronRight/> Quest <ChevronRight/> Task</span><p>Layers of scope. Activities can connect without requiring every layer.</p></div><button title="Open briefing in VAULT" aria-label="Open briefing in VAULT" onClick={()=>{useOSStore.getState().saveAssignmentBriefing(selectedMission.id);useOSStore.getState().openAssignmentFiles(selectedMission.id);}}><FolderOpen size={18}/></button></div>
+      <div className="wn-scope-trail"><div><span>Journey <ChevronRight/> Adventure <ChevronRight/> Mission <ChevronRight/> Quest <ChevronRight/> Task</span><p>Layers of scope. Activities can connect without requiring every layer.</p></div><button title="Open briefing in Fylo" aria-label="Open briefing in Fylo" onClick={()=>{useOSStore.getState().saveAssignmentBriefing(selectedMission.id);useOSStore.getState().openAssignmentFiles(selectedMission.id);}}><FolderOpen size={18}/></button></div>
       <section className="wn-assignment-hero"><div><div className="wn-hero-label"><span>{selectedMission.type} / {organization.name}</span><span className={`wn-status ${selectedMission.completed?'is-positive':''}`}>{status}</span></div><h2>{selectedMission.title}</h2><p>{selectedMission.description}</p></div>{art(selectedMission)&&<figure><img src={art(selectedMission)} alt={`Illustrative location artwork for ${selectedMission.title}`}/><figcaption>Illustrative location artwork</figcaption></figure>}</section>
       <div className="wn-assignment-meta"><div><MapPin/><span><small>Location</small><strong>{selectedMission.location}</strong></span></div><div><Coins/><span><small>Compensation</small><strong>{selectedMission.rewardCredits} credits</strong><span>{selectedMission.rewardXP} career XP{selectedMission.rewardBits ? ` · ${selectedMission.rewardBits} bits` : ''}</span></span></div><div><Clock/><span><small>Work structure</small><strong>{selectedMission.id === 'ms-case-002' ? 'Six evidence sources' : definition?.stages.length ? `${definition.stages.length} stages` : 'Assignment briefing'}</strong><span>Flexible schedule</span></span></div><div><Shield/><span><small>Access</small><strong>Clearance {definition?.clearance ?? organization.clearanceRequired}+</strong><span>Existing permissions apply</span></span></div></div>
       <nav className="wn-detail-tabs" aria-label="Assignment sections">{[['overview','Overview'],['objectives','Objectives'],['requirements','Requirements'],['deliverables','Saved work'],['rewards','Rewards'],['related','Related opportunities']].map(([value,label])=><button key={value} aria-current={detailTab===value?'page':undefined} onClick={()=>setDetailTab(value)}>{label}</button>)}</nav>

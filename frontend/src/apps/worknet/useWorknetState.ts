@@ -18,11 +18,12 @@ export function useWorknetState() {
   const [activeTab, setActiveTab] = useState<WorknetTabId>('overview');
   const [selectedMissionId, setSelectedMissionId] = useState('ms-spec-01');
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
-  const raw = useOSStore(s => s.gameplay.player.worknetWorkplace);
+  const player = useOSStore(s => s.gameplay.player);
+  const raw = player.worknetWorkplace;
   const cycle = useOSStore(s => s.gameplay.timeCycleCount), segment = useOSStore(s => s.gameplay.timeSegmentIndex);
   const workplaceAction = useOSStore(s => s.worknetWorkplaceAction);
   const tick = workTick({ timeCycleCount: cycle, timeSegmentIndex: segment });
-  const workplace = useMemo(() => restoreWorkplace(raw, tick), [raw, tick]);
+  const workplace = useMemo(() => restoreWorkplace(raw, tick, player), [raw, tick, player]);
   useEffect(() => { workplaceAction(raw ? { type: 'tick' } : { type: 'initialize', legacy: legacyWorkplace() }); }, [tick, workplaceAction, !!raw]);
   const showFeedback = (message: string) => setActionFeedback(message);
   const act = (action: any) => { const result = workplaceAction(action); if (result.message) showFeedback(result.message); return result; };

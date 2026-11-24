@@ -1,3 +1,5 @@
+import { WORKNET_ASSIGNMENTS } from '../gameplay/MissionCatalog';
+import { hasWorkReceipt } from '../gameplay/WorkRewards';
 import { isWorldPaused } from '../integration/worldStateManager';
 import { PROCESS_CATALOG, PROCESS_INCIDENT, PROCESS_MISSION, restoreProcessMonitor, processVerificationReady, processReportIssues, processDiagnosticText, requiredProcessEvidence, type DiagnosticKind, type ProcessReport } from '../gameplay/ProcessMonitor';
 import type { OSStoreState } from './useOSStore';
@@ -80,27 +82,29 @@ export function createProcessActions(set:(update:(state:OSStoreState)=>Partial<O
       const denied=permission();if(denied)return {ok:false,message:denied};
       const state=get(),player=state.gameplay.player,monitor=restoreProcessMonitor(player.processMonitor);
       const order=player.worknetOrders?.[PROCESS_MISSION];
-      if(!order || order.status!=='active' || !order.briefingReadAt || order.remediationRequired || monitor.completion || player.rewardedWorkOrderIds?.includes(order.id)) return {ok:false,message:'No unpaid active diagnostic assignment is available.'};
+      if(!order || order.status!=='active' || !order.briefingReadAt || order.remediationRequired || monitor.completion || hasWorkReceipt(player, order.id, state.worknetSim.payrollLedger)) return {ok:false,message:'No unpaid active diagnostic assignment is available.'};
       if((player.clearanceLevel??2)<2) return {ok:false,message:'Clearance 2 is required for sign-off.'};
       if(order.id!==`WORK:${PROCESS_MISSION}:once` || order.definitionId!==PROCESS_MISSION || order.subject!==PROCESS_INCIDENT || !evaluateWorkOrder(order,player.taskResults||{})) return {ok:false,message:'The diagnostic task receipts are incomplete. Submit the report again.'};
       if(!monitor.review || monitor.review.revision!==monitor.revision || processReportIssues(monitor).length) return {ok:false,message:'Submit a current verified report before sign-off.'};
       if(player.stamina<10) return {ok:false,message:'Finalization requires 10 stamina. Rest and return to your saved work.'};
       const legacyPaid=Array.isArray(player.quarantinedProcessPids)&&player.quarantinedProcessPids.includes(512);
       const paid=!legacyPaid;
-      const at=new Date().toISOString(),xp=player.xp+(paid?150:0);
+      const reward=WORKNET_ASSIGNMENTS[PROCESS_MISSION];
+      const at=new Date().toISOString(),xp=player.xp+(paid?reward.rewardXP:0);
       monitor.completion={at,workOrderId:order.id,paid};
       monitor.events=[...monitor.events,{id:`PM-${crypto.randomUUID()}`,at,text:paid?'WorkNet sign-off complete. One compensation receipt issued.':'WorkNet sign-off complete. Historical compensation retained; no second payout.'}].slice(-100);
       set(s=>({gameplay:{...s.gameplay,
         prismCorruptionLevel:paid?Math.max(2,Number((s.gameplay.prismCorruptionLevel-2.5).toFixed(1))):s.gameplay.prismCorruptionLevel,
-        player:{...s.gameplay.player,processMonitor:monitor,xp,level:Math.floor(xp/100)+1,credits:player.credits+(paid?250:0),stamina:player.stamina-10,
+        player:{...s.gameplay.player,processMonitor:monitor,xp,level:Math.floor(xp/100)+1,credits:player.credits+(paid?reward.rewardCredits:0),stamina:player.stamina-10,
           completedWorknetMissionIds:[...new Set([...(player.completedWorknetMissionIds||[]),PROCESS_MISSION])],
           rewardedWorkOrderIds:[...(player.rewardedWorkOrderIds||[]),order.id],
+          compensationReceiptIds:[...new Set([...(player.compensationReceiptIds||[]),order.id])],
           worknetOrders:{...player.worknetOrders,[PROCESS_MISSION]:{...order,status:'accepted'}},
         }}}));
-      if(paid){get().addCareerXP('dga',150);get().addSkillXP('CyberSecurity',30);}
+      if(paid){get().addCareerXP(reward.track,reward.rewardXP);get().addSkillXP('CyberSecurity',30);}
       get().recordAssignmentCompletion(PROCESS_MISSION);
-      get().recordWorldEvent({category:'forensic',title:`Accepted process diagnosis ${PROCESS_INCIDENT}`,summary:`Verified evidence and containment report accepted. ${paid?'250 credits and 150 XP issued once.':'Historical payment retained.'}`,institution:'DGA / WorkNet',...(paid?{impact:{reputationTrack:'dga',reputationDelta:5}}:{})});
-      return {ok:true,message:paid?'Work accepted: 250 credits, 150 XP, 30 CyberSecurity XP, and 5 DGA reputation. PRISM corruption reduced by 2.5 points.':'Work accepted. Historical compensation retained; no second reward.'};
+      get().recordWorldEvent({category:'forensic',title:`Accepted process diagnosis ${PROCESS_INCIDENT}`,summary:`Verified evidence and containment report accepted. ${paid?`${reward.rewardCredits} credits and ${reward.rewardXP} XP issued once.`:'Historical payment retained.'}`,institution:'DGA / WorkNet',...(paid?{impact:{reputationTrack:'dga',reputationDelta:5}}:{})});
+      return {ok:true,message:paid?`Work accepted: ${reward.rewardCredits} credits, ${reward.rewardXP} XP, 30 CyberSecurity XP, and 5 DGA reputation. PRISM corruption reduced by 2.5 points.`:'Work accepted. Historical compensation retained; no second reward.'};
     },
   };
 }

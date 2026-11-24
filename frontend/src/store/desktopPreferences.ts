@@ -1,6 +1,6 @@
 import { getDesktopTheme, type DesktopThemeId } from './desktopThemes';
 import { resolveAppDestination } from './appNavigation';
-export const DESKTOP_APP_IDS = ['browser','files','mail','post','comms','maispace','passport','housing','finance','pulse','vitals','campus','study','spellforge','lore','jobs','fieldOperations','meridionRegistry','documentStudio','dgaos','process','terminal','settings'];
+export const DESKTOP_APP_IDS = ['browser','files','mail','post','comms','maispace','passport','housing','finance','vitals','campus','study','spellforge','lore','jobs','fieldOperations','meridionRegistry','documentStudio','dgaos','process','terminal','settings'];
 export const DEFAULT_SHORTCUT_IDS = ['browser','files','mail','jobs','housing','lore'];
 export const MAX_DESKTOP_SHORTCUTS = 8;
 export const LAYOUT_IDS = ['everyday','personal','work'] as const;

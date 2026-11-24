@@ -20,7 +20,7 @@ export function createVersenetActions(set: any, get: any): VersenetActions {
       const missing = files.filter(file => !Object.hasOwn(content.savedFiles, file.id));
       if (!missing.length) return { ok: true, message: 'Already saved in /downloads/versenet.' };
       set((s: any) => ({ versenetContent: { ...s.versenetContent, savedFiles: countWebFolders({ ...s.versenetContent.savedFiles, ...Object.fromEntries(missing.map(file => [file.id, file])) }) } }));
-      return { ok: true, message: 'Saved to File Explorer → /downloads/versenet.' };
+      return { ok: true, message: 'Saved to Fylo → /downloads/versenet.' };
     },
   };
 }

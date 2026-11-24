@@ -1,3 +1,6 @@
+import { CAREER_REGISTRY, canonicalCareerId } from '../gameplay/CareerRegistry';
+import { restoreWorknetPlayer } from '../gameplay/WorknetPersistence';
+import { WORK_PAY_RULES } from '../gameplay/WorkRewards';
 import { createBankingActions, type BankingActions } from './bankingActions';
 import { journalBalanceChange, restoreBanking } from '../gameplay/Banking';
 import { createProcessActions, type ProcessActions } from './processActions';
@@ -49,7 +52,7 @@ import {
   appendCareerMilestone,
   type WorknetSimulationState,
 } from '../gameplay/WorknetSimulation';
-import { workTick } from '../apps/worknet/workplaceModel';
+import { workTick, restoreWorkplace } from '../apps/worknet/workplaceModel';
 import {
   emptyLibraryState,
   restoreLibraryState,
@@ -59,6 +62,15 @@ import {
   returnCatalogItem,
   type LibraryState,
 } from '../apps/library/libraryModel';
+import {
+  emptyOrynvellRecordsState,
+  restoreOrynvellRecordsState,
+  advanceOrynvellRequests,
+  submitOrynvellRequest,
+  staffDecideOrynvellRequest,
+  canAccessStaffWorkspace,
+  type OrynvellRecordsState,
+} from '../apps/Browser/records/orynvellRecordsModel';
 import { createFieldActions } from './fieldActions';
 import { createBroadStreetActions, type BroadStreetActions } from './broadStreetActions';
 import { createAssignmentActions, type AssignmentFlowActions } from './assignmentActions';
@@ -134,6 +146,11 @@ export interface OSStoreState extends BankingActions, ProcessActions, AcademicAc
   versenetSites: VersenetSites;
   worknetSim: WorknetSimulationState;
   library: LibraryState;
+  orynvellRecords: OrynvellRecordsState;
+  orynvellAction: (
+    action: 'saveDraft' | 'submitRequest' | 'staffDecide' | 'toggleSaveRecord' | 'saveSearch',
+    payload?: any,
+  ) => { ok: boolean; message: string; request?: any; issuedDoc?: any };
   libraryAction: (
     action: 'issueCard' | 'borrow' | 'read' | 'return' | 'toggleReadingList' | 'viewGuide' | 'saveReflections',
     payload?: any,
@@ -238,7 +255,6 @@ export interface OSStoreState extends BankingActions, ProcessActions, AcademicAc
   verifyDGAIdentity: () => void;
   unlockApp: (appId: string) => void;
   completeIdentityScan: (data: any) => void;
-  createPulseProfile: (profileData: any) => void;
   selectMAITone: (tone: string) => void;
   completeQuest: (questId: string) => void;
   incrementHackedNodes: () => void;
@@ -484,6 +500,79 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   versenetSites: emptyVersenetSites(),
   worknetSim: emptyWorknetSimulation(),
   library: emptyLibraryState(),
+  orynvellRecords: emptyOrynvellRecordsState(),
+  orynvellAction: (action, payload) => {
+    const state = get();
+    const current = state.orynvellRecords;
+    const cycle = state.gameplay.timeCycleCount ?? 0;
+    if (action === 'saveDraft') {
+      set({
+        orynvellRecords: {
+          ...current,
+          draftForm: {
+            serviceType: payload?.serviceType || current.draftForm.serviceType,
+            recordId: typeof payload?.recordId === 'string' ? payload.recordId : current.draftForm.recordId,
+            details: typeof payload?.details === 'string' ? payload.details.slice(0, 2000) : current.draftForm.details,
+          },
+        },
+      });
+      return { ok: true, message: 'Draft saved.' };
+    }
+    if (action === 'submitRequest') {
+      if (!state.isLoggedIn) return { ok: false, message: 'Sign in with your AURA citizen account to submit a formal request.' };
+      const res = submitOrynvellRequest(current, {
+        serviceType: payload?.serviceType,
+        recordId: payload?.recordId,
+        details: payload?.details,
+        applicantName: state.gameplay.player.name || 'Citizen',
+        applicantMaid: state.gameplay.identity?.maid || 'MAID-OR-CITIZEN',
+        cycle,
+      });
+      if (!res.ok) return { ok: false, message: res.reason };
+      const fee = res.request?.feeCredits || 0;
+      if (fee > 0 && (state.gameplay.player.credits || 0) < fee) {
+        return { ok: false, message: `Insufficient credits for the ${fee} ₢ statutory administrative fee.` };
+      }
+      set(s => ({
+        orynvellRecords: res.state,
+        ...(fee > 0
+          ? { gameplay: { ...s.gameplay, player: { ...s.gameplay.player, credits: (s.gameplay.player.credits || 0) - fee } } }
+          : {}),
+      }));
+      return { ok: true, message: fee > 0 ? `${res.reason} (${fee} ₢ fee processed via ORYN.)` : res.reason, request: res.request };
+    }
+    if (action === 'staffDecide') {
+      if (!canAccessStaffWorkspace(state.gameplay.player, state.isLoggedIn)) {
+        return { ok: false, message: 'Authorized Orynvell records staff credentials are required.' };
+      }
+      const res = staffDecideOrynvellRequest(current, {
+        requestId: payload?.requestId,
+        decision: payload?.decision,
+        actorName: state.gameplay.player.name || 'Records Officer',
+        note: payload?.note || '',
+        cycle,
+      });
+      if (res.ok) set({ orynvellRecords: res.state });
+      return { ok: res.ok, message: res.reason, issuedDoc: res.issuedDoc };
+    }
+    if (action === 'toggleSaveRecord') {
+      const id = String(payload?.recordId || '');
+      if (!id) return { ok: false, message: 'Invalid record ID.' };
+      const exists = current.savedRecordIds.includes(id);
+      const savedRecordIds = exists ? current.savedRecordIds.filter(x => x !== id) : [...current.savedRecordIds, id];
+      set({ orynvellRecords: { ...current, savedRecordIds } });
+      return { ok: true, message: exists ? 'Removed record from saved list.' : 'Saved record reference.' };
+    }
+    if (action === 'saveSearch') {
+      const query = String(payload?.query || '').trim();
+      const category = String(payload?.category || 'All');
+      if (!query && category === 'All') return { ok: false, message: 'Enter a search term or category first.' };
+      const next = [{ id: `SRCH-${crypto.randomUUID()}`, query, category }, ...current.savedSearches].slice(0, 12);
+      set({ orynvellRecords: { ...current, savedSearches: next } });
+      return { ok: true, message: 'Saved search to My Requests.' };
+    }
+    return { ok: false, message: 'Unknown Orynvell Records action.' };
+  },
   libraryAction: (action, payload) => {
     const state = get();
     const current = state.library;
@@ -543,32 +632,35 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     set(state => {
       if (isWorldPaused()) return state;
       const tick = workTick(state.gameplay);
+      const workplace = restoreWorkplace(state.gameplay.player.worknetWorkplace, state.worknetSim.lastTick, state.gameplay.player);
       return {
-        worknetSim: advanceWorknetSimulation(state.worknetSim, tick, state.gameplay.player.workplace),
+        worknetSim: advanceWorknetSimulation(state.worknetSim, tick, workplace),
+        gameplay: { ...state.gameplay, player: { ...state.gameplay.player, worknetWorkplace: restoreWorkplace(workplace, tick, state.gameplay.player) } },
       };
     }),
-  logHourlyShiftTime: (track, units, ratePerUnit = 40) => {
+  logHourlyShiftTime: (track, units, _ratePerUnit = WORK_PAY_RULES.hourlyRate) => {
+    track = canonicalCareerId(track);
     const state = get();
     if (isWorldPaused()) return { ok: false, message: 'Resume the world before logging shift time.' };
     const contract = state.gameplay.player.employmentContracts?.[track];
     if (!contract) return { ok: false, message: 'An active employment contract is required to log hourly shift time.' };
-    const cleanUnits = Math.max(1, Math.min(8, Math.floor(units)));
+    if (!Number.isSafeInteger(units) || units < 1 || units > 4) return { ok: false, message: 'Log between 1 and 4 verified work units.' };
+    const elapsed = Math.max(0, workTick(state.gameplay) - (contract.signedAtTick ?? workTick(state.gameplay)));
+    if (units > elapsed) return { ok: false, message: 'Advance the world clock before logging additional shift units.' };
     const cycle = state.gameplay.timeCycleCount ?? 0;
-    const segment = state.gameplay.timeSegmentIndex ?? 0;
-    const res = recordEarnedPayroll(state.worknetSim, {
-      claimId: `HOURLY:${track}:${cycle}:${segment}`,
-      model: 'hourly',
-      payer: `Oryn Department of Finance (${contract.position})`,
-      track,
-      description: `${cleanUnits} verified work unit(s) logged — ${contract.position}`,
-      verifiedUnits: cleanUnits,
-      ratePerUnit,
-      verified: true,
-      cycle,
-    });
-    if (!res.ok) return { ok: false, message: res.reason };
-    set({ worknetSim: res.state });
-    return { ok: true, message: res.reason };
+    let nextSim = state.worknetSim;
+    for (let offset = 1; offset <= units; offset++) {
+      const res = recordEarnedPayroll(nextSim, {
+        claimId: `HOURLY:player:${workTick(state.gameplay) - offset}`,
+        model: 'hourly', payer: `Oryn Department of Finance (${contract.position})`, track,
+        description: `Verified work segment — ${contract.position}`, verifiedUnits: 1,
+        ratePerUnit: WORK_PAY_RULES.hourlyRate, verified: true, cycle,
+      });
+      if (!res.ok) return { ok: false, message: 'These shift units already have a payroll receipt.' };
+      nextSim = res.state;
+    }
+    set({ worknetSim: nextSim });
+    return { ok: true, message: `Recorded ${units} verified work segment(s) for payroll.` };
   },
   issuePendingPayroll: (entryId) => {
     const state = get();
@@ -620,7 +712,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     const state = get();
     const order = state.gameplay.player.worknetOrders?.[missionId];
     if (!order || order.status !== 'active') return { ok: false, message: 'No active work order to settle.' };
-    const completedStages = order.resultIds?.length || 0;
+    const completedStages = new Set(order.resultIds?.filter(id => { const result = state.gameplay.player.taskResults?.[id]; return result?.workOrderId === order.id && !result.compensationPaid; }) || []).size;
     const cycle = state.gameplay.timeCycleCount ?? 0;
     let nextSim = state.worknetSim;
     let notice = 'Work order closed without completion fee.';
@@ -632,7 +724,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
         track: order.employmentContractId?.replace('EMP:', '') || 'dga',
         description: `Partial settlement for ${order.subject} (${completedStages} verified stage output${completedStages === 1 ? '' : 's'})`,
         verifiedUnits: completedStages,
-        ratePerUnit: 35,
+        ratePerUnit: WORK_PAY_RULES.partialStageRate,
         verified: true,
         cycle,
       });
@@ -645,7 +737,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     delete nextOrders[missionId];
     set(s => ({
       worknetSim: nextSim,
-      gameplay: { ...s.gameplay, player: { ...s.gameplay.player, worknetOrders: nextOrders } },
+      gameplay: { ...s.gameplay, player: { ...s.gameplay.player, worknetOrders: nextOrders, compensationReceiptIds: [...new Set([...(s.gameplay.player.compensationReceiptIds || []), order.id])], rewardedWorkOrderIds: [...new Set([...(s.gameplay.player.rewardedWorkOrderIds || []), order.id])] } },
     }));
     return { ok: true, message: notice };
   },
@@ -732,11 +824,16 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   },
   loginUser: (userData) =>
     set((s) => {
+      const localHost = isLocalWorld(globalThis.location?.hostname || '');
       // Login resumes this browser's saved character without reapplying starter rewards.
       if (s.gameplay.player.name && s.gameplay.player.name.toLowerCase() === userData.name?.trim().toLowerCase()) {
-        return { isLoggedIn: true };
+        return {
+          isLoggedIn: true,
+          gameplay: localHost ? grantLocalCredentials(s.gameplay, new Date().toISOString()) : s.gameplay,
+        };
       }
       const isAdmin = !!(
+        localHost ||
         userData.isAdmin ||
         userData.name?.toLowerCase().includes('admin') ||
         (userData.clearance && userData.clearance >= 4)
@@ -758,12 +855,6 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
               signalSignature: 'Root-Resonance-Omni (Master)',
               profileTags: ['#RootAdmin', '#Netrunner', '#MasterArchivist', '#SystemsArchitect', '#TacticalShield'],
               declaredRegion: 'Orynvell Upper Sanctum',
-            },
-            pulseProfile: {
-              displayName: 'ADMINISTRATOR // Root',
-              houseTag: 'Vertex (Master)',
-              visibility: 'Public',
-              theme: 'gold',
             },
             player: {
               ...s.gameplay.player,
@@ -801,19 +892,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
                 CyberSecurity: { level: 10, xp: 9999 },
                 Cryptography: { level: 10, xp: 9999 },
               },
-              careers: {
-                archivist: { rankIndex: 5, xp: 100, title: 'Grand Master of Records' },
-                engineer: { rankIndex: 5, xp: 100, title: 'Chief Systems Synthesizer' },
-                diplomat: { rankIndex: 5, xp: 100, title: 'Plenipotentiary Ambassador' },
-                enforcer: { rankIndex: 5, xp: 100, title: 'Warden of the Shield' },
-                artist: { rankIndex: 5, xp: 100, title: 'Paragon of the Arts' },
-                medical: { rankIndex: 5, xp: 100, title: 'Grand Sanctum Physician' },
-                warden: { rankIndex: 5, xp: 100, title: 'Guardian of Arcadia' },
-                finance: { rankIndex: 5, xp: 100, title: 'Master of the Treasury' },
-                questnotice: { rankIndex: 5, xp: 100, title: 'Aureline Fixer' },
-                dga: { rankIndex: 5, xp: 100, title: 'DGA High Commander' },
-                gov: { rankIndex: 5, xp: 100, title: 'Supreme Council Regent' },
-              },
+              careers: Object.fromEntries(Object.values(CAREER_REGISTRY).map(c => [c.id, { rankIndex: 5, xp: 100, title: c.tierTitles[5] }])),
               npcVectors: {
                 jeremie: { friendship: 100, trust: 100, rivalry: 0, sync: 100, corruption: 0 },
                 sissi: { friendship: 100, trust: 100, rivalry: 0, sync: 100, corruption: 0 },
@@ -893,8 +972,8 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     ],
     timeSegmentIndex: 2, // 0: Morning, 1: Afternoon, 2: Evening, 3: Night
     timeCycleCount: 28,
-    onboardingPhase: 1, // 1: Boot, 2: Emails Read, 3: Identity Verified, 4: Pulse Created, 5: Comms Unlocked, 6: Completed
-    lockedApps: ['passport', 'pulse', 'comms'], // Apps locked until onboarding steps are completed
+    onboardingPhase: 1, // 1: Boot, 2: Emails Read, 3: Identity Verified, 4: Comms Unlocked, 6: Completed
+    lockedApps: ['passport', 'comms'], // Apps locked until onboarding steps are completed
     identity: {
       fingerprint: false,
       facial: false,
@@ -905,12 +984,6 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
       signalSignature: 'Aura-Code-Alpha',
       profileTags: ['#Netrunner', '#Scholar'],
       declaredRegion: 'Aureline Central',
-    },
-    pulseProfile: {
-      displayName: null,
-      houseTag: 'Vector',
-      visibility: 'Public',
-      theme: 'purple',
     },
     maiTone: null, // 'friendly' | 'neutral' | 'cold'
     player: {
@@ -925,6 +998,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
       completedWorknetMissionIds: [],
       worknetMissionProgress: {},
       employmentContracts: {},
+      compensationReceiptIds: [] as string[],
       organizationMemberships: {},
       organizationInvitations: {},
       worknetOrders: {},
@@ -1012,19 +1086,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
         CyberSecurity: { level: 1, xp: 0 },
         Cryptography: { level: 1, xp: 0 },
       },
-      careers: {
-        archivist: { rankIndex: 0, xp: 0, title: 'Archivist / Researcher' },
-        engineer: { rankIndex: 0, xp: 0, title: 'Systems Engineer' },
-        diplomat: { rankIndex: 0, xp: 0, title: 'Council Diplomat' },
-        enforcer: { rankIndex: 0, xp: 0, title: 'Enforcer / Guardian' },
-        artist: { rankIndex: 0, xp: 0, title: 'Artist / Performer' },
-        medical: { rankIndex: 0, xp: 0, title: 'Healer / Medical Support' },
-        warden: { rankIndex: 0, xp: 0, title: 'Ecological Warden' },
-        finance: { rankIndex: 0, xp: 0, title: 'Finance Clerk / Banking Support' },
-        questnotice: { rankIndex: 0, xp: 0, title: 'QUESTNOTICE Odd Jobs' },
-        dga: { rankIndex: 0, xp: 0, title: 'Department of Global Affairs' },
-        gov: { rankIndex: 0, xp: 0, title: 'Governmental Civic Administration' },
-      },
+      careers: Object.fromEntries(Object.values(CAREER_REGISTRY).map(c => [c.id, { rankIndex: 0, xp: 0, title: c.tierTitles[0] }])),
       starterPhase: 0,
       houseAffiliation: null,
       dormComfort: 50,
@@ -1066,7 +1128,8 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
 
       const nextTick = nextCycle * 4 + nextIndex;
       return {
-        worknetSim: advanceWorknetSimulation(state.worknetSim, nextTick, state.gameplay.player.workplace),
+        worknetSim: advanceWorknetSimulation(state.worknetSim, nextTick, state.gameplay.player.worknetWorkplace),
+        orynvellRecords: advanceOrynvellRequests(state.orynvellRecords, nextTick),
         gameplay: {
           ...state.gameplay,
           timeSegmentIndex: nextIndex,
@@ -1333,8 +1396,8 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
               title: `Inspected Archive File: ${mockKey}`,
               summary: unlocksLineage
                 ? `Decrypted restricted pre-Collapse lineage file (${mockKey}).`
-                : `Reviewed system record (${mockKey}) in File Explorer.`,
-              institution: 'File Explorer // Archives',
+                : `Reviewed system record (${mockKey}) in Fylo.`,
+              institution: 'Fylo // Archives',
               cycle: state.gameplay.timeCycleCount,
             }),
             ...currentEvents.slice(0, 29),
@@ -1945,7 +2008,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     set((state) => ({
       gameplay: {
         ...state.gameplay,
-        lockedApps: state.gameplay.lockedApps.filter((a: string) => a !== 'passport' && a !== 'pulse'),
+        lockedApps: state.gameplay.lockedApps.filter((a: string) => a !== 'passport' && a !== 'comms'),
         player: {
           ...state.gameplay.player,
           dgaVerified: true,
@@ -1965,7 +2028,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   completeIdentityScan: (data) =>
     set((state) => {
       if (state.gameplay.player.dgaVerified) return state;
-      const newLocked = state.gameplay.lockedApps.filter((a: string) => a !== 'passport' && a !== 'pulse');
+      const newLocked = state.gameplay.lockedApps.filter((a: string) => a !== 'passport' && a !== 'comms');
       return {
         gameplay: {
           ...state.gameplay,
@@ -1986,32 +2049,6 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
             activities: state.gameplay.player.activities.map((act: any) => {
               if (act.id === 'Q_DAY1_3') return { ...act, status: 'COMPLETED' };
               if (act.id === 'Q_DAY1_4') return { ...act, status: 'IN_PROGRESS' };
-              return act;
-            }),
-          },
-        },
-      };
-    }),
-
-  createPulseProfile: (profileData) =>
-    set((state) => {
-      const newLocked = state.gameplay.lockedApps.filter((a: string) => a !== 'pulse' && a !== 'comms');
-      return {
-        gameplay: {
-          ...state.gameplay,
-          lockedApps: newLocked,
-          onboardingPhase: Math.max(4, state.gameplay.onboardingPhase),
-          pulseProfile: {
-            ...state.gameplay.pulseProfile,
-            ...profileData,
-          },
-          player: {
-            ...state.gameplay.player,
-            credits: state.gameplay.player.credits + 100,
-            xp: state.gameplay.player.xp + 75,
-            activities: state.gameplay.player.activities.map((act: any) => {
-              if (act.id === 'Q_DAY1_4') return { ...act, status: 'COMPLETED' };
-              if (act.id === 'Q_DAY1_5') return { ...act, status: 'IN_PROGRESS' };
               return act;
             }),
           },
@@ -2191,6 +2228,8 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   // profession-specific qualifications evaluated via requestCareerPromotion(track).
   addCareerXP: (track, amount) =>
     set((state) => {
+      track = canonicalCareerId(track);
+      if (!CAREER_REGISTRY[track] || !Number.isFinite(amount)) return {};
       const current = state.gameplay.player.careers[track] || {
         rankIndex: 0,
         xp: 0,
@@ -2219,6 +2258,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     }),
 
   requestCareerPromotion: (track) => {
+    track = canonicalCareerId(track);
     const state = get();
     const player = state.gameplay.player;
     const evalRes = evaluateCareerPromotion(track, player);
@@ -2471,10 +2511,9 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
       mail: 'AureMail Mailbox',
       comms: 'Comms Portal',
       passport: 'Citizen Hub',
-      pulse: 'Pulse',
       maispace: 'mai.space',
-      files: 'File Explorer',
-      lore: 'Lore Explorer (Cloud)',
+      files: 'Fylo',
+      lore: 'Royal Archive & Library',
       terminal: 'System Terminal',
       settings: 'System Settings',
     };
@@ -2549,7 +2588,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   version: 1,
   storage: createJSONStorage(() => osStorage),
   // Window metadata can contain React icons; recreate windows rather than serializing them.
-  partialize: ({ gameplay, wallpaper, isLoggedIn, browserState, desktopPreferences, versenetContent, versenetSites, fylo, worknetSim, library }) => ({ gameplay, wallpaper, isLoggedIn, browserState: restartBrowserSession(browserState), desktopPreferences, versenetContent, versenetSites, fylo, worknetSim, library }),
+  partialize: ({ gameplay, wallpaper, isLoggedIn, browserState, desktopPreferences, versenetContent, versenetSites, fylo, worknetSim, library, orynvellRecords }) => ({ gameplay, wallpaper, isLoggedIn, browserState: restartBrowserSession(browserState), desktopPreferences, versenetContent, versenetSites, fylo, worknetSim, library, orynvellRecords }),
   merge: (persisted, current) => {
     const saved = persisted as Partial<OSStoreState> | null;
     const browserState = restoreBrowserState(saved?.browserState);
@@ -2561,9 +2600,16 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
       fylo: restoreFyloState(saved?.fylo),
       worknetSim: restoreWorknetSimulation(saved?.worknetSim, workTick(saved?.gameplay || current.gameplay)),
       library: restoreLibraryState(saved?.library),
+      orynvellRecords: restoreOrynvellRecordsState(saved?.orynvellRecords, workTick(saved?.gameplay || current.gameplay)),
       browserState,
       browserUrl: browserState.tabs.find(tab => tab.id === browserState.activeTabId)!.url,
-      gameplay: (() => { const gameplay = mergeSavedProgress(current.gameplay, saved?.gameplay); return { ...gameplay, player: { ...gameplay.player, banking: restoreBanking(gameplay.player.banking), processMonitor: restoreProcessMonitor(gameplay.player.processMonitor) } }; })(),
+      gameplay: (() => {
+        const merged = mergeSavedProgress(current.gameplay, saved?.gameplay);
+        const restored = { ...merged, player: { ...restoreWorknetPlayer(merged.player, workTick(merged)), banking: restoreBanking(merged.player.banking), processMonitor: restoreProcessMonitor(merged.player.processMonitor) } };
+        return isLocalWorld(globalThis.location?.hostname || '')
+          ? grantLocalCredentials(restored, new Date().toISOString())
+          : restored;
+      })(),
       wallpaper: typeof saved?.wallpaper === 'string' ? saved.wallpaper : current.wallpaper,
       isLoggedIn: typeof saved?.isLoggedIn === 'boolean' ? saved.isLoggedIn : current.isLoggedIn,
     };
@@ -2574,3 +2620,11 @@ registerCommunicationsAuthority(() => {
   const state = useOSStore.getState();
   return { player: state.gameplay.player, identity: state.gameplay.identity, isLoggedIn: state.isLoggedIn };
 });
+
+// Automatically grant full admin credentials on localhost without requiring manual activation.
+if (isLocalWorld(globalThis.location?.hostname || '')) {
+  const current = useOSStore.getState();
+  if (!current.gameplay.player.isAdmin || (current.gameplay.player.clearanceLevel ?? 1) < 5) {
+    useOSStore.setState({ gameplay: grantLocalCredentials(current.gameplay, new Date().toISOString()) });
+  }
+}

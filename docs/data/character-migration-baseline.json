@@ -688,28 +688,28 @@
       "collection": "AUREMAIL_DIRECTORY",
       "key": "dir-dean-rook",
       "characterId": "char-cassian-rook",
-      "sha256": "eb2e5a61e43ef9f161536d88585dba91075355095f7b9bd6c7afc9f0524a65b9",
+      "sha256": "5c021c708ff02e96b8e376bf7dbd1c33e5f68d43d9690448c9380f3f0db8b98b",
       "originalSource": "frontend/src/data/commsData.ts:278"
     },
     {
       "collection": "AUREMAIL_DIRECTORY",
       "key": "dir-dr-voss",
       "characterId": "char-sharon-voss",
-      "sha256": "4506194988da9fbc68f7597f75768b0f826136e4849f7627e13f3090dd376da0",
+      "sha256": "8d3b9ba71f63fa5051ea84e965ba45989ccd983bca2016fcdf9852a690246228",
       "originalSource": "frontend/src/data/commsData.ts:293"
     },
     {
       "collection": "AUREMAIL_DIRECTORY",
       "key": "dir-aelita",
       "characterId": "char-aelita-schaeffer",
-      "sha256": "c8a9f3ff930130f6357ceda7246aae846b8b2aa38af584fd889bd8d0010e92cd",
+      "sha256": "c4db30d4b9757f7d882831e46a58c9c8c18f75d5313b614033516ab7aa31e8d9",
       "originalSource": "frontend/src/data/commsData.ts:309"
     },
     {
       "collection": "AUREMAIL_DIRECTORY",
       "key": "dir-jeremie",
       "characterId": "char-jeremie-belpois",
-      "sha256": "1edcb5f82ab76f87d53c3710d1ca14bf83d67e784043eed23b8dbcd55d163b0a",
+      "sha256": "b3956073ac395ad9bfd471b50239ebcf78f23953b09f267748145c16b0ddda44",
       "originalSource": "frontend/src/data/commsData.ts:325"
     },
     {
@@ -730,7 +730,7 @@
       "collection": "AUREMAIL_DIRECTORY",
       "key": "dir-elara-vale",
       "characterId": "char-elara-vale",
-      "sha256": "2dbc1dc7169b49cf0328349875c8af85b639f101e46d1939edc06928f10f4e5e",
+      "sha256": "ab0f9f1623e71c1eb3180c09868aac2cda3aa62e9a03d64b166f14febbb46ba5",
       "originalSource": "frontend/src/data/commsData.ts:373"
     },
     {
@@ -751,7 +751,7 @@
       "collection": "defaultInputs",
       "key": "MAID-OR-00481926",
       "characterId": "char-elara-vale",
-      "sha256": "0a64d16c40a08d1e124bcb5f14624ae778d38a8c930da88c9c1a841971156ba7",
+      "sha256": "bdc6547ba1a593ba2c8d79769aeeb91e7690902d5e5af3286f5253674ae719cc",
       "originalSource": "frontend/src/services/maidIdentityService.ts:1245"
     },
     {
@@ -779,7 +779,7 @@
       "collection": "defaultInputs",
       "key": "MAID-OR-00481930",
       "characterId": "char-sora-takahashi",
-      "sha256": "0eff5acf78031d7d78c6e351eac8741a9247ebf9354e445becb991f4e0e50ee4",
+      "sha256": "769032b89c1485ef6dff927317f15caff74941c6f278f03c1e137583ebffd060",
       "originalSource": "frontend/src/services/maidIdentityService.ts:1431"
     },
     {

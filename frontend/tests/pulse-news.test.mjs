@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildNewsEdition, filterNews, newsExposure, restoreNewsReading } from '../src/apps/Pulse/newsModel.ts';
+import { buildNewsEdition, filterNews, newsExposure, restoreNewsReading } from '../src/apps/Browser/news/newsModel.ts';
 import { NEWS_SITE, newsUrl, parseNewsLocation, newsSearchRecords } from '../src/apps/Browser/news/newsSite.ts';
 
 test('public news follows world exposure without copying private records or modifying progress', () => {

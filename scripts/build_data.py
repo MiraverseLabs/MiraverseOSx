@@ -92,7 +92,11 @@ def main():
                 obj[to_camel(col)] = transform(table, col, row[col])
             rows.append(obj)
 
-        path = os.path.join(OUT_DIR, f'{table}.json')
+        # Windows ignores filename case. Legacy Careers/Missions tables must not
+        # overwrite the authored gameplay catalogs careers.json / missions.json.
+        table_dir = os.path.join(OUT_DIR, 'generated', 'sqlite') if table.lower() in {'careers', 'missions'} else OUT_DIR
+        os.makedirs(table_dir, exist_ok=True)
+        path = os.path.join(table_dir, f'{table}.json')
         with open(path, 'w', encoding='utf-8') as fh:
             json.dump(rows, fh, ensure_ascii=False, separators=(',', ':'))
 
@@ -100,14 +104,18 @@ def main():
         total += len(rows)
         print(f'   {table:16s}  {len(rows):4d} rows   {os.path.getsize(path):>8,} B  → {path}')
 
+    con.close()
+
     # Also emit a single worldData.json for convenient world-store consumption
+    with open(os.path.join(OUT_DIR, 'careers.json'), encoding='utf-8') as authored:
+        career_catalog = json.load(authored)
     world = {
         'metadata': { 'title': 'MIRAVERSE OSx', 'generated': __import__('datetime').datetime.utcnow().isoformat() },
         'version': '2.0.0',
         'regions':  exports.get('Regions', []),
         'factions': exports.get('Factions', []),
         'npcs':     exports.get('NPCs', []),
-        'careers':  exports.get('Careers', []),
+        'careers':  career_catalog,
         'lore':     exports.get('Lore_Entries', []),
     }
     world_path = os.path.join(OUT_DIR, 'worldData.json')

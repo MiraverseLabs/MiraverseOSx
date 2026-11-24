@@ -1,3 +1,6 @@
+import { actorStatus, actorHasCommitment } from './WorkSchedule';
+import { careerXP, careerStation } from './CareerRegistry';
+import { WORK_PAY_RULES } from './WorkRewards';
 import { INSTITUTIONAL_REGISTRY } from '../apps/worknet/worknetData';
 import {
   calculateCompensation,
@@ -207,6 +210,12 @@ export function restoreWorknetSimulation(raw: unknown, tick = 0): WorknetSimulat
       )
     : [];
 
+  const uniquePayroll = new Map<string, PayrollEntry>();
+  for (const entry of payrollLedger) {
+    const prior = uniquePayroll.get(entry.claimId);
+    if (!prior || entry.stage === 'issued') uniquePayroll.set(entry.claimId, entry);
+  }
+
   const careerHistory = Array.isArray(saved.careerHistory)
     ? saved.careerHistory.filter(
         (item): item is CareerMilestone => Boolean(item && typeof item.id === 'string' && typeof item.title === 'string'),
@@ -226,7 +235,7 @@ export function restoreWorknetSimulation(raw: unknown, tick = 0): WorknetSimulat
     npcs,
     peerBonds,
     activityFeed,
-    payrollLedger,
+    payrollLedger: [...uniquePayroll.values()],
     careerHistory,
   };
 }
@@ -243,6 +252,8 @@ export function advanceWorknetSimulation(
     coworkerStats?: Record<string, { trust: number; competence: number; cooperation: number; status: 'Desk' | 'In Meeting' | 'In Field' | 'On Break' }>;
     divisionBudgets?: Record<string, { equipment: number; training: number; surge: number }>;
     delegatedTasks?: { assigneeId: string; status: string }[];
+    originTick?: number;
+    subordinateLeaves?: { subordinateId: string; status: string; untilTick: number }[];
   },
 ): WorknetSimulationState {
   const state = restoreWorknetSimulation(raw, currentTick);
@@ -276,11 +287,9 @@ export function advanceWorknetSimulation(
       for (const cw of org.coworkers) {
         const record = { ...npcs[cw.id] };
         const liveStats = workplaceState?.coworkerStats?.[cw.id];
-        const status = liveStats?.status || cw.status;
+        const status = actorStatus(cw.status, workplaceState?.originTick ?? state.lastTick, tick, cw.id, workplaceState);
         const competence = Math.min(100, (liveStats?.competence ?? cw.competence) + trainingBoost * 2);
-        const hasOpenDelegation = Boolean(
-          workplaceState?.delegatedTasks?.some(d => d.assigneeId === cw.id && d.status !== 'Approved'),
-        );
+        const hasOpenDelegation = actorHasCommitment(workplaceState, cw.id);
 
         const decision = evaluateNpcDecision({
           npcId: cw.id,
@@ -404,7 +413,7 @@ export function recordEarnedPayroll(
   }
 
   // Oryn Department of Finance 5% civic levy on positive gross wages
-  const civicDeduction = calc.grossCredits > 0 ? Math.floor(calc.grossCredits * 0.05) : 0;
+  const civicDeduction = calc.grossCredits > 0 ? Math.floor(calc.grossCredits * WORK_PAY_RULES.civicLevyRate) : 0;
   const netCredits = Math.max(0, calc.grossCredits - civicDeduction);
 
   const entry: PayrollEntry = {
@@ -468,6 +477,12 @@ export function appendCareerMilestone(
 }
 
 /** Determine which of the 4 Hybrid Execution Modes are available for a player on a work stage */
+export function availableStageColleague(player: any, track: string, tick: number) {
+  const workplace = player?.worknetWorkplace;
+  return INSTITUTIONAL_REGISTRY[careerStation(track)]?.coworkers.find(c =>
+    actorStatus(c.status, workplace?.originTick ?? tick, tick, c.id, workplace) === 'Desk' && !actorHasCommitment(workplace, c.id));
+}
+
 export function availableExecutionModes(
   player: any,
   track: string,
@@ -476,7 +491,7 @@ export function availableExecutionModes(
   const clearance = Number(player?.clearanceLevel ?? 1);
   const contract = player?.employmentContracts?.[track];
   const isSupervisor = contract?.pathwayChoice === 'supervisor';
-  const careerXp = Number(player?.careerTrackXp?.[track] ?? player?.xp ?? 0);
+  const careerXp = careerXP(player, track);
 
   return [
     {

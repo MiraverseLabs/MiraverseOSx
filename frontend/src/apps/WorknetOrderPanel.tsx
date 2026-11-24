@@ -3,7 +3,8 @@ import { PROCESS_MISSION } from '../gameplay/ProcessMonitor';
 import React, { useState } from 'react';
 import { useOSStore } from '../store/useOSStore';
 import { WORK_DEFINITIONS, nextWorkStage, resolveWorkStage, resultForStage, evaluateLinkedActivities, stageActionTypes, type TaskResult, type WorkOrder } from '../gameplay/ActivityEngine';
-import { availableExecutionModes } from '../gameplay/WorknetSimulation';
+import { availableExecutionModes, availableStageColleague } from '../gameplay/WorknetSimulation';
+import { worldWorkTick } from '../gameplay/WorkSchedule';
 import { getOpportunity, briefingText } from '../gameplay/AssignmentFlow';
 import { isOpportunityRevealed } from '../gameplay/ProgressionEngine';
 import ReportEditor from '../components/editor/ReportEditor';
@@ -13,6 +14,7 @@ import { RichMailBody } from './mail/RichMailEditor';
 export default function WorknetOrderPanel({ missionId, onFeedback }: { missionId: string; onFeedback: (message: string) => void }) {
   const player = useOSStore(state => state.gameplay.player);
   const cycle = useOSStore(state => state.gameplay.timeCycleCount);
+  const tick = useOSStore(state => worldWorkTick(state.gameplay));
   const acceptEmployment = useOSStore(state => state.acceptEmployment);
   const openOrder = useOSStore(state => state.openWorknetOrder);
   const saveDraft = useOSStore(state => state.saveWorknetDraft);
@@ -38,7 +40,36 @@ export default function WorknetOrderPanel({ missionId, onFeedback }: { missionId
   return (
     <section className="space-y-3 text-xs font-ui" aria-label="Assignment work order">
       <div className="work-order-block space-y-3">
-        {missionId === 'ms-spec-01' && <button type="button" className="assignment-secondary" onClick={() => useOSStore.getState().openWindow('fieldOperations')}>Open playable Tunnel 09 field investigation</button>}
+        <div className="rounded-lg border border-slate-200 bg-slate-50/90 p-2.5 space-y-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-600">
+              Connected Mission Research & Operations
+            </span>
+            <span className="text-[10px] font-mono text-slate-500">
+              Primary files: Fylo /assignments/{missionId}
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            <button type="button" onClick={() => { useOSStore.getState().saveAssignmentBriefing(missionId); useOSStore.getState().openAssignmentFiles(missionId); }} className="px-2.5 py-1 rounded-md border border-slate-300 bg-white hover:bg-slate-100 text-[11px] font-semibold text-slate-800 cursor-pointer">
+              Fylo Mission Files
+            </button>
+            <button type="button" onClick={() => useOSStore.getState().openWindow('mail')} className="px-2.5 py-1 rounded-md border border-slate-300 bg-white hover:bg-slate-100 text-[11px] font-semibold text-slate-800 cursor-pointer">
+              AureMail Dispatches
+            </button>
+            <button type="button" onClick={() => useOSStore.getState().openAppWorkspace('dgaos', 'overview')} className="px-2.5 py-1 rounded-md border border-slate-300 bg-white hover:bg-slate-100 text-[11px] font-semibold text-slate-800 cursor-pointer">
+              DGAOS Console
+            </button>
+            <button type="button" onClick={() => useOSStore.getState().openWindow('fieldOperations')} className="px-2.5 py-1 rounded-md border border-slate-300 bg-white hover:bg-slate-100 text-[11px] font-semibold text-slate-800 cursor-pointer">
+              Field Operations
+            </button>
+            <button type="button" onClick={() => useOSStore.getState().openAppWorkspace('browser', 'https://records.orynvell.gov')} className="px-2.5 py-1 rounded-md border border-slate-300 bg-white hover:bg-slate-100 text-[11px] font-semibold text-slate-800 cursor-pointer">
+              Orynvell Records
+            </button>
+            <button type="button" onClick={() => useOSStore.getState().openWindow('lore')} className="px-2.5 py-1 rounded-md border border-slate-300 bg-white hover:bg-slate-100 text-[11px] font-semibold text-slate-800 cursor-pointer">
+              Royal Library
+            </button>
+          </div>
+        </div>
         <div className="flex justify-between gap-3 items-start">
           <h3 className="font-bold text-amber-950">{definition.kind === 'shift' ? 'Work shift' : definition.kind === 'quest' ? 'Civic quest' : 'Institutional mission'} · {definition.subject}</h3>
           <span className="text-[10px] uppercase text-amber-800">{order?.status || 'Available'}</span>
@@ -51,7 +82,7 @@ export default function WorknetOrderPanel({ missionId, onFeedback }: { missionId
         <details className="work-order-briefing" open={Boolean(order && !order.briefingReadAt)}><summary>Mission briefing & assignment</summary><pre>{briefingText(getOpportunity(missionId)!)}</pre></details>
         {(!order || canRepeat) && <button type="button" disabled={needsContract} onClick={() => feedback(openOrder(missionId))} className="rounded-lg bg-amber-300 text-amber-950 px-3 py-2 font-bold disabled:opacity-50">{canRepeat ? 'Open next-cycle shift' : 'Accept assignment and reserve equipment'}</button>}
         {order && <>
-          <div className="assignment-actions"><button type="button" className="assignment-secondary" onClick={() => useOSStore.getState().openAssignmentFiles(missionId)}>Open briefing folder in VAULT</button>{!order.briefingReadAt && order.status === 'active' && <button type="button" onClick={() => feedback(acknowledgeBriefing(missionId))}>I’ve read the briefing · begin activities</button>}</div>
+          <div className="assignment-actions"><button type="button" className="assignment-secondary" onClick={() => useOSStore.getState().openAssignmentFiles(missionId)}>Open briefing folder in Fylo</button>{!order.briefingReadAt && order.status === 'active' && <button type="button" onClick={() => feedback(acknowledgeBriefing(missionId))}>I’ve read the briefing · begin activities</button>}</div>
           <p className="text-[10px] text-slate-500 break-all">{order.id}</p>
           <p>Evaluation {order.evaluation}/100 · {order.timeRemaining} work units remaining · Supplies lost: {order.resourcesUsed}</p>
           <details>
@@ -81,7 +112,7 @@ export default function WorknetOrderPanel({ missionId, onFeedback }: { missionId
                   onChange={event => saveDraft(missionId, current.id, { ...draft, _executionMode: event.target.value })}
                   className="border border-slate-300 bg-white rounded px-1.5 py-0.5 text-[11px] text-slate-800"
                 >
-                  {availableExecutionModes(player, definition.track, true).map(opt => (
+                  {availableExecutionModes(player, definition.track, Boolean(availableStageColleague(player, definition.track, tick))).map(opt => (
                     <option key={opt.mode} value={opt.mode} disabled={!opt.enabled} title={opt.reason}>
                       {opt.label}{opt.enabled ? '' : ' (Locked)'}
                     </option>

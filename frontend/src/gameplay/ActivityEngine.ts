@@ -1,9 +1,6 @@
-import missionData from '../data/missions.json' with { type: 'json' };
-import caseAssignment from '../data/broad-street-assignment.json' with { type: 'json' };
-import type { WorknetMission } from '../types';
+import { WORKNET_ASSIGNMENTS } from './MissionCatalog';
+export { WORKNET_ASSIGNMENTS } from './MissionCatalog';
 import { mapMechanicToActions, type MissionActionType } from './WorknetCoreSystems';
-
-export const WORKNET_ASSIGNMENTS = Object.fromEntries([...(missionData as WorknetMission[]), caseAssignment as WorknetMission].map(mission => [mission.id, mission]));
 
 /** Saved work is evidence. Activity containers reference it without copying its rewards. */
 export type ActivityKind = 'task' | 'quest' | 'mission' | 'journey' | 'adventure';
@@ -49,6 +46,10 @@ export interface TaskResult {
   compensationPaid?: boolean;
   executionMode?: import('./WorknetCoreSystems').ExecutionMode;
   resultQuality?: number;
+  assignedBy?: string;
+  assigneeId?: string;
+  assigneeName?: string;
+  approvedBy?: string;
 }
 export interface EmploymentContract {
   id: string;
@@ -59,6 +60,7 @@ export interface EmploymentContract {
   payTerms: string;
   baseSalaryCredits?: number;
   lastStipendClaimedCycle?: number;
+  signedAtTick?: number;
   pathwayChoice?: 'specialist' | 'supervisor';
 }
 export interface WorkOrder {

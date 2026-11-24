@@ -15,7 +15,7 @@ function storage() {
 async function freshOS() { return (await import(`../src/store/useOSStore.ts?communications=${sequence++}`)).useOSStore; }
 async function freshComms() { return (await import(`../src/store/useCommsStore.ts?communications=${sequence++}`)).useCommsStore; }
 const message = { id: 'test-message', user: 'Member', team: 'Member', text: 'Institutional work', time: '09:00' };
-const payload = { toAddress: 'registrar@cyacademy.edu', subject: 'Correspondence', body: 'Please review my schedule.', playerClearance: 5 };
+const payload = { toAddress: 'registrar@cyberium.edu', subject: 'Correspondence', body: 'Please review my schedule.', playerClearance: 5 };
 async function administrator() { const os = await freshOS(); os.getState().loginUser({ name: 'Communications Administrator', isAdmin: true }); return os; }
 
 test('new saves start with one personal mailbox and initial mail stays addressed to it after reload', async () => {
@@ -46,7 +46,7 @@ test('membership administration checks the current signed-in administrator and d
   storage(); const os = await freshOS(); const comms = await freshComms();
   os.getState().loginUser({ name: 'Ordinary Citizen', credits: 400 });
   assert.equal(os.getState().setOrganizationMembership('cyacademy', 'active').ok, false);
-  assert.equal(comms.getState().issueInstitutionalAccount({ organizationId: 'cyacademy', address: 'reader@cyacademy.edu' }).ok, false);
+  assert.equal(comms.getState().issueInstitutionalAccount({ organizationId: 'cyacademy', address: 'reader@cyberium.edu' }).ok, false);
   os.getState().loginUser({ name: 'Membership Administrator', isAdmin: true });
   const before = structuredClone(os.getState().gameplay.player);
   assert.equal(os.getState().setOrganizationMembership('__proto__', 'active').ok, false);
@@ -73,16 +73,16 @@ test('accepted WORKNET employment grants workplace channel membership without is
 
 test('institutional issuance validates membership and domain, preserves account identity, and can suspend without deleting history', async () => {
   storage(); const os = await administrator(); const comms = await freshComms();
-  assert.equal(comms.getState().issueInstitutionalAccount({ organizationId: 'cyacademy', address: 'reader@cyacademy.edu' }).ok, false);
+  assert.equal(comms.getState().issueInstitutionalAccount({ organizationId: 'cyacademy', address: 'reader@cyberium.edu' }).ok, false);
   os.getState().setOrganizationMembership('cyacademy', 'active');
-  for (const address of ['reader@evil.example', 'reader@cyacademy.edu.evil.example', 'bad name@cyacademy.edu']) assert.equal(comms.getState().issueInstitutionalAccount({ organizationId: 'cyacademy', address }).ok, false);
+  for (const address of ['reader@evil.example', 'reader@cyberium.edu.evil.example', 'bad name@cyberium.edu']) assert.equal(comms.getState().issueInstitutionalAccount({ organizationId: 'cyacademy', address }).ok, false);
   assert.equal(comms.getState().issueInstitutionalAccount(null).ok, false);
-  assert.equal(comms.getState().issueInstitutionalAccount({ organizationId: 'cyacademy', address: 'reader@cyacademy.edu' }).ok, true);
+  assert.equal(comms.getState().issueInstitutionalAccount({ organizationId: 'cyacademy', address: 'reader@cyberium.edu' }).ok, true);
   const issued = comms.getState().playerAccounts[1];
   assert.equal(issued.organizationId, 'cyacademy');
   assert.equal(issued.issuanceSource, 'institution');
   assert.equal(issued.issuedBy, 'Communications Administrator');
-  assert.equal(comms.getState().issueInstitutionalAccount({ organizationId: 'cyacademy', address: 'READER@cyacademy.edu' }).ok, true);
+  assert.equal(comms.getState().issueInstitutionalAccount({ organizationId: 'cyacademy', address: 'READER@cyberium.edu' }).ok, true);
   assert.equal(comms.getState().playerAccounts.length, 2);
   assert.equal(comms.getState().playerAccounts[1].id, issued.id);
   assert.equal(comms.getState().sendEmail({ ...payload, fromAddress: issued.address }).ok, true);
@@ -95,13 +95,13 @@ test('institutional issuance validates membership and domain, preserves account 
 test('revoking membership blocks stale channel and sender actions immediately while keeping work and conversations', async () => {
   storage(); const os = await administrator(); const comms = await freshComms();
   os.getState().setOrganizationMembership('cyacademy', 'active');
-  comms.getState().issueInstitutionalAccount({ organizationId: 'cyacademy', address: 'reader@cyacademy.edu' });
+  comms.getState().issueInstitutionalAccount({ organizationId: 'cyacademy', address: 'reader@cyberium.edu' });
   assert.equal(comms.getState().addChatMessage('cyacademy-core', message), true);
   const before = structuredClone(comms.getState().messages);
   os.getState().setOrganizationMembership('cyacademy', 'revoked');
   assert.equal(comms.getState().addChatMessage('cyacademy-core', { ...message, id: 'late' }), false);
-  assert.equal(comms.getState().sendEmail({ ...payload, fromAddress: 'reader@cyacademy.edu' }).ok, false);
-  assert.equal(comms.getState().sendEmail({ ...payload, fromAddress: 'unknown@cyacademy.edu' }).ok, false);
+  assert.equal(comms.getState().sendEmail({ ...payload, fromAddress: 'reader@cyberium.edu' }).ok, false);
+  assert.equal(comms.getState().sendEmail({ ...payload, fromAddress: 'unknown@cyberium.edu' }).ok, false);
   assert.equal(comms.getState().addChatMessage('city-alerts', message), false);
   assert.equal(comms.getState().addChatMessage('unknown-channel', message), false);
   assert.deepEqual(comms.getState().messages, before);
@@ -110,16 +110,16 @@ test('revoking membership blocks stale channel and sender actions immediately wh
 
 test('old accounts, drafts, claim IDs, and messages survive migration without silently authorizing institutional sends', async () => {
   const values = storage(); await administrator();
-  const saved = { playerAccounts: LEGACY_PLAYER_EMAIL_ACCOUNTS, emails: [{ id: 'historical-mail', sender: 'Sender', subject: 'Keep original', body: 'Original content', recipientAddress: 'scholar@cyacademy.edu', attachment: null }], drafts: [{ id: 'old-draft', fromAddress: 'scholar@cyacademy.edu', subject: 'Unfinished', body: 'Keep me', attachments: [] }], savedAttachmentIds: ['old-file'], submittedFormIds: ['old-form'], messages: { 'cyacademy-core': [message] } };
+  const saved = { playerAccounts: LEGACY_PLAYER_EMAIL_ACCOUNTS, emails: [{ id: 'historical-mail', sender: 'Sender', subject: 'Keep original', body: 'Original content', recipientAddress: 'scholar@cyberium.edu', attachment: null }], drafts: [{ id: 'old-draft', fromAddress: 'scholar@cyberium.edu', subject: 'Unfinished', body: 'Keep me', attachments: [] }], savedAttachmentIds: ['old-file'], submittedFormIds: ['old-form'], messages: { 'cyacademy-core': [message] } };
   values.set('miraverse-comms', JSON.stringify({ state: saved, version: 0 }));
   const store = await freshComms();
   assert.equal(store.getState().playerAccounts.length, 5);
-  assert.equal(store.getState().emails[0].recipientAddress, 'scholar@cyacademy.edu');
+  assert.equal(store.getState().emails[0].recipientAddress, 'scholar@cyberium.edu');
   assert.equal(store.getState().drafts[0].body, 'Keep me');
   assert.deepEqual(store.getState().savedAttachmentIds, ['old-file']);
   assert.deepEqual(store.getState().submittedFormIds, ['old-form']);
   assert.deepEqual(store.getState().messages['cyacademy-core'], [message]);
-  assert.equal(store.getState().sendEmail({ ...payload, fromAddress: 'scholar@cyacademy.edu' }).ok, false);
+  assert.equal(store.getState().sendEmail({ ...payload, fromAddress: 'scholar@cyberium.edu' }).ok, false);
   assert.equal(senderAccess({ organizationMemberships: { cyacademy: { status: 'active' } } }, store.getState().playerAccounts[1]), false);
 });
 

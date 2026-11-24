@@ -94,7 +94,7 @@ export const useWorldStore = create<WorldStoreState>((set) => ({
     if (q.includes('form') || q.includes('registration')) {
       return {
         thought: 'Client MAI Assistant Rule Engine',
-        response: 'You can open the CITIZEN_REGISTRATION_FORM.osform directly from the File Explorer to verify your civic record.',
+        response: 'You can open the CITIZEN_REGISTRATION_FORM.osform directly from Fylo to verify your civic record.',
         action: 'open_form',
       };
     }
