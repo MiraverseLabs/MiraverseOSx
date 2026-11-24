@@ -63,7 +63,7 @@ export function changeWorkplace(raw: any, action: any, player: any, tick: number
       if (s.delegatedTasks.some(d => (d.taskId === task.id && d.cycle === cycle) || (d.assigneeId === cw.id && d.status !== 'Approved'))) return fail('That duty is already assigned this cycle, or this colleague has an open docket.');
       const competence = finite(stats.competence) + Math.floor(b.training / 1000);
       if (competence < task.minCompetence) return fail(`This duty requires ${task.minCompetence}% competence. Training allocations can add one point per 1,000 credits.`);
-      s.delegatedTasks.unshift({ id: `delegation:${task.id}:${cycle}`, taskId: task.id, stationId: station, title: task.title, assigneeId: cw.id, assigneeName: cw.name, status: 'In Progress', cycle, assignedAt: `Cycle ${cycle}, segment ${tick % 4 + 1}`, dueTick: tick + task.estUnits, competence, revisions: 0, opened: false, paid: false, issues: [], output: '' });
+      s.delegatedTasks.unshift({ id: `delegation:${task.id}:${cycle}`, taskId: task.id, stationId: station, title: task.title, assignedBy: player?.name || 'Supervisor', assigneeId: cw.id, assigneeName: cw.name, status: 'In Progress', cycle, assignedAt: `Cycle ${cycle}, segment ${tick % 4 + 1}`, dueTick: tick + task.estUnits, competence, revisions: 0, opened: false, paid: false, issues: [], output: '' });
       message = `Delegated ${task.title} to ${cw.name}. Return after ${task.estUnits} work segment(s).`; break;
     }
     case 'open-docket': if (!docket || docket.status !== 'Review Ready') return fail('This docket is not ready for review.'); docket.opened = true; message = docket.output; break;
@@ -73,7 +73,7 @@ export function changeWorkplace(raw: any, action: any, player: any, tick: number
       if (s.delegatedTasks.some(d => d.id !== docket.id && d.taskId === docket.taskId && d.cycle === docket.cycle && (d.paid || d.status === 'Approved'))) return fail('This duty already has a compensation receipt for this cycle.');
       if (docket.issues.length) return fail('Resolve the recorded exception and request a revised docket before signing off.');
       const task = TASKS.find(t => t.id === docket.taskId)!, funds = Number(task.rewardDesc.match(/\+(\d+) ₢/)?.[1] || 0), merit = Number(task.rewardDesc.match(/\+(\d+) Department Merit/)?.[1] || 0);
-      docket.status = 'Approved'; docket.paid = true;
+      docket.status = 'Approved'; docket.paid = true; docket.approvedBy = player?.name || 'Supervisor';
       s.divisionBudgets[station].total += funds; s.divisionBudgets[station].merit += merit;
       message = `Docket archived: +${merit} department merit and +${funds} department funds. Personal pay is unchanged.`; break;
     }

@@ -40,6 +40,25 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { NOTICES, evaluateNoticeObjective } from '../data/notices';
 import { mergeSavedProgress, osStorage } from './osPersistence';
 import { createWorknetActions } from './worknetActions';
+import {
+  emptyWorknetSimulation,
+  restoreWorknetSimulation,
+  advanceWorknetSimulation,
+  recordEarnedPayroll,
+  issueEarnedPayroll,
+  appendCareerMilestone,
+  type WorknetSimulationState,
+} from '../gameplay/WorknetSimulation';
+import { workTick } from '../apps/worknet/workplaceModel';
+import {
+  emptyLibraryState,
+  restoreLibraryState,
+  issueOrRenewLibraryCard,
+  borrowCatalogItem,
+  updateLoanProgress,
+  returnCatalogItem,
+  type LibraryState,
+} from '../apps/library/libraryModel';
 import { createFieldActions } from './fieldActions';
 import { createBroadStreetActions, type BroadStreetActions } from './broadStreetActions';
 import { createAssignmentActions, type AssignmentFlowActions } from './assignmentActions';
@@ -113,6 +132,17 @@ export interface OSStoreState extends BankingActions, ProcessActions, AcademicAc
   browserState: BrowserState;
   versenetContent: VersenetContent;
   versenetSites: VersenetSites;
+  worknetSim: WorknetSimulationState;
+  library: LibraryState;
+  libraryAction: (
+    action: 'issueCard' | 'borrow' | 'read' | 'return' | 'toggleReadingList' | 'viewGuide' | 'saveReflections',
+    payload?: any,
+  ) => { ok: boolean; message: string; card?: any };
+  syncWorknetSimulation: () => void;
+  logHourlyShiftTime: (track: string, units: number, ratePerUnit?: number) => { ok: boolean; message: string };
+  issuePendingPayroll: (entryId?: string) => { ok: boolean; message: string; netCredits: number };
+  resignEmployment: (track: string) => { ok: boolean; message: string };
+  settleInterruptedOrder: (missionId: string) => { ok: boolean; message: string };
   fylo: FyloState;
   fyloAction: (
     action:
@@ -452,6 +482,173 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   browserState: initialBrowserState(),
   versenetContent: emptyVersenetContent(),
   versenetSites: emptyVersenetSites(),
+  worknetSim: emptyWorknetSimulation(),
+  library: emptyLibraryState(),
+  libraryAction: (action, payload) => {
+    const state = get();
+    const current = state.library;
+    const cycle = state.gameplay.timeCycleCount ?? 0;
+    if (action === 'issueCard') {
+      const res = issueOrRenewLibraryCard(current, {
+        holderName: payload?.holderName || state.gameplay.player.name || 'Citizen Reader',
+        maid: payload?.maid || state.gameplay.identity?.maid || 'MAID-OR-00481926',
+        homeBranch: payload?.homeBranch,
+        tier: payload?.tier || 'citizen',
+        clearance: state.gameplay.player.clearanceLevel ?? 2,
+        cycle,
+      });
+      if (res.ok) set({ library: res.state });
+      return { ok: res.ok, message: res.reason, card: res.card };
+    }
+    if (action === 'borrow') {
+      const res = borrowCatalogItem(current, payload?.itemId, cycle);
+      if (res.ok) set({ library: res.state });
+      return { ok: res.ok, message: res.reason };
+    }
+    if (action === 'read') {
+      const res = updateLoanProgress(current, payload?.itemId, payload?.delta ?? 35);
+      if (res.ok) set({ library: res.state });
+      return { ok: res.ok, message: res.reason };
+    }
+    if (action === 'return') {
+      const res = returnCatalogItem(current, payload?.itemId);
+      if (res.ok) set({ library: res.state });
+      return { ok: res.ok, message: res.reason };
+    }
+    if (action === 'toggleReadingList') {
+      const id = String(payload?.itemId || '');
+      if (!id) return { ok: false, message: 'Invalid catalog item.' };
+      const exists = current.savedReadingListIds.includes(id);
+      const next = exists
+        ? current.savedReadingListIds.filter(x => x !== id)
+        : [...current.savedReadingListIds, id];
+      set({ library: { ...current, savedReadingListIds: next } });
+      return { ok: true, message: exists ? 'Removed from reading list.' : 'Saved to your reading list.' };
+    }
+    if (action === 'viewGuide') {
+      const id = String(payload?.guideId || '');
+      if (id && !current.viewedGuideIds.includes(id)) {
+        set({ library: { ...current, viewedGuideIds: [...current.viewedGuideIds, id] } });
+      }
+      return { ok: true, message: 'Guide opened.' };
+    }
+    if (action === 'saveReflections') {
+      const text = typeof payload?.text === 'string' ? payload.text.slice(0, 4000) : '';
+      set({ library: { ...current, reflections: text } });
+      return { ok: true, message: 'Reading reflections saved.' };
+    }
+    return { ok: false, message: 'Unknown library action.' };
+  },
+  syncWorknetSimulation: () =>
+    set(state => {
+      if (isWorldPaused()) return state;
+      const tick = workTick(state.gameplay);
+      return {
+        worknetSim: advanceWorknetSimulation(state.worknetSim, tick, state.gameplay.player.workplace),
+      };
+    }),
+  logHourlyShiftTime: (track, units, ratePerUnit = 40) => {
+    const state = get();
+    if (isWorldPaused()) return { ok: false, message: 'Resume the world before logging shift time.' };
+    const contract = state.gameplay.player.employmentContracts?.[track];
+    if (!contract) return { ok: false, message: 'An active employment contract is required to log hourly shift time.' };
+    const cleanUnits = Math.max(1, Math.min(8, Math.floor(units)));
+    const cycle = state.gameplay.timeCycleCount ?? 0;
+    const segment = state.gameplay.timeSegmentIndex ?? 0;
+    const res = recordEarnedPayroll(state.worknetSim, {
+      claimId: `HOURLY:${track}:${cycle}:${segment}`,
+      model: 'hourly',
+      payer: `Oryn Department of Finance (${contract.position})`,
+      track,
+      description: `${cleanUnits} verified work unit(s) logged — ${contract.position}`,
+      verifiedUnits: cleanUnits,
+      ratePerUnit,
+      verified: true,
+      cycle,
+    });
+    if (!res.ok) return { ok: false, message: res.reason };
+    set({ worknetSim: res.state });
+    return { ok: true, message: res.reason };
+  },
+  issuePendingPayroll: (entryId) => {
+    const state = get();
+    if (isWorldPaused()) return { ok: false, message: 'Resume the world before issuing payroll.', netCredits: 0 };
+    const cycle = state.gameplay.timeCycleCount ?? 0;
+    const issued = issueEarnedPayroll(state.worknetSim, cycle, entryId);
+    if (issued.issuedCount === 0) {
+      return { ok: false, message: 'No earned payroll entries are awaiting issuance.', netCredits: 0 };
+    }
+    set(s => ({
+      worknetSim: issued.state,
+      gameplay: {
+        ...s.gameplay,
+        player: {
+          ...s.gameplay.player,
+          credits: (s.gameplay.player.credits || 0) + issued.totalNetCredits,
+        },
+      },
+    }));
+    return {
+      ok: true,
+      netCredits: issued.totalNetCredits,
+      message: `Issued ${issued.totalNetCredits.toLocaleString()} ₢ net across ${issued.issuedCount} payroll obligation(s) via Oryn Department of Finance.`,
+    };
+  },
+  resignEmployment: (track) => {
+    const state = get();
+    const contract = state.gameplay.player.employmentContracts?.[track];
+    if (!contract) return { ok: false, message: 'No active employment contract for this career track.' };
+    const nextContracts = { ...(state.gameplay.player.employmentContracts || {}) };
+    delete nextContracts[track];
+    const nextSim = appendCareerMilestone(state.worknetSim, {
+      track,
+      kind: 'resigned',
+      title: `Resigned: ${contract.position}`,
+      detail: 'Employment ended cleanly. All skills, credentials, and prior career history remain preserved.',
+      cycle: state.gameplay.timeCycleCount ?? 0,
+    });
+    set(s => ({
+      worknetSim: nextSim,
+      gameplay: {
+        ...s.gameplay,
+        player: { ...s.gameplay.player, employmentContracts: nextContracts },
+      },
+    }));
+    return { ok: true, message: `Resigned from ${contract.position}. Your career history and skills remain intact.` };
+  },
+  settleInterruptedOrder: (missionId) => {
+    const state = get();
+    const order = state.gameplay.player.worknetOrders?.[missionId];
+    if (!order || order.status !== 'active') return { ok: false, message: 'No active work order to settle.' };
+    const completedStages = order.resultIds?.length || 0;
+    const cycle = state.gameplay.timeCycleCount ?? 0;
+    let nextSim = state.worknetSim;
+    let notice = 'Work order closed without completion fee.';
+    if (completedStages > 0) {
+      const res = recordEarnedPayroll(nextSim, {
+        claimId: `PARTIAL:${order.id}`,
+        model: 'hourly',
+        payer: 'WORKNET Partial Settlement',
+        track: order.employmentContractId?.replace('EMP:', '') || 'dga',
+        description: `Partial settlement for ${order.subject} (${completedStages} verified stage output${completedStages === 1 ? '' : 's'})`,
+        verifiedUnits: completedStages,
+        ratePerUnit: 35,
+        verified: true,
+        cycle,
+      });
+      if (res.ok) {
+        nextSim = res.state;
+        notice = `Work order closed early. ${res.reason}`;
+      }
+    }
+    const nextOrders = { ...(state.gameplay.player.worknetOrders || {}) };
+    delete nextOrders[missionId];
+    set(s => ({
+      worknetSim: nextSim,
+      gameplay: { ...s.gameplay, player: { ...s.gameplay.player, worknetOrders: nextOrders } },
+    }));
+    return { ok: true, message: notice };
+  },
   fylo: emptyFyloState(),
   fyloAction: (action, payload) => {
     const current = get().fylo;
@@ -867,7 +1064,9 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
         ? Math.max(20, state.gameplay.player.auraHealth - 5)
         : state.gameplay.player.auraHealth;
 
+      const nextTick = nextCycle * 4 + nextIndex;
       return {
+        worknetSim: advanceWorknetSimulation(state.worknetSim, nextTick, state.gameplay.player.workplace),
         gameplay: {
           ...state.gameplay,
           timeSegmentIndex: nextIndex,
@@ -2350,7 +2549,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   version: 1,
   storage: createJSONStorage(() => osStorage),
   // Window metadata can contain React icons; recreate windows rather than serializing them.
-  partialize: ({ gameplay, wallpaper, isLoggedIn, browserState, desktopPreferences, versenetContent, versenetSites, fylo }) => ({ gameplay, wallpaper, isLoggedIn, browserState: restartBrowserSession(browserState), desktopPreferences, versenetContent, versenetSites, fylo }),
+  partialize: ({ gameplay, wallpaper, isLoggedIn, browserState, desktopPreferences, versenetContent, versenetSites, fylo, worknetSim, library }) => ({ gameplay, wallpaper, isLoggedIn, browserState: restartBrowserSession(browserState), desktopPreferences, versenetContent, versenetSites, fylo, worknetSim, library }),
   merge: (persisted, current) => {
     const saved = persisted as Partial<OSStoreState> | null;
     const browserState = restoreBrowserState(saved?.browserState);
@@ -2360,6 +2559,8 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
       versenetContent: restoreVersenetContent(saved?.versenetContent),
       versenetSites: restoreVersenetSites(saved?.versenetSites),
       fylo: restoreFyloState(saved?.fylo),
+      worknetSim: restoreWorknetSimulation(saved?.worknetSim, workTick(saved?.gameplay || current.gameplay)),
+      library: restoreLibraryState(saved?.library),
       browserState,
       browserUrl: browserState.tabs.find(tab => tab.id === browserState.activeTabId)!.url,
       gameplay: (() => { const gameplay = mergeSavedProgress(current.gameplay, saved?.gameplay); return { ...gameplay, player: { ...gameplay.player, banking: restoreBanking(gameplay.player.banking), processMonitor: restoreProcessMonitor(gameplay.player.processMonitor) } }; })(),

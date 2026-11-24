@@ -4,8 +4,10 @@ import { changeWorkplace, workTick, stationTrack, employed } from '../apps/workn
 import type { OSStoreState } from './useOSStore';
 import { sanitizeMailHtml, mailHtmlToText } from '../apps/mail/richText';
 import { CASE_MISSION, restoreCaseProgress, reviewBroadStreet } from '../gameplay/BroadStreetCase';
-import { WORK_DEFINITIONS, getWorkDefinition, WORKNET_ASSIGNMENTS, nextWorkStage, resolveWorkStage, validateWorkStage, type WorkOrder, type WorkValues, type TaskResult, type EmploymentContract } from '../gameplay/ActivityEngine';
+import { WORK_DEFINITIONS, getWorkDefinition, WORKNET_ASSIGNMENTS, nextWorkStage, resolveWorkStage, validateWorkStage, stageActionTypes, type WorkOrder, type WorkValues, type TaskResult, type EmploymentContract } from '../gameplay/ActivityEngine';
 import { CAREER_TRACK_SPECS, WORKNET_DOMAIN_TASKS, evaluateWorknetObjective } from '../gameplay/WorldEventEngine';
+import { evaluateHybridOutcome, type ExecutionMode } from '../gameplay/WorknetCoreSystems';
+import { appendCareerMilestone } from '../gameplay/WorknetSimulation';
 
 export function createWorknetActions(set: (update: (state: OSStoreState) => Partial<OSStoreState>) => void, get: () => OSStoreState) {
   const updatePlayer = (update: (player: any) => any) => set(state => ({ gameplay: { ...state.gameplay, player: update(state.gameplay.player) } }));
@@ -33,6 +35,15 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
         baseSalaryCredits: 150, lastStipendClaimedCycle: (get().gameplay.timeCycleCount ?? 0) - 1, pathwayChoice: 'specialist',
       };
       updatePlayer(current => ({ ...current, employmentContracts: { ...current.employmentContracts, [track]: contract } }));
+      set(s => ({
+        worknetSim: appendCareerMilestone(s.worknetSim, {
+          track,
+          kind: 'hired',
+          title: `Accepted position: ${contract.position}`,
+          detail: contract.payTerms,
+          cycle: s.gameplay.timeCycleCount ?? 0,
+        }),
+      }));
       return { ok: true, message: `Employment accepted: ${contract.position}. You can now open a work shift.` };
     },
 
@@ -82,6 +93,9 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
         if (html && mailHtmlToText(html).trim() === draft[field.id].trim()) draft[`${field.id}__html`] = html;
       }
       if (values?._approach) draft._approach = values._approach;
+      if (values?._executionMode && ['direct', 'guided', 'assisted', 'delegated'].includes(values._executionMode)) {
+        draft._executionMode = values._executionMode;
+      }
       updateOrder(missionId, saved => ({ ...saved, drafts: { ...saved.drafts, [stageId]: draft } }));
     },
 
@@ -109,10 +123,23 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
         return get().completePatientCareAssignment('pc-mercer', 'diag-veilwilt-desync', 'tx-warm-compress-vitals');
       }
       const selected = resolveWorkStage(stage, values)!;
+      const mode: ExecutionMode = (['direct', 'guided', 'assisted', 'delegated'].includes(values?._executionMode)
+        ? values._executionMode
+        : 'guided') as ExecutionMode;
+      const hybridEval = evaluateHybridOutcome({
+        action: stageActionTypes(selected)[0],
+        mode,
+        authorized: true,
+        validInput: true,
+        evidenceSufficient: true,
+        skillLevel: player.clearanceLevel ?? 2,
+        difficulty: 2,
+      });
       const result: TaskResult = {
         id: `${order.id}:${stageId}`, workOrderId: order.id, definitionId: missionId,
         stageId, subject: order.subject, mechanic: selected.mechanic,
-        output: { ...Object.fromEntries(selected.fields.map(field => [field.id, values[field.id]])), ...Object.fromEntries(Object.entries(get().gameplay.player.worknetOrders[missionId].drafts[stageId] || {}).filter(([key]) => key.endsWith('__html'))), ...(values._approach ? { _approach: values._approach } : {}) }, completedAt: new Date().toISOString(),
+        executionMode: mode, resultQuality: hybridEval.resultQuality,
+        output: { ...Object.fromEntries(selected.fields.map(field => [field.id, values[field.id]])), ...Object.fromEntries(Object.entries(get().gameplay.player.worknetOrders[missionId].drafts[stageId] || {}).filter(([key]) => key.endsWith('__html'))), ...(values._approach ? { _approach: values._approach } : {}), _executionMode: mode }, completedAt: new Date().toISOString(),
         // A legacy paid chart can be reviewed again for proof, without another clinical reward.
         compensationPaid: missionId === 'ms-shift-01' && stageId === 'care' ? true : undefined,
       };

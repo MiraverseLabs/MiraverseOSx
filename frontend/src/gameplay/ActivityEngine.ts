@@ -1,6 +1,7 @@
 import missionData from '../data/missions.json' with { type: 'json' };
 import caseAssignment from '../data/broad-street-assignment.json' with { type: 'json' };
 import type { WorknetMission } from '../types';
+import { mapMechanicToActions, type MissionActionType } from './WorknetCoreSystems';
 
 export const WORKNET_ASSIGNMENTS = Object.fromEntries([...(missionData as WorknetMission[]), caseAssignment as WorknetMission].map(mission => [mission.id, mission]));
 
@@ -46,6 +47,8 @@ export interface TaskResult {
   output: WorkValues;
   completedAt: string;
   compensationPaid?: boolean;
+  executionMode?: import('./WorknetCoreSystems').ExecutionMode;
+  resultQuality?: number;
 }
 export interface EmploymentContract {
   id: string;
@@ -256,4 +259,9 @@ export function evaluateLinkedActivities(results: Record<string, TaskResult>) {
     const chaptersComplete = milestones.every(milestone => milestone.complete);
     return { ...activity, milestones, chapters, chaptersComplete, continuing: activity.kind === 'journey', complete: activity.kind !== 'journey' && chaptersComplete };
   });
+}
+
+/** Map any WORKNET stage mechanic onto the canonical 16-action Mission Action Vocabulary. */
+export function stageActionTypes(workStage: Pick<WorkStage, 'mechanic'>): readonly MissionActionType[] {
+  return mapMechanicToActions(workStage.mechanic);
 }

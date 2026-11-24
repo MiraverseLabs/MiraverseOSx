@@ -29,7 +29,7 @@ export const APPS = [
   { id: 'pulse', title: 'PULSE // News Portal', icon: Radio, category: 'Communication' },
   { id: 'maispace', title: 'mai.space // Social Network', icon: MessageSquare, category: 'Communication' },
   { id: 'files', title: 'Fylo', icon: Folder, category: 'Storage' },
-  { id: 'lore', title: 'Lore Explorer', icon: BookOpen, category: 'Database' },
+  { id: 'lore', title: 'Royal Archive & Library', icon: BookOpen, category: 'Database' },
   { id: 'terminal', title: 'System Terminal', icon: Terminal, category: 'Intelligence' },
   { id: 'settings', title: 'System Settings', icon: Settings, category: 'Utility' },
 ];

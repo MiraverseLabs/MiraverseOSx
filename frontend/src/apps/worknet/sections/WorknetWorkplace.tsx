@@ -70,7 +70,12 @@ export default function WorknetWorkplace({
   onFeedback
 }: WorknetWorkplaceProps) {
   const player = useOSStore(s => s.gameplay.player);
+  const worknetSim = useOSStore(s => s.worknetSim);
   const theme = INSTITUTIONAL_REGISTRY[activeStation] || INSTITUTIONAL_REGISTRY.dga;
+  const stationWorkload = worknetSim.workloads[activeStation];
+  const stationNpcSim = Object.values(worknetSim.npcs).filter(n => n.stationId === activeStation);
+  const stationPeerBonds = Object.values(worknetSim.peerBonds).filter(b => b.stationId === activeStation);
+  const stationFeed = worknetSim.activityFeed.filter(f => f.stationId === activeStation).slice(0, 4);
   const supervisor = theme.supervisor;
   const oversight = canSupervise(player, activeStation);
   const cycle = useOSStore(s => s.gameplay.timeCycleCount);
@@ -650,6 +655,53 @@ export default function WorknetWorkplace({
                 Remember to log out of shared terminals when departing for shift lunch. Please label all personal items in the refrigeration unit.
               </p>
               <p className="text-[10px] text-slate-400">Total break visits recorded: {breakRoomVisitCount}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Institutional Workload, Backlogs & Autonomous NPC Activity */}
+      {stationWorkload && (
+        <div className="worknet-card space-y-3 mt-4">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div>
+              <span className="worknet-kicker">Autonomous Station Simulation · Session Clock</span>
+              <h3 className="text-sm font-bold text-slate-900">{theme.shortOrg} Workload & Colleague Autonomy</h3>
+            </div>
+            <button type="button" onClick={() => advanceTime()} className="px-2.5 py-1.5 rounded-md border border-slate-300 bg-white text-[11px] font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-1">
+              <RefreshCw size={12} /> Advance Segment
+            </button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+            <div className="p-2 rounded-lg bg-slate-50 border border-slate-200"><span className="text-[10px] text-slate-500 block">Demand</span><strong>{stationWorkload.demandUnits} units</strong></div>
+            <div className="p-2 rounded-lg bg-slate-50 border border-slate-200"><span className="text-[10px] text-slate-500 block">Active Backlog</span><strong>{stationWorkload.backlog} queued</strong></div>
+            <div className="p-2 rounded-lg bg-slate-50 border border-slate-200"><span className="text-[10px] text-slate-500 block">Open Vacancies</span><strong>{stationWorkload.vacancies}</strong></div>
+            <div className="p-2 rounded-lg bg-slate-50 border border-slate-200"><span className="text-[10px] text-slate-500 block">NPC Units Cleared</span><strong>{stationWorkload.completedBackgroundUnits}</strong></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div className="space-y-1.5">
+              <span className="text-[10px] uppercase font-semibold text-slate-500 block">Independent NPC Progression</span>
+              {stationNpcSim.map(npc => (
+                <div key={npc.npcId} className="p-2 rounded-lg bg-slate-50 border border-slate-200">
+                  <div className="flex items-center justify-between gap-2">
+                    <strong className="text-slate-900">{npc.name}</strong>
+                    <span className="text-[10px] font-mono text-indigo-700">{npc.tier} · {npc.xp} XP</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 mt-0.5">{npc.lastActionSummary}</p>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-1.5">
+              <span className="text-[10px] uppercase font-semibold text-slate-500 block">Peer Bonds & Station Log</span>
+              {stationPeerBonds.map(bond => (
+                <div key={bond.pairKey} className="p-2 rounded-lg bg-slate-50 border border-slate-200">
+                  <strong className="text-slate-900">{bond.npcA} & {bond.npcB}</strong> · <span className="text-emerald-700 font-mono text-[10px]">{bond.cooperation}% coop</span>
+                  <p className="text-[11px] text-slate-500 mt-0.5">{bond.lastEvent}</p>
+                </div>
+              ))}
+              {stationFeed.map(item => (
+                <p key={item.id} className="text-[11px] text-slate-600">• <strong>{item.actor}:</strong> {item.summary}</p>
+              ))}
             </div>
           </div>
         </div>

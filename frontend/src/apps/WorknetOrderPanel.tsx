@@ -2,7 +2,8 @@ import ProcessMonitorApp from './ProcessMonitorApp';
 import { PROCESS_MISSION } from '../gameplay/ProcessMonitor';
 import React, { useState } from 'react';
 import { useOSStore } from '../store/useOSStore';
-import { WORK_DEFINITIONS, nextWorkStage, resolveWorkStage, resultForStage, evaluateLinkedActivities, type TaskResult, type WorkOrder } from '../gameplay/ActivityEngine';
+import { WORK_DEFINITIONS, nextWorkStage, resolveWorkStage, resultForStage, evaluateLinkedActivities, stageActionTypes, type TaskResult, type WorkOrder } from '../gameplay/ActivityEngine';
+import { availableExecutionModes } from '../gameplay/WorknetSimulation';
 import { getOpportunity, briefingText } from '../gameplay/AssignmentFlow';
 import { isOpportunityRevealed } from '../gameplay/ProgressionEngine';
 import ReportEditor from '../components/editor/ReportEditor';
@@ -67,7 +68,27 @@ export default function WorknetOrderPanel({ missionId, onFeedback }: { missionId
             <label className="block">Remediation note<textarea maxLength={4000} value={incidentNote} onChange={event => setIncidentNote(event.target.value)} className="block w-full border border-rose-200 bg-white text-slate-900 rounded-lg p-2 mt-1 min-h-20" /></label>
             <button type="submit" className="rounded-lg bg-rose-800 text-white px-3 py-2">Submit remediation</button>
           </form> : current && order.status === 'active' ? <form key={`${order.id}:${current.id}`} className="space-y-3 border-t border-amber-200 pt-3" onSubmit={event => { event.preventDefault(); feedback(submitStage(missionId, current.id, draft)); }}>
-            <div><h4 className="font-bold text-slate-900">{current.title}</h4><span className="text-[10px] uppercase text-amber-800">{current.mechanic}</span></div>
+            <div className="flex items-start justify-between gap-2 flex-wrap">
+              <div>
+                <h4 className="font-bold text-slate-900">{current.title}</h4>
+                <span className="text-[10px] uppercase text-amber-800">{current.mechanic} · {stageActionTypes(current).join(' / ')}</span>
+              </div>
+              <label className="text-[10px] text-slate-600 flex items-center gap-1.5">
+                Mode:
+                <select
+                  aria-label="Execution mode"
+                  value={draft._executionMode || 'guided'}
+                  onChange={event => saveDraft(missionId, current.id, { ...draft, _executionMode: event.target.value })}
+                  className="border border-slate-300 bg-white rounded px-1.5 py-0.5 text-[11px] text-slate-800"
+                >
+                  {availableExecutionModes(player, definition.track, true).map(opt => (
+                    <option key={opt.mode} value={opt.mode} disabled={!opt.enabled} title={opt.reason}>
+                      {opt.label}{opt.enabled ? '' : ' (Locked)'}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
             {current.approaches?.length && <label className="block">Choose your approach<select aria-label="Task approach" value={draft._approach || 'default'} onChange={event => saveDraft(missionId, current.id, { _approach: event.target.value })} className="block w-full border border-slate-300 bg-white p-2 mt-1"><option value="default">{current.defaultApproachLabel || 'Follow the assigned procedure'}</option>{current.approaches.map(approach => <option key={approach.id} value={approach.id}>{approach.label}</option>)}</select></label>}
             <p className="leading-relaxed text-slate-700">{current.brief}</p>
             {current.fields.map(field => <div key={field.id} className="block text-slate-800 font-medium"><span>{field.label}</span>
@@ -76,7 +97,10 @@ export default function WorknetOrderPanel({ missionId, onFeedback }: { missionId
                   : <input aria-label={field.label} type={field.kind === 'number' ? 'number' : 'text'} step="any" maxLength={4000} value={draft[field.id] || ''} onChange={event => saveDraft(missionId, current.id, { ...draft, [field.id]: event.target.value })} className="block w-full border border-slate-300 bg-white text-slate-900 rounded-lg p-2 mt-1" />}
             </div>)}
             <p className="text-[10px] text-slate-500">Drafts save automatically. Incorrect findings reduce evaluation; unsafe procedures lose supplies and require remediation.</p>
-            <button type="submit" className="w-full rounded-lg bg-slate-900 text-white px-3 py-2 font-bold">Perform stage and save output</button>
+            <div className="flex items-center gap-2">
+              <button type="submit" className="flex-1 rounded-lg bg-slate-900 text-white px-3 py-2 font-bold">Perform stage and save output</button>
+              <button type="button" onClick={() => feedback(useOSStore.getState().settleInterruptedOrder(missionId))} className="rounded-lg border border-slate-300 bg-white text-slate-700 px-3 py-2 font-semibold">Close early (partial pay)</button>
+            </div>
           </form> : !current && <p className="font-semibold text-emerald-800">All required outputs accepted. {order.status === 'accepted' ? 'Work order finalized.' : 'Finalize below to close this work order.'}</p>)}
           {order.incidents.length > 0 && <details><summary className="cursor-pointer text-rose-800">Procedure review ({order.incidents.length})</summary>{order.incidents.map((incident, index) => <p key={index} className="text-slate-700 mt-1">{incident.severity}: {incident.message}</p>)}</details>}
           {order.resultIds.some(id => results[id]?.compensationPaid) && <p className="text-emerald-800">Clinical pay and experience already issued for this patient. Finalization records chart acceptance without paying that work again.</p>}

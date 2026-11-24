@@ -1,0 +1,830 @@
+/* src/styles/apps/RoyalLibrary.css — Royal Historic Archive & Library System */
+
+.royal-library {
+  --rl-navy: #0b2545;
+  --rl-navy-soft: #16365f;
+  --rl-gold: #b2965a;
+  --rl-gold-soft: #dfd0a8;
+  --rl-cream: #f7f3ea;
+  --rl-parchment: #efeae0;
+  --rl-paper: #ffffff;
+  --rl-border: #dfd8ca;
+  --rl-border-strong: #c8beaa;
+  --rl-ink: #1e2430;
+  --rl-muted: #5a6070;
+  --rl-link: #1c4e80;
+
+  container-type: inline-size;
+  container-name: royal-lib;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--rl-cream);
+  color: var(--rl-ink);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 0.85rem;
+}
+
+.royal-library *,
+.royal-library *::before,
+.royal-library *::after {
+  box-sizing: border-box;
+}
+
+.royal-library :focus-visible {
+  outline: 2px solid var(--rl-gold);
+  outline-offset: 2px;
+}
+
+/* Institutional Top Breadcrumb Strip (Georgia Southern Libraries inspiration) */
+.rl-top-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 20px;
+  background: #ffffff;
+  border-bottom: 3px solid var(--rl-gold);
+  font-size: 0.76rem;
+  color: var(--rl-muted);
+}
+
+.rl-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.rl-breadcrumbs strong {
+  color: var(--rl-navy);
+}
+
+.rl-card-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--rl-navy);
+  background: var(--rl-navy);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rl-card-pill[data-issued='true'] {
+  background: #f5efe0;
+  color: var(--rl-navy);
+  border-color: var(--rl-gold);
+}
+
+/* Main Institutional Navy Navigation Bar */
+.rl-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 20px;
+  background: var(--rl-navy);
+  color: #ffffff;
+}
+
+.rl-nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.rl-nav-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.rl-nav-tabs button {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: #dbe4f0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.rl-nav-tabs button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.rl-nav-tabs button[aria-current='page'] {
+  background: var(--rl-gold);
+  color: #0b1b30;
+}
+
+.rl-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: transparent;
+  color: #dbe4f0;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+/* Status Notice */
+.rl-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 20px;
+  background: #fdf6e3;
+  border-bottom: 1px solid var(--rl-gold-soft);
+  color: #4f3a12;
+  font-size: 0.78rem;
+}
+
+.rl-notice button {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Main Scrollable Body */
+.rl-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* === TAB 1: READER DASHBOARD (The Literary Journal Aesthetic) === */
+.rl-journal-banner {
+  text-align: center;
+  padding: 22px 20px 18px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #f3ede0 0%, #ebe3d3 100%);
+  border: 1px solid var(--rl-border);
+  margin-bottom: 18px;
+}
+
+.rl-journal-banner h1 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.35rem, 1.05rem + 1.2vw, 1.95rem);
+  letter-spacing: 0.06em;
+  color: #2f261e;
+  font-weight: 600;
+}
+
+.rl-journal-banner p {
+  margin: 5px 0 0;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6b5e4f;
+}
+
+.rl-dashboard-grid {
+  display: grid;
+  grid-template-columns: 205px minmax(0, 1fr) 255px;
+  gap: 16px;
+  align-items: start;
+}
+
+.rl-dash-rail {
+  padding: 14px 12px;
+  border-radius: 12px;
+  background: #f2ede2;
+  border: 1px solid var(--rl-border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rl-rail-label {
+  font-family: ui-monospace, monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: #7c7162;
+  padding: 8px 8px 2px;
+  font-weight: 700;
+}
+
+.rl-dash-rail button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 9px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #3e362e;
+  font-size: 0.78rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.rl-dash-rail button:hover {
+  background: #e7dfd0;
+}
+
+.rl-dash-card {
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--rl-paper);
+  border: 1px solid var(--rl-border);
+  box-shadow: 0 2px 8px rgba(30, 36, 48, 0.04);
+}
+
+.rl-card-kicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.69rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6c6152;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.rl-dash-center,
+.rl-dash-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* Currently Reading Book Cards */
+.rl-book-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+.rl-book-card {
+  padding: 11px;
+  border-radius: 10px;
+  background: #faf8f3;
+  border: 1px solid var(--rl-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rl-book-cover {
+  height: 92px;
+  border-radius: 7px;
+  padding: 10px;
+  color: #f8f3e8;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: Georgia, serif;
+  box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.16), 0 4px 10px rgba(11, 37, 69, 0.16);
+}
+
+.rl-book-cover[data-tone='navy'] { background: linear-gradient(145deg, #0b2545, #1e4273); }
+.rl-book-cover[data-tone='emerald'] { background: linear-gradient(145deg, #163b33, #2c6659); }
+.rl-book-cover[data-tone='plum'] { background: linear-gradient(145deg, #32204a, #5c3e7d); }
+.rl-book-cover[data-tone='amber'] { background: linear-gradient(145deg, #5e3c16, #96662b); }
+.rl-book-cover[data-tone='slate'] { background: linear-gradient(145deg, #273444, #495d75); }
+
+.rl-book-cover span {
+  font-family: ui-monospace, monospace;
+  font-size: 0.62rem;
+  opacity: 0.85;
+}
+
+.rl-book-cover strong {
+  font-size: 0.76rem;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rl-progress-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: #e4ddd0;
+  overflow: hidden;
+}
+
+.rl-progress-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--rl-navy);
+}
+
+.rl-book-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.rl-btn-sm {
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--rl-border-strong);
+  background: #ffffff;
+  color: var(--rl-ink);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rl-btn-sm:hover {
+  background: var(--rl-parchment);
+}
+
+.rl-btn-navy {
+  background: var(--rl-navy);
+  border-color: var(--rl-navy);
+  color: #ffffff;
+}
+
+.rl-btn-navy:hover {
+  background: var(--rl-navy-soft);
+}
+
+/* Reading Ring & Stats */
+.rl-ring-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.rl-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.rl-stat-box {
+  padding: 10px 8px;
+  border-radius: 9px;
+  background: #faf8f3;
+  border: 1px solid var(--rl-border);
+  text-align: center;
+}
+
+.rl-stat-box strong {
+  display: block;
+  font-family: Georgia, serif;
+  font-size: 1.2rem;
+  color: var(--rl-navy);
+}
+
+.rl-stat-box span {
+  font-size: 0.68rem;
+  color: var(--rl-muted);
+}
+
+.rl-quote-card {
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: #f5efe2;
+  border: 1px solid var(--rl-border);
+  font-family: Georgia, serif;
+  font-style: italic;
+  color: #3a3026;
+  text-align: center;
+}
+
+.rl-quote-card footer {
+  margin-top: 6px;
+  font-style: normal;
+  font-size: 0.74rem;
+  color: #706252;
+}
+
+.rl-notes-area {
+  width: 100%;
+  min-height: 92px;
+  border-radius: 8px;
+  border: 1px solid var(--rl-border-strong);
+  background: #fcfaf6;
+  padding: 10px;
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--rl-ink);
+  resize: vertical;
+}
+
+/* === TAB 2: SCHOLARLY RESEARCH CATALOG (Semantic Scholar aesthetic) === */
+.rl-scholar-shell {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--rl-border);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rl-scholar-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e6e9f0;
+}
+
+.rl-scholar-filters input,
+.rl-scholar-filters select {
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid #cfd6e3;
+  background: #ffffff;
+  font-size: 0.78rem;
+  color: var(--rl-ink);
+}
+
+.rl-scholar-filters input {
+  flex: 1;
+  min-width: 210px;
+}
+
+.rl-author-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.rl-author-card {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #dce2ec;
+  background: #fafbfd;
+  text-align: left;
+  cursor: pointer;
+}
+
+.rl-author-card[data-active='true'] {
+  border-color: var(--rl-navy);
+  background: #eef3fa;
+}
+
+.rl-author-card strong {
+  display: block;
+  color: var(--rl-link);
+  font-size: 0.82rem;
+}
+
+.rl-author-card small {
+  color: var(--rl-muted);
+  font-size: 0.71rem;
+}
+
+.rl-result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rl-result-row {
+  padding-bottom: 14px;
+  border-bottom: 1px solid #eceff5;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rl-result-row h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--rl-link);
+  font-weight: 600;
+}
+
+.rl-author-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  color: var(--rl-muted);
+}
+
+.rl-author-pill {
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #eef1f6;
+  color: #2c3a4f;
+  font-weight: 500;
+}
+
+.rl-tldr {
+  font-size: 0.81rem;
+  color: #2d3442;
+  line-height: 1.5;
+}
+
+.rl-tldr-badge {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid #cbd3e0;
+  font-family: ui-monospace, monospace;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #4a5568;
+}
+
+.rl-result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.rl-cite-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: #f5efe0;
+  border: 1px solid var(--rl-gold-soft);
+  font-family: ui-monospace, monospace;
+  font-size: 0.7rem;
+  color: #6c4f1c;
+}
+
+/* === TAB 3: LIBRARY GUIDES (Georgia Southern Libraries aesthetic) === */
+.rl-guides-shell {
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid var(--rl-border);
+  overflow: hidden;
+}
+
+.rl-guides-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--rl-navy);
+}
+
+.rl-guides-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.rl-guides-tabs button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #dce5f2;
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.rl-guides-tabs button[aria-pressed='true'] {
+  background: var(--rl-gold);
+  color: #0b1b30;
+}
+
+.rl-guides-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #e5e7eb;
+  border-bottom: 1px solid #d1d5db;
+  justify-content: flex-end;
+}
+
+.rl-guides-search input {
+  padding: 6px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #ffffff;
+  width: 240px;
+  font-size: 0.78rem;
+}
+
+.rl-guides-grid {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.rl-guide-item {
+  padding: 12px 14px;
+  border-radius: 6px;
+  border: 1px solid #dde3ed;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rl-guide-item h3 {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--rl-link);
+  font-weight: 600;
+}
+
+.rl-guide-item p {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--rl-muted);
+  line-height: 1.45;
+  flex: 1;
+}
+
+.rl-guide-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 0.7rem;
+  color: #6b7280;
+  padding-top: 6px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* === TAB 4: ROYAL LIBRARY CARD ISSUANCE === */
+.rl-card-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.rl-physical-card {
+  border-radius: 16px;
+  padding: 20px 22px;
+  background: linear-gradient(135deg, #0b2545 0%, #153762 58%, #0a1f3a 100%);
+  color: #f7f2e6;
+  border: 2px solid var(--rl-gold);
+  box-shadow: 0 14px 32px rgba(11, 37, 69, 0.28);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rl-physical-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  border-bottom: 1px solid rgba(178, 150, 90, 0.4);
+  padding-bottom: 10px;
+}
+
+.rl-physical-head span {
+  font-family: ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  color: var(--rl-gold-soft);
+  text-transform: uppercase;
+}
+
+.rl-physical-head h2 {
+  margin: 3px 0 0;
+  font-family: Georgia, serif;
+  font-size: 1.15rem;
+  color: #ffffff;
+}
+
+.rl-physical-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  font-size: 0.78rem;
+}
+
+.rl-physical-grid small {
+  display: block;
+  font-family: ui-monospace, monospace;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  color: var(--rl-gold-soft);
+}
+
+.rl-barcode {
+  height: 28px;
+  border-radius: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    #f7f2e6 0px,
+    #f7f2e6 2px,
+    transparent 2px,
+    transparent 5px,
+    #f7f2e6 5px,
+    #f7f2e6 6px,
+    transparent 6px,
+    transparent 9px
+  );
+  opacity: 0.85;
+}
+
+.rl-card-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rl-card-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--rl-ink);
+}
+
+.rl-card-form input,
+.rl-card-form select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--rl-border-strong);
+  background: #ffffff;
+  font-size: 0.82rem;
+  color: var(--rl-ink);
+}
+
+/* Collections Sub-bar */
+.rl-collections-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.rl-collections-bar button {
+  padding: 6px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--rl-border-strong);
+  background: #ffffff;
+  color: var(--rl-ink);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rl-collections-bar button[aria-pressed='true'] {
+  background: var(--rl-navy);
+  border-color: var(--rl-navy);
+  color: #ffffff;
+}
+
+/* Container responsiveness */
+@container royal-lib (max-width: 900px) {
+  .rl-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rl-guides-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rl-card-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@container royal-lib (max-width: 600px) {
+  .rl-guides-grid {
+    grid-template-columns: 1fr;
+  }
+}
