@@ -66,14 +66,23 @@
 			"label": "Start Full Stack (Backend + Frontend)",
 			"type": "shell",
 			"command": "npm",
+			"problemMatcher": {
+				"pattern": {
+					"regexp": "^$"
+				},
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": ".*",
+					"endsPattern": ".*(Local:.*http://localhost:3000|ready in .*ms).*"
+				}
+			},
 			"args": [
 				"start"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
 			},
-			"isBackground": true,
-			"problemMatcher": []
+			"isBackground": true
 		}
 	]
 }

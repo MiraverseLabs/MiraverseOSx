@@ -1,0 +1,21 @@
+{
+  "database": "E:\\MiraverseOSx\\miraverse.db",
+  "backup": "E:\\MiraverseOSx\\2026-11-25\\referenced-chatgpt-conversation-this-is-an\\outputs\\database-backups\\miraverse-before-content-20261125T142122834473Z.db",
+  "files_scanned": 2728,
+  "counts": {
+    "ContentSources": 218,
+    "Characters": 76,
+    "CharacterAliases": 21,
+    "CharacterLegacyIds": 7,
+    "CharacterProfiles": 120,
+    "CharacterRelationships": 7,
+    "WorldRecords": 162,
+    "SourceDocuments": 19,
+    "MigrationInventory": 768
+  },
+  "collections": 19,
+  "review_needed": 460,
+  "runtime_storage": "C:\\Users\\mirav\\AppData\\Local\\MiraverseOSx",
+  "mode": "imported",
+  "authority": "Staged database copy. Game still reads existing authored files. No runtime cutover or source deletion."
+}

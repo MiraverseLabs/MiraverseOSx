@@ -42,6 +42,13 @@ JSON_COLUMNS = {
     ('NPCs',    'Notes_Lore_Json'),
 }
 
+# Only the legacy public-content schema belongs to this exporter. Consolidated
+# authoring tables also contain private case facts and source history.
+LEGACY_TABLES = {
+    'Regions', 'Factions', 'NPCs', 'Careers', 'Modules', 'Lore_Entries',
+    'Events', 'Missions', 'Emails', 'Documents',
+}
+
 def transform(table, column, value):
     if value is None:
         return None
@@ -74,7 +81,8 @@ def main():
     os.makedirs(OUT_DIR, exist_ok=True)
 
     tables = [r[0] for r in con.execute(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")]
+        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")
+        if r[0] in LEGACY_TABLES]
 
     if not tables:
         print('  ⚠  No tables found in miraverse.db — populate tables in DataGrip first.')

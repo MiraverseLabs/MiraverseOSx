@@ -1,0 +1,43 @@
+MIRAVERSE DATABASE REVIEW
+
+Working database: E:\MiraverseOSx\miraverse.db
+Close and reopen it in DB Browser for SQLite, then choose Browse Data.
+
+Start with these views:
+
+BrowseAllContent         Canonical characters/catalogs and extracted review records.
+BrowseCategorySummary    Canonical counts plus embedded occurrences per category.
+BrowseEmbeddedSummary    Extracted occurrences and distinct payloads per category.
+BrowseEmbeddedData       Extracted records, review status, source location and JSON.
+BrowsePeopleToReview     Named people-like entries not linked to a canonical identity.
+BrowseCodeDefinitions    Every captured declaration and its unresolved expressions.
+CodeTextFragments        Searchable interface text, dialogue, strings and template text.
+ProjectSourceArchive     Complete production source text, hashes and extraction status.
+ProjectFiles             Source/asset/reference file locations and treatment.
+
+Canonical character data remains in Characters and CharacterProfiles.
+Previously imported catalogs remain in WorldRecords.
+
+For organizing extracted records, EmbeddedRecords holds CategoryId, RecordType,
+Name and ReviewStatus. ContentCategories lists the available category IDs.
+The Browse views are joined displays; editing normally happens in their tables.
+
+Review records are source occurrences, not additional canonical citizens.
+Repeated payloads share storage while their separate source locations remain visible.
+Exact name/alias matches provide review links; no new NPCs are automatically created.
+
+Definitions marked literal contain fixed values. Partial definitions retain fixed
+fields and mark unresolved pieces with $sourceExpression or $sourceProperties.
+Expression definitions preserve runtime code as text instead of inventing values.
+C# source is retained in full with string fragments and known NPC memory seed tuples.
+Styles, SQL and HTML are retained as source text. Generated character loaders link
+back to the canonical JSON rather than becoming more character records.
+
+Image/audio/font files remain at their original paths and are inventoried, not
+copied into database blobs. Tooling, tests and generated/external files are identified
+in ProjectFiles rather than promoted to additional world facts.
+
+Source snapshots and payload hashes preserve the capture. Reclassification is
+separate from editing original code. This database is still a review/authoring
+workspace: changes do not yet publish to the running game or Mesa.
+Live player saves and memories remain in their existing separate databases.
