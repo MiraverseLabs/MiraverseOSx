@@ -34,6 +34,7 @@ import {
   saveCreatorDraft,
 } from '../integration/worldStateManager';
 import { publicEditorialSources, restoreMediaStudio } from '../gameplay/MediaStudio';
+import { ornamentFor } from '../data/designAssets';
 import {
   evaluateCreativeStudioPermissions,
   validateStudioPublishPermission,
@@ -165,6 +166,7 @@ export default function CreativeStudioApp() {
       {/* Studio Header */}
       <header className="bg-[#48293D] text-white p-4 rounded-xl border-2 border-[#C6AE73] flex flex-wrap items-center justify-between gap-4">
         <div>
+          <img className="app-ornament app-ornament--masthead" src={ornamentFor('creativeStudio')} alt="" aria-hidden="true" style={{ marginBottom: 6 }} />
           <div className="text-[11px] font-mono tracking-widest uppercase text-[#D8C0CB] flex items-center gap-2">
             <Sparkles size={13} />
             <span>MIRAVERSE CREATIVE & EDITORIAL STUDIO</span>

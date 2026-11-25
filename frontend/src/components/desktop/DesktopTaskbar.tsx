@@ -2,6 +2,7 @@
 import { useOSStore } from '../../store/useOSStore';
 import { createPortal } from 'react-dom';
 import { APPS_DIRECTORY, launchDesktopApp } from './appDirectory';
+import AppIcon from '../ui/AppIcon';
 
 import { Grid2X2, PanelsTopLeft, SlidersHorizontal, Check, ChevronUp, ChevronDown, BookOpen } from 'lucide-react';
 import { useSystemStore } from '../../store/useSystemStore';
@@ -62,7 +63,7 @@ export default function DesktopTaskbar({ onTogglePhone, onToggleCasebook, isCase
           const win = windows.find((candidate) => candidate.id === app.id);
           const active = win && activeWindowId === app.id && !win.isMinimized;
           const name = meta?.label || win?.title || app.id;
-          return <button key={app.id} className={`dock-app ${active ? 'is-active' : ''}`} aria-label={`${win ? 'Toggle' : 'Open'} ${name}`} aria-pressed={!!active} onMouseEnter={event => showTooltip(event, name)} onMouseLeave={() => setTooltip(null)} onFocus={event => showTooltip(event, name)} onBlur={() => setTooltip(null)} onClick={() => { dismiss(); setManuallyCollapsed(false); playClick(); win ? toggleApp(win) : launchDesktopApp(app.id); }}><Icon size={21} strokeWidth={1.6} aria-hidden="true"/>{win && <i aria-hidden="true" className={`dock-running-dot ${active ? 'is-active' : ''}`} />}</button>;
+          return <button key={app.id} className={`dock-app ${active ? 'is-active' : ''}`} aria-label={`${win ? 'Toggle' : 'Open'} ${name}`} aria-pressed={!!active} onMouseEnter={event => showTooltip(event, name)} onMouseLeave={() => setTooltip(null)} onFocus={event => showTooltip(event, name)} onBlur={() => setTooltip(null)} onClick={() => { dismiss(); setManuallyCollapsed(false); playClick(); win ? toggleApp(win) : launchDesktopApp(app.id); }}><AppIcon appId={app.id} icon={Icon} size={21} strokeWidth={1.6}/>{win && <i aria-hidden="true" className={`dock-running-dot ${active ? 'is-active' : ''}`} />}</button>;
         })}
       </div>
       <span className="dock-divider"/>

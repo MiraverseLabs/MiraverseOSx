@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import LocalCredentials from './LocalCredentials';
-import { Check, ChevronRight, HardDrive, Info, Palette, Settings2, Volume2 } from 'lucide-react';
+import { Check, ChevronRight, HardDrive, Image as ImageIcon, Info, Palette, Settings2, Volume2 } from 'lucide-react';
 import { useOSStore } from '../store/useOSStore';
 import { useSystemStore } from '../store/useSystemStore';
 import { SoundFX } from '../utils/audio';
@@ -9,12 +9,14 @@ import wallpapers from '../data/wallpapers.json';
 import WorldSaveSettings from './WorldSaveSettings';
 import '../styles/apps/Settings.css';
 import { DESKTOP_THEMES, desktopThemeStyle } from '../store/desktopThemes';
+import { ASSETS } from '../data/designAssets';
 
 const sections = [
   { id: 'appearance', title: 'Appearance', detail: 'Make it your space', icon: Palette },
   { id: 'sound', title: 'Sound', detail: 'System audio', icon: Volume2 },
   { id: 'save', title: 'Save & sync', detail: 'Progress & recovery', icon: HardDrive },
   { id: 'credentials', title: 'Credentials', detail: 'Player access & institutions', icon: Settings2 },
+  { id: 'assets', title: 'Design assets', detail: 'Icon & ornament library', icon: ImageIcon },
   { id: 'about', title: 'About', detail: 'Your Miraverse system', icon: Info },
 ] as const;
 
@@ -39,7 +41,7 @@ export default function SettingsApp() {
         <footer><span className="settings-orbit-dot" />MIRAVERSE OS x<span>Personal system preferences</span></footer>
       </aside>
       <main key={selected} className="settings-content" id="settings-content" aria-labelledby="settings-section-title">
-        <header className="settings-page-heading"><p>SYSTEM / {section.title.toUpperCase()}</p><h2 id="settings-section-title">{section.title}</h2><span>{selected === 'appearance' ? 'A familiar space, with your own point of view.' : selected === 'sound' ? 'Choose how your desktop sounds.' : selected === 'save' ? 'Keep your world ready for the next visit.' : 'One desktop. A connected world.'}</span></header>
+        <header className="settings-page-heading"><p>SYSTEM / {section.title.toUpperCase()}</p><h2 id="settings-section-title">{section.title}</h2><span>{selected === 'appearance' ? 'A familiar space, with your own point of view.' : selected === 'sound' ? 'Choose how your desktop sounds.' : selected === 'save' ? 'Keep your world ready for the next visit.' : selected === 'assets' ? 'The shipped icon, ornament and brand library.' : 'One desktop. A connected world.'}</span></header>
         {selected === 'appearance' && <>
           <section className="settings-group mira-interface-settings" aria-labelledby="interface-preferences-heading">
             <h3 id="interface-preferences-heading">Interface & reading</h3>
@@ -67,6 +69,16 @@ export default function SettingsApp() {
         {selected === 'sound' && <section className="settings-group" aria-labelledby="settings-audio-heading"><h3 id="settings-audio-heading">Desktop audio</h3><div className="settings-preference-row"><div><strong id="settings-sound-label">System sounds</strong><p id="settings-sound-help">Interface sounds and desktop audio. This is the same control as the taskbar speaker.</p></div><button className="settings-switch" role="switch" aria-labelledby="settings-sound-label" aria-describedby="settings-sound-help" aria-checked={soundEnabled} onClick={() => setSoundEnabled(!soundEnabled)}><span /></button></div><div className="settings-preference-row"><div><strong>Listen to a preview</strong><p>Play a short interface sound.</p></div><button className="settings-secondary-button" disabled={!soundEnabled} onClick={() => SoundFX.playSnap()}><Volume2 size={16} aria-hidden="true" />Play sound</button></div></section>}
         {selected === 'save' && <WorldSaveSettings />}
         {selected === 'credentials' && <LocalCredentials />}
+        {selected === 'assets' && <>
+          <div className="settings-section-heading"><div><h3>Shipped visual assets</h3><p>App icons, ornaments, brand marks and wallpapers wired into the system.</p></div></div>
+          <div className="settings-assets-grid">
+            {ASSETS.map(asset => <figure key={asset.key} className="settings-asset">
+              <img src={asset.src} alt="" loading="lazy" />
+              <figcaption><strong>{asset.label}</strong><small>{asset.category}</small></figcaption>
+            </figure>)}
+          </div>
+          <p className="settings-footnote">These files live in <span className="font-mono">frontend/public</span> and are served at the site root. App ids resolve through <span className="font-mono">designAssets.ts</span>.</p>
+        </>}
         {selected === 'about' && <><div className="settings-about-mark"><Settings2 size={28} aria-hidden="true" /><div><h3>MiraverseOSx</h3><p>Your desktop in Aureline</p></div></div><section className="settings-group" aria-label="System information"><dl className="settings-details"><div><dt>World</dt><dd>Aureline</dd></div><div><dt>Experience</dt><dd>Local single-player</dd></div><div><dt>Storage</dt><dd>Local database with device fallback</dd></div><div><dt>Appearance</dt><dd>Neutral surfaces with purposeful accents</dd></div></dl></section><p className="settings-footnote">Your apps share one world. Manage database saves and recovery in <button className="settings-inline-link" onClick={() => setSelected('save')}>Save & sync</button>.</p></>}
       </main>
     </div>

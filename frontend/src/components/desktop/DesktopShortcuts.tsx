@@ -1,6 +1,7 @@
 import React from 'react';
 import { APPS_DIRECTORY, launchDesktopApp } from './appDirectory';
 import { useOSStore } from '../../store/useOSStore';
+import AppIcon from '../ui/AppIcon';
 
 export default function DesktopShortcuts() {
   const ids = useOSStore(s => s.desktopPreferences.shortcutIds);
@@ -8,7 +9,7 @@ export default function DesktopShortcuts() {
   return (
     <nav className="personal-shortcuts" aria-label="Desktop shortcuts">
       {shortcuts.map(app => { const Icon = app!.icon; return <button key={app!.id} className="personal-shortcut" onClick={() => launchDesktopApp(app!.id)} title={app!.name}>
-        <span className="personal-shortcut-icon"><Icon size={27} strokeWidth={1.5}/></span><span>{app!.label}</span>
+        <span className="personal-shortcut-icon"><AppIcon appId={app!.id} icon={Icon} size={27} strokeWidth={1.5}/></span><span>{app!.label}</span>
       </button>; })}
     </nav>
   );

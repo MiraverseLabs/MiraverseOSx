@@ -27,6 +27,7 @@ import { authorizeAuraAction, evaluateAuraRecordPermissions, resolveAuraActor } 
 import { useOSStore } from '../store/useOSStore';
 import { BRAND_KITS, brandKitCssVariables } from '../game-content/worldAssetLibrary';
 import { restoreFyloState } from './files/fyloStore';
+import { ornamentFor } from '../data/designAssets';
 import '../styles/apps/DocumentStudio.css';
 
 const DEFAULT_CITIZEN: CitizenRecord = {
@@ -318,6 +319,7 @@ export default function DocumentStudioApp() {
     <div className="document-studio">
       <aside className="document-library" aria-label="Official document library">
         <header>
+          <img className="app-ornament" src={ornamentFor('documentStudio')} alt="" aria-hidden="true" />
           <span className="workspace-kicker">Studio / documents & press</span>
           <h1>{studioMode === 'civic' ? 'The civil file.' : 'Editorial & Press.'}</h1>
           <p>{studioMode === 'civic' ? 'Nine records. One identity.' : 'Author .doc, .docx & .pdf reports.'}</p>

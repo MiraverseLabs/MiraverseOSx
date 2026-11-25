@@ -18,6 +18,17 @@
 }
 .app-glyph::before { content: ''; position: absolute; inset: 4px; border: 1px solid #ffffff69; border-radius: 12px; pointer-events: none; }
 .app-glyph > svg { position: relative; width: 25px; height: 25px; filter: drop-shadow(0 1px 0 #ffffffad); }
+.app-glyph > img { position: relative; width: 60%; height: 60%; object-fit: contain; filter: drop-shadow(0 1px 0 #ffffffad); }
+.app-glyph[data-size='small'] > img { width: 62%; height: 62%; }
+.app-glyph[data-size='large'] > img { width: 58%; height: 58%; }
+.app-ornament { display: block; height: 22px; width: auto; opacity: 0.55; pointer-events: none; }
+.app-ornament--masthead { height: 34px; opacity: 0.8; }
+.settings-assets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+.settings-asset { margin: 0; padding: 10px; border: 1px solid var(--mira-line); border-radius: 12px; background: var(--color-surface-card, #fff); display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.settings-asset img { width: 48px; height: 48px; object-fit: contain; }
+.settings-asset figcaption { text-align: center; }
+.settings-asset figcaption strong { display: block; font-size: 11px; word-break: break-word; }
+.settings-asset figcaption small { color: var(--mira-muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
 .app-glyph[data-tone='sky'] { --glyph-ink: #386480; --glyph-light: #edf8fb; --glyph-dark: #c5dce9; }
 .app-glyph[data-tone='gold'] { --glyph-ink: #8a683b; --glyph-light: #fffaed; --glyph-dark: #eadabd; }
 .app-glyph[data-tone='sage'] { --glyph-ink: #3f766a; --glyph-light: #edf8f3; --glyph-dark: #c5dfd4; }
