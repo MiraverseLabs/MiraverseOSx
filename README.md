@@ -8,7 +8,7 @@ MiraverseOSx is a solo-developed game project built around the idea of inhabitin
 
 Its principal setting is **Meridion**, a fictional sovereign world whose institutions, technologies, neighborhoods, communities, and histories provide the context for play. The focus of development is the interaction between game systems: information discovered in one context should remain meaningful in another, institutions should retain their own responsibilities, and characters should exist beyond a single interaction with the player.
 
-> **Development note:** This README describes the project direction and what is supported by the documentation currently available. Design intent is not a claim that every feature is operational. The supplied archive contains selected documentation and an agent prototype, not the complete current application repository; implementation notes have not been independently revalidated against the latest build.
+> **Development note:** This README describes the project direction and what is supported by the documentation currently available. Design intent is not a claim that every feature is operational. This repository is the complete application; `multi-role-terminal-orchestrator/` is an optional standalone prototype with its own server (port 3000) and is not launched by `npm start` or part of normal gameplay. Implementation notes have not been independently revalidated against the latest build.
 
 ## Contents
 

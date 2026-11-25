@@ -1,5 +1,7 @@
+// LEGACY compatibility store. Player gameplay, identity, time and money are
+// owned by useOSStore; this store only remains for the legacy mission-routing
+// regression test and the Photino preview bridge. Do not add new state here.
 import { create } from 'zustand';
-import { get, set } from 'idb-keyval';
 import { ecosystemEngine } from '../gameplay/EcosystemEngine';
 import { missionDirector } from '../gameplay/MissionDirector';
 import { harmonyEngine } from '../gameplay/HarmonyEngine';
@@ -77,10 +79,7 @@ export interface GameStoreState {
   missions: GameMission[];
   dialogueHistory: DialogueEntry[];
   spellLog: any[];
-  ipcConnected: boolean;
 
-  initializeStore: () => Promise<void>;
-  registerPlayer: (profileData: Partial<GameStoreState['player']>) => Promise<void>;
   requestTick: () => void;
   requestMission: () => void;
   completeMission: (missionId: string) => { ok: boolean; reason?: string };
@@ -147,43 +146,7 @@ export const useGameStore = create<GameStoreState>((setStore, getStore) => ({
   // Cast Spell Log
   spellLog: [],
 
-  // IPC Connection Status
-  ipcConnected: false,
-
   // Actions
-  initializeStore: async () => {
-    try {
-      const cachedPlayer = await get('miraverse_player_profile');
-      if (cachedPlayer) {
-        setStore({ player: cachedPlayer });
-      }
-    } catch (err) {
-      console.warn('idb-keyval error loading profile:', err);
-    }
-
-    if (window.external && window.external.receiveMessage) {
-      setStore({ ipcConnected: true });
-      window.external.receiveMessage((rawMessage: string) => {
-        try {
-          const data = JSON.parse(rawMessage);
-          getStore().handlePhotinoResponse(data);
-        } catch (e) {
-          console.error('Error parsing Photino message:', e);
-        }
-      });
-    }
-  },
-
-  registerPlayer: async (profileData) => {
-    const updatedPlayer = { ...getStore().player, ...profileData };
-    setStore({ player: updatedPlayer });
-    try {
-      await set('miraverse_player_profile', updatedPlayer);
-    } catch (err) {
-      console.warn('idb-keyval error saving profile:', err);
-    }
-  },
-
   requestTick: () => {
     const tickRes = ecosystemEngine.processTick(1.0);
     setStore({

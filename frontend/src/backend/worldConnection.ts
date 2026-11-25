@@ -1,6 +1,7 @@
 import { WorldSyncClient, readWorldEntries, type WorldEntries } from './worldSync';
 import { applyWorldEntries } from './worldRecords';
 import { mirrorWorldEntries } from './worldMirrors';
+import { useOSStore } from '../store/useOSStore';
 
 export async function restoreWorldEntries(entries: WorldEntries) {
   const previous = readWorldEntries(localStorage);
@@ -15,6 +16,8 @@ export async function restoreWorldEntries(entries: WorldEntries) {
 export const worldConnection = new WorldSyncClient({ getItem: key => localStorage.getItem(key), setItem: (key, value) => localStorage.setItem(key, value), removeItem: key => localStorage.removeItem(key), get length() { return localStorage.length; }, key: index => localStorage.key(index) }, (...args) => fetch(...args), restoreWorldEntries, () => location.reload());
 export async function connectWorld() {
   await worldConnection.start();
+  // Reconcile the optional player <-> Living World link after the saved world loads.
+  void useOSStore.getState().reconcileLivingWorldLink();
   // App stores keep their existing offline persistence. Capture their records together
   // after synchronous WorkNet → mail → file changes have finished.
   window.setInterval(() => { if (!document.hidden) void worldConnection.sync(); }, 1500);

@@ -22,6 +22,24 @@ local staged edits. Both are ignored by Git.
 This unifies the API and Observatory's experimental runs. It does not merge the
 OS player's Zustand save, WORKNET receipts, or canonical profiles into those runs.
 
+## Player synchronization
+
+The OS player may link to one existing citizen in a run
+(`gameplay.livingWorldLink`). Ownership is explicit:
+
+- Player credits and player time are authoritative for the player.
+- The linked citizen's `balance` is a one-way projection (player -> citizen),
+  applied as `player_mirror` transactions with idempotent request IDs.
+- The run's `WorldClock` is authoritative for world time: one player segment
+  (360 minutes) advances the run by `round(360 / step_minutes)` steps.
+- On load the run reconciles forward when it is behind the player, and seeds the
+  credit baseline once. Without a link there is no synchronization.
+
+Completing a WORKNET assignment records a `worknet` event in the linked run and,
+when the linked citizen has no career yet, assigns employment (salary 0, since
+player credits are authoritative). This is the first end-to-end player ->
+simulation workflow; the Observatory shows the resulting event and career.
+
 ## Running
 
 From the repository root, create the local environment and install dependencies:

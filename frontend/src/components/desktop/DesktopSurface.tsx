@@ -7,9 +7,9 @@ import DesktopHouseWidget from './DesktopHouseWidget';
 import DesktopCustomizer from './DesktopCustomizer';
 import { useOSStore } from '../../store/useOSStore';
 import { useCommsStore } from '../../store/useCommsStore';
-import { useGameStore } from '../../store/useGameStore';
 import { visibleOpportunities, opportunityStatus } from '../../gameplay/AssignmentFlow';
 import { getCelestialState } from '../../data/meridionWorld';
+import { weatherForCycle } from '../../gameplay/worldWeather';
 import { type DesktopGroup } from '../../store/desktopPreferences';
 import { APPS_DIRECTORY, launchDesktopApp } from './appDirectory';
 import { visibleFileCatalog, fileDestination, folderDestination } from '../../apps/files/fileCatalog';
@@ -23,7 +23,7 @@ function ClockCalendar() {
 }
 function DesktopWidget({id}:{id:string}) {
  const state=useOSStore(),p=state.desktopPreferences,comms=useCommsStore(); const [entry,setEntry]=useState('');
- const weather=useGameStore(s=>s.worldState.weather_condition);const celestial=getCelestialState(state.gameplay.timeCycleCount??28);
+ const weather=weatherForCycle(state.gameplay.timeCycleCount??28);const celestial=getCelestialState(state.gameplay.timeCycleCount??28);
  if(id==='clock')return <ClockCalendar/>;
  if(id==='notes')return <textarea className="desktop-note" aria-label="Desktop sticky note" placeholder="Keep a thought here…" value={p.note} onChange={e=>state.desktopAction({type:'note',text:e.target.value})}/>;
  if(id==='checklist')return <div className="desktop-checklist">{p.checklist.length? p.checklist.map(item=><div key={item.id}><label><input type="checkbox" checked={item.done} onChange={()=>state.desktopAction({type:'check-toggle',id:item.id})}/><span className={item.done?'is-done':''}>{item.text}</span></label><button aria-label={`Delete checklist item ${item.text}`} onClick={()=>state.desktopAction({type:'check-remove',id:item.id})}><X size={12}/></button></div>):<p className="desktop-empty">A little room for your next steps.</p>}<form onSubmit={e=>{e.preventDefault();state.desktopAction({type:'check-add',text:entry});setEntry('');}}><input aria-label="New desktop checklist item" value={entry} onChange={e=>setEntry(e.target.value)} placeholder="Add a task…" required/><button aria-label="Add checklist item"><Plus size={15}/></button></form></div>;

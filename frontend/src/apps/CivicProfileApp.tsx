@@ -10,6 +10,7 @@ import Button from '../components/ui/button';
 import { subscribeCitizenUpdates } from '../integration/citizenEvents';
 import { resolvePersonalCitizen, personalIssuanceHistory } from '../integration/personalCitizen';
 import CitizenServices from './CitizenServices';
+import LivingWorldLinkPanel from './LivingWorldLinkPanel';
 import { MaidIdentityService, type CanonicalPerson } from '../services/maidIdentityService';
 
 const SKILL_ICONS = {
@@ -696,6 +697,7 @@ export default function CivicProfileApp() {
           {/* TAB 6: APP LOOPS */}
           {activeTab === 'loops' && (
             <div className="space-y-6">
+              <LivingWorldLinkPanel />
               {/* SECTION A: EARLY CITIZEN GAMEPLAY LOOPS */}
               <div className="space-y-3">
                 <div className="border-b border-slate-200 pb-2">

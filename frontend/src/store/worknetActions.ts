@@ -13,6 +13,7 @@ import { WORK_DEFINITIONS, getWorkDefinition, WORKNET_ASSIGNMENTS, nextWorkStage
 import { CAREER_TRACK_SPECS, WORKNET_DOMAIN_TASKS, evaluateWorknetObjective } from '../gameplay/WorldEventEngine';
 import { evaluateHybridOutcome, type ExecutionMode } from '../gameplay/WorknetCoreSystems';
 import { appendCareerMilestone, availableExecutionModes, availableStageColleague } from '../gameplay/WorknetSimulation';
+import { recordWorknetCompletion } from '../integration/worknetSimulationBridge';
 
 export function createWorknetActions(set: (update: (state: OSStoreState) => Partial<OSStoreState>) => void, get: () => OSStoreState) {
   const updatePlayer = (update: (player: any) => any) => set(state => ({ gameplay: { ...state.gameplay, player: update(state.gameplay.player) } }));
@@ -217,6 +218,20 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
         summary: `${order.subject}: outputs accepted; evaluation ${order.evaluation}/100; supplies lost ${order.resourcesUsed}. Compensation: ${credits} credits, ${xp} career XP.${paidCare ? ' Clinical pay already issued.' : ''}`,
         institution: `WORKNET // ${definition.track.toUpperCase()}`,
       });
+      const link = get().gameplay.livingWorldLink;
+      if (link) {
+        void recordWorknetCompletion(link, {
+          missionId: mission.id,
+          track: definition.track,
+          orderId: order.id,
+          subject: order.subject,
+          evaluation: order.evaluation,
+          credits,
+          xp,
+          institution: `WORKNET // ${definition.track.toUpperCase()}`,
+          position: CAREER_TRACK_SPECS[definition.track]?.rankTitles?.[0] || definition.track,
+        });
+      }
       return { ok: true };
     },
 

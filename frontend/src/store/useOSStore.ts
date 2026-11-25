@@ -93,6 +93,17 @@ import {
   type WorldNarrativeEvent,
   type WorldEventCategory,
 } from '../gameplay/WorldEventEngine';
+import {
+  advanceWithRetry,
+  citizenBalance,
+  creditMirrorRequestId,
+  enqueue,
+  getRun,
+  reconcileLink,
+  segmentsToSteps,
+  transact,
+  type LivingWorldLink,
+} from '../integration/livingWorldLink';
 
 // Activities / missions — seeded by MissionDirector TypeScript engine or future DataGrip pipeline.
 const missionsData: any[] = [];
@@ -205,6 +216,11 @@ export interface OSStoreState extends MediaStudioActions, BankingActions, Proces
 
   gameplay: any;
 
+  linkLivingWorldCitizen: (runId: string, characterId: string, displayName?: string) => Promise<{ ok: boolean; message: string }>;
+  unlinkLivingWorldCitizen: () => { ok: boolean; message: string };
+  bumpCreditMirrorRevision: () => void;
+  reconcileLivingWorldLink: () => Promise<void>;
+
   advanceTime: () => void;
   restInDorm: (duration?: SleepDuration) => {
     ok: boolean;
@@ -304,8 +320,36 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     const patch = typeof update === 'function' ? update(state) : update;
     if (!patch?.gameplay?.player) return patch;
     const player = journalBalanceChange(state.gameplay.player, patch.gameplay.player);
-    return player === patch.gameplay.player ? patch : { ...patch, gameplay: { ...patch.gameplay, player } };
+    const nextPatch = player === patch.gameplay.player ? patch : { ...patch, gameplay: { ...patch.gameplay, player } };
+    // Money is a one-way projection: player credits are authoritative, and the
+    // linked simulation citizen's balance mirrors the delta idempotently.
+    const link = state.gameplay?.livingWorldLink;
+    const before = state.gameplay?.player?.credits ?? 0;
+    const after = player.credits ?? 0;
+    if (link && after !== before && Number.isSafeInteger(after - before)) {
+      const delta = after - before;
+      const cycle = nextPatch.gameplay?.timeCycleCount ?? state.gameplay?.timeCycleCount ?? 0;
+      const requestId = creditMirrorRequestId(link, cycle);
+      enqueue(() => transact(link.runId, {
+        characterId: link.characterId,
+        kind: 'player_mirror',
+        amount: delta,
+        description: 'Player credit mirror',
+        requestId,
+      }).then((result) => { if (!result?.alreadyApplied) get().bumpCreditMirrorRevision(); }));
+    }
+    return nextPatch;
   });
+  const queueAdvanceLinkedRun = (previousTotal: number, nextTotal: number) => {
+    const link = get().gameplay.livingWorldLink;
+    if (!link || nextTotal === previousTotal) return;
+    const segments = Math.abs(nextTotal - previousTotal);
+    enqueue(async () => {
+      const snapshot = await getRun(link.runId);
+      const steps = segmentsToSteps(snapshot.clock.step_minutes, segments);
+      await advanceWithRetry(link.runId, steps, snapshot.run.revision);
+    });
+  };
   return ({
   isLoggedIn: false,
   isSanctuary: false,
@@ -980,6 +1024,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     ],
     timeSegmentIndex: 2, // 0: Morning, 1: Afternoon, 2: Evening, 3: Night
     timeCycleCount: 28,
+    livingWorldLink: null as LivingWorldLink | null,
     onboardingPhase: 1, // 1: Boot, 2: Emails Read, 3: Identity Verified, 4: Comms Unlocked, 6: Completed
     lockedApps: ['passport', 'comms'], // Apps locked until onboarding steps are completed
     identity: {
@@ -1121,7 +1166,79 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     },
   },
 
-  advanceTime: () =>
+  linkLivingWorldCitizen: async (runId, characterId, displayName) => {
+    const state = get();
+    if (!state.isLoggedIn) return { ok: false, message: 'Sign in before linking a Living World citizen.' };
+    try {
+      const snapshot = await getRun(runId);
+      const citizen = snapshot.run.state?.citizens?.[characterId];
+      if (!citizen) return { ok: false, message: 'That citizen is not part of the selected run.' };
+      const link: LivingWorldLink = {
+        runId,
+        characterId,
+        canonicalPersonId: state.gameplay.identity?.canonicalPersonId ?? null,
+        displayName: displayName || (typeof citizen.name === 'string' ? citizen.name : characterId),
+        creditMirrorRevision: 0,
+      };
+      set(s => ({ gameplay: { ...s.gameplay, livingWorldLink: link } }));
+      await get().reconcileLivingWorldLink();
+      return { ok: true, message: `Linked to ${link.displayName} in the Living World.` };
+    } catch (error) {
+      return { ok: false, message: error instanceof Error ? error.message : 'Living World service unavailable.' };
+    }
+  },
+  unlinkLivingWorldCitizen: () => {
+    set(s => ({ gameplay: { ...s.gameplay, livingWorldLink: null } }));
+    return { ok: true, message: 'Living World link removed. Player progress is unchanged.' };
+  },
+  bumpCreditMirrorRevision: () => {
+    set(s => {
+      const link = s.gameplay.livingWorldLink;
+      if (!link) return {};
+      return { gameplay: { ...s.gameplay, livingWorldLink: { ...link, creditMirrorRevision: link.creditMirrorRevision + 1 } } };
+    });
+  },
+  reconcileLivingWorldLink: async () => {
+    const link = get().gameplay.livingWorldLink;
+    if (!link) return;
+    try {
+      const snapshot = await getRun(link.runId);
+      const reconciled = reconcileLink(link, snapshot.clock, citizenBalance(snapshot, link.characterId));
+      const playerTotal = (get().gameplay.timeCycleCount ?? 0) * 4 + (get().gameplay.timeSegmentIndex ?? 0);
+      const runTotal = reconciled.timeCycleCount * 4 + reconciled.timeSegmentIndex;
+      if (runTotal < playerTotal) {
+        // The player advanced while the run was behind: bring the run forward
+        // instead of rolling player time back.
+        const steps = segmentsToSteps(snapshot.clock.step_minutes, playerTotal - runTotal);
+        enqueue(() => advanceWithRetry(link.runId, steps, snapshot.run.revision));
+      }
+      set(s => {
+        const current = s.gameplay.livingWorldLink;
+        if (!current || current.runId !== link.runId || current.characterId !== link.characterId) return {};
+        const patch: any = {
+          gameplay: {
+            ...s.gameplay,
+            ...(runTotal > playerTotal
+              ? { timeCycleCount: reconciled.timeCycleCount, timeSegmentIndex: reconciled.timeSegmentIndex }
+              : {}),
+          },
+        };
+        // Seed the one-way credit projection from the citizen balance once. The
+        // store's set wrapper enqueues the idempotent mirror transaction.
+        if (current.creditMirrorRevision === 0 && reconciled.creditBaseline !== null
+          && reconciled.creditBaseline !== (s.gameplay.player.credits ?? 0)) {
+          patch.gameplay.player = { ...s.gameplay.player, credits: reconciled.creditBaseline };
+        }
+        return patch;
+      });
+    } catch {
+      // Living World unavailable: player state stays authoritative; retry later.
+    }
+  },
+
+  advanceTime: () => {
+    const previous = get().gameplay;
+    const previousTotal = (previous.timeCycleCount ?? 0) * 4 + (previous.timeSegmentIndex ?? 0);
     set((state) => {
       if (isWorldPaused()) return state;
       const nextIndex = (state.gameplay.timeSegmentIndex + 1) % 4;
@@ -1149,13 +1266,17 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
           },
         },
       };
-    }),
+    });
+    const next = get().gameplay;
+    queueAdvanceLinkedRun(previousTotal, (next.timeCycleCount ?? 0) * 4 + (next.timeSegmentIndex ?? 0));
+  },
 
   restInDorm: (duration = 'full') => {
     const state = get();
     const player = state.gameplay.player;
     const currentDreams = Array.isArray(player.dreamLogs) ? player.dreamLogs : [];
     const outcome = calculateRestOutcome(state.gameplay, duration);
+    const previousTotal = (state.gameplay.timeCycleCount ?? 0) * 4 + (state.gameplay.timeSegmentIndex ?? 0);
 
     set((s) => ({
       gameplay: {
@@ -1183,6 +1304,8 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
         institution: 'HOMECRAFT // Subconscious Veil',
       });
     }
+
+    queueAdvanceLinkedRun(previousTotal, (outcome.nextTimeCycleCount ?? 0) * 4 + (outcome.nextTimeSegmentIndex ?? 0));
 
     return {
       ok: true,

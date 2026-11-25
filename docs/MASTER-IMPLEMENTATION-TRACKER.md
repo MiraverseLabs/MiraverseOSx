@@ -15,17 +15,19 @@ Created: 2026-11-25
 2. Living World Engine - Partially implemented (versioned Python source, shared model/snapshot, actual API simulation steps, revision-guarded persistence, C# proxy and configurable auto-start verified)
 3. Economy, careers, institutions and relationships - Partially implemented (API and Observatory share citizen balances, ledger, active employment, schedules and relationship graph; events persist with the run)
 4. Entertainment and celebrity systems - Partially implemented (artists, music, releases, concerts and fame records persist across engine saves; full entertainment simulation remains separate work)
-5. Professional and institutional gameplay - Planned
-6. VerseNet and digital life - Planned
-7. NPC intelligence and immersive experiences - Planned
+5. Professional and institutional gameplay - Implemented (WORKNET assignments, stage validation, receipts, schedules, rewards and career tracks with regression coverage)
+6. VerseNet and digital life - Implemented (VerseNet sites, publications, templates, public-source filtering, promotion spending and cycle-driven media with executable tests)
+7. NPC intelligence and immersive experiences - Implemented (C# AI router with persistent memory and deterministic fallback; cloud-provider availability unverified)
 8. Observatory completion - Partially implemented (Living World page + stats/citizen registry/daily schedule controls)
-9. Full game integration - Partially implemented (C# proxy + Observatory API integrated with miraverse.db)
+9. Full game integration - Partially implemented (C# proxy + Observatory API integrated with miraverse.db; player↔run link, time/money sync and WORKNET→run workflow added)
 10. Testing, optimization and refinement - Partially implemented (17 Python/.NET bridge tests passing; host build and isolated real-host advancement verified)
 
 ## Notes
 - Repository audited: git status clean except miraverse.db WAL modifications.
 - No existing master tracker found; this file created.
 - Further implementation requires multi-session effort. This tracker persists progress.
+- Database policy: `miraverse.db` is tracked; `-wal`/`-shm` are ignored and the WAL is
+  checkpointed before any database commit.
 
 ## Living World repair and unification — November 25, 2026
 
@@ -93,3 +95,19 @@ Created: 2026-11-25
 - Earlier broad milestone labels above are not a repository-wide absence audit:
   the OS already has WORKNET, VerseNet and media gameplay. Connecting those player
   systems to experimental Living World runs remains a separate integration task.
+
+## Startup, packaging and player integration — November 25, 2026
+
+- Root launcher restored (`npm install`; `npm start` runs backend :5000 and Vite
+  :3000). `miraverse.db` is tracked, WAL/SHM ignored, and the WAL is checkpointed
+  before commits.
+- Build output is self-contained: `wwwroot` and `miraverse.db` copy into
+  `bin/Debug/net8.0`, so the executable launches independently from that folder.
+- Player↔Living World link (`gameplay.livingWorldLink`): player credits/time are
+  authoritative; the linked citizen balance is a one-way projection and the run
+  `WorldClock` is authoritative for world time (1 segment = 360 min).
+- First end-to-end player→simulation workflow: WORKNET completion writes a
+  `worknet` event and assigns salary-0 employment when the citizen has no career.
+- The separate orchestrator is now an optional prototype and is no longer a root
+  launch script. `useGameStore` is marked legacy; its two live consumers were
+  migrated to `worldWeather` and `npcDialogueBridge`.
