@@ -72,6 +72,7 @@ namespace MiraverseOSx
             _worldApi = new WorldSaveApi(dataDirectory);
             _mediaApi = new MediaAssetApi(dataDirectory);
             _livingWorldApi = new LivingWorldApi();
+            EnsureLivingWorldService();
             var memoryRepo = new NpcMemoryRepository(dataDirectory);
             var costController = new AiCostController(memoryRepo);
             var geminiProvider = new GeminiProvider(_httpClient);
@@ -266,6 +267,31 @@ namespace MiraverseOSx
             catch
             {
                 try { context.Response.StatusCode = 404; context.Response.Close(); } catch { }
+            }
+        }
+
+        private static void EnsureLivingWorldService()
+        {
+            try
+            {
+                using var probe = new System.Net.Sockets.TcpClient();
+                try { probe.Connect("127.0.0.1", 5010); return; } catch { }
+                var script = Path.Combine(@"E:\Miraverse Simulation Lab", "living_world_api.py");
+                if (!File.Exists(script)) return;
+                var start = new ProcessStartInfo
+                {
+                    FileName = "python",
+                    Arguments = $"\"{script}\" 5010",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WorkingDirectory = @"E:\Miraverse Simulation Lab"
+                };
+                Process.Start(start);
+                Console.WriteLine("[LivingWorld] Started simulation service on port 5010.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[LivingWorld Warning] {ex.Message}");
             }
         }
 
