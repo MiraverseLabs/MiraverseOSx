@@ -31,6 +31,9 @@
       <button id="careers">Careers</button>
       <button id="finances">Finances</button>
       <button id="events">World events</button>
+      <button id="artists">Artists</button>
+      <button id="music">Music library</button>
+      <button id="concerts">Concerts</button>
     </div>
     <pre id="output">Loading…</pre>
   </div>
@@ -89,6 +92,9 @@ async function runPanel(path) {
 document.getElementById('careers').onclick = () => runPanel('careers');
 document.getElementById('finances').onclick = () => runPanel('finances');
 document.getElementById('events').onclick = () => runPanel('events');
+document.getElementById('artists').onclick = () => runPanel('artists');
+document.getElementById('music').onclick = () => runPanel('music');
+document.getElementById('concerts').onclick = () => runPanel('concerts');
 refresh();
 </script>
 </body>
