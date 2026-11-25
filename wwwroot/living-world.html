@@ -27,6 +27,7 @@
       <button id="advance">Advance 1 step</button>
       <button id="stats">World stats</button>
       <button id="citizens">Citizen registry</button>
+      <button id="schedules">Daily schedules</button>
     </div>
     <pre id="output">Loading…</pre>
   </div>
@@ -65,6 +66,14 @@ document.getElementById('stats').onclick = async () => {
 document.getElementById('citizens').onclick = async () => {
   try { out.textContent = JSON.stringify(await api('../observatory/citizens'), null, 2); }
   catch (e) { out.textContent = 'Error: ' + e.message; }
+};
+document.getElementById('schedules').onclick = async () => {
+  try {
+    const data = await api('runs');
+    const run = data.runs && data.runs[0];
+    if (!run) { out.textContent = 'No simulation runs yet.'; return; }
+    out.textContent = JSON.stringify(await api('schedules?runId=' + run.RunId), null, 2);
+  } catch (e) { out.textContent = 'Error: ' + e.message; }
 };
 refresh();
 </script>
