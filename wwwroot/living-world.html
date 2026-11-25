@@ -25,6 +25,8 @@
     <div class="row">
       <button id="refresh">Refresh</button>
       <button id="advance">Advance 1 step</button>
+      <button id="stats">World stats</button>
+      <button id="citizens">Citizen registry</button>
     </div>
     <pre id="output">Loading…</pre>
   </div>
@@ -56,6 +58,14 @@ async function advance() {
 }
 document.getElementById('refresh').onclick = refresh;
 document.getElementById('advance').onclick = advance;
+document.getElementById('stats').onclick = async () => {
+  try { out.textContent = JSON.stringify(await api('../observatory/stats'), null, 2); }
+  catch (e) { out.textContent = 'Error: ' + e.message; }
+};
+document.getElementById('citizens').onclick = async () => {
+  try { out.textContent = JSON.stringify(await api('../observatory/citizens'), null, 2); }
+  catch (e) { out.textContent = 'Error: ' + e.message; }
+};
 refresh();
 </script>
 </body>

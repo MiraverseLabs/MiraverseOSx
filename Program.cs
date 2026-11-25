@@ -40,6 +40,7 @@ namespace MiraverseOSx
         private static WorldSaveApi? _worldApi;
         private static MediaAssetApi? _mediaApi;
     private static LivingWorldApi? _livingWorldApi;
+    private static ObservatoryApi? _observatoryApi;
         private static AiHttpHandler? _aiHttpHandler;
         private static readonly HttpClient _httpClient = new HttpClient();
         private static readonly string _externalLaunchToken = Guid.NewGuid().ToString("N");
@@ -72,6 +73,7 @@ namespace MiraverseOSx
             _worldApi = new WorldSaveApi(dataDirectory);
             _mediaApi = new MediaAssetApi(dataDirectory);
             _livingWorldApi = new LivingWorldApi();
+            _observatoryApi = new ObservatoryApi(dataDirectory);
             EnsureLivingWorldService();
             var memoryRepo = new NpcMemoryRepository(dataDirectory);
             var costController = new AiCostController(memoryRepo);
@@ -167,6 +169,7 @@ namespace MiraverseOSx
                 if (_worldApi != null && await _worldApi.Handle(context, relPath)) return;
                 if (_mediaApi != null && await _mediaApi.Handle(context, relPath)) return;
                 if (_livingWorldApi != null && await _livingWorldApi.Handle(context, relPath)) return;
+                if (_observatoryApi != null && await _observatoryApi.Handle(context, relPath)) return;
                 if (_aiHttpHandler != null && await _aiHttpHandler.Handle(context, relPath)) return;
 
                 // --- SQLITE API ROUTE INTERCEPTOR ---
