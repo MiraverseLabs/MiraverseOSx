@@ -3,8 +3,9 @@ import { evaluateCreativeStudioPermissions, validateStudioPublishPermission } fr
 import { getMediaAssetById } from '../game-content/worldAssetLibrary';
 import { getCharacterById } from '../game-content/characters/registry';
 import { PEOPLE, restoreSocial } from '../apps/social/socialModel';
+import { generateTemplatePostReactions } from '../apps/social/npcReactivity';
 import { restoreFyloState, formatFileSize } from '../apps/files/fyloStore';
-import { worldWorkTick } from './WorkSchedule';
+import { worldWorkTick, actorHasCommitment } from './WorkSchedule';
 import { restoreWorldPublications } from './WorldPublications';
 import { getCelestialState } from '../data/meridionWorld';
 
@@ -45,6 +46,15 @@ export function approvedEditorialAsset(id?: string): string | undefined {
   const a = getMediaAssetById(id);
   return a && a.provenance.approvalStatus === 'approved' && (!a.scope || ['canon','admin_canon'].includes(a.scope)) ? a.id : undefined;
 }
+function reactToPublicMedia(social: ReturnType<typeof restoreSocial>, artifact: PublishedMediaArtifact, game: any) {
+  const tick = worldWorkTick(game), workplace = game.player.worknetWorkplace;
+  const available = tick % 4 === 3 ? [] : PEOPLE.filter(p => ![p.id,p.characterId].some(id =>
+    actorHasCommitment(workplace,id) || workplace?.subordinateLeaves?.some((l: any) => l.subordinateId === id && l.status === 'Approved' && tick < l.untilTick) ||
+    social.blocked.includes(id) || social.muted.includes(id))).map(p => p.id);
+  const next = { ...social, comments: [...social.comments], notifications: [...social.notifications], templateLikes: { ...social.templateLikes } };
+  generateTemplatePostReactions(next, artifact, game.timeCycleCount, game.player.npcVectors, available);
+  return next;
+}
 
 /** Player publishing commits content, portfolio and bounded feedback together. Compensation stays with accepted WORKNET orders. */
 export function publishCreativeWork(game: any, input: any, loggedIn: boolean): { ok: boolean; message: string; gameplay?: any; artifact?: PublishedMediaArtifact } {
@@ -82,7 +92,7 @@ export function publishCreativeWork(game: any, input: any, loggedIn: boolean): {
   }
   if (artifact.channel === 'social') {
     const social = restoreSocial(player.maiSpaceWorld, player.maiSpaceProfile);
-    player.maiSpaceWorld = { ...social, templatePosts: [artifact, ...(social.templatePosts || []).filter(p => p.id !== id)] };
+    player.maiSpaceWorld = reactToPublicMedia({ ...social, templatePosts: [artifact, ...(social.templatePosts || []).filter(p => p.id !== id)] }, artifact, game);
   }
   if (artifact.channel === 'document') {
     const fylo = restoreFyloState(player.fylo);
@@ -96,8 +106,13 @@ export function publishCreativeWork(game: any, input: any, loggedIn: boolean): {
   }
   // Publishing records a bounded memory; opinion/promotion never earns trust or "proof".
   const social = restoreSocial(player.maiSpaceWorld, player.maiSpaceProfile);
-  const featured = artifact.entityRefs.map(getCharacterById).filter(Boolean).map(c => PEOPLE.find(p => p.characterId === c!.id)).filter(Boolean);
-  const eligible = featured.filter(p => social.friends.includes(p!.id) && !social.blocked.includes(p!.id) && !social.muted.includes(p!.id) &&
+  const featured = [...new Set(artifact.entityRefs.map(id => getCharacterById(id)?.id).filter(Boolean))].map(characterId => {
+    const socialPersona = PEOPLE.find(p => p.characterId === characterId);
+    return { id: socialPersona?.id || characterId!, characterId: characterId!, socialPersona };
+  });
+  const eligible = artifact.channel === 'document' ? [] : featured.filter(p =>
+    (p.socialPersona ? social.friends.includes(p.id) : (player.npcVectors?.[p.id]?.friendship ?? 0) >= 50) &&
+    ![p.id, p.characterId].some(id => social.blocked.includes(id) || social.muted.includes(id)) &&
     !state.feedbackReceipts.includes(`actor:${game.timeCycleCount}:${p!.characterId}`));
   if (eligible.length) {
     state.feedbackReceipts.push(...eligible.map(p => `actor:${game.timeCycleCount}:${p!.characterId}`));
@@ -120,12 +135,14 @@ export function advanceDynamicMedia(game: any): any {
   const state = restoreMediaStudio(game.mediaStudio, cycle);
   if (cycle <= state.lastEditorialCycle) return game;
   state.lastEditorialCycle = cycle;
-  const sources = publicEditorialSources(game).filter(s => !state.editorialReceipts.includes(s.id)).sort((a,b) => b.cycle-a.cycle || a.id.localeCompare(b.id)).slice(0,2);
+  // The public-service desk prioritizes fresh institutional service releases over general notices.
+  const score = (s: EditorialSource) => s.cycle * 10 + (s.institution === 'WORKNET' ? 3 : 0);
+  const sources = publicEditorialSources(game).filter(s => !state.editorialReceipts.includes(s.id)).sort((a,b) => score(b)-score(a) || a.id.localeCompare(b.id)).slice(0,2);
   const celestial = getCelestialState(cycle);
   const ambient: EditorialSource = { id: `celestial:${cycle}`, headline: 'Under Radiance and Echo',
     summary: `Cycle ${cycle}: Radiance is ${celestial.radiance.phaseName}; Echo is ${celestial.echo.phaseName}. ${celestial.alignment}.`, cycle, institution: 'The Meridian · Life Desk' };
   const generated: PublishedMediaArtifact[] = [];
-  const social = restoreSocial(game.player.maiSpaceWorld, game.player.maiSpaceProfile);
+  let social = restoreSocial(game.player.maiSpaceWorld, game.player.maiSpaceProfile);
   const templatePosts = [...(social.templatePosts || [])];
   for (const s of [...sources, ambient]) {
     const id = `EDITORIAL:${s.id}`;
@@ -137,7 +154,10 @@ export function advanceDynamicMedia(game: any): any {
       publisherOrgId: 'ORG_THE_MERIDIAN', publishedCycle: cycle, createdAt: `game-cycle:${cycle}` };
     generated.push(artifact);
     const post = { ...artifact, id: `${id}:social`, templateId: 'tpl-social-article-promo', channel: 'social' as const };
-    if (!social.blocked.includes('acct:themeridian') && !social.muted.includes('acct:themeridian') && social.followedAccounts?.includes('acct:themeridian')) templatePosts.unshift(post);
+    if (!social.blocked.includes('acct:themeridian') && !social.muted.includes('acct:themeridian') && social.followedAccounts?.includes('acct:themeridian')) {
+      templatePosts.unshift(post);
+      social = reactToPublicMedia(social, post, game);
+    }
     state.editorialReceipts.push(s.id);
   }
   return { ...game, mediaStudio: state, publishedMediaArtifacts: [...generated,...(game.publishedMediaArtifacts || [])], player: { ...game.player, maiSpaceWorld: { ...social, templatePosts } } };

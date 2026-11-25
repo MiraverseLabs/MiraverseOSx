@@ -93,6 +93,10 @@ export const CANON_MEDIA_ASSETS: readonly MediaAssetRecord[] = mediaManifest.ass
 
 // In-memory mirror of runtime assets loaded from C# /api/media (or offline session uploads)
 const runtimeMediaRegistry = new Map<string, MediaAssetRecord>();
+let mediaRevision = 0;
+const mediaListeners = new Set<() => void>();
+export const getMediaRevision = () => mediaRevision;
+export function subscribeMediaRegistry(listener: () => void) { mediaListeners.add(listener); return () => { mediaListeners.delete(listener); }; }
 
 export function registerRuntimeMediaAsset(record: MediaAssetRecord): MediaAssetRecord {
   const normalized: MediaAssetRecord = {
@@ -101,6 +105,8 @@ export function registerRuntimeMediaAsset(record: MediaAssetRecord): MediaAssetR
     entityIds: Array.isArray(record.entityIds) ? [...record.entityIds] : [],
   };
   runtimeMediaRegistry.set(normalized.id, normalized);
+  mediaRevision++;
+  mediaListeners.forEach(listener => listener());
   return normalized;
 }
 
@@ -124,7 +130,7 @@ export async function syncRuntimeMediaFromBackend(fetchImpl: typeof fetch = glob
     const payload = await res.json();
     if (Array.isArray(payload?.assets)) {
       for (const item of payload.assets) {
-        if (item && typeof item.id === 'string' && typeof item.src === 'string') {
+        if (item && typeof item.id === 'string' && typeof item.src === 'string' && item.provenance && typeof item.provenance.approvalStatus === 'string') {
           registerRuntimeMediaAsset(item);
         }
       }
@@ -147,7 +153,7 @@ export async function uploadRuntimeMediaToBackend(
     scope: 'admin_canon' | 'player_work' | 'npc_generated';
   },
   fetchImpl: typeof fetch = globalThis.fetch,
-): Promise<{ ok: boolean; asset?: MediaAssetRecord; error?: string }> {
+): Promise<{ ok: boolean; asset?: MediaAssetRecord; error?: string; persisted?: boolean }> {
   const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
   if (!allowed.includes(input.mimeType)) {
     return { ok: false, error: `Unsupported media MIME type '${input.mimeType}'.` };
@@ -166,9 +172,10 @@ export async function uploadRuntimeMediaToBackend(
       if (res.ok) {
         const saved = await res.json();
         if (saved?.asset) {
-          return { ok: true, asset: registerRuntimeMediaAsset(saved.asset) };
+          return { ok: true, asset: registerRuntimeMediaAsset(saved.asset), persisted: true };
         }
       }
+      if (res.status >= 400 && res.status < 500) return { ok: false, error: 'The media host rejected this upload. Check its image format, size and provenance.' };
     } catch {
       // Fallback to in-memory data URI when backend is offline in standalone preview/tests
     }
@@ -191,7 +198,7 @@ export async function uploadRuntimeMediaToBackend(
       createdAt: new Date().toISOString().slice(0, 10),
     },
   });
-  return { ok: true, asset: localAsset };
+  return { ok: true, asset: localAsset, persisted: false };
 }
 
 export function getBrandKit(brandKitId?: string): BrandKitDefinition {

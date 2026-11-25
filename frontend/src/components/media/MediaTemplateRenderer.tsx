@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useWorldMedia } from './useWorldMedia';
 import { ChevronLeft, ChevronRight, Download, FilePlus2, CalendarPlus, ShieldCheck } from 'lucide-react';
 import {
   brandKitCssVariables,
@@ -160,6 +161,8 @@ export function MediaTemplateRenderer({
   onVotePoll,
   actions,
 }: MediaTemplateRendererProps) {
+  useWorldMedia();
+  const [failedMediaSource, setFailedMediaSource] = useState<string | null>(null);
   const kit = getBrandKit(artifact.brandKitId);
   const cssVars = brandKitCssVariables(artifact.brandKitId, artifact.tokenOverrides) as React.CSSProperties;
   const { slotValues } = artifact;
@@ -173,7 +176,7 @@ export function MediaTemplateRenderer({
       ),
   );
 
-  const resolvedMedia = hasVisualSlot
+  const candidateMedia = hasVisualSlot
     ? resolveEntityMediaSlot({
         assetId: slotValues.imageAssetId,
         entityId: slotValues.primaryEntityId || artifact.entityRefs[0],
@@ -182,17 +185,20 @@ export function MediaTemplateRenderer({
       })
     : null;
 
+  const resolvedMedia = candidateMedia?.src && failedMediaSource === candidateMedia.src
+    ? { ...candidateMedia, mode: 'typographic_fallback', src: undefined }
+    : candidateMedia;
   return (
     <div className="mira-tpl-host" data-density={density} style={{ ...cssVars, ['--density' as any]: density }}>
       <article className={`mira-tpl-card ${adaptiveHorizontal ? 'mira-tpl-adapt' : ''}`}>
         {/* Region 1: Media (direct <img> or .media hero per modern card guidelines) */}
         {resolvedMedia &&
           (resolvedMedia.mode === 'exact_slot' || resolvedMedia.mode === 'entity_primary' ? (
-            <img src={resolvedMedia.src} alt={resolvedMedia.caption} loading="lazy" />
+            <img src={resolvedMedia.src} alt={resolvedMedia.caption} loading="lazy" onError={() => setFailedMediaSource(resolvedMedia.src || null)} />
           ) : (
             <div className="media">
               {resolvedMedia.src ? (
-                <img src={resolvedMedia.src} alt="" aria-hidden="true" />
+                <img src={resolvedMedia.src} alt="" aria-hidden="true" onError={() => setFailedMediaSource(resolvedMedia.src || null)} />
               ) : (
                 <div className="mira-tpl-monogram-badge" aria-hidden="true">
                   {resolvedMedia.monogramText}
@@ -349,6 +355,7 @@ export function CollectibleIssueReader({
   onSaveIcsEvent,
   onCiteLead,
 }: CollectibleIssueReaderProps) {
+  useWorldMedia();
   const kit = getBrandKit(issue.brandKitId);
   const cssVars = brandKitCssVariables(issue.brandKitId) as React.CSSProperties;
   const masthead = getMediaAssetById(kit.assets.masthead);

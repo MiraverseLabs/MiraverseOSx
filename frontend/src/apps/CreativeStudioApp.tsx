@@ -20,6 +20,7 @@ import {
   type VerificationTier,
 } from '../components/media/templateModel';
 import { MediaTemplateRenderer } from '../components/media/MediaTemplateRenderer';
+import { useWorldMedia } from '../components/media/useWorldMedia';
 import {
   captureWorldCheckpoint,
   getPublishedHistory,
@@ -41,6 +42,7 @@ import {
 export { evaluateCreativeStudioPermissions, validateStudioPublishPermission, type CreativeStudioPermissions };
 
 export default function CreativeStudioApp() {
+  useWorldMedia();
   const gameplay = useOSStore(s => s.gameplay);
   const player = gameplay.player;
   const publicSources = useMemo(() => publicEditorialSources(gameplay), [gameplay]);
@@ -140,7 +142,7 @@ export default function CreativeStudioApp() {
       });
       if (res.ok && res.asset) {
         setSelectedAssetId(res.asset.id);
-        setNotice(`Uploaded & provenance-tagged asset [${res.asset.id}] via Unified Media Registry.`);
+        setNotice(res.persisted ? 'Image saved in the media library with its provenance.' : 'Image available for this session. The media host is offline; this image will need to be uploaded again after a reload.');
       } else {
         setNotice(res.error || 'Upload rejected.');
       }
@@ -167,8 +169,8 @@ export default function CreativeStudioApp() {
             <Sparkles size={13} />
             <span>MIRAVERSE CREATIVE & EDITORIAL STUDIO</span>
           </div>
-          <h1 className="text-2xl font-bold mt-0.5" style={{ fontFamily: 'var(--font-editorial-masthead)' }}>
-            Shared Media, Periodical & Brand Workbench
+          <h1 className="text-2xl font-bold mt-0.5" style={{ fontFamily: 'var(--font-editorial-masthead)', color: '#FFFFFF' }}>
+            Miraverse Creative Studio
           </h1>
           <p className="text-xs text-[#EAD8E0] mt-0.5">{perms.roleSummary}</p>
         </div>
@@ -217,7 +219,7 @@ export default function CreativeStudioApp() {
       {tab === 'composer' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           <section className="lg:col-span-6 bg-white p-5 rounded-xl border border-slate-200 space-y-3.5 shadow-2xs">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-[#464C55]">1. Configure Channel, Brand & Slots</h2>
+            <h2 className="text-sm font-bold uppercase tracking-wider text-[#464C55]">1. Channel, style & content</h2>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <label className="space-y-1 font-semibold">
                 <span>Distribution Channel</span>
@@ -237,7 +239,7 @@ export default function CreativeStudioApp() {
                   <option value="social">MAI.SPACE Social (16 Templates)</option>
                   <option value="newspaper">The Meridian (meridian.mer) {!perms.allowedChannels.includes('newspaper') ? '🔒 Press Role' : ''}</option>
                   <option value="magazine">The Social Register (socialregister.mer) {!perms.allowedChannels.includes('magazine') ? '🔒 Press/Artist' : ''}</option>
-                  <option value="document">Fylo Printable Document (.pdf)</option>
+                  <option value="document">Fylo Editable Manuscript (.doc)</option>
                 </select>
               </label>
               <label className="space-y-1 font-semibold">
@@ -275,7 +277,7 @@ export default function CreativeStudioApp() {
                 <input value={kicker} onChange={e => setKicker(e.target.value)} className="w-full p-2 rounded border border-slate-300" />
               </label>
               <label className="space-y-1 font-semibold">
-                <span>Accent Color Variable Override</span>
+                <span>Accent color</span>
                 <input value={accentOverride} onChange={e => setAccentOverride(e.target.value)} placeholder="e.g. #C6AE73 (optional)" className="w-full p-2 rounded border border-slate-300" />
               </label>
             </div>
@@ -328,7 +330,7 @@ export default function CreativeStudioApp() {
                 </select>
               </label>
               <label className="space-y-1 font-semibold">
-                <span>Upload Original Image (/api/media)</span>
+                <span>Upload original image</span>
                 <input
                   type="file"
                   accept="image/png,image/jpeg,image/webp,image/svg+xml"
@@ -383,7 +385,7 @@ export default function CreativeStudioApp() {
           </section>
 
           <section className="lg:col-span-6 space-y-3">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-[#464C55]">2. Live Accessible DOM & Brand Token Preview</h2>
+            <h2 className="text-sm font-bold uppercase tracking-wider text-[#464C55]">2. Live preview</h2>
             <MediaTemplateRenderer artifact={previewArtifact} density="spacious" />
           </section>
         </div>

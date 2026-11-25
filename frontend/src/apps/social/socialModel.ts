@@ -52,6 +52,7 @@ export const FONT_OPTIONS = ["'Times New Roman', Times, Georgia, serif"];
 export const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
 const limit = (value: any, max = 2000) => typeof value === 'string' ? value.slice(0, max) : '';
 const ids = (values: any) => Array.isArray(values) ? [...new Set<string>(values.filter(v => typeof v === 'string' && PEOPLE.some(p => p.id === v)))] : [];
+const audienceIds = (values: any): string[] => Array.isArray(values) ? [...new Set<string>(values.filter(v => typeof v === 'string' && (PEOPLE.some(p => p.id === v) || OFFICIAL_SOCIAL_ACCOUNTS.some(p => p.id === v) || Boolean(getCharacterById(v)))))] : [];
 export const audience = (a: any): Audience => ['public', 'friends', 'private', 'group'].includes(a) ? a : 'private';
 const bound = (v: any, min: number, max: number, fallback: number) => Number.isFinite(v) ? Math.round(Math.min(max, Math.max(min, v))) : fallback;
 const color = (c: any, fallback: string) => /^#[0-9a-f]{6}$/i.test(c) ? c : fallback;
@@ -147,7 +148,7 @@ export function restoreSocial(raw: any, legacy: any = {}): SocialWorld {
   const base = initialSocial(legacy);
   if (!raw || raw.version !== 1) return base;
   // Reconstruct only supported fields. No arbitrary style, HTML, or private registry data.
-  const s = { ...base, ...raw, version: 1, layout: normalizeLayout(raw.layout), draft: normalizeLayout(raw.draft), friends: ids(raw.friends), blocked: ids(raw.blocked), muted: ids(raw.muted), top8: ids(raw.top8).filter(id => ids(raw.friends).includes(id) && !ids(raw.blocked).includes(id)).slice(0, 8), bio: limit(raw.bio), interests: limit(raw.interests), mood: limit(raw.mood, 120), location: limit(raw.location, 100), discloseLocation: raw.discloseLocation === true } as SocialWorld;
+  const s = { ...base, ...raw, version: 1, layout: normalizeLayout(raw.layout), draft: normalizeLayout(raw.draft), friends: ids(raw.friends), blocked: audienceIds(raw.blocked), muted: audienceIds(raw.muted), top8: ids(raw.top8).filter(id => ids(raw.friends).includes(id) && !ids(raw.blocked).includes(id)).slice(0, 8), bio: limit(raw.bio), interests: limit(raw.interests), mood: limit(raw.mood, 120), location: limit(raw.location, 100), discloseLocation: raw.discloseLocation === true } as SocialWorld;
   for (const key of ['posts', 'albums', 'comments', 'groups', 'events', 'notifications', 'memories', 'assets', 'templates', 'history', 'reports'] as const) if (!Array.isArray(s[key])) (s as any)[key] = base[key];
   s.posts = s.posts.filter(p => p && typeof p.id === 'string' && (p.author === 'you' || PEOPLE.some(n => n.id === p.author))).map(p => ({ ...p, title: limit(p.title, 180), html: sanitizeMailHtml(p.html), audience: audience(p.audience), likes: Array.isArray(p.likes) ? p.likes : [] }));
   // Repair only unchanged imported posts whose recorded NPC author was lost

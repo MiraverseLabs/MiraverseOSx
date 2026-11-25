@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
+import { useWorldMedia } from '../../../components/media/useWorldMedia';
 import { useOSStore } from '../../../store/useOSStore';
 import {
   Radio, ArrowUpRight, ArrowLeft, Bookmark, Search, Check,
@@ -38,6 +39,7 @@ const ARTWORK: Record<string, { src: string; caption: string }> = {
 const SECTION_ICONS = { Civic: Landmark, Security: Activity, Health: HeartPulse, Economy: Landmark, Culture: GraduationCap };
 
 function NewsArtwork({ article, compact = false }: { article: NewsArticle; compact?: boolean }) {
+  useWorldMedia();
   const [failedSource, setFailedSource] = useState<string | null>(null);
   const candidate = article.assetId ? getMediaAssetById(article.assetId) : undefined;
   const customAsset = candidate?.provenance.approvalStatus === 'approved' && (!candidate.scope || ['canon', 'admin_canon'].includes(candidate.scope)) ? candidate : undefined;
@@ -152,7 +154,7 @@ export default function DispatchNewsSite({ url, navigateTab }: { url: string; na
     setNotice(`Saved ${issue.issueNumber} (.pdf) to Fylo under /downloads/publications.`);
   };
 
-  const citeMeridianLead = (headline: string, excerpt: string, refNum?: number) => {
+  const citeMeridianLead = (headline: string, excerpt: string, refNum?: number, sourceId?: string) => {
     const store = useOSStore.getState();
     const targetMission =
       store.gameplay?.player?.assignmentJournal?.selectedId ||
@@ -161,15 +163,15 @@ export default function DispatchNewsSite({ url, navigateTab }: { url: string; na
     const res = store.citeInstitutionalEvidence({
       missionId: targetMission,
       sourceSystem: 'meridian-press-lead',
-      recordId: `MER-CLIP-${headline.slice(0, 18).replace(/\W+/g, '').toUpperCase()}`,
-      title: `[Meridian Reporting] ${headline}`,
+      recordId: sourceId || `MER-CLIP-C${gameplay.timeCycleCount}-P${refNum ?? 0}-${headline.slice(0, 80).replace(/\W+/g, '').toUpperCase()}`,
+      title: `[Meridian Public Lead] ${headline}`,
       referenceCode: `MER-C${refNum ?? gameplay.timeCycleCount ?? 28}`,
       custodian: 'The Meridian · Public Press Reporting (Lead / Timestamp Corroboration)',
-      citationText: `The Meridian (${NEWS_SITE.domain}), "${headline}" [Cycle ${gameplay.timeCycleCount ?? 28}]: ${excerpt} — Verified public reporting lead; does not replace TRACE forensic proof.`,
+      citationText: `The Meridian (${NEWS_SITE.domain}), "${headline}" [Cycle ${refNum ?? gameplay.timeCycleCount ?? 28}]: ${excerpt} — Public press lead; does not replace TRACE forensic proof.`,
       excerpt,
       certified: false,
     });
-    setNotice(res.ok ? res.message : 'Logged article clipping reference.');
+    setNotice(res.message);
   };
 
   const saveButton = (item: NewsArticle) => (
@@ -393,7 +395,7 @@ export default function DispatchNewsSite({ url, navigateTab }: { url: string; na
                 <button
                   type="button"
                   className="pulse-text-button"
-                  onClick={() => citeMeridianLead(article.headline, article.summary, article.cycle)}
+                  onClick={() => citeMeridianLead(article.headline, article.summary, article.cycle, article.id)}
                 >
                   <FilePlus2 size={14} /> Cite as Press Lead
                 </button>

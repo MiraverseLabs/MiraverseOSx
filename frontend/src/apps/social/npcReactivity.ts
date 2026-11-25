@@ -376,6 +376,7 @@ export function generateTemplatePostReactions(
   world: {
     friends: string[];
     blocked: string[];
+    muted?: string[];
     comments: { id: string; target: string; author: string; text: string; cycle: number }[];
     notifications: { id: string; text: string; destination: string; read: boolean }[];
     templateLikes?: Record<string, string[]>;
@@ -388,9 +389,10 @@ export function generateTemplatePostReactions(
   },
   currentCycle: number,
   npcVectors?: Record<string, { friendship?: number; trust?: number }>,
+  eligibleActorIds?: string[],
 ): void {
   const haystack = `${artifact.slotValues.kicker || ''} ${artifact.slotValues.headline} ${artifact.slotValues.subhead || ''} ${artifact.slotValues.body || ''}`.toLowerCase();
-  const scored = PEOPLE.filter(p => !world.blocked.includes(p.id)).map(person => {
+  const scored = PEOPLE.filter(p => !world.blocked.includes(p.id) && !world.muted?.includes(p.id) && (!eligibleActorIds || eligibleActorIds.includes(p.id))).map(person => {
     const persona = NPC_PERSONAS[person.id];
     const vec = npcVectors?.[person.id] || { friendship: world.friends.includes(person.id) ? 68 : 45, trust: 50 };
     const friendBoost = world.friends.includes(person.id) ? 25 : 0;
@@ -409,7 +411,7 @@ export function generateTemplatePostReactions(
     };
   });
 
-  scored.sort((a, b) => b.score - a.score);
+  scored.sort((a, b) => b.score - a.score || a.person.id.localeCompare(b.person.id));
   world.templateLikes ||= {};
   const likers = scored.filter(s => s.score >= 42).slice(0, 3).map(s => s.person.id);
   world.templateLikes[artifact.id] = [...new Set([...(world.templateLikes[artifact.id] || []), ...likers])];

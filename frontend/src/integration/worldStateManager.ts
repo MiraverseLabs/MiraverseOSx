@@ -507,6 +507,7 @@ export function validateCreatorDraft(
   }
   const draft = state.drafts[idx];
   const errors: string[] = [];
+  if (draft.status === 'published') return { ok: false, draft, errors: ['Published drafts are sealed.'], message: 'Published drafts are sealed. Create a new revision.' };
   if (!draft.title || draft.title.trim().length < 3) {
     errors.push('Draft title must be at least 3 characters.');
   }

@@ -149,6 +149,7 @@ export function validateMediaArtifactInput(input: Partial<PublishedMediaArtifact
     if (v !== undefined && (typeof v !== 'string' || v.length > (key === 'body' ? 20000 : 2000))) errors.push(`Invalid ${key} field.`);
   }
   if (input.entityRefs !== undefined && (!Array.isArray(input.entityRefs) || input.entityRefs.length > 30 || input.entityRefs.some(v => typeof v !== 'string'))) errors.push('Invalid entity references.');
+  if (input.tokenOverrides && Object.values(input.tokenOverrides).some(v => typeof v !== 'string' || /[<>;{}]/.test(v) || v.length > 200)) errors.push('Brand token overrides must be plain color or font values.');
   if (input.slotValues.slides !== undefined && (!Array.isArray(input.slotValues.slides) || input.slotValues.slides.length > 12 || input.slotValues.slides.some(s => !s || typeof s.id !== 'string' || typeof s.headline !== 'string' || typeof s.caption !== 'string'))) errors.push('Invalid carousel slides.');
   for (const key of ['pollOptions', 'coverLines']) if (input.slotValues[key] !== undefined && (!Array.isArray(input.slotValues[key]) || input.slotValues[key].length > 20 || input.slotValues[key].some(v => typeof v !== 'string' || v.length > 500))) errors.push(`Invalid ${key}.`);
   if (headline.length < 2) errors.push('A headline of at least 2 characters is required.');
@@ -244,7 +245,7 @@ export function buildArtifactStandaloneHtml(artifact: PublishedMediaArtifact): s
     brandKitId: artifact.brandKitId,
     fallbackLabel: artifact.slotValues.headline,
   });
-  const esc = (s?: string) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const esc = (s?: string) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   return `<!doctype html>
 <html lang="en">
 <head>

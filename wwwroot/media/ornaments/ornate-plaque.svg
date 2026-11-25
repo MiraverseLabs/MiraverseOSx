@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" role="img" aria-label="Ornate Editorial Plaque">
+  <path d="M 24 12 L 496 12 A 12 12 0 0 0 508 24 L 508 96 A 12 12 0 0 0 496 108 L 24 108 A 12 12 0 0 0 12 96 L 12 24 A 12 12 0 0 0 24 12 Z" fill="none" stroke="#C6AE73" stroke-width="2"/>
+  <path d="M 30 18 L 490 18 A 8 8 0 0 0 498 26 L 498 94 A 8 8 0 0 0 490 102 L 30 102 A 8 8 0 0 0 22 94 L 22 26 A 8 8 0 0 0 30 18 Z" fill="none" stroke="#C6AE73" stroke-width="1" opacity="0.65"/>
+  <polygon points="38,54 43,60 38,66 33,60" fill="#C6AE73"/>
+  <polygon points="482,54 487,60 482,66 477,60" fill="#C6AE73"/>
+</svg>
