@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Miraverse Living World</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; font-family: system-ui, sans-serif; background: #0b0d17; color: #e8e6f0; }
+  main { max-width: 880px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 20px; letter-spacing: .04em; }
+  .card { background: #141827; border: 1px solid #232842; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  button { background: #2b3566; color: #fff; border: 0; border-radius: 8px; padding: 8px 14px; cursor: pointer; margin-right: 8px; }
+  button:hover { background: #3a4788; }
+  pre { background: #0f1220; padding: 12px; border-radius: 8px; overflow: auto; font-size: 12px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .muted { color: #9aa0c0; font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Miraverse Living World Engine</h1>
+  <p class="muted">Shared world clock and simulation runs backed by miraverse.db.</p>
+  <div class="card">
+    <div class="row">
+      <button id="refresh">Refresh</button>
+      <button id="advance">Advance 1 step</button>
+      <button id="stats">World stats</button>
+      <button id="citizens">Citizen registry</button>
+      <button id="schedules">Daily schedules</button>
+      <button id="careers">Careers</button>
+      <button id="finances">Finances</button>
+      <button id="events">World events</button>
+      <button id="artists">Artists</button>
+      <button id="music">Music library</button>
+      <button id="concerts">Concerts</button>
+      <button id="relationships">Relationships</button>
+    </div>
+    <pre id="output">Loading…</pre>
+  </div>
+</main>
+<script>
+const out = document.getElementById('output');
+async function api(path, options) {
+  const res = await fetch('/api/livingworld/' + path, options);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || res.statusText);
+  return data;
+}
+async function refresh() {
+  try {
+    const data = await api('runs');
+    out.textContent = JSON.stringify(data, null, 2);
+  } catch (e) { out.textContent = 'Error: ' + e.message; }
+}
+async function advance() {
+  try {
+    const data = await api('runs');
+    const run = data.runs && data.runs[0];
+    if (!run) { out.textContent = 'No simulation runs yet.'; return; }
+    const advanced = await api('runs/' + run.RunId + '/advance', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ steps: 1 })
+    });
+    out.textContent = JSON.stringify(advanced, null, 2);
+  } catch (e) { out.textContent = 'Error: ' + e.message; }
+}
+document.getElementById('refresh').onclick = refresh;
+document.getElementById('advance').onclick = advance;
+document.getElementById('stats').onclick = async () => {
+  try { out.textContent = JSON.stringify(await api('../observatory/stats'), null, 2); }
+  catch (e) { out.textContent = 'Error: ' + e.message; }
+};
+document.getElementById('citizens').onclick = async () => {
+  try { out.textContent = JSON.stringify(await api('../observatory/citizens'), null, 2); }
+  catch (e) { out.textContent = 'Error: ' + e.message; }
+};
+document.getElementById('schedules').onclick = async () => {
+  try {
+    const data = await api('runs');
+    const run = data.runs && data.runs[0];
+    if (!run) { out.textContent = 'No simulation runs yet.'; return; }
+    out.textContent = JSON.stringify(await api('schedules?runId=' + run.RunId), null, 2);
+  } catch (e) { out.textContent = 'Error: ' + e.message; }
+};
+async function runPanel(path) {
+  try {
+    const data = await api('runs');
+    const run = data.runs && data.runs[0];
+    if (!run) { out.textContent = 'No simulation runs yet.'; return; }
+    out.textContent = JSON.stringify(await api(path + '?runId=' + run.RunId), null, 2);
+  } catch (e) { out.textContent = 'Error: ' + e.message; }
+}
+document.getElementById('careers').onclick = () => runPanel('careers');
+document.getElementById('finances').onclick = () => runPanel('finances');
+document.getElementById('events').onclick = () => runPanel('events');
+document.getElementById('artists').onclick = () => runPanel('artists');
+document.getElementById('music').onclick = () => runPanel('music');
+document.getElementById('concerts').onclick = () => runPanel('concerts');
+document.getElementById('relationships').onclick = () => runPanel('relationships');
+refresh();
+</script>
+</body>
+</html>

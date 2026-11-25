@@ -1,6 +1,6 @@
 MIRAVERSE DATABASE REVIEW
 
-Working database: E:\MiraverseOSx\miraverse.db
+Working database: C:\Users\mirav\OneDrive\Desktop\MiraverseOSx\miraverse.db
 Close and reopen it in DB Browser for SQLite, then choose Browse Data.
 
 Start with these views:

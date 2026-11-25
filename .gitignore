@@ -58,3 +58,16 @@ MiraverseOSx/
 /external/sources/
 wwwroot/assets/RichMailEditor-CAOmTkrJ.js
 wwwroot/assets/RichMailEditor-C7nQq6BK.js
+
+# Simulation runtime and test output
+/.venv/
+/simulation/**/__pycache__/
+/simulation/output/
+/simulation/state/
+
+# SQLite live sidecars (checkpoint the main DB before committing)
+miraverse.db-wal
+miraverse.db-shm
+
+# Local build log
+build.log

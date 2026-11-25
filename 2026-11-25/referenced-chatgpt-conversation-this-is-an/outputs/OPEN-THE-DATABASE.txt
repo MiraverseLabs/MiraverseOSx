@@ -1,7 +1,7 @@
 MIRAVERSE CONTENT DATABASE
 
 The game-folder database is now populated:
-E:\MiraverseOSx\miraverse.db
+C:\Users\mirav\OneDrive\Desktop\MiraverseOSx\miraverse.db
 
 Close and reopen that file in DB Browser for SQLite so its schema refreshes.
 Choose Browse Data, then select Characters (76 people) from the Table dropdown.

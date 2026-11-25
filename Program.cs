@@ -40,6 +40,7 @@ namespace MiraverseOSx
         private static WorldSaveApi? _worldApi;
         private static MediaAssetApi? _mediaApi;
     private static LivingWorldApi? _livingWorldApi;
+    private static Process? _livingWorldProcess;
     private static ObservatoryApi? _observatoryApi;
         private static AiHttpHandler? _aiHttpHandler;
         private static readonly HttpClient _httpClient = new HttpClient();
@@ -72,9 +73,10 @@ namespace MiraverseOSx
             var dataDirectory = Argument("--data-dir") ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MiraverseOSx");
             _worldApi = new WorldSaveApi(dataDirectory);
             _mediaApi = new MediaAssetApi(dataDirectory);
-            _livingWorldApi = new LivingWorldApi();
+            var livingWorldPort = int.TryParse(Environment.GetEnvironmentVariable("MIRAVERSE_LIVINGWORLD_PORT"), out var configuredPort) ? configuredPort : 5010;
+            _livingWorldApi = new LivingWorldApi(livingWorldPort);
             _observatoryApi = new ObservatoryApi(dataDirectory);
-            EnsureLivingWorldService();
+            EnsureLivingWorldService(livingWorldPort);
             var memoryRepo = new NpcMemoryRepository(dataDirectory);
             var costController = new AiCostController(memoryRepo);
             var geminiProvider = new GeminiProvider(_httpClient);
@@ -273,35 +275,48 @@ namespace MiraverseOSx
             }
         }
 
-        private static void EnsureLivingWorldService()
+        private static void EnsureLivingWorldService(int port)
         {
+            if (Environment.GetEnvironmentVariable("MIRAVERSE_LIVINGWORLD_AUTOSTART") == "0") return;
             try
             {
                 using var probe = new System.Net.Sockets.TcpClient();
-                try { probe.Connect("127.0.0.1", 5010); return; } catch { }
-                var script = Path.Combine(@"E:\Miraverse Simulation Lab", "living_world_api.py");
-                if (!File.Exists(script)) return;
-                var start = new ProcessStartInfo
+                try { probe.Connect("127.0.0.1", port); return; } catch { }
+                var root = Directory.GetCurrentDirectory();
+                var directory = Environment.GetEnvironmentVariable("MIRAVERSE_SIMULATION_DIRECTORY");
+                if (string.IsNullOrEmpty(directory))
+                    directory = Directory.Exists(Path.Combine(root, "simulation")) ? Path.Combine(root, "simulation") : Path.Combine(AppContext.BaseDirectory, "simulation");
+                var script = Path.Combine(directory, "living_world_api.py");
+                if (!File.Exists(script)) throw new FileNotFoundException("Versioned simulation service not found. Configure MIRAVERSE_SIMULATION_DIRECTORY.", script);
+                var python = Environment.GetEnvironmentVariable("MIRAVERSE_PYTHON");
+                if (string.IsNullOrEmpty(python))
                 {
-                    FileName = "python",
-                    Arguments = $"\"{script}\" 5010",
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    WorkingDirectory = @"E:\Miraverse Simulation Lab"
-                };
-                Process.Start(start);
-                Console.WriteLine("[LivingWorld] Started simulation service on port 5010.");
+                    var candidates = new[] { Path.Combine(root, ".venv", "Scripts", "python.exe"),
+                        Path.Combine(AppContext.BaseDirectory, ".venv", "Scripts", "python.exe") };
+                    python = candidates.FirstOrDefault(File.Exists) ?? "python";
+                }
+                var start = new ProcessStartInfo { FileName = python, UseShellExecute = false,
+                    CreateNoWindow = true, WorkingDirectory = directory };
+                start.ArgumentList.Add(script); start.ArgumentList.Add("--port"); start.ArgumentList.Add(port.ToString());
+                if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("MIRAVERSE_SOURCE_DATABASE")))
+                {
+                    var source = File.Exists(Path.Combine(root, "miraverse.db")) ? Path.Combine(root, "miraverse.db") : Path.Combine(AppContext.BaseDirectory, "miraverse.db");
+                    if (!File.Exists(source)) throw new FileNotFoundException("Canonical database missing. Configure MIRAVERSE_SOURCE_DATABASE.", source);
+                    start.Environment["MIRAVERSE_SOURCE_DATABASE"] = source;
+                }
+                _livingWorldProcess = Process.Start(start);
+                Console.WriteLine($"[LivingWorld] Launching versioned simulation service on port {port}.");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[LivingWorld Warning] {ex.Message}");
-            }
+            catch (Exception ex) { Console.WriteLine($"[LivingWorld Warning] {ex.Message}"); }
         }
 
         private static void StopLocalWebServer()
         {
             try
             {
+                if (_livingWorldProcess != null && !_livingWorldProcess.HasExited) _livingWorldProcess.Kill(entireProcessTree: true);
+                _livingWorldProcess?.Dispose();
+                _livingWorldProcess = null;
                 _httpServer?.Stop();
                 _httpServer?.Close();
             }

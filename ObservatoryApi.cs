@@ -15,9 +15,11 @@ internal sealed class ObservatoryApi
 
     public ObservatoryApi(string dataDirectory)
     {
-        dbPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "miraverse.db");
-        if (!System.IO.File.Exists(dbPath))
-            dbPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "miraverse.db");
+        var configured = Environment.GetEnvironmentVariable("MIRAVERSE_SOURCE_DATABASE");
+        var repositoryDatabase = Path.Combine(Directory.GetCurrentDirectory(), "miraverse.db");
+        dbPath = !string.IsNullOrEmpty(configured) ? Path.GetFullPath(configured)
+            : File.Exists(repositoryDatabase) ? repositoryDatabase
+            : Path.Combine(AppContext.BaseDirectory, "miraverse.db");
     }
 
     private SqliteConnection Open()
