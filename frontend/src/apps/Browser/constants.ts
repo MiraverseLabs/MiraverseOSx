@@ -1,7 +1,8 @@
 import { 
     Activity, Building, Shield, BookOpen, Globe, Newspaper, 
-    FileText, Landmark, Truck, Eye, Grid, LucideIcon 
+    FileText, Landmark, Truck, Eye, Grid, LucideIcon, Sparkles 
 } from 'lucide-react';
+import { ENTERTAINMENT_SITES } from './entertainment/entertainmentRouter';
 
 export interface PortalInfo {
     title: string;
@@ -40,6 +41,18 @@ export const PORTALS: Record<string, PortalInfo> = {
     'vectornet.onion': { title: 'Vector DarkNet', category: 'Anonymized Darkweb', icon: Eye, accent: 'cyan', domain: 'vectornet.onion' },
     'auresuite.aure': { title: 'AureSuite Cloud Workspace', category: 'Cloud Tools Hub', icon: Grid, accent: 'rose', domain: 'auresuite.aure' },
     'mai.space.aure': { title: 'Mai.space Social Grid', category: 'Public Social Network', icon: Globe, accent: 'purple', domain: 'mai.space.aure' },
+    ...Object.fromEntries(
+        ENTERTAINMENT_SITES.map(site => [
+            site.domain,
+            {
+                title: site.name,
+                category: `Entertainment Celebrity ${site.sector} ${site.kind} ${site.shortName}`,
+                icon: Sparkles,
+                accent: 'rose',
+                domain: site.domain,
+            },
+        ])
+    ),
 };
 
 export const SAMPLE_ARCHIVES: SampleArchive[] = [

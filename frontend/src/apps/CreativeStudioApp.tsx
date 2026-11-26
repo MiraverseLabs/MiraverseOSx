@@ -1,9 +1,19 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Sparkles, Shield, Layers, Upload, CheckCircle2, Pause, Play,
-  RotateCcw, BookOpen, Newspaper, Share2, FileText, Database
+  RotateCcw, BookOpen, Newspaper, Share2, FileText, Database, Music, Award, Radio, Ticket
 } from 'lucide-react';
 import { useOSStore } from '../store/useOSStore';
+import {
+  ENTERTAINMENT_DISCIPLINES,
+  FAME_AXES,
+  SHIPPED_AUDIO_ASSETS,
+  VENUE_CATALOG,
+  computeCommunityReception,
+  restoreEntertainmentState,
+  type EntertainmentDisciplineId,
+} from '../gameplay/EntertainmentEcosystem';
+import { SongbirdAudioPlayer } from '../components/media/SongbirdAudioPlayer';
 import {
   BRAND_KITS,
   COLOR_PALETTES,
@@ -54,7 +64,32 @@ export default function CreativeStudioApp() {
   const isLoggedIn = useOSStore(s => s.isLoggedIn);
   const perms = useMemo(() => evaluateCreativeStudioPermissions(player, isLoggedIn), [player, isLoggedIn]);
 
-  const [tab, setTab] = useState<'composer' | 'library' | 'palettes' | 'dynamic' | 'admin'>('composer');
+  const [tab, setTab] = useState<'composer' | 'entertainment' | 'library' | 'palettes' | 'dynamic' | 'admin'>('composer');
+  const workspaceReq = useOSStore(s => s.workspaceRequests.creativeStudio);
+  useEffect(() => {
+    if (!workspaceReq) return;
+    if (workspaceReq.section === 'entertainment') setTab('entertainment');
+    useOSStore.getState().consumeWorkspaceRequest('creativeStudio', workspaceReq.revision);
+  }, [workspaceReq]);
+
+  const ent = useMemo(() => restoreEntertainmentState(gameplay.entertainment, cycle), [gameplay.entertainment, cycle]);
+  const playerArtist = useMemo(
+    () => (ent.playerArtistId ? ent.artists.find(a => a.artistId === ent.playerArtistId) : undefined),
+    [ent],
+  );
+  const [stageNameDraft, setStageNameDraft] = useState(playerArtist?.stageName || player?.name || 'Nova Lyric');
+  const [bioDraft, setBioDraft] = useState(playerArtist?.bio || 'Independent Aureline performer & studio creator.');
+  const [selectedDiscs, setSelectedDiscs] = useState<EntertainmentDisciplineId[]>(playerArtist?.disciplines || ['music']);
+  const [privacyDraft, setPrivacyDraft] = useState<'open' | 'guarded' | 'strict'>(playerArtist?.privacyBoundary || 'guarded');
+  const [statusDraft, setStatusDraft] = useState<'active' | 'hiatus' | 'retired' | 'comeback'>(playerArtist?.careerStatus || 'active');
+  const [prjTitle, setPrjTitle] = useState('Midnight Over Glassline');
+  const [prjKind, setPrjKind] = useState<'single' | 'album' | 'film' | 'series' | 'choreography' | 'stage_play' | 'fashion_campaign' | 'promo_kit'>('single');
+  const [prjDisc, setPrjDisc] = useState<EntertainmentDisciplineId>('music');
+  const [prjAudio, setPrjAudio] = useState<string>(SHIPPED_AUDIO_ASSETS[0].audioUrl);
+  const [prjCollab, setPrjCollab] = useState<string>('ART-AELITA');
+  const [prjBudget, setPrjBudget] = useState<number>(80);
+  const [venueIdDraft, setVenueIdDraft] = useState<string>('ORG_LOOKING_GLASS');
+  const [ticketPriceDraft, setTicketPriceDraft] = useState<number>(20);
   const [adSpend, setAdSpend] = useState(0);
   const [channel, setChannel] = useState<MediaChannel>('social');
   const templates = useMemo(() => MEDIA_TEMPLATES.filter(t => t.channel === channel), [channel]);
@@ -179,6 +214,9 @@ export default function CreativeStudioApp() {
         <nav className="flex flex-wrap gap-2" aria-label="Creative Studio Workspaces">
           <button type="button" onClick={() => setTab('composer')} className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer border ${tab === 'composer' ? 'bg-[#C6AE73] text-[#241620] border-[#C6AE73]' : 'bg-[#45304D] text-white border-[#D8C0CB]/40'}`}>
             <Layers size={13} className="inline mr-1" /> Template Composer
+          </button>
+          <button type="button" onClick={() => setTab('entertainment')} className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer border ${tab === 'entertainment' ? 'bg-[#C6AE73] text-[#241620] border-[#C6AE73]' : 'bg-[#45304D] text-white border-[#D8C0CB]/40'}`}>
+            <Music size={13} className="inline mr-1" /> Entertainment & Releases
           </button>
           <button type="button" onClick={() => setTab('library')} className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer border ${tab === 'library' ? 'bg-[#C6AE73] text-[#241620] border-[#C6AE73]' : 'bg-[#45304D] text-white border-[#D8C0CB]/40'}`}>
             <Database size={13} className="inline mr-1" /> World Asset Library
@@ -390,6 +428,293 @@ export default function CreativeStudioApp() {
             <h2 className="text-sm font-bold uppercase tracking-wider text-[#464C55]">2. Live preview</h2>
             <MediaTemplateRenderer artifact={previewArtifact} density="spacious" />
           </section>
+        </div>
+      )}
+
+      {/* TAB 1B: ENTERTAINMENT & CELEBRITY PRODUCTION DESK */}
+      {tab === 'entertainment' && (
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <section className="lg:col-span-5 bg-white p-5 rounded-xl border border-slate-200 space-y-3.5">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-base font-bold text-[#141214]">1. Performer & Multi-Career Profile</h2>
+                {playerArtist && (
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold">
+                    Tier: {playerArtist.tier}
+                  </span>
+                )}
+              </div>
+              <label className="block text-xs font-semibold space-y-1">
+                <span>Stage / Professional Name (2–60 chars)</span>
+                <input value={stageNameDraft} onChange={e => setStageNameDraft(e.target.value)} className="w-full p-2 rounded border border-slate-300" />
+              </label>
+              <label className="block text-xs font-semibold space-y-1">
+                <span>Public Bio & Artistic Direction</span>
+                <textarea rows={2} value={bioDraft} onChange={e => setBioDraft(e.target.value)} className="w-full p-2 rounded border border-slate-300" />
+              </label>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <label className="font-semibold space-y-1">
+                  <span>Privacy Boundary</span>
+                  <select value={privacyDraft} onChange={e => setPrivacyDraft(e.target.value as any)} className="w-full p-2 rounded border border-slate-300 bg-white">
+                    <option value="open">Open Public Access</option>
+                    <option value="guarded">Guarded Personal Life</option>
+                    <option value="strict">Strict Private Boundaries</option>
+                  </select>
+                </label>
+                <label className="font-semibold space-y-1">
+                  <span>Career Status</span>
+                  <select value={statusDraft} onChange={e => setStatusDraft(e.target.value as any)} className="w-full p-2 rounded border border-slate-300 bg-white">
+                    <option value="active">Active</option>
+                    <option value="hiatus">Hiatus</option>
+                    <option value="comeback">Comeback Campaign</option>
+                    <option value="retired">Retired</option>
+                  </select>
+                </label>
+              </div>
+              <fieldset className="space-y-1.5">
+                <legend className="text-xs font-semibold text-slate-700">Active Entertainment Disciplines (Multi-Career)</legend>
+                <div className="flex flex-wrap gap-1.5">
+                  {ENTERTAINMENT_DISCIPLINES.map(d => {
+                    const active = selectedDiscs.includes(d.id);
+                    return (
+                      <button
+                        key={d.id}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() =>
+                          setSelectedDiscs(prev =>
+                            prev.includes(d.id) ? (prev.length > 1 ? prev.filter(x => x !== d.id) : prev) : [...prev, d.id],
+                          )
+                        }
+                        className={`px-2.5 py-1 rounded-full text-[11px] font-semibold cursor-pointer border ${
+                          active ? 'bg-[#48293D] text-white border-[#48293D]' : 'bg-slate-100 text-slate-700 border-slate-300'
+                        }`}
+                      >
+                        {d.label.split(',')[0]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
+              <div className="flex flex-wrap gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const res = useOSStore.getState().registerOrUpdateArtistProfile({
+                      stageName: stageNameDraft,
+                      bio: bioDraft,
+                      disciplines: selectedDiscs,
+                      privacyBoundary: privacyDraft,
+                      careerStatus: statusDraft,
+                    });
+                    setNotice(res.message);
+                  }}
+                  className="px-4 py-2 rounded-lg bg-[#48293D] text-white text-xs font-bold border border-[#C6AE73] cursor-pointer"
+                >
+                  {playerArtist ? 'Update Performer Profile' : 'Register Performer Profile'}
+                </button>
+                {playerArtist && Math.floor(playerArtist.unclaimedPlayerRoyalties) > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setNotice(useOSStore.getState().claimEntertainmentRoyalties().message)}
+                    className="px-3.5 py-2 rounded-lg bg-emerald-700 text-white text-xs font-bold cursor-pointer"
+                  >
+                    Claim {Math.floor(playerArtist.unclaimedPlayerRoyalties)} ₢ Royalties
+                  </button>
+                )}
+              </div>
+
+              {playerArtist && (
+                <div className="pt-3 border-t border-slate-200 space-y-2 text-xs">
+                  <strong className="block text-slate-800">8-Axis Fame & Community Reception</strong>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {FAME_AXES.map(axis => (
+                      <div key={axis} className="p-2 rounded bg-slate-50 border border-slate-200 flex items-center justify-between">
+                        <span className="capitalize text-[11px] text-slate-600">{axis.replace(/([A-Z])/g, ' $1')}</span>
+                        <strong className="font-mono text-slate-900">{playerArtist[axis]}</strong>
+                      </div>
+                    ))}
+                  </div>
+                  {(() => {
+                    const rec = computeCommunityReception(playerArtist);
+                    return (
+                      <div className="text-[11px] text-slate-600 font-mono pt-1">
+                        Public {rec.generalPublic} · Critics {rec.criticsAndPeers} · Fans {rec.dedicatedFans} · Brands {rec.commercialBrands} · Local Scene {rec.localScene}
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+            </section>
+
+            <section className="lg:col-span-7 bg-white p-5 rounded-xl border border-slate-200 space-y-4">
+              <h2 className="text-base font-bold text-[#141214]">2. Studio Production, Songbird Release & Live Venue Desk</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                <label className="font-semibold space-y-1">
+                  <span>Project / Track Title</span>
+                  <input value={prjTitle} onChange={e => setPrjTitle(e.target.value)} className="w-full p-2 rounded border border-slate-300" />
+                </label>
+                <label className="font-semibold space-y-1">
+                  <span>Format / Medium</span>
+                  <select value={prjKind} onChange={e => setPrjKind(e.target.value as any)} className="w-full p-2 rounded border border-slate-300 bg-white">
+                    <option value="single">Recorded Single</option>
+                    <option value="album">Full-Length Album</option>
+                    <option value="film">Mirrora Screen Feature</option>
+                    <option value="series">Television Serial</option>
+                    <option value="choreography">Dance Choreography</option>
+                    <option value="stage_play">Marigold Stage Work</option>
+                    <option value="fashion_campaign">Fashion Lookbook</option>
+                    <option value="promo_kit">Press & Promo Kit</option>
+                  </select>
+                </label>
+                <label className="font-semibold space-y-1">
+                  <span>Discipline</span>
+                  <select value={prjDisc} onChange={e => setPrjDisc(e.target.value as any)} className="w-full p-2 rounded border border-slate-300 bg-white">
+                    {ENTERTAINMENT_DISCIPLINES.map(d => (
+                      <option key={d.id} value={d.id}>{d.label}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                <label className="font-semibold space-y-1">
+                  <span>Master Audio Stem (Playable)</span>
+                  <select value={prjAudio} onChange={e => setPrjAudio(e.target.value)} className="w-full p-2 rounded border border-slate-300 bg-white">
+                    {SHIPPED_AUDIO_ASSETS.map(a => (
+                      <option key={a.id} value={a.audioUrl}>{a.label}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="font-semibold space-y-1">
+                  <span>NPC Collaborator</span>
+                  <select value={prjCollab} onChange={e => setPrjCollab(e.target.value)} className="w-full p-2 rounded border border-slate-300 bg-white">
+                    <option value="">Solo Credit</option>
+                    {ent.artists.filter(a => a.origin === 'npc').map(a => (
+                      <option key={a.artistId} value={a.artistId}>{a.stageName} ({a.genres[0]})</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="font-semibold space-y-1">
+                  <span>Production Budget (₢)</span>
+                  <input type="number" min={0} max={2000} value={prjBudget} onChange={e => setPrjBudget(Number(e.target.value))} className="w-full p-2 rounded border border-slate-300" />
+                </label>
+              </div>
+              <SongbirdAudioPlayer audioUrl={prjAudio} title={prjTitle || 'Studio Stem Preview'} artistName={playerArtist?.stageName || stageNameDraft} compact />
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setNotice(
+                      useOSStore.getState().createEntertainmentProject({
+                        title: prjTitle,
+                        kind: prjKind,
+                        discipline: prjDisc,
+                        collaboratorArtistId: prjCollab || undefined,
+                        budgetCredits: prjBudget,
+                        audioUrl: prjAudio,
+                      }).message,
+                    )
+                  }
+                  className="px-3.5 py-2 rounded-lg bg-indigo-700 text-white text-xs font-bold cursor-pointer"
+                >
+                  + Start Studio Project
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setNotice(
+                      useOSStore.getState().publishEntertainmentRelease({
+                        title: prjTitle,
+                        format: prjKind === 'album' ? 'Album' : 'Single',
+                        audioUrl: prjAudio,
+                        collaboratorArtistId: prjCollab || undefined,
+                      }).message,
+                    )
+                  }
+                  className="px-3.5 py-2 rounded-lg bg-emerald-700 text-white text-xs font-bold cursor-pointer"
+                >
+                  <Radio size={13} className="inline mr-1" /> Release Direct to Songbird
+                </button>
+                {(gameplay.publishedMediaArtifacts || []).length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const latest = gameplay.publishedMediaArtifacts[0];
+                      setNotice(useOSStore.getState().linkPortfolioToEntertainment(latest.id).message);
+                    }}
+                    className="px-3.5 py-2 rounded-lg bg-slate-800 text-white text-xs font-bold cursor-pointer"
+                  >
+                    Attach Latest Studio Publication to Portfolio
+                  </button>
+                )}
+              </div>
+
+              {ent.projects.length > 0 && (
+                <div className="space-y-2 pt-2 border-t border-slate-200 text-xs">
+                  <strong className="block text-slate-700">Active Projects ({ent.projects.length})</strong>
+                  {ent.projects.slice(0, 4).map(p => (
+                    <div key={p.projectId} className="p-2.5 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-between gap-2 flex-wrap">
+                      <div>
+                        <strong>{p.title}</strong> <span className="text-slate-500">({p.kind} · {p.progress}% · Quality {p.quality}/100 · {p.masterOwnedByArtist ? 'Artist Master' : 'Label Master'})</span>
+                      </div>
+                      <div className="flex gap-1.5">
+                        {p.status === 'in_production' && (
+                          <button type="button" onClick={() => setNotice(useOSStore.getState().advanceEntertainmentProject(p.projectId).message)} className="px-2.5 py-1 rounded bg-indigo-600 text-white font-bold cursor-pointer">
+                            Run Session (-10 Stamina)
+                          </button>
+                        )}
+                        {p.status === 'completed' && (
+                          <button type="button" onClick={() => setNotice(useOSStore.getState().publishEntertainmentRelease({ projectId: p.projectId, title: p.title, audioUrl: p.audioUrl }).message)} className="px-2.5 py-1 rounded bg-emerald-600 text-white font-bold cursor-pointer">
+                            Publish to Songbird
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="pt-3 border-t border-slate-200 space-y-2.5 text-xs">
+                <strong className="block text-slate-800"><Ticket size={13} className="inline mr-1" /> Quick Venue Booking & Celebrity portals</strong>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <select value={venueIdDraft} onChange={e => setVenueIdDraft(e.target.value)} className="p-2 rounded border border-slate-300 bg-white">
+                    {VENUE_CATALOG.map(v => (
+                      <option key={v.orgId} value={v.orgId}>{v.name} ({v.capacity.toLocaleString()} cap · Hold {v.rentalCost} ₢)</option>
+                    ))}
+                  </select>
+                  <input type="number" min={5} max={500} value={ticketPriceDraft} onChange={e => setTicketPriceDraft(Number(e.target.value))} className="p-2 rounded border border-slate-300" aria-label="Ticket price in credits" />
+                  <button
+                    type="button"
+                    onClick={() => setNotice(useOSStore.getState().bookEntertainmentVenue({ venueOrgId: venueIdDraft, ticketPrice: ticketPriceDraft }).message)}
+                    className="px-3 py-2 rounded-lg bg-[#48293D] text-white font-bold cursor-pointer"
+                  >
+                    Book Live Performance
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {[
+                    ['Songbird Streaming', 'https://songbird.mer'],
+                    ['Pop Sticker Radio', 'https://popsticker.mer'],
+                    ['Limelight Magazine', 'https://limelight.mer'],
+                    ['Starstruck', 'https://starstruck.mer'],
+                    ['Marlie Records', 'https://marlierecords.mer'],
+                    ['Open Call Casting', 'https://opencallcasting.mer'],
+                    ['Word of Mouth PR', 'https://wordofmouth.mer'],
+                    ['Radiance Awards', 'https://radianceawards.mer'],
+                  ].map(([label, href]) => (
+                    <button
+                      key={href}
+                      type="button"
+                      onClick={() => useOSStore.getState().openAppWorkspace('browser', href)}
+                      className="px-2.5 py-1 rounded border border-slate-300 bg-slate-50 hover:bg-slate-100 font-semibold cursor-pointer"
+                    >
+                      {label} ↗
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
         </div>
       )}
 

@@ -19,8 +19,28 @@ READERS = {'careers':world_services.list_careers,'finances':world_services.list_
            'relationships':world_services.list_relationships,'events':world_services.list_events}
 WRITERS = {'careers':world_services.assign_career,'finances':world_services.transact,
            'relationships':world_services.add_relationship,'events':world_services.add_event}
-ENT_READ = {'artists':entertainment.list_artists,'music':entertainment.list_music,'releases':entertainment.list_releases,'concerts':entertainment.list_concerts}
-ENT_WRITE = {'artists':entertainment.upsert_artist,'music':entertainment.add_track,'releases':entertainment.schedule_release,'concerts':entertainment.schedule_concert}
+ENT_READ = {
+    'artists': entertainment.list_artists,
+    'music': entertainment.list_music,
+    'releases': entertainment.list_releases,
+    'concerts': entertainment.list_concerts,
+    'auditions': entertainment.list_auditions,
+    'contracts': entertainment.list_contracts,
+    'productions': entertainment.list_productions,
+    'tickets': entertainment.list_tickets,
+    'entertainment': entertainment.industry_snapshot,
+}
+ENT_WRITE = {
+    'artists': entertainment.upsert_artist,
+    'music': entertainment.add_track,
+    'releases': entertainment.schedule_release,
+    'concerts': entertainment.schedule_concert,
+    'auditions': entertainment.handle_audition,
+    'contracts': entertainment.manage_contract,
+    'productions': entertainment.create_or_advance_production,
+    'tickets': entertainment.purchase_ticket,
+    'publicity': entertainment.handle_publicity_or_fan_action,
+}
 
 
 class LivingWorldHandler(BaseHTTPRequestHandler):
@@ -80,9 +100,14 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
         body=copy.deepcopy(body)
         state=run['state']
         if name=='artists':
-            world_services.citizen(model,str(body.get('characterId') or ''))
+            char_id = str(body.get('characterId') or '')
+            if char_id:
+                world_services.citizen(model, char_id)
             if not isinstance(body.get('genres',[]),list) or any(not isinstance(v,str) for v in body.get('genres',[])):
                 raise ValueError('genres must be a list of strings')
+            for axis in entertainment.FAME_AXES:
+                if axis in body and body[axis] is not None:
+                    body[axis] = world_services.number(body[axis], axis, 0, 100)
         if name in ('music','concerts'):
             if not any(a.get('artistId')==body.get('artistId') for a in state.get('artists',[])):
                 raise ValueError('artistId must reference an artist in this run')
@@ -130,7 +155,7 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
             name=parts[0]
             if name=='runs' and len(parts) in (2,3):
                 run_id=unquote(parts[1]);operation=parts[2] if len(parts)==3 else 'get'
-            elif name in (*READERS,*ENT_READ,'schedules') and len(parts)==1:
+            elif name in (*READERS,*ENT_READ,*ENT_WRITE,'schedules','fame') and len(parts)==1:
                 run_id=str(body.get('runId') or '') if post else (query.get('runId') or [''])[0]
                 operation=name
             else: self._send(404,{'error':'Unknown living-world route'});return
@@ -145,6 +170,14 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
                             'transactions':model.store.recent_transactions(run_id,20)});return
                     if operation in READERS: self._send(200,READERS[operation](model));return
                     if operation in ENT_READ: self._send(200,self._entertainment(operation,model));return
+                    if operation=='fame':
+                        artist_id=(query.get('artistId') or query.get('id') or [''])[0].strip()
+                        run=self._envelope(model)
+                        if artist_id:
+                            self._send(200,entertainment.fame_profile(run,artist_id))
+                        else:
+                            self._send(200,{'fameProfiles':[entertainment.fame_profile(run,a['artistId']) for a in run['state'].get('artists',[])]})
+                        return
                     if operation=='schedules':
                         self._send(200,{'runId':run_id,'schedules':[{'characterId':c.character_id,'name':c.name,
                             'mode':c.schedule_mode,'minuteOfDay':model.world_clock.minute_of_day,
@@ -158,7 +191,7 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
                         state=body.get('state')
                         if not isinstance(state,dict) or state.get('clock') != model.world_clock.to_state() or state.get('citizens') != model._export_state()['citizens']:
                             raise ValueError('Use simulation and service commands to update clock or citizens')
-                        managed={'careers','relationships','accounts','artists','tracks','releases','concerts','events','transactions','legacy_service_state'}
+                        managed={'careers','relationships','accounts','artists','tracks','releases','concerts','auditions','entertainment_contracts','productions','tickets','sponsorships','media_items','controversies','awards','fan_communities','events','transactions','legacy_service_state'}
                         if any(state.get(k) != model._extensions.get(k) for k in managed):
                             raise ValueError('Use service commands to update managed collections')
                         model._extensions.update({k:v for k,v in state.items() if k not in CORE_FIELDS});model.save()

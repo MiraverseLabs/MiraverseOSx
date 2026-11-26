@@ -452,6 +452,42 @@ export const WORKNET_DOMAIN_TASKS: Record<string, WorknetDomainTask> = {
     ],
     successSummary: 'Cataloged and shelved all 40 volumes in the East Wing Reading Room and polished display vitrines.',
   },
+  'ms-art-01': {
+    missionId: 'ms-art-01',
+    track: 'artist',
+    taskTitle: 'Acoustic Mastering & MMRS Registration (#KAJI-MST-401)',
+    prompt: 'Prepare the Harbor Folk master for Songbird ingestion and verify writer rights registration:',
+    crossAppHint: 'Procedure selection records a plan only. Complete the assigned work and submit its deliverables in the work-order panel.',
+    options: [
+      { id: 'art01-valid', label: 'Calibrate -1.0 dBTP limiter ceiling, verify 100% MMRS writer splits, and clear Songbird stem delivery', isCorrect: true },
+      { id: 'art01-clip', label: 'Export +6 dBTP clipped master without MMRS writer registration', isCorrect: false },
+    ],
+    successSummary: 'Cleared KAJI-MST-401 master at -1.0 dBTP and registered 100% MMRS composition splits.',
+  },
+  'ms-press-02': {
+    missionId: 'ms-press-02',
+    track: 'press',
+    taskTitle: 'Limelight Greenroom Fact-Check (#LIME-FEAT-204)',
+    prompt: 'Verify independent distribution splits and apply Limelight performer privacy standards:',
+    crossAppHint: 'Procedure selection records a plan only. Complete the assigned work and submit its deliverables in the work-order panel.',
+    options: [
+      { id: 'press02-valid', label: 'Confirm 92% Lunerum Dist artist split, redact private residence addresses, and file verified Limelight copy', isCorrect: true },
+      { id: 'press02-leak', label: 'Publish unverified rumors and private residential addresses', isCorrect: false },
+    ],
+    successSummary: 'Verified LIME-FEAT-204 contract figures and filed clean Limelight feature copy.',
+  },
+  'qn-05': {
+    missionId: 'qn-05',
+    track: 'questnotice',
+    taskTitle: 'Looking Glass Soundcheck & Stage Call (#VELCUR-STAGE-09)',
+    prompt: 'Stabilize vocal wedge monitors and clear the 180-capacity Lantern Alley floor for doors:',
+    crossAppHint: 'Procedure selection records a plan only. Complete the assigned work and submit its deliverables in the work-order panel.',
+    options: [
+      { id: 'qn05-valid', label: 'Notch 2.5 kHz wedge feedback ring & verify 180-capacity fire-aisle clearance with Rico Moss', isCorrect: true },
+      { id: 'qn05-unsafe', label: 'Bypass stage circuit breakers and block Lantern Alley exit', isCorrect: false },
+    ],
+    successSummary: 'Completed Looking Glass monitor soundcheck and verified 180-capacity floor clearance.',
+  },
 };
 
 export function evaluateWorknetObjective(

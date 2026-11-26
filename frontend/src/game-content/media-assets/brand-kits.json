@@ -190,6 +190,181 @@
         "fontQuote": "'Amiri', Georgia, serif"
       },
       "assets": {}
+    },
+    "limelight-magazine": {
+      "id": "limelight-magazine",
+      "name": "Limelight Entertainment Magazine",
+      "organizationId": "ORG_LIMELIGHT",
+      "tokens": {
+        "bgSurface": "#FFFDF9",
+        "bgElevated": "#FFFFFF",
+        "bgHero": "#1A1025",
+        "bgSecondary": "#8F263B",
+        "textPrimary": "#141214",
+        "textSecondary": "#45304D",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#E11D48",
+        "accentSecondary": "#FACC15",
+        "borderOrnament": "#C6AE73",
+        "fontDisplay": "'Limelight', 'DM Serif Display', Georgia, serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Italianno', cursive, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": {
+        "star": "canon:ornament-celestial-star",
+        "divider": "canon:ornament-editorial-divider",
+        "plaque": "canon:ornament-ornate-plaque"
+      }
+    },
+    "starstruck-ent": {
+      "id": "starstruck-ent",
+      "name": "Starstruck Entertainment",
+      "organizationId": "ORG_STARSTRUCK",
+      "tokens": {
+        "bgSurface": "#FAF7FF",
+        "bgElevated": "#FFFFFF",
+        "bgHero": "#1E1033",
+        "bgSecondary": "#45304D",
+        "textPrimary": "#1A1025",
+        "textSecondary": "#45304D",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#C026D3",
+        "accentSecondary": "#C6AE73",
+        "borderOrnament": "#C6AE73",
+        "fontDisplay": "'Limelight', 'DM Serif Display', serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Pinyon Script', cursive, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": {
+        "star": "canon:ornament-celestial-star",
+        "crest": "canon:ornament-floral-crest"
+      }
+    },
+    "songbird-audio": {
+      "id": "songbird-audio",
+      "name": "Songbird Audio Platform",
+      "organizationId": "ORG_SONGBIRD",
+      "tokens": {
+        "bgSurface": "#F4FBF9",
+        "bgElevated": "#FFFFFF",
+        "bgHero": "#0B1F24",
+        "bgSecondary": "#1E293B",
+        "textPrimary": "#0F172A",
+        "textSecondary": "#334155",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#10B981",
+        "accentSecondary": "#6366F1",
+        "borderOrnament": "#9EA7B3",
+        "fontDisplay": "'DM Serif Display', Georgia, serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Limelight', Georgia, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": {
+        "star": "canon:ornament-celestial-star"
+      }
+    },
+    "marlie-records": {
+      "id": "marlie-records",
+      "name": "Marlie Records",
+      "organizationId": "ORG_MARLIE_RECORDS",
+      "tokens": {
+        "bgSurface": "#F6FAF9",
+        "bgElevated": "#FFFFFF",
+        "bgHero": "#0F292E",
+        "bgSecondary": "#332D1A",
+        "textPrimary": "#141214",
+        "textSecondary": "#464C55",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#0D9488",
+        "accentSecondary": "#AD9664",
+        "borderOrnament": "#927355",
+        "fontDisplay": "'DM Serif Display', Georgia, serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Italianno', cursive, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": {
+        "divider": "canon:ornament-editorial-divider"
+      }
+    },
+    "pop-sticker": {
+      "id": "pop-sticker",
+      "name": "Pop Sticker Radio",
+      "organizationId": "ORG_POP_STICKER",
+      "tokens": {
+        "bgSurface": "#FFF8FC",
+        "bgElevated": "#FFFFFF",
+        "bgHero": "#231230",
+        "bgSecondary": "#48293D",
+        "textPrimary": "#1E1033",
+        "textSecondary": "#45304D",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#EC4899",
+        "accentSecondary": "#38BDF8",
+        "borderOrnament": "#E8B9C1",
+        "fontDisplay": "'Limelight', Georgia, serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Limelight', Georgia, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": {
+        "star": "canon:ornament-celestial-star"
+      }
+    },
+    "mirrora-screen": {
+      "id": "mirrora-screen",
+      "name": "Mirrora & Storyloom Screen Arts",
+      "organizationId": "ORG_MIRRORA_STUDIOS",
+      "tokens": {
+        "bgSurface": "#F8FAFC",
+        "bgElevated": "#FFFFFF",
+        "bgHero": "#0F172A",
+        "bgSecondary": "#302F33",
+        "textPrimary": "#0F172A",
+        "textSecondary": "#475569",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#2563EB",
+        "accentSecondary": "#C6AE73",
+        "borderOrnament": "#9EA7B3",
+        "fontDisplay": "'DM Serif Display', Georgia, serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Limelight', Georgia, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": {
+        "plaque": "canon:ornament-ornate-plaque",
+        "star": "canon:ornament-celestial-star"
+      }
+    },
+    "radiance-awards": {
+      "id": "radiance-awards",
+      "name": "The Radiance Awards Academy",
+      "organizationId": "ORG_RADIANCE_AWARDS",
+      "tokens": {
+        "bgSurface": "#FFFCF5",
+        "bgElevated": "#FFFFFF",
+        "bgHero": "#18140B",
+        "bgSecondary": "#2E311A",
+        "textPrimary": "#1C1917",
+        "textSecondary": "#5D4733",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#C6AE73",
+        "accentSecondary": "#AD8330",
+        "borderOrnament": "#C6AE73",
+        "fontDisplay": "'Limelight', 'DM Serif Display', serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Pinyon Script', cursive, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": {
+        "crest": "canon:ornament-floral-crest",
+        "plaque": "canon:ornament-ornate-plaque",
+        "star": "canon:ornament-celestial-star",
+        "divider": "canon:ornament-editorial-divider"
+      }
     }
   }
 }

@@ -17,6 +17,7 @@ from overrides_store import load_all_overrides
 from population import PopulationModel
 from living_world import RunConflictError
 from registry import ACTIVITY_ICONS, CitizenRegistry
+import entertainment
 
 
 DEFAULT_SEED = 42
@@ -49,6 +50,7 @@ SPEED_PRESETS: tuple[tuple[str, int], ...] = (
 NAV_PAGES: tuple[tuple[str, str], ...] = (
     ("World Overview", "🌐"),
     ("Living World Engine", "🧭"),
+    ("Entertainment & Fame", "🎭"),
     ("Citizen Registry", "👥"),
     ("Data Integrity", "🛡️"),
     ("Population Editor", "✎"),
@@ -1887,6 +1889,368 @@ def WorldOverview(model: PopulationModel, is_dark: bool):
 
 
 @solara.component
+def EntertainmentAndFame(
+    model: PopulationModel,
+    on_inspect_citizen: Callable[[str], None],
+):
+    """Live Section XIX Entertainment Industry, 8-Axis Fame, Releases, Venues, Royalties & Sync Observatory."""
+    update_counter.get()
+    state = model._export_state()
+    run_env = {
+        "run_id": model.run_id,
+        "name": model.run_name,
+        "revision": model._revision,
+        "calendar": model.calendar_config,
+        "state": state,
+    }
+    snap = entertainment.industry_snapshot(run_env)
+    metrics = snap["metrics"]
+    orgs = snap["organizations"]
+    artists = snap["artists"]
+    fame_profiles = snap["fameProfiles"]
+    tracks = snap["charts"]["songbirdTopTracks"]
+    concerts = snap["concerts"]
+    releases = snap["releases"]
+    contracts = snap["contracts"]
+    controversies = snap["controversies"]
+    media_items = snap["mediaItems"]
+    awards = snap["awards"]
+
+    living = model.living_agents
+    ent_employed = [
+        c
+        for c in living
+        if any(
+            kw in f"{c.primary_occupation} {getattr(c, 'affiliation', '')} {getattr(c, 'employment', '')}".casefold()
+            for kw in (
+                "artist",
+                "music",
+                "actor",
+                "danc",
+                "theatre",
+                "model",
+                "radio",
+                "journal",
+                "starstruck",
+                "marlie",
+                "limelight",
+                "mirrora",
+                "songbird",
+                "marigold",
+                "kaji",
+            )
+        )
+    ]
+    recent_tx = model.store.recent_transactions(model.run_id, 40) if getattr(model, "run_id", None) else []
+    ent_tx = [
+        tx
+        for tx in recent_tx
+        if any(
+            k in str(tx.get("kind", "")).casefold() or k in str(tx.get("description", "")).casefold()
+            for k in ("royalt", "concert", "audition", "sponsorship", "entertainment", "player_mirror", "ticket")
+        )
+    ]
+    player_linked_artists = [a for a in artists if a.get("origin") == "player"]
+    has_mirror_sync = any(tx.get("kind") == "player_mirror" for tx in recent_tx)
+
+    # Mean across all 8 canonical fame axes
+    axis_means: dict[str, float] = {}
+    for axis in entertainment.FAME_AXES:
+        vals = [float(a.get(axis, 0.0)) for a in artists]
+        axis_means[axis] = round(sum(vals) / len(vals), 1) if vals else 0.0
+
+    axis_bars_html = []
+    for axis, avg_val in axis_means.items():
+        pct = max(2.0, min(100.0, avg_val))
+        axis_bars_html.append(
+            '<div class="obs-dist-row">'
+            f'  <div class="obs-dist-label"><span>{html.escape(axis)}</span></div>'
+            '  <div class="obs-dist-track">'
+            f'    <div class="obs-dist-fill" style="width:{pct:.1f}%;"></div>'
+            "  </div>"
+            f'  <div class="obs-dist-val">{avg_val:.1f} / 100</div>'
+            "</div>"
+        )
+
+    # Venue utilization summary
+    venue_map: dict[str, dict[str, float | int | str]] = {}
+    for c in concerts:
+        v_name = str(c.get("venue") or "Venue")
+        entry = venue_map.setdefault(v_name, {"shows": 0, "sold": 0, "cap": 0, "gross": 0.0})
+        entry["shows"] = int(entry["shows"]) + 1
+        entry["sold"] = int(entry["sold"]) + int(c.get("ticketsSold", 0))
+        entry["cap"] = int(entry["cap"]) + max(1, int(c.get("capacity", 180)))
+        entry["gross"] = float(entry["gross"]) + float(c.get("grossRevenue", 0.0))
+
+    venue_rows_html = []
+    for v_name, st in venue_map.items():
+        util = (int(st["sold"]) / max(1, int(st["cap"]))) * 100.0
+        venue_rows_html.append(
+            '<div class="obs-realm-row">'
+            f"  <span><strong>{html.escape(v_name)}</strong> ({st['shows']} bookings)</span>"
+            f'  <span class="obs-muted">{int(st["sold"]):,} / {int(st["cap"]):,} seats ({util:.0f}%) · {float(st["gross"]):,.0f} ₢</span>'
+            "</div>"
+        )
+    if not venue_rows_html:
+        venue_rows_html.append('<div class="obs-empty-state">Advance the simulation clock to populate live venue bookings and attendance.</div>')
+
+    # Organization contract & roster counts
+    org_contract_counts = Counter(c.get("orgId") for c in contracts if c.get("status") == "active")
+    org_rows_html = []
+    for org in orgs[:25]:
+        oid = org["id"]
+        c_count = org_contract_counts.get(oid, 0)
+        org_rows_html.append(
+            '<div class="obs-realm-row">'
+            f"  <span><strong>{html.escape(org['name'])}</strong> <small class='obs-muted'>({html.escape(org['domain'])})</small></span>"
+            f'  <span class="obs-muted">{html.escape(org["sector"])} · {c_count} active deal{"s" if c_count != 1 else ""}</span>'
+            "</div>"
+        )
+
+    # Tracks & Radio table rows
+    track_rows_html = []
+    for idx, trk in enumerate(tracks[:8], start=1):
+        sticker_badge = (
+            f' · <span class="obs-badge obs-badge-lavender">{html.escape(str(trk.get("stickerEdition")))}</span>'
+            if trk.get("stickerEdition")
+            else ""
+        )
+        track_rows_html.append(
+            '<div class="obs-realm-row">'
+            f"  <span><strong>#{idx} {html.escape(str(trk.get('title')))}</strong> — {html.escape(str(trk.get('stageName')))}{sticker_badge}</span>"
+            f'  <span class="obs-muted">{int(trk.get("streams", 0)):,} streams · {int(trk.get("radioSpins", 0))} Pop Sticker spins</span>'
+            "</div>"
+        )
+    if not track_rows_html:
+        track_rows_html.append('<div class="obs-empty-state">No tracks released yet in this run; step the world clock to trigger studio sessions.</div>')
+
+    # Releases & Concerts feed
+    schedule_rows_html = []
+    for rel in releases[-5:]:
+        schedule_rows_html.append(
+            '<div class="obs-realm-row">'
+            f"  <span>🎵 <strong>{html.escape(str(rel.get('platform', 'Songbird')))} Release</strong> · {html.escape(str(rel.get('status', 'scheduled')))}</span>"
+            f'  <span class="obs-muted">Royalty split {float(rel.get("royaltyRate", 0.8)) * 100:.0f}%</span>'
+            "</div>"
+        )
+    for con in concerts[-5:]:
+        schedule_rows_html.append(
+            '<div class="obs-realm-row">'
+            f"  <span>🎟️ <strong>{html.escape(str(con.get('title') or con.get('venue')))}</strong> ({html.escape(str(con.get('status')))})</span>"
+            f'  <span class="obs-muted">{int(con.get("ticketsSold", 0)):,} sold · {float(con.get("grossRevenue", 0.0)):,.0f} ₢</span>'
+            "</div>"
+        )
+    if not schedule_rows_html:
+        schedule_rows_html.append('<div class="obs-empty-state">No releases or performances scheduled yet in this run.</div>')
+
+    # Controversies, Press & Radiance Awards
+    press_rows_html = []
+    for aw in awards[:2]:
+        winners_str = ", ".join(w.get("stageName", "") for w in aw.get("winners", [])) or f"{len(aw.get('nominees', []))} nominees on ballot"
+        press_rows_html.append(
+            '<div class="obs-realm-row">'
+            f"  <span>🏆 <strong>{html.escape(str(aw.get('awardCycleId')))}</strong> ({html.escape(str(aw.get('status')))})</span>"
+            f'  <span class="obs-muted">{html.escape(winners_str)}</span>'
+            "</div>"
+        )
+    for cnv in controversies[:4]:
+        press_rows_html.append(
+            '<div class="obs-realm-row">'
+            f"  <span>⚠️ <strong>{html.escape(str(cnv.get('stageName')))}</strong>: {html.escape(str(cnv.get('topic')))}</span>"
+            f'  <span class="obs-muted">{html.escape(str(cnv.get("status")))} (sev {cnv.get("severity")})</span>'
+            "</div>"
+        )
+    for med in media_items[:5]:
+        press_rows_html.append(
+            '<div class="obs-realm-row">'
+            f"  <span>📰 <strong>{html.escape(str(med.get('headline')))}</strong></span>"
+            f'  <span class="obs-muted">{html.escape(str(med.get("kind", "press")))} · Day {int(med.get("dayIndex", 0)) + 1}</span>'
+            "</div>"
+        )
+    if not press_rows_html:
+        press_rows_html.append('<div class="obs-empty-state">Limelight press desk and Radiance Academy logs will appear as events unfold.</div>')
+
+    tx_rows_html = []
+    for tx in ent_tx[:8]:
+        tx_rows_html.append(
+            '<div class="obs-realm-row">'
+            f"  <span><strong>{html.escape(str(tx.get('kind')))}</strong> — {html.escape(str(tx.get('description') or tx.get('character_id')))}</span>"
+            f'  <span class="obs-muted">{float(tx.get("amount", 0.0)):+,.2f} ₢</span>'
+            "</div>"
+        )
+    if not tx_rows_html:
+        tx_rows_html.append('<div class="obs-empty-state">No entertainment royalty, ticket, or mirror ledger entries recorded yet in this run.</div>')
+
+    sync_label = (
+        f"Synchronized ({len(player_linked_artists)} player persona(s), credit mirror {'active' if has_mirror_sync else 'standby'})"
+        if (player_linked_artists or has_mirror_sync)
+        else f"Autonomous NPC Mode · Run {model.run_id[:8]} Ready for OS Link"
+    )
+
+    with solara.Div(classes=["obs-page"]):
+        solara.HTML(
+            tag="div",
+            unsafe_innerHTML=(
+                '<div class="obs-page-header">'
+                "  <div>"
+                '    <h1 class="obs-page-title">Entertainment &amp; Fame</h1>'
+                '    <p class="obs-page-subtitle">'
+                "      Live Section XIX industry telemetry: artists, 8-axis fame distribution, Songbird &amp; Pop Sticker charts, venue box office, royalties, and OS sync."
+                "    </p>"
+                "  </div>"
+                '  <div class="obs-count-pill">'
+                "    <span>🎭</span>"
+                f"    <span><strong>{html.escape(sync_label)}</strong></span>"
+                "  </div>"
+                "</div>"
+            ),
+        )
+
+        # KPI Cards
+        solara.HTML(
+            tag="div",
+            unsafe_innerHTML=(
+                '<div class="obs-kpi-grid">'
+                '  <div class="obs-surface-card obs-kpi-card">'
+                '    <div class="obs-kpi-label">Industry Workforce &amp; Artists</div>'
+                f'    <div class="obs-kpi-value">{metrics["activeArtists"]}'
+                f'      <span class="obs-kpi-unit">artists · {len(ent_employed)} staff</span></div>'
+                f'    <div class="obs-kpi-foot">{metrics["organizationCount"]} Section XIX organizations · {metrics["activeContracts"]} active contracts</div>'
+                "  </div>"
+                '  <div class="obs-surface-card obs-kpi-card obs-kpi-blue">'
+                '    <div class="obs-kpi-label">Streams &amp; Radio Airplay</div>'
+                f'    <div class="obs-kpi-value">{metrics["totalStreams"]:,}'
+                f'      <span class="obs-kpi-unit">streams</span></div>'
+                f'    <div class="obs-kpi-foot">{metrics["totalTracks"]} catalog tracks · {metrics["totalRadioSpins"]:,} Pop Sticker spins</div>'
+                "  </div>"
+                '  <div class="obs-surface-card obs-kpi-card">'
+                '    <div class="obs-kpi-label">Venues &amp; Ticket Sales</div>'
+                f'    <div class="obs-kpi-value">{metrics["totalTicketsSold"]:,}'
+                f'      <span class="obs-kpi-unit">tickets</span></div>'
+                f'    <div class="obs-kpi-foot">{metrics["scheduledConcerts"]} scheduled · {metrics["completedConcerts"]} completed · {metrics["openAuditions"]} open calls</div>'
+                "  </div>"
+                '  <div class="obs-surface-card obs-kpi-card obs-kpi-blue">'
+                '    <div class="obs-kpi-label">Box Office &amp; Royalties</div>'
+                f'    <div class="obs-kpi-value">{metrics["totalBoxOfficeCredits"] + metrics["totalRoyaltiesCredits"]:,.0f}'
+                '      <span class="obs-kpi-unit">₢</span></div>'
+                f'    <div class="obs-kpi-foot">Box office {metrics["totalBoxOfficeCredits"]:,.0f} ₢ · Royalties {metrics["totalRoyaltiesCredits"]:,.0f} ₢</div>'
+                "  </div>"
+                "</div>"
+            ),
+        )
+
+        # Row 1: 8-Axis Fame Distribution + Active Celebrity Roster (with Citizen Registry Inspector Jump)
+        with solara.Div(classes=["obs-overview-mid-grid"]):
+            with solara.Div(classes=["obs-surface-card"]):
+                solara.HTML(
+                    tag="div",
+                    unsafe_innerHTML=(
+                        '<div class="obs-section-head">'
+                        '  <h2 class="obs-section-title">8-Axis Fame Distribution (Mean Across Active Roster)</h2>'
+                        f'  <span class="obs-badge obs-badge-lavender">{len(artists)} Tracked Profiles</span>'
+                        "</div>"
+                        f'<div class="obs-dist-list">{"".join(axis_bars_html)}</div>'
+                    ),
+                )
+
+            with solara.Div(classes=["obs-surface-card"]):
+                solara.HTML(
+                    tag="div",
+                    unsafe_innerHTML=(
+                        '<div class="obs-section-head">'
+                        '  <h2 class="obs-section-title">Active Artists, Celebrities &amp; Community Reception</h2>'
+                        '  <span class="obs-badge obs-badge-blue">Live Fame Roster</span>'
+                        "</div>"
+                    ),
+                )
+                if not fame_profiles:
+                    solara.HTML(
+                        tag="div",
+                        unsafe_innerHTML='<div class="obs-empty-state">Step or Play the simulation to discover emerging artists from the citizen population.</div>',
+                    )
+                else:
+                    for prof in fame_profiles[:8]:
+                        cid = str(prof.get("characterId") or "")
+                        rec_map = prof.get("communityReception", {})
+                        with solara.Div(classes=["obs-realm-row"]):
+                            solara.HTML(
+                                tag="div",
+                                unsafe_innerHTML=(
+                                    f"<strong>{html.escape(str(prof.get('stageName')))}</strong> "
+                                    f"<span class='obs-badge obs-badge-lavender'>{html.escape(str(prof.get('tier')))}</span>"
+                                    f"<div class='obs-muted' style='font-size:0.76rem;'>"
+                                    f"Rec {prof.get('recognition', 0):.1f} · Cred {prof.get('artisticCredibility', 0):.1f} · "
+                                    f"Fav {prof.get('favorability', 0):.1f} · Critics {rec_map.get('criticsAndPeers', 0):.0f} · Fans {rec_map.get('dedicatedFans', 0):.0f}"
+                                    "</div>"
+                                ),
+                            )
+                            if cid and any(a.character_id == cid for a in model.agents):
+                                solara.Button(
+                                    label="Inspect Citizen",
+                                    outlined=True,
+                                    on_click=lambda target=cid: on_inspect_citizen(target),
+                                    classes=["obs-btn-compact"],
+                                )
+
+        # Row 2: Songbird & Pop Sticker Activity + Venue Utilization & Schedule
+        with solara.Div(classes=["obs-overview-mid-grid"]):
+            with solara.Div(classes=["obs-surface-card"]):
+                solara.HTML(
+                    tag="div",
+                    unsafe_innerHTML=(
+                        '<div class="obs-section-head">'
+                        '  <h2 class="obs-section-title">Songbird Streaming &amp; Pop Sticker Radio Charts</h2>'
+                        '  <span class="obs-badge obs-badge-lavender">Catalog Telemetry</span>'
+                        "</div>"
+                        f'<div class="obs-realm-list">{"".join(track_rows_html)}</div>'
+                    ),
+                )
+
+            with solara.Div(classes=["obs-surface-card"]):
+                solara.HTML(
+                    tag="div",
+                    unsafe_innerHTML=(
+                        '<div class="obs-section-head">'
+                        '  <h2 class="obs-section-title">Venue Utilization, Releases &amp; Performances</h2>'
+                        '  <span class="obs-badge obs-badge-blue">Box Office &amp; Schedule</span>'
+                        "</div>"
+                        f'<div class="obs-realm-list" style="margin-bottom:10px;">{"".join(venue_rows_html)}</div>'
+                        f'<div class="obs-realm-list">{"".join(schedule_rows_html)}</div>'
+                    ),
+                )
+
+        # Row 3: Reputation, Controversies & Awards + Financial Flows & Section XIX Organizations
+        with solara.Div(classes=["obs-overview-mid-grid"]):
+            with solara.Div(classes=["obs-surface-card"]):
+                solara.HTML(
+                    tag="div",
+                    unsafe_innerHTML=(
+                        '<div class="obs-section-head">'
+                        '  <h2 class="obs-section-title">Limelight Press, Controversies &amp; Radiance Awards</h2>'
+                        '  <span class="obs-badge obs-badge-lavender">Reputation &amp; Honors</span>'
+                        "</div>"
+                        f'<div class="obs-realm-list">{"".join(press_rows_html)}</div>'
+                        '<div class="obs-section-head" style="margin-top:14px;">'
+                        '  <h2 class="obs-section-title">Financial Flows, Royalties &amp; Sync Ledger</h2>'
+                        "</div>"
+                        f'<div class="obs-realm-list">{"".join(tx_rows_html)}</div>'
+                    ),
+                )
+
+            with solara.Div(classes=["obs-surface-card"]):
+                solara.HTML(
+                    tag="div",
+                    unsafe_innerHTML=(
+                        '<div class="obs-section-head">'
+                        f'  <h2 class="obs-section-title">Section XIX Entertainment Organizations ({len(orgs)})</h2>'
+                        '  <span class="obs-badge obs-badge-blue">Canonical Registry</span>'
+                        "</div>"
+                        f'<div class="obs-realm-list" style="max-height:420px;overflow-y:auto;">{"".join(org_rows_html)}</div>'
+                    ),
+                )
+
+
+@solara.component
 def LivingWorldEngine(
     model: PopulationModel,
     selected_run_id: str | None,
@@ -2404,6 +2768,7 @@ def Page():
                             nav_badges = {
                                 "World Overview": f"{living_count}/{len(model.agents)}",
                                 "Living World Engine": f"{len(model.institutions)}",
+                                "Entertainment & Fame": f"{len(model._extensions.get('artists', []))}/{len(entertainment.load_entertainment_organizations())}",
                                 "Citizen Registry": f"{len(model.agents)}",
                                 "Data Integrity": f"{audit_summary['actionable_citizens']}",
                                 "Population Editor": f"{staged_count}",
@@ -2437,6 +2802,11 @@ def Page():
                             on_select_run=set_selected_run_id,
                             on_load_run=handle_load_run,
                             on_action=run_model_action,
+                        )
+                    elif current_page == "Entertainment & Fame":
+                        EntertainmentAndFame(
+                            model,
+                            on_inspect_citizen=handle_inspect_from_integrity,
                         )
                     elif current_page == "Citizen Registry":
                         CitizenRegistry(

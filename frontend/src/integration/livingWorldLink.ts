@@ -242,3 +242,116 @@ export function runCitizens(snapshot: RunSnapshot): RunCitizen[] {
     balance: typeof value?.balance === 'number' ? value.balance : undefined,
   }));
 }
+
+// ---------------------------------------------------------------------------
+// Entertainment & Celebrity Ecosystem Synchronization API
+// ---------------------------------------------------------------------------
+
+export async function getEntertainmentSnapshot(runId: string): Promise<any> {
+  return call(`/entertainment?runId=${encodeURIComponent(runId)}`);
+}
+
+export async function getFameProfile(runId: string, artistOrCharacterId?: string): Promise<any> {
+  const qs = new URLSearchParams({ runId });
+  if (artistOrCharacterId) qs.set('artistId', artistOrCharacterId);
+  return call(`/fame?${qs.toString()}`);
+}
+
+export async function upsertRunArtist(
+  runId: string,
+  body: Record<string, unknown>,
+): Promise<{ result: any; revision: number }> {
+  return call('/artists', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}
+
+export async function addRunTrack(
+  runId: string,
+  body: Record<string, unknown>,
+): Promise<{ result: any; revision: number }> {
+  return call('/music', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}
+
+export async function scheduleRunRelease(
+  runId: string,
+  body: Record<string, unknown>,
+): Promise<{ result: any; revision: number }> {
+  return call('/releases', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}
+
+export async function scheduleRunConcert(
+  runId: string,
+  body: Record<string, unknown>,
+): Promise<{ result: any; revision: number }> {
+  return call('/concerts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}
+
+export async function submitRunAudition(
+  runId: string,
+  body: Record<string, unknown>,
+): Promise<{ result: any; revision: number }> {
+  return call('/auditions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}
+
+export async function manageRunContract(
+  runId: string,
+  body: Record<string, unknown>,
+): Promise<{ result: any; revision: number }> {
+  return call('/contracts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}
+
+export async function manageRunProduction(
+  runId: string,
+  body: Record<string, unknown>,
+): Promise<{ result: any; revision: number }> {
+  return call('/productions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}
+
+export async function purchaseRunTicket(
+  runId: string,
+  body: Record<string, unknown>,
+): Promise<{ result: any; revision: number }> {
+  return call('/tickets', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}
+
+export async function postRunPublicity(
+  runId: string,
+  body: Record<string, unknown>,
+): Promise<{ result: any; revision: number }> {
+  return call('/publicity', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}

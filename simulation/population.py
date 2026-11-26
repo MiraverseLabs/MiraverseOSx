@@ -19,6 +19,7 @@ from living_world import (
 )
 from overrides_store import load_all_overrides
 from profiles_normalizer import normalize_character_profile
+import entertainment
 
 
 from paths import RUN_DATABASE as DATABASE, SOURCE_DATABASE, WORLD_REFERENCE
@@ -1290,6 +1291,7 @@ class PopulationModel(mesa.Model):
         day_rolled = self.world_clock.day_index != previous_day
         if day_rolled:
             self._on_new_day(previous_year)
+        entertainment.step_entertainment(self, day_rolled=day_rolled, previous_year=previous_year)
         # Persist immediately on manual steps/scripts; checkpoint daily during high-speed Play (Pause also saves)
         if not self._is_playing or day_rolled:
             self.save()

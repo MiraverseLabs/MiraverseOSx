@@ -2,6 +2,7 @@ import { NEWS_SITE, isMeridianHost } from './news/newsSite';
 import { SOCIAL_REGISTER_SITE } from './publications/socialRegisterModel';
 import { eduPageTitle } from './edu/eduRouter';
 import { faithMedPageTitle } from './medical/faithMedRouter';
+import { ENTERTAINMENT_SITES, entertainmentPageTitle } from './entertainment/entertainmentRouter';
 export const BROWSER_HOME = 'https://versenet.aure';
 export const MAX_BROWSER_TABS = 8;
 
@@ -104,6 +105,15 @@ export const IN_GAME_PORTALS: InGamePortal[] = [
     category: 'News & Public Affairs', description: 'Flagship daily newspaper across all Eight Realms (incorporating The Meridion Dispatch), ten desks, and collectible cycle editions.', badge: 'NEWS' },
   { id: 'socialregister', name: SOCIAL_REGISTER_SITE.name, domain: SOCIAL_REGISTER_SITE.domain, url: SOCIAL_REGISTER_SITE.url,
     category: 'Society & Culture Magazine', description: 'Flagship society magazine featuring The Courts, Style, The Interview, Residences, Heritage, and Issue 01 ("Between Tradition and Tomorrow").', badge: 'NEWS' },
+  ...ENTERTAINMENT_SITES.map(site => ({
+    id: site.orgId.toLowerCase().replace(/^org_/, ''),
+    name: site.name,
+    domain: site.domain,
+    url: site.url,
+    category: `Entertainment · ${site.sector}`,
+    description: `${site.tagline} ${site.description}`,
+    badge: (site.archetype === 'limelight' || site.archetype === 'popsticker' ? 'NEWS' : 'SOCIAL') as InGamePortal['badge'],
+  })),
 ];
 
 export const STARTER_SITES = IN_GAME_PORTALS.slice(0, 5);
@@ -145,6 +155,8 @@ export function browserTitle(url: string): string {
     if (eduTitle) return eduTitle;
     const medTitle = faithMedPageTitle(url);
     if (medTitle) return medTitle;
+    const entTitle = entertainmentPageTitle(url);
+    if (entTitle) return entTitle;
     const siteNames: Record<string, string> = { 
       'companion.aure': 'Aureline Companion', 
       'gardenreview.aure': 'Glassline Garden Review', 

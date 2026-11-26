@@ -10,6 +10,7 @@ import { evaluateFiveDimensions } from '../../../gameplay/WorknetCoreSystems';
 import { employed, stationTrack } from '../workplaceModel';
 import { INSTITUTIONAL_REGISTRY } from '../worknetData';
 import type { WorkplaceStationId } from '../../JobWorkstationApp';
+import { ENTERTAINMENT_DISCIPLINES, restoreEntertainmentState } from '../../../gameplay/EntertainmentEcosystem';
 
 interface WorknetCareerRecordProps {
   activeStation: WorkplaceStationId;
@@ -585,6 +586,77 @@ export default function WorknetCareerRecord({
           )}
         </div>
       </div>
+
+      {/* Section XIX Entertainment & Celebrity Ecosystem Multi-Career Dossier */}
+      {(() => {
+        const ent = restoreEntertainmentState(useOSStore.getState().gameplay.entertainment, currentCycle);
+        const playerArtist = ent.playerArtistId ? ent.artists.find(a => a.artistId === ent.playerArtistId) : undefined;
+        const activeEntContracts = playerArtist ? ent.contracts.filter(c => c.artistId === playerArtist.artistId && c.status === 'active') : [];
+        const openAuditionCount = ent.auditions.filter(a => a.status === 'open').length;
+        return (
+          <section className="worknet-card mt-4 space-y-3">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <span className="worknet-kicker">Section XIX · Entertainment & Creative Industries</span>
+                <h3 className="text-sm font-bold text-slate-900">
+                  Performer, Creator & Representation Dossier ({ENTERTAINMENT_DISCIPLINES.length} Career Disciplines)
+                </h3>
+                <p className="text-xs text-slate-600">
+                  {playerArtist
+                    ? `${playerArtist.stageName} · Fame Tier: ${playerArtist.tier} · Recognition ${playerArtist.recognition}/100 · Credibility ${playerArtist.artisticCredibility}/100 · Unclaimed Royalties: ${Math.floor(playerArtist.unclaimedPlayerRoyalties)} ₢`
+                    : 'Independent Citizen · Register a performer/creator persona in Creative Studio or any VerseNet agency portal to pursue music, screen, dance, stage, fashion, PR, or live-event careers.'}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => useOSStore.getState().openAppWorkspace('creativeStudio', 'entertainment')}
+                  className="worknet-btn-primary text-xs"
+                >
+                  Open Creative & Release Studio
+                </button>
+                <button
+                  type="button"
+                  onClick={() => useOSStore.getState().openAppWorkspace('browser', 'https://opencallcasting.mer')}
+                  className="worknet-btn-secondary text-xs"
+                >
+                  Open Call Auditions ({openAuditionCount})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => useOSStore.getState().openAppWorkspace('browser', 'https://secondact.mer')}
+                  className="worknet-btn-secondary text-xs"
+                >
+                  Representation & Contracts
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+              {ENTERTAINMENT_DISCIPLINES.map(d => {
+                const prog = ent.disciplineProgress[d.id];
+                const active = playerArtist?.disciplines.includes(d.id);
+                return (
+                  <div key={d.id} className={`p-2.5 rounded-lg border ${active ? 'border-indigo-300 bg-indigo-50/60' : 'border-slate-200 bg-slate-50'}`}>
+                    <div className="font-semibold text-slate-900 truncate">{d.label}</div>
+                    <div className="text-[10px] font-mono text-slate-600 mt-0.5">
+                      Lv.{prog?.level ?? 1} · {prog?.xp ?? 0} XP · {prog?.completedWorks ?? 0} works
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {activeEntContracts.length > 0 && (
+              <div className="pt-2 border-t border-slate-200 flex flex-wrap gap-2 text-xs">
+                {activeEntContracts.map(c => (
+                  <span key={c.contractId} className="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-900 font-medium">
+                    {c.orgName} ({c.contractType} · {Math.round(c.royaltySplitArtist * 100)}% artist split)
+                  </span>
+                ))}
+              </div>
+            )}
+          </section>
+        );
+      })()}
     </div>
   );
 }

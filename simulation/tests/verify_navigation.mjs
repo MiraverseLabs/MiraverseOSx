@@ -19,7 +19,7 @@ const heading=()=>page.locator('h2.obs-inspector-name');
 try{
  await page.goto(process.env.OBSERVATORY_URL||'http://127.0.0.1:8768/',{waitUntil:'domcontentloaded',timeout:60000});
  await page.locator('.obs-nav-btn').first().waitFor({timeout:60000});
- for(let round=0;round<2;round++)for(const name of ['Citizen Registry','Data Integrity','Population Editor','Living World Engine','World Overview'])await nav(name);
+ for(let round=0;round<2;round++)for(const name of ['Entertainment & Fame','Citizen Registry','Data Integrity','Population Editor','Living World Engine','World Overview'])await nav(name);
  await nav('Citizen Registry');
  assert.equal(await page.locator('.obs-dir-item').count(),12);
  for(let n=0;n<2;n++){await page.getByRole('button',{name:/Next/}).click();await page.getByText(`Page ${n+2} of 6`,{exact:true}).waitFor();}

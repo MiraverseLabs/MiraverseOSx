@@ -78,6 +78,7 @@ export const WORLD_ORGANIZATIONS = {
   colorHouses: organizationsCatalog.colorHouses,
   institutions: organizationsCatalog.institutions,
   mediaAndBrands: organizationsCatalog.mediaAndBrands,
+  entertainmentIndustry: organizationsCatalog.entertainmentIndustry ?? [],
 } as const;
 
 export const WORLD_OBJECTS = objectsCatalog.objects;
@@ -333,6 +334,7 @@ export function resolveWorldEntity(idOrName: string): WorldEntitySummary | undef
     ...WORLD_ORGANIZATIONS.colorHouses.map(h => ({ id: h.id, name: h.name, subtitle: 'Color House Affiliation', description: h.domain })),
     ...WORLD_ORGANIZATIONS.institutions.map(i => ({ id: i.id, name: i.name, subtitle: `${i.kind} · ${i.seat}`, description: i.ideology })),
     ...WORLD_ORGANIZATIONS.mediaAndBrands.map(m => ({ id: m.id, name: m.name, subtitle: `${m.kind} · ${m.seat}`, description: m.description })),
+    ...WORLD_ORGANIZATIONS.entertainmentIndustry.map(e => ({ id: e.id, name: e.name, subtitle: `${e.kind} · ${e.seat}`, description: e.description })),
   ];
   const org = allOrgs.find(o => o.id === q || o.name.toLowerCase() === q.toLowerCase());
   if (org) return { ...org, domain: 'organizations' };
@@ -367,6 +369,7 @@ export function listWorldLibraryByDomain(domain: WorldDomain): WorldEntitySummar
       ];
     case 'organizations':
       return [
+        ...WORLD_ORGANIZATIONS.entertainmentIndustry.map(e => ({ id: e.id, domain: 'organizations' as const, name: e.name, subtitle: `${e.kind} · ${e.realm}`, description: e.description })),
         ...WORLD_ORGANIZATIONS.mediaAndBrands.map(m => ({ id: m.id, domain: 'organizations' as const, name: m.name, subtitle: m.kind, description: m.description })),
         ...WORLD_ORGANIZATIONS.royalLineages.map(r => ({ id: r.id, domain: 'organizations' as const, name: r.name, subtitle: `Royal Seat: ${r.seat}`, description: r.ideology })),
         ...WORLD_ORGANIZATIONS.colorHouses.map(h => ({ id: h.id, domain: 'organizations' as const, name: h.name, subtitle: 'Color House', description: h.domain })),

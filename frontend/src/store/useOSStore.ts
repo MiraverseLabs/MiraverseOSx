@@ -82,6 +82,8 @@ import { createAssignmentActions, type AssignmentFlowActions } from './assignmen
 import { emptyAssignmentJournal } from '../gameplay/AssignmentFlow';
 import { createProgressionActions, type ProgressionActions } from './progressionActions';
 import { emptyWorldJournal } from '../gameplay/ProgressionEngine';
+import { createEntertainmentActions, type EntertainmentActions } from './entertainmentActions';
+import { initialEntertainmentState, restoreEntertainmentState, advanceEntertainmentCycle } from '../gameplay/EntertainmentEcosystem';
 import type { WorkOrder, WorkValues, TaskResult } from '../gameplay/ActivityEngine';
 import {
   worldEventEngine,
@@ -130,7 +132,7 @@ export interface OSWindow {
   [key: string]: any;
 }
 
-export interface OSStoreState extends MediaStudioActions, BankingActions, ProcessActions, AcademicActions, AssignmentFlowActions, ProgressionActions, VersenetActions, SiteActions, BroadStreetActions, SocialActions {
+export interface OSStoreState extends MediaStudioActions, BankingActions, ProcessActions, AcademicActions, AssignmentFlowActions, ProgressionActions, VersenetActions, SiteActions, BroadStreetActions, SocialActions, EntertainmentActions {
   isLoggedIn: boolean;
   isSanctuary: boolean;
   toggleSanctuary: () => void;
@@ -348,6 +350,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
       const snapshot = await getRun(link.runId);
       const steps = segmentsToSteps(snapshot.clock.step_minutes, segments);
       await advanceWithRetry(link.runId, steps, snapshot.run.revision);
+      await get().syncEntertainmentFromLivingWorld();
     });
   };
   return ({
@@ -1010,6 +1013,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     claimedComms: [],
     worldPublications: restoreWorldPublications(null),
     mediaStudio: restoreMediaStudio(null),
+    entertainment: initialEntertainmentState(28),
     worldEventLog: [
       {
         id: 'EVT-BOOT-01',
@@ -1231,6 +1235,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
         }
         return patch;
       });
+      await get().syncEntertainmentFromLivingWorld();
     } catch {
       // Living World unavailable: player state stays authoritative; retry later.
     }
@@ -1260,6 +1265,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
           timeSegmentIndex: nextIndex,
           timeCycleCount: nextCycle,
           prismCorruptionLevel: newCorruption,
+          entertainment: advanceEntertainmentCycle(state.gameplay.entertainment, nextCycle),
           player: {
             ...state.gameplay.player,
             auraHealth: newAura,
@@ -1284,6 +1290,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
         timeSegmentIndex: outcome.nextTimeSegmentIndex,
         timeCycleCount: outcome.nextTimeCycleCount,
         prismCorruptionLevel: outcome.nextCorruption,
+        entertainment: advanceEntertainmentCycle(s.gameplay.entertainment, outcome.nextTimeCycleCount),
         player: {
           ...s.gameplay.player,
           auraHealth: outcome.nextAuraHealth,
@@ -1412,6 +1419,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   ...createBroadStreetActions(set, get),
   ...createAssignmentActions(set, get),
   ...createProgressionActions(set, get),
+  ...createEntertainmentActions(set, get),
 
   compileSpellProtocol: (spell) => {
     const state = get();
@@ -2736,7 +2744,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
       browserUrl: browserState.tabs.find(tab => tab.id === browserState.activeTabId)!.url,
       gameplay: (() => {
         const merged = mergeSavedProgress(current.gameplay, saved?.gameplay);
-        const restored = { ...merged, mediaStudio: restoreMediaStudio(merged.mediaStudio, merged.timeCycleCount), worldPublications: restoreWorldPublications(merged.worldPublications), player: { ...restoreWorknetPlayer(merged.player, workTick(merged)), banking: restoreBanking(merged.player.banking), processMonitor: restoreProcessMonitor(merged.player.processMonitor) } };
+        const restored = { ...merged, mediaStudio: restoreMediaStudio(merged.mediaStudio, merged.timeCycleCount), worldPublications: restoreWorldPublications(merged.worldPublications), entertainment: restoreEntertainmentState(merged.entertainment, merged.timeCycleCount), player: { ...restoreWorknetPlayer(merged.player, workTick(merged)), banking: restoreBanking(merged.player.banking), processMonitor: restoreProcessMonitor(merged.player.processMonitor) } };
         return isLocalWorld(globalThis.location?.hostname || '')
           ? grantLocalCredentials(restored, new Date().toISOString())
           : restored;

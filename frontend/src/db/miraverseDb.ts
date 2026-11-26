@@ -205,6 +205,8 @@ export interface OrganizationInfo {
   portalCategory: string;
 }
 
+export const ENTERTAINMENT_ORGANIZATIONS = WORLD_ORGANIZATIONS.entertainmentIndustry;
+
 export const ORGANIZATIONS: OrganizationInfo[] = [
   {
     id: 'royal-history',
@@ -245,7 +247,15 @@ export const ORGANIZATIONS: OrganizationInfo[] = [
     gameplayFunction: 'Offers part-time and full career work as an archivist. Tasks include shelving, cataloging, restoring damaged records, and uncovering clues.',
     domain: 'library.aureline.mer',
     portalCategory: 'Public Research Hub'
-  }
+  },
+  ...WORLD_ORGANIZATIONS.entertainmentIndustry.map(org => ({
+    id: org.id,
+    name: org.name,
+    accessTier: `${org.sector} · ${org.kind}`,
+    gameplayFunction: org.description,
+    domain: org.domain,
+    portalCategory: org.sector,
+  })),
 ];
 
 import { 

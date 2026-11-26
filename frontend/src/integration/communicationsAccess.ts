@@ -12,6 +12,11 @@ export const ORGANIZATIONS = [
   { id: 'diplomat', name: 'Civic Administration', domain: 'worknet.aure', type: 'work' },
   { id: 'warden', name: 'Arcadia Reserve', domain: 'worknet.aure', type: 'work' },
   { id: 'artist', name: 'Cultural Studio', domain: 'worknet.aure', type: 'work' },
+  { id: 'starstruck', name: 'Starstruck Entertainment', domain: 'starstruck.mer', type: 'work' },
+  { id: 'secondact', name: 'Second Act Management', domain: 'secondact.mer', type: 'work' },
+  { id: 'marlie', name: 'Marlie Records', domain: 'marlierecords.mer', type: 'work' },
+  { id: 'limelight', name: 'Limelight Magazine', domain: 'limelight.mer', type: 'work' },
+  { id: 'performers', name: 'Meridion Performers Association', domain: 'performersassoc.mer', type: 'institutional' },
 ] as const;
 export type OrganizationId = typeof ORGANIZATIONS[number]['id'];
 export interface OrganizationMembership { status: 'active' | 'suspended' | 'revoked'; issuedAt: string; issuedBy: string; via?: 'admin' | 'invitation' | 'self_left' }
@@ -59,6 +64,11 @@ export const CHANNEL_ORGANIZATIONS: Record<string, string | null> = {
   'civic-council-chambers': 'diplomat',
   'arcadia-reserve-watch': 'warden',
   'cultural-studio-stage': 'artist',
+  'starstruck-showcase-greenroom': 'starstruck',
+  'secondact-client-desk': 'secondact',
+  'marlie-harbor-sessions': 'marlie',
+  'limelight-press-room': 'limelight',
+  'performers-guild-hall': 'performers',
 };
 export function channelAccess(player: any, id: string): boolean {
   if (!Object.hasOwn(CHANNEL_ORGANIZATIONS, id)) return false;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { isEduUrl } from './edu/eduRouter';
 import { isFaithMedUrl } from './medical/faithMedRouter';
+import { isEntertainmentUrl } from './entertainment/entertainmentRouter';
 import SearchHome from './SearchHome';
 import { WindowTitlebarContent } from '../../components/ui/WindowChrome';
 import BrowserTabGroups from './BrowserTabGroups';
@@ -32,6 +33,7 @@ const DispatchNewsSite = lazy(() => import('./news/DispatchNewsSite'));
 const SocialRegisterSite = lazy(() => import('./publications/SocialRegisterSite'));
 const EduSiteRouter = lazy(() => import('./edu/EduSiteRouter'));
 const FaithMedSite = lazy(() => import('./medical/FaithMedSite'));
+const EntertainmentSiteRouter = lazy(() => import('./entertainment/EntertainmentSiteRouter'));
 
 export const QUICK_NAVIGATION_TARGETS = IN_GAME_PORTALS.map(p => ({
     domain: p.domain,
@@ -78,6 +80,7 @@ function ContentFrame({ url, openTab, navigateTab, openService }: any) {
     if ([SOCIAL_REGISTER_SITE.domain, ...SOCIAL_REGISTER_SITE.altDomains].includes(new URL(url).hostname as any)) return <Suspense fallback={<p role="status">Opening The Social Register…</p>}><SocialRegisterSite url={url} navigateTab={navigateTab}/></Suspense>;
     if (isEduUrl(url)) return <Suspense fallback={<p role="status">Loading academic portal…</p>}><EduSiteRouter url={url} navigateTab={navigateTab}/></Suspense>;
     if (isFaithMedUrl(url)) return <Suspense fallback={<p role="status">Connecting to Faith Medical…</p>}><FaithMedSite url={url} navigateTab={navigateTab}/></Suspense>;
+    if (isEntertainmentUrl(url)) return <Suspense fallback={<p role="status">Connecting to Meridion Entertainment Network…</p>}><EntertainmentSiteRouter url={url} navigateTab={navigateTab}/></Suspense>;
     if (new URL(url).hostname === 'firstfederal.aure' && new URL(url).pathname === '/maintenance') return <BroadStreetPublicPage />;
     if (externalWebUrl(url)) return <ExternalWebPage url={url}/>;
     

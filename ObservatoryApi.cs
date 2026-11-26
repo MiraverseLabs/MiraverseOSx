@@ -45,7 +45,7 @@ internal sealed class ObservatoryApi
             if (route == "stats")
             {
                 var stats = new Dictionary<string, long>();
-                foreach (var table in new[] { "Characters", "CharacterProfiles", "Careers", "Missions", "Events", "LivingWorldRuns" })
+                foreach (var table in new[] { "Characters", "CharacterProfiles", "Careers", "Missions", "Events", "EntertainmentOrganizations", "LivingWorldRuns" })
                 {
                     try
                     {
@@ -56,6 +56,35 @@ internal sealed class ObservatoryApi
                     catch { stats[table] = -1; }
                 }
                 await WorldSaveApi.Reply(response, 200, stats);
+                return true;
+            }
+            if (route == "entertainment")
+            {
+                var orgs = new List<object>();
+                using var cmd = db.CreateCommand();
+                cmd.CommandText = """
+                    SELECT OrganizationId, Name, ShortName, Sector, Kind, Domain, Realm, Seat, Tagline, DataJson
+                    FROM EntertainmentOrganizations
+                    ORDER BY Sector, Name
+                    """;
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    orgs.Add(new
+                    {
+                        organizationId = reader.GetString(0),
+                        name = reader.GetString(1),
+                        shortName = reader.GetString(2),
+                        sector = reader.GetString(3),
+                        kind = reader.GetString(4),
+                        domain = reader.GetString(5),
+                        realm = reader.GetString(6),
+                        seat = reader.GetString(7),
+                        tagline = reader.GetString(8),
+                        data = JsonSerializer.Deserialize<JsonElement>(reader.GetString(9))
+                    });
+                }
+                await WorldSaveApi.Reply(response, 200, new { organizations = orgs });
                 return true;
             }
             if (route == "citizens")

@@ -178,6 +178,20 @@ export const WORK_DEFINITIONS: Record<string, WorkDefinition> = Object.fromEntri
     stage('palette', 'Confirm Social Register brand proof', 'creative', 'Match the approved Old Burgundy (#48293D) and Pearl Gold (#C6AE73) specification without cream background substitution.', [pick('colors', 'Approved palette proof', ['Old Burgundy #48293D & Pearl Gold #C6AE73', 'Neon cyan & heavy cream'], 'Old Burgundy #48293D & Pearl Gold #C6AE73')]),
     stage('venue', 'Verify Rosemont Salon address', 'documents', 'Confirm the street number on Rosemont Terrace in Aureline (7 Rosemont Terrace).', [number('streetNumber', 'Rosemont Terrace street number', '7')]),
   ]),
+  define('ms-art-01', 'artist', 'KAJI-MST-401', 'shift', ['CreativeStudio', 'MasteringMeter'], [
+    stage('headroom', 'Calibrate Songbird true-peak ceiling', 'equipment', 'Set the limiter ceiling to -1 dBTP so Lunerum Dist and Songbird transcoders do not clip.', [pick('ceiling', 'True-peak limiter setting', ['-1.0 dBTP clean headroom', '+6.0 dBTP brickwall clipping'], '-1.0 dBTP clean headroom', ['+6.0 dBTP brickwall clipping'])]),
+    stage('splits', 'Verify MMRS composition split total', 'documents', 'Confirm the songwriter and Kaji Publishing registration totals exactly 100 percent.', [number('splitTotal', 'Total registered composition share (%)', '100')]),
+    stage('deliver', 'File KAJI-MST-401 session master', 'creative', 'Submit the mastering delivery note citing KAJI-MST-401, MMRS, and Songbird.', [report('Mastering delivery note', ['KAJI-MST-401', 'MMRS', 'Songbird'])]),
+  ]),
+  define('ms-press-02', 'press', 'LIME-FEAT-204', 'shift', ['CreativeStudio', 'PressStylebook'], [
+    stage('royalties', 'Verify Lunerum Dist artist royalty retention', 'evidence', 'Confirm from public Lunerum Dist terms that independent artists retain 92% of streaming royalties.', [number('artistShare', 'Lunerum Dist artist share (%)', '92')]),
+    stage('boundaries', 'Enforce performer privacy standards', 'investigation', 'Keep verified professional contracts on the record while redacting private home addresses and clinical charts.', [pick('redaction', 'Limelight privacy policy', ['Publish verified contract terms; redact private home addresses', 'Publish leaked private home addresses for clicks'], 'Publish verified contract terms; redact private home addresses', ['Publish leaked private home addresses for clicks'])]),
+    stage('file', 'File LIME-FEAT-204 feature copy', 'documents', 'Submit copy naming LIME-FEAT-204, Limelight, and Lunerum.', [report('Limelight feature filing', ['LIME-FEAT-204', 'Limelight', 'Lunerum'])]),
+  ]),
+  define('qn-05', 'questnotice', 'VELCUR-STAGE-09', 'quest', ['SoundLevelMeter', 'StagePlotSheet'], [
+    stage('monitors', 'Eliminate vocal monitor ring', 'equipment', 'Notch the 2.5 kHz feedback ring on the stage wedge without muting the house main bus.', [pick('eqAction', 'Monitor EQ adjustment', ['Cut 2.5 kHz feedback notch on stage wedge', 'Drive phantom power into speaker outputs'], 'Cut 2.5 kHz feedback notch on stage wedge', ['Drive phantom power into speaker outputs'])]),
+    stage('capacity', 'Confirm The Looking Glass legal room cap', 'documents', 'Record the fire-marshal standing and seated capacity for The Looking Glass (180).', [number('roomCap', 'Looking Glass venue capacity', '180')]),
+  ]),
 ].map(definition => [definition.id, definition]));
 
 export function getWorkDefinition(id: string): WorkDefinition | undefined {
