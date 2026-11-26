@@ -9,7 +9,7 @@ import wallpapers from '../data/wallpapers.json';
 import WorldSaveSettings from './WorldSaveSettings';
 import '../styles/apps/Settings.css';
 import { DESKTOP_THEMES, desktopThemeStyle } from '../store/desktopThemes';
-import { ASSETS } from '../data/designAssets';
+import { ASSETS, type AssetCategory } from '../data/designAssets';
 
 const sections = [
   { id: 'appearance', title: 'Appearance', detail: 'Make it your space', icon: Palette },
@@ -23,6 +23,7 @@ const sections = [
 
 export default function SettingsApp() {
   const [selected, setSelected] = useState<typeof sections[number]['id']>('appearance');
+  const [assetCategory, setAssetCategory] = useState<'all' | AssetCategory>('all');
   const wallpaper = useOSStore(state => state.wallpaper);
   const setWallpaper = useOSStore(state => state.setWallpaper);
   const themeId = useOSStore(state => state.desktopPreferences.themeId);
@@ -33,6 +34,7 @@ export default function SettingsApp() {
   const setInterfacePreferences = useSystemStore(state => state.setInterfacePreferences);
   const section = sections.find(item => item.id === selected)!;
   const selectedWallpaper = wallpapers.find(item => item.url === wallpaper);
+  const filteredAssets = ASSETS.filter(asset => assetCategory === 'all' || asset.category === assetCategory);
   return <div className="settings-app">
     <div className="settings-layout">
       <aside className="settings-sidebar">
@@ -71,8 +73,18 @@ export default function SettingsApp() {
         {selected === 'credentials' && <LocalCredentials />}
         {selected === 'assets' && <>
           <div className="settings-section-heading"><div><h3>Shipped visual assets</h3><p>App icons, ornaments, brand marks and wallpapers wired into the system.</p></div></div>
+          <div className="settings-asset-filters" role="group" aria-label="Filter design assets">
+            {(['all', 'icon', 'ornament', 'brand', 'wallpaper', 'image'] as const).map(category => (
+              <button
+                key={category}
+                type="button"
+                aria-pressed={assetCategory === category}
+                onClick={() => setAssetCategory(category)}
+              >{category === 'all' ? 'All' : category[0].toUpperCase() + category.slice(1)}</button>
+            ))}
+          </div>
           <div className="settings-assets-grid">
-            {ASSETS.map(asset => <figure key={asset.key} className="settings-asset">
+            {filteredAssets.map(asset => <figure key={asset.key} className="settings-asset">
               <img src={asset.src} alt="" loading="lazy" />
               <figcaption><strong>{asset.label}</strong><small>{asset.category}</small></figcaption>
             </figure>)}

@@ -16,7 +16,16 @@ registerHooks({
 });
 
 const mod = await import('../src/data/designAssets.ts');
-const { APP_ICON_ASSETS, APP_ORNAMENTS, BRAND_MARKS, NO_CUSTOM_ICON } = mod;
+const {
+  APP_ICON_ASSETS,
+  APP_ORNAMENTS,
+  BRAND_MARKS,
+  WALLPAPER_ASSETS,
+  NO_CUSTOM_ICON,
+  getAppIconAsset,
+  getAppOrnament,
+  getBrandMark,
+} = mod;
 
 const publicDir = fileURLToPath(new URL('../public/', import.meta.url));
 const resolvePublic = (src) => path.join(publicDir, decodeURIComponent(src.replace(/^\//, '')));
@@ -53,4 +62,14 @@ test('asset paths are public-root URLs', () => {
   for (const src of [...Object.values(APP_ICON_ASSETS), ...Object.values(APP_ORNAMENTS), ...Object.values(BRAND_MARKS)]) {
     assert.ok(src.startsWith('/'), `asset path must start with /: ${src}`);
   }
+});
+
+test('wallpaper assets and helper aliases resolve', () => {
+  assert.equal(WALLPAPER_ASSETS.length, 3);
+  for (const asset of WALLPAPER_ASSETS) {
+    assert.ok(existsSync(resolvePublic(asset.src)), `wallpaper missing: ${asset.src}`);
+  }
+  assert.equal(getAppIconAsset('mail'), APP_ICON_ASSETS.mail);
+  assert.equal(getAppOrnament('documentStudio'), APP_ORNAMENTS.documentStudio);
+  assert.equal(getBrandMark('meridianMasthead'), BRAND_MARKS.meridianMasthead);
 });

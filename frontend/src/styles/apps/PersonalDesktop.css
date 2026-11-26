@@ -62,3 +62,6 @@
 }
 @media (max-height: 660px) and (min-width: 701px) { .personal-shortcuts { grid-template-rows: repeat(2, 100px); } }
 @media (prefers-reduced-motion: reduce) { .purple-star { animation: none; } .dock-app { transition: none; } }
+
+.personal-shortcut-icon img { display: block; object-fit: contain; }
+.personal-shortcut-icon :is(svg, img) { object-fit: contain; }

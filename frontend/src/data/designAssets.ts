@@ -63,6 +63,18 @@ export function ornamentFor(appId: string): string | undefined {
   return APP_ORNAMENTS[appId];
 }
 
+export const getAppIconAsset = iconAssetFor;
+export const getAppOrnament = ornamentFor;
+export function getBrandMark(key: keyof typeof BRAND_MARKS): string {
+  return BRAND_MARKS[key];
+}
+
+export const WALLPAPER_ASSETS: AssetEntry[] = [
+  { key: 'wallpaper-aureline-city', src: '/images/wallpapers/aureline-city-beneath-the-heavens.png', category: 'wallpaper', label: 'City beneath the heavens' },
+  { key: 'wallpaper-angel-bay', src: '/images/wallpapers/aureline-across-angel-bay.png', category: 'wallpaper', label: 'Across Angel Bay' },
+  { key: 'wallpaper-glassline', src: '/images/wallpapers/aureline-glassline-twilight.png', category: 'wallpaper', label: 'Glassline twilight' },
+];
+
 // Apps that intentionally keep a Lucide glyph (no shipped art yet).
 export const NO_CUSTOM_ICON: string[] = [];
 
@@ -85,9 +97,7 @@ export const ASSETS: AssetEntry[] = [
     category: 'brand' as const,
     label: key.replace(/([A-Z])/g, ' $1').trim(),
   })),
-  { key: 'wallpaper-aureline-city', src: '/images/wallpapers/aureline-city-beneath-the-heavens.png', category: 'wallpaper', label: 'City beneath the heavens' },
-  { key: 'wallpaper-angel-bay', src: '/images/wallpapers/aureline-across-angel-bay.png', category: 'wallpaper', label: 'Across Angel Bay' },
-  { key: 'wallpaper-glassline', src: '/images/wallpapers/aureline-glassline-twilight.png', category: 'wallpaper', label: 'Glassline twilight' },
+  ...WALLPAPER_ASSETS,
   { key: 'image-terminal-output', src: '/images/TerminalOutput.svg', category: 'image', label: 'Terminal output' },
   { key: 'image-comms-window', src: '/images/comms_window.svg', category: 'image', label: 'Comms window' },
   { key: 'image-id-card-back', src: '/images/back_id_card.svg', category: 'image', label: 'ID card back' },

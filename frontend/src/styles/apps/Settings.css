@@ -82,3 +82,7 @@
   .settings-page-heading h2 { font-size: 25px; }
   .settings-preference-row { padding: 16px; gap: 12px; }
 }
+
+.settings-asset-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.settings-asset-filters button { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--mira-line); background: var(--color-surface-card, #fff); font-size: 11px; font-weight: 700; cursor: pointer; }
+.settings-asset-filters button[aria-pressed='true'] { background: var(--mira-lilac); color: #fff; border-color: var(--mira-lilac); }

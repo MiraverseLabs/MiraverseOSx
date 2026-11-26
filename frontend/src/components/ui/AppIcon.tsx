@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { iconAssetFor } from '../../data/designAssets';
 
@@ -15,7 +16,9 @@ export default function AppIcon({
   className?: string;
 }) {
   const src = iconAssetFor(appId);
-  if (src) {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+
+  if (src && failedSrc !== src) {
     return (
       <img
         className={className}
@@ -25,6 +28,7 @@ export default function AppIcon({
         alt=""
         aria-hidden="true"
         draggable={false}
+        onError={() => setFailedSrc(src)}
       />
     );
   }

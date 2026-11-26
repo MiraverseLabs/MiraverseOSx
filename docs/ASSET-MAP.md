@@ -3,6 +3,10 @@
 Single source: `frontend/src/data/designAssets.ts`. Vite serves `frontend/public/**`
 at the site root, so every path below is a public-root URL.
 
+Exports: `APP_ICON_ASSETS`, `APP_ORNAMENTS`, `BRAND_MARKS`, `WALLPAPER_ASSETS`,
+the unified `ASSETS` preview list, and helpers `getAppIconAsset`, `getAppOrnament`,
+`getBrandMark` (with `iconAssetFor` / `ornamentFor` aliases).
+
 ## App icons
 
 | App id | Asset |
