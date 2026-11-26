@@ -1192,7 +1192,15 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     }
   },
   unlinkLivingWorldCitizen: () => {
-    set(s => ({ gameplay: { ...s.gameplay, livingWorldLink: null } }));
+    set(s => ({
+      gameplay: {
+        ...s.gameplay,
+        livingWorldLink: null,
+        entertainment: s.gameplay.entertainment
+          ? { ...s.gameplay.entertainment, authorityMode: 'standalone' as const }
+          : s.gameplay.entertainment,
+      },
+    }));
     return { ok: true, message: 'Living World link removed. Player progress is unchanged.' };
   },
   bumpCreditMirrorRevision: () => {
@@ -1257,6 +1265,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
         : state.gameplay.player.auraHealth;
 
       const nextTick = nextCycle * 4 + nextIndex;
+      const isLinkedToLivingWorld = Boolean(state.gameplay.livingWorldLink?.runId);
       return {
         worknetSim: advanceWorknetSimulation(state.worknetSim, nextTick, state.gameplay.player.worknetWorkplace),
         orynvellRecords: advanceOrynvellRequests(state.orynvellRecords, nextTick),
@@ -1265,7 +1274,13 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
           timeSegmentIndex: nextIndex,
           timeCycleCount: nextCycle,
           prismCorruptionLevel: newCorruption,
-          entertainment: advanceEntertainmentCycle(state.gameplay.entertainment, nextCycle),
+          // When connected to the Living World, Python's step_entertainment() is authoritative;
+          // advanceEntertainmentCycle() runs only in standalone/offline mode.
+          entertainment: isLinkedToLivingWorld
+            ? (state.gameplay.entertainment
+                ? { ...state.gameplay.entertainment, authorityMode: 'living_world' as const }
+                : state.gameplay.entertainment)
+            : advanceEntertainmentCycle(state.gameplay.entertainment, nextCycle),
           player: {
             ...state.gameplay.player,
             auraHealth: newAura,
@@ -1290,7 +1305,12 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
         timeSegmentIndex: outcome.nextTimeSegmentIndex,
         timeCycleCount: outcome.nextTimeCycleCount,
         prismCorruptionLevel: outcome.nextCorruption,
-        entertainment: advanceEntertainmentCycle(s.gameplay.entertainment, outcome.nextTimeCycleCount),
+        // Python's Living World simulation is authoritative when linked; run local simulation only in standalone mode.
+        entertainment: s.gameplay.livingWorldLink?.runId
+          ? (s.gameplay.entertainment
+              ? { ...s.gameplay.entertainment, authorityMode: 'living_world' as const }
+              : s.gameplay.entertainment)
+          : advanceEntertainmentCycle(s.gameplay.entertainment, outcome.nextTimeCycleCount),
         player: {
           ...s.gameplay.player,
           auraHealth: outcome.nextAuraHealth,

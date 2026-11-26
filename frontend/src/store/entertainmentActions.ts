@@ -2,6 +2,7 @@ import {
   ENTERTAINMENT_DISCIPLINES,
   SHIPPED_AUDIO_ASSETS,
   VENUE_CATALOG,
+  getEntertainmentVenues,
   adjustArtistFame,
   awardDisciplineXP,
   getEntertainmentOrganization,
@@ -977,7 +978,7 @@ export function createEntertainmentActions(set: any, get: any): EntertainmentAct
       const artist = ensurePlayerArtist(ent, state.gameplay.player);
       if (!artist) return { ok: false, message: 'Register your performer profile before booking live venues.' };
 
-      const venue = VENUE_CATALOG.find((v) => v.orgId === venueOrgId);
+      const venue = getEntertainmentVenues(ent).find((v) => v.orgId === venueOrgId);
       if (!venue) return { ok: false, message: 'Select a valid Meridion performance venue.' };
       if (artist.recognition < venue.minRecognition) {
         return {

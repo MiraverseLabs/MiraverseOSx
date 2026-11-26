@@ -151,6 +151,11 @@ internal sealed class CanonicalDataApi
                 await HandleListOrganizations(response);
                 return true;
             }
+            if (request.HttpMethod == "GET" && route.Equals("entertainment/venues", StringComparison.OrdinalIgnoreCase))
+            {
+                await HandleListEntertainmentVenues(response);
+                return true;
+            }
 
             await WorldSaveApi.Reply(response, 404, new { error = $"Unknown canonical API route: {route}" });
             return true;
@@ -175,7 +180,8 @@ internal sealed class CanonicalDataApi
         {
             "Characters", "RetiredCharacters", "MaidRegistry", "MaidRetiredSerials",
             "Careers", "CareerProgression", "Missions", "MissionCatalogMeta",
-            "EntertainmentOrganizations", "CharacterProfiles", "LivingWorldRuns", "LivingWorldTransactions"
+            "EntertainmentOrganizations", "EntertainmentVenues", "CharacterProfiles",
+            "LivingWorldRuns", "LivingWorldTransactions"
         })
         {
             try
@@ -981,5 +987,37 @@ internal sealed class CanonicalDataApi
             worldOrganizations = worldOrgs,
             total = entertainment.Count + worldOrgs.Count,
         });
+    }
+
+    private async Task HandleListEntertainmentVenues(HttpListenerResponse response)
+    {
+        using var db = OpenReadOnly();
+        var venues = new List<object>();
+        using (var cmd = db.CreateCommand())
+        {
+            cmd.CommandText = """
+                SELECT VenueOrgId, LocationId, Name, District, Realm, Capacity,
+                       MinRecognitionRequired, RentalCostCredits, DefaultTicketPrice
+                FROM EntertainmentVenues
+                ORDER BY Capacity ASC, VenueOrgId ASC
+                """;
+            using var r = cmd.ExecuteReader();
+            while (r.Read())
+            {
+                venues.Add(new
+                {
+                    orgId = r.GetString(0),
+                    locationId = r.IsDBNull(1) ? "" : r.GetString(1),
+                    name = r.GetString(2),
+                    district = r.GetString(3),
+                    realm = r.GetString(4),
+                    capacity = r.GetInt64(5),
+                    minRecognition = r.GetDouble(6),
+                    rentalCost = r.GetDouble(7),
+                    suggestedTicket = r.GetDouble(8),
+                });
+            }
+        }
+        await WorldSaveApi.Reply(response, 200, new { venues, total = venues.Count });
     }
 }

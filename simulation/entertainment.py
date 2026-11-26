@@ -35,6 +35,19 @@ DISCIPLINES: tuple[str, ...] = (
     "event_production",
 )
 
+# Eight career families. Only "artist" roles become recording/performing artists;
+# every other role is staff employment connected to WORKNET, contracts and commissions.
+ENTERTAINMENT_CAREER_FAMILIES: dict[str, tuple[tuple[str, str], ...]] = {
+    "music": (("singer", "artist"), ("songwriter", "artist"), ("composer", "artist"), ("producer", "staff"), ("sound_engineer", "staff")),
+    "performance": (("dancer", "artist"), ("choreographer", "artist"), ("actor", "artist"), ("theatre_performer", "artist")),
+    "fashion": (("model", "artist"), ("fashion_designer", "staff"), ("stylist", "staff"), ("creative_director", "staff")),
+    "visual_media": (("photographer", "staff"), ("animator", "staff"), ("filmmaker", "staff"), ("editor", "staff")),
+    "management": (("talent_agent", "staff"), ("artist_manager", "staff"), ("casting_director", "staff")),
+    "communications": (("publicist", "staff"), ("journalist", "staff"), ("radio_host", "staff")),
+    "production": (("stage_manager", "staff"), ("lighting_technician", "staff"), ("event_coordinator", "staff")),
+    "administration": (("licensing_specialist", "staff"), ("royalty_analyst", "staff"), ("membership_coordinator", "staff")),
+}
+
 SHIPPED_AUDIO_TRACKS: tuple[dict[str, Any], ...] = (
     {"audioUrl": "/sounds/mixkit-crystal-chime-3108.wav", "genre": "Celestial Ambient", "durationSeconds": 194},
     {"audioUrl": "/sounds/mixkit-sci-fi-high-tech-sounds-860.wav", "genre": "Glassline Synth", "durationSeconds": 212},
@@ -45,14 +58,110 @@ SHIPPED_AUDIO_TRACKS: tuple[dict[str, Any], ...] = (
     {"audioUrl": "/sounds/mixkit-glitch-sci-fi-rewind-transition-1093.wav", "genre": "Brisland Breakbeat", "durationSeconds": 168},
 )
 
-STAGE_VENUES: dict[str, dict[str, Any]] = {
-    "ORG_LOOKING_GLASS": {"name": "The Looking Glass", "capacity": 180, "minRecognition": 0.0, "rentalCost": 65.0, "defaultTicket": 14.0},
-    "ORG_MARIGOLD_THEATRE": {"name": "The Marigold Theatre", "capacity": 1200, "minRecognition": 12.0, "rentalCost": 480.0, "defaultTicket": 32.0},
-    "ORG_VELVET_STUDIO": {"name": "The Velvet Cultural Studio", "capacity": 420, "minRecognition": 5.0, "rentalCost": 160.0, "defaultTicket": 22.0},
-    "ORG_SILVERLEAF_STADIUM": {"name": "Silverleaf Stadium", "capacity": 45000, "minRecognition": 55.0, "rentalCost": 4500.0, "defaultTicket": 75.0},
+_FALLBACK_STAGE_VENUES: dict[str, dict[str, Any]] = {
+    "ORG_LOOKING_GLASS": {"orgId": "ORG_LOOKING_GLASS", "locationId": "loc-looking-glass", "name": "The Looking Glass", "district": "Glassline District", "capacity": 180, "minRecognition": 0.0, "rentalCost": 65.0, "defaultTicket": 18.0, "suggestedTicket": 18.0},
+    "ORG_VELVET_STUDIO": {"orgId": "ORG_VELVET_STUDIO", "locationId": "loc-velvet-studio", "name": "The Velvet Cultural Studio", "district": "Promenade Quarter", "capacity": 450, "minRecognition": 8.0, "rentalCost": 190.0, "defaultTicket": 28.0, "suggestedTicket": 28.0},
+    "ORG_MARIGOLD_THEATRE": {"orgId": "ORG_MARIGOLD_THEATRE", "locationId": "loc-marigold-theatre", "name": "The Marigold Theatre", "district": "Promenade Quarter", "capacity": 1200, "minRecognition": 12.0, "rentalCost": 480.0, "defaultTicket": 45.0, "suggestedTicket": 45.0},
+    "ORG_SILVERLEAF_STADIUM": {"orgId": "ORG_SILVERLEAF_STADIUM", "locationId": "loc-silverleaf-stadium", "name": "Silverleaf Stadium", "district": "Silverleaf Park", "capacity": 45000, "minRecognition": 55.0, "rentalCost": 4500.0, "defaultTicket": 95.0, "suggestedTicket": 95.0},
 }
 
 _ORGS_CACHE: list[dict[str, Any]] | None = None
+_VENUES_CACHE: dict[str, dict[str, Any]] | None = None
+
+
+def clear_entertainment_caches() -> None:
+    """Clear in-process caches for organizations and venues after a DB migration or update."""
+    global _ORGS_CACHE, _VENUES_CACHE
+    _ORGS_CACHE = None
+    _VENUES_CACHE = None
+
+
+def load_entertainment_venues() -> dict[str, dict[str, Any]]:
+    """Load canonical live-event venues from miraverse.db EntertainmentVenues first,
+    then EntertainmentOrganizations (VenueCapacity IS NOT NULL), falling back to defaults only if unavailable."""
+    global _VENUES_CACHE
+    if _VENUES_CACHE is not None:
+        return copy.deepcopy(_VENUES_CACHE)
+
+    import sqlite3
+    from contextlib import closing
+    from paths import SOURCE_DATABASE
+
+    loaded: dict[str, dict[str, Any]] = {}
+    if SOURCE_DATABASE.is_file():
+        try:
+            with closing(
+                sqlite3.connect(f"file:{SOURCE_DATABASE.resolve().as_posix()}?mode=ro", uri=True)
+            ) as conn:
+                conn.row_factory = sqlite3.Row
+                has_venues = conn.execute(
+                    "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='EntertainmentVenues'"
+                ).fetchone()[0]
+                if has_venues:
+                    rows = conn.execute(
+                        """
+                        SELECT VenueOrgId, LocationId, Name, District, Realm, Capacity,
+                               MinRecognitionRequired, RentalCostCredits, DefaultTicketPrice
+                        FROM EntertainmentVenues
+                        ORDER BY Capacity ASC, VenueOrgId ASC
+                        """
+                    ).fetchall()
+                    for row in rows:
+                        org_id = str(row["VenueOrgId"])
+                        ticket = float(row["DefaultTicketPrice"] if row["DefaultTicketPrice"] is not None else 18.0)
+                        loaded[org_id] = {
+                            "orgId": org_id,
+                            "locationId": str(row["LocationId"] or ""),
+                            "name": str(row["Name"]),
+                            "district": str(row["District"] or "Aureline"),
+                            "realm": str(row["Realm"] or "Orynvell"),
+                            "capacity": int(row["Capacity"]),
+                            "minRecognition": float(row["MinRecognitionRequired"] or 0.0),
+                            "rentalCost": float(row["RentalCostCredits"] or 0.0),
+                            "defaultTicket": ticket,
+                            "suggestedTicket": ticket,
+                        }
+                if not loaded:
+                    rows = conn.execute(
+                        """
+                        SELECT OrganizationId, Name, Realm, Seat, VenueCapacity,
+                               MinRecognitionRequired, RentalCostCredits
+                        FROM EntertainmentOrganizations
+                        WHERE VenueCapacity IS NOT NULL
+                        ORDER BY VenueCapacity ASC, OrganizationId ASC
+                        """
+                    ).fetchall()
+                    for row in rows:
+                        org_id = str(row["OrganizationId"])
+                        fb = _FALLBACK_STAGE_VENUES.get(org_id, {})
+                        ticket = float(fb.get("defaultTicket", 24.0))
+                        loaded[org_id] = {
+                            "orgId": org_id,
+                            "locationId": str(fb.get("locationId", "")),
+                            "name": str(row["Name"]),
+                            "district": str(fb.get("district") or row["Seat"] or "Aureline"),
+                            "realm": str(row["Realm"] or "Orynvell"),
+                            "capacity": int(row["VenueCapacity"]),
+                            "minRecognition": float(row["MinRecognitionRequired"] if row["MinRecognitionRequired"] is not None else fb.get("minRecognition", 0.0)),
+                            "rentalCost": float(row["RentalCostCredits"] if row["RentalCostCredits"] is not None else fb.get("rentalCost", 65.0)),
+                            "defaultTicket": ticket,
+                            "suggestedTicket": ticket,
+                        }
+                    # Preserve Velvet Cultural Studio if present only in fallback before Phase 2 migration
+                    if loaded and "ORG_VELVET_STUDIO" not in loaded:
+                        loaded["ORG_VELVET_STUDIO"] = copy.deepcopy(_FALLBACK_STAGE_VENUES["ORG_VELVET_STUDIO"])
+        except sqlite3.Error:
+            loaded = {}
+
+    if not loaded:
+        loaded = copy.deepcopy(_FALLBACK_STAGE_VENUES)
+
+    _VENUES_CACHE = loaded
+    return copy.deepcopy(_VENUES_CACHE)
+
+
+# Backward-compatible module attribute backed by canonical miraverse.db venues
+STAGE_VENUES: dict[str, dict[str, Any]] = load_entertainment_venues()
 
 
 def load_entertainment_organizations() -> list[dict[str, Any]]:
@@ -447,11 +556,12 @@ def list_concerts(run: dict[str, Any]) -> dict[str, Any]:
 
 
 def _resolve_venue_meta(venue_input: str, venue_org_id: str = "", capacity_override: int = 0) -> tuple[str, str, int, float, float]:
-    if venue_org_id and venue_org_id in STAGE_VENUES:
-        meta = STAGE_VENUES[venue_org_id]
+    venues = load_entertainment_venues()
+    if venue_org_id and venue_org_id in venues:
+        meta = venues[venue_org_id]
         return venue_org_id, meta["name"], capacity_override or meta["capacity"], meta["minRecognition"], meta["rentalCost"]
     lowered = venue_input.casefold()
-    for org_id, meta in STAGE_VENUES.items():
+    for org_id, meta in venues.items():
         if meta["name"].casefold() in lowered or lowered in meta["name"].casefold():
             return org_id, meta["name"], capacity_override or meta["capacity"], meta["minRecognition"], meta["rentalCost"]
     return venue_org_id or "ORG_LOOKING_GLASS", venue_input, capacity_override or 180, 0.0, 50.0
@@ -471,8 +581,9 @@ def schedule_concert(run: dict[str, Any], payload: dict[str, Any]) -> dict[str, 
     artist = next((a for a in state.get("artists", []) if a.get("artistId") == artist_id), None)
     venue_raw = str(payload.get("venue") or "").strip()
     venue_org_id = str(payload.get("venueOrgId") or "").strip()
-    if not venue_raw and venue_org_id in STAGE_VENUES:
-        venue_raw = STAGE_VENUES[venue_org_id]["name"]
+    venues = load_entertainment_venues()
+    if not venue_raw and venue_org_id in venues:
+        venue_raw = venues[venue_org_id]["name"]
     if not venue_raw:
         raise ValueError("venue is required")
 
@@ -1205,6 +1316,7 @@ def industry_snapshot(run: dict[str, Any]) -> dict[str, Any]:
     controversies = copy.deepcopy(state.get("controversies", [])[:25])
     awards = copy.deepcopy(state.get("awards", []))
     fan_communities = copy.deepcopy(state.get("fan_communities", []))
+    entertainment_staff = copy.deepcopy(state.get("entertainmentStaff", []))
     tickets = copy.deepcopy(state.get("tickets", [])[-60:])
 
     top_tracks = sorted(
@@ -1226,6 +1338,7 @@ def industry_snapshot(run: dict[str, Any]) -> dict[str, Any]:
 
     return {
         "organizations": load_entertainment_organizations(),
+        "venues": list(load_entertainment_venues().values()),
         "artists": artists,
         "fameProfiles": [fame_profile(run, a["artistId"]) for a in artists],
         "tracks": tracks,
@@ -1239,6 +1352,7 @@ def industry_snapshot(run: dict[str, Any]) -> dict[str, Any]:
         "controversies": controversies,
         "awards": awards,
         "fanCommunities": fan_communities,
+        "entertainmentStaff": entertainment_staff,
         "tickets": tickets,
         "charts": {
             "songbirdTopTracks": top_tracks,
@@ -1248,6 +1362,7 @@ def industry_snapshot(run: dict[str, Any]) -> dict[str, Any]:
             "organizationCount": len(load_entertainment_organizations()),
             "activeArtists": sum(1 for a in artists if a.get("careerStatus") in ("active", "comeback")),
             "totalArtists": len(artists),
+            "totalEntertainmentStaff": len(entertainment_staff),
             "totalTracks": len(tracks),
             "releasedWorks": sum(1 for r in releases if r.get("status") == "released"),
             "scheduledConcerts": sum(1 for c in concerts if c.get("status") == "scheduled"),
@@ -1313,6 +1428,49 @@ def _infer_disciplines(citizen: Any) -> list[str]:
     return found or ["music"]
 
 
+def _entertainment_role_for(citizen: Any, rng: Any) -> tuple[str, str, str]:
+    blob = " ".join(
+        str(x)
+        for x in (
+            getattr(citizen, "primary_occupation", ""),
+            getattr(citizen, "role", ""),
+            *(getattr(citizen, "hobbies", []) or []),
+            *(getattr(citizen, "preferences", []) or []),
+        )
+    ).casefold()
+    if any(k in blob for k in ("journal", "press", "editor", "publicist", "radio")):
+        family = "communications"
+    elif any(k in blob for k in ("model", "fashion", "couture", "stylist")):
+        family = "fashion"
+    elif any(k in blob for k in ("dance", "choreo", "ballet")):
+        family = "performance"
+    elif any(k in blob for k in ("actor", "actress", "theat", "film", "cinema")):
+        family = "performance"
+    elif any(k in blob for k in ("music", "sing", "song", "compos", "sound")):
+        family = "music"
+    elif any(k in blob for k in ("stage manager", "stagecraft", "lighting", "event coordinator", "stage crew")):
+        family = "production"
+    elif any(k in blob for k in ("talent", "agent", "manager", "casting")):
+        family = "management"
+    elif any(k in blob for k in ("photo", "animat", "edit")):
+        family = "visual_media"
+    elif any(k in blob for k in ("licens", "royalt", "member", "admin")):
+        family = "administration"
+    else:
+        family = "production"
+
+    roles = ENTERTAINMENT_CAREER_FAMILIES[family]
+    artists = [r for r in roles if r[1] == "artist"]
+    staff = [r for r in roles if r[1] == "staff"]
+    if artists and family in ("music", "performance", "fashion"):
+        bias = 0.30 + float(getattr(citizen, "music_interest", 0.5)) * 0.35
+        if rng.random() < bias:
+            return family, rng.choice(artists)[0], "artist"
+    if staff:
+        return family, rng.choice(staff)[0], "staff"
+    return family, roles[0][0], roles[0][1]
+
+
 def _citizen_is_player_linked(model: Any, character_id: str) -> bool:
     linked = str(model._extensions.get("linkedPlayerCharacterId") or "")
     if linked and linked == character_id:
@@ -1366,7 +1524,7 @@ def _venue_choices(
     rec = float(actor.get("recognition", 0.0))
     budget = 400.0 + float(actor.get("totalRoyaltiesEarned", 0.0)) * 0.08 + float(actor.get("totalBoxOfficeEarned", 0.0)) * 0.05
     choices: list[tuple[float, str, dict[str, Any]]] = []
-    for venue_org, meta in STAGE_VENUES.items():
+    for venue_org, meta in load_entertainment_venues().items():
         if rec < float(meta["minRecognition"]):
             continue
         if float(meta["rentalCost"]) > budget:
@@ -1433,8 +1591,42 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
             candidates = [c for c in living if c.character_id not in existing_char_ids and _is_entertainment_candidate(c)]
             if not candidates:
                 break
-            recruit = rng.choice(candidates)
+            if not any(a.get("origin") == "npc" for a in artists):
+                music_candidates = [c for c in candidates if "music" in _infer_disciplines(c)]
+                recruit = rng.choice(music_candidates or candidates)
+            else:
+                recruit = rng.choice(candidates)
             existing_char_ids.add(recruit.character_id)
+            family, role_id, role_kind = _entertainment_role_for(recruit, rng)
+            if (
+                role_kind != "artist"
+                and family in ("music", "performance", "fashion")
+                and not any(a.get("origin") == "npc" for a in artists)
+            ):
+                role_kind = "artist"
+                role_id = next(r[0] for r in ENTERTAINMENT_CAREER_FAMILIES[family] if r[1] == "artist")
+            if role_kind != "artist":
+                staff = ext.setdefault("entertainmentStaff", [])
+                employer = rng.choice(["ORG_OPEN_CALL", "ORG_MIRRORA_STUDIOS", "ORG_LIMELIGHT", "ORG_KAJI_PUBLISHING", "ORG_GLASSLINE_DESIGNS"])
+                salary = round(120.0 + float(getattr(recruit, "music_interest", 0.5)) * 80.0, 2)
+                staff.append(
+                    {
+                        "staffId": str(uuid.uuid4()),
+                        "characterId": recruit.character_id,
+                        "name": recruit.name,
+                        "family": family,
+                        "role": role_id,
+                        "kind": "staff",
+                        "employerOrgId": employer,
+                        "salary": salary,
+                        "hiredDay": clock.day_index,
+                    }
+                )
+                employment = getattr(recruit, "employment", None)
+                if isinstance(employment, dict):
+                    employment["salary"] = salary
+                    employment["role"] = role_id
+                continue
             disciplines = _infer_disciplines(recruit)
             genres = ["Celestial Ambient"] if recruit.realm in ("Orynvell", "Lumia") else ["Marlowe Tidewave"] if recruit.realm == "Marlowe" else ["Glassline Synth"]
             created = upsert_artist(

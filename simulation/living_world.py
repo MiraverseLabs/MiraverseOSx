@@ -519,6 +519,8 @@ class LivingWorldStore:
                 """,
                 (run_id, name, now, now, self._json(calendar), self._json(state)),
             )
+            import entertainment_store
+            entertainment_store.sync_run_entertainment_state(connection, run_id, state)
             connection.commit()
         self._invalidate_query_cache()
         return run_id
@@ -573,6 +575,8 @@ class LivingWorldStore:
                         transaction["description"],
                     ),
                 )
+            import entertainment_store
+            entertainment_store.sync_run_entertainment_state(connection, run_id, state)
             revision = connection.execute(
                 "SELECT Revision FROM LivingWorldRuns WHERE RunId = ?",
                 (run_id,),

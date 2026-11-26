@@ -191,7 +191,7 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
                         state=body.get('state')
                         if not isinstance(state,dict) or state.get('clock') != model.world_clock.to_state() or state.get('citizens') != model._export_state()['citizens']:
                             raise ValueError('Use simulation and service commands to update clock or citizens')
-                        managed={'careers','relationships','accounts','artists','tracks','releases','concerts','auditions','entertainment_contracts','productions','tickets','sponsorships','media_items','controversies','awards','fan_communities','events','transactions','legacy_service_state'}
+                        managed={'careers','relationships','accounts','artists','entertainmentStaff','tracks','releases','concerts','auditions','entertainment_contracts','productions','tickets','sponsorships','media_items','controversies','awards','fan_communities','events','transactions','legacy_service_state'}
                         if any(state.get(k) != model._extensions.get(k) for k in managed):
                             raise ValueError('Use service commands to update managed collections')
                         model._extensions.update({k:v for k,v in state.items() if k not in CORE_FIELDS});model.save()

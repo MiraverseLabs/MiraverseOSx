@@ -1,5 +1,6 @@
 import missions from '../data/missions.json' with { type: 'json' };
 import broadStreet from '../data/broad-street-assignment.json' with { type: 'json' };
+import entertainmentWork from '../data/entertainment-worknet.json' with { type: 'json' };
 import type { WorknetMission } from '../types';
 
 export type MissionActivityScope = 'shift' | 'investigation' | 'certification' | 'field_operation' | 'gig' | 'task';
@@ -47,7 +48,7 @@ function enrichMission(raw: any): CanonicalWorknetMission {
 }
 
 /** Authored metadata and compensation reconciled with miraverse.db Missions + MissionCatalogMeta. */
-export const MISSION_CATALOG: CanonicalWorknetMission[] = [...missions, broadStreet].map(enrichMission);
+export const MISSION_CATALOG: CanonicalWorknetMission[] = [...missions, broadStreet, ...(entertainmentWork as any[])].map(enrichMission);
 export const WORKNET_ASSIGNMENTS: Record<string, CanonicalWorknetMission> = Object.fromEntries(
   MISSION_CATALOG.map(m => [m.id, m])
 );

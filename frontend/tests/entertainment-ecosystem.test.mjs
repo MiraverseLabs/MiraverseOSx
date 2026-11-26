@@ -20,7 +20,10 @@ const {
   ENTERTAINMENT_DISCIPLINES,
   FAME_AXES,
   SHIPPED_AUDIO_ASSETS,
+  initialEntertainmentState,
   advanceEntertainmentCycle,
+  mergeLivingWorldEntertainmentSnapshot,
+  getEntertainmentVenues,
   computeCommunityReception,
 } = await import('../src/gameplay/EntertainmentEcosystem.ts');
 const { ENTERTAINMENT_SITES, isEntertainmentUrl, entertainmentPageTitle, entertainmentUrl, parseEntertainmentUrl } = await import(
@@ -98,6 +101,22 @@ test('pilot URLs round-trip their views and leave the other entertainment domain
     assert.equal(isEntertainmentUrl(domain), true);
     assert.equal(parseEntertainmentUrl(domain), undefined);
   }
+});
+
+test('NPC entertainment lifecycles advance productions, auditions and independent music without player work', () => {
+  const advanced = advanceEntertainmentCycle(initialEntertainmentState(28), 36);
+  assert.ok(advanced.projects.some((project) =>
+    project.projectId.startsWith('PRJ-NPC-') ||
+    project.projectId.startsWith('PRJ-CAST-NPC-'),
+  ), 'NPC productions should be created by the autonomous cycle');
+  assert.ok(advanced.auditions.some((audition) => audition.applicants.length > 0), 'NPCs should submit to open casting calls');
+  assert.ok(
+    advanced.releases.some((release) =>
+      release.releaseId.startsWith('REL-NPC-') ||
+      release.trackId.startsWith('TRK-NPC-'),
+    ),
+    'completed NPC music projects should reach the release stage',
+  );
 });
 
 test('ordinary citizen can stream music, follow artists, join fan circles, purchase tickets once, and attend shows without celebrity registration', async () => {
@@ -439,5 +458,97 @@ test('all shipped audio stems, seed tracks, and casting auditions resolve to rea
   for (const aud of ent.auditions) {
     assert.ok(aud.posterUrl, `Missing posterUrl on audition ${aud.auditionId}`);
     assert.equal(fs.existsSync(path.join(publicDir, aud.posterUrl.replace(/^\//, ''))), true);
+  }
+});
+
+test('Phase 1 sync authority: Living World snapshot prunes obsolete local records, honors empty arrays, maps productions, and suppresses duplicate local simulation ticks', async () => {
+  setupStorage();
+  const base = initialEntertainmentState(28);
+  const localWithStale = {
+    ...base,
+    concerts: [
+      ...base.concerts,
+      {
+        ...base.concerts[0],
+        concertId: 'CON-AUTO-STALE-99',
+        title: 'Obsolete Local Concert',
+      },
+    ],
+  };
+
+  // Remote explicitly provides empty concerts array, a production record, and DB-backed venues
+  const synced = mergeLivingWorldEntertainmentSnapshot(
+    localWithStale,
+    {
+      concerts: [],
+      productions: [
+        {
+          productionId: 'PROD-LW-01',
+          title: 'Glassline Harbor Nocturne',
+          kind: 'film',
+          studioOrgId: 'ORG_MIRRORA_STUDIOS',
+          stage: 'filming',
+          progress: 65,
+          budgetCredits: 800,
+          status: 'in_production',
+        },
+      ],
+      venues: [
+        {
+          orgId: 'ORG_MARIGOLD_THEATRE',
+          name: 'The Marigold Theatre',
+          district: 'Promenade Quarter',
+          capacity: 1200,
+          minRecognition: 12,
+          rentalCost: 480,
+          defaultTicket: 45,
+        },
+      ],
+    },
+    30,
+  );
+
+  assert.equal(synced.authorityMode, 'living_world');
+  assert.equal(synced.concerts.length, 0, 'Empty remote array must clear obsolete local records');
+  assert.equal(synced.projects.length, 1, 'Remote productions must map into projects');
+  assert.equal(synced.projects[0].projectId, 'PROD-LW-01');
+  assert.equal(synced.projects[0].partnerOrgId, 'ORG_MIRRORA_STUDIOS');
+  assert.equal(getEntertainmentVenues(synced)[0].minRecognition, 12);
+
+  // When linked to Living World, advanceTime() must NOT run advanceEntertainmentCycle() locally
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => ({ run: { revision: 1 }, clock: { step_minutes: 30 } }) });
+  try {
+    const store = await createFreshStore();
+    store.setState((s) => ({
+      isLoggedIn: true,
+      gameplay: {
+        ...s.gameplay,
+        timeCycleCount: 28,
+        timeSegmentIndex: 3,
+        livingWorldLink: {
+          runId: 'run-authority-check',
+          characterId: 'CHAR-1',
+          canonicalPersonId: null,
+          displayName: 'Linked Citizen',
+          creditMirrorRevision: 1,
+        },
+      },
+    }));
+    const cycleBefore = store.getState().gameplay.entertainment.lastSimulatedCycle;
+    store.getState().advanceTime();
+    assert.equal(store.getState().gameplay.timeCycleCount, 29);
+    assert.equal(
+      store.getState().gameplay.entertainment.lastSimulatedCycle,
+      cycleBefore,
+      'Local advanceEntertainmentCycle must not advance while linked to Living World',
+    );
+    assert.equal(store.getState().gameplay.entertainment.authorityMode, 'living_world');
+
+    // Unlinking cleanly restores standalone authority mode
+    store.getState().unlinkLivingWorldCitizen();
+    assert.equal(store.getState().gameplay.entertainment.authorityMode, 'standalone');
+  } finally {
+    globalThis.fetch = originalFetch;
   }
 });

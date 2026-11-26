@@ -192,6 +192,30 @@ export const WORK_DEFINITIONS: Record<string, WorkDefinition> = Object.fromEntri
     stage('monitors', 'Eliminate vocal monitor ring', 'equipment', 'Notch the 2.5 kHz feedback ring on the stage wedge without muting the house main bus.', [pick('eqAction', 'Monitor EQ adjustment', ['Cut 2.5 kHz feedback notch on stage wedge', 'Drive phantom power into speaker outputs'], 'Cut 2.5 kHz feedback notch on stage wedge', ['Drive phantom power into speaker outputs'])]),
     stage('capacity', 'Confirm The Looking Glass legal room cap', 'documents', 'Record the fire-marshal standing and seated capacity for The Looking Glass (180).', [number('roomCap', 'Looking Glass venue capacity', '180')]),
   ]),
+define('ent-shift-01', 'artist', 'Evening Showcase Load-In', 'shift', ['CueSheet', 'CaseScanner', 'RadioPack'], [
+    stage('cue', 'Reconcile the cue sheet', 'logistics', 'Match the running order to the case labels and flag the missing riser delivery.', [text('order', 'Running order code', 'ESC-09'), pick('delivery', 'Riser delivery', ['Logged as late', 'Marked on time'], 'Logged as late')]),
+    stage('handoff', 'Hand off the running order', 'documents', 'Submit the load-in note naming ESC-09 and the late riser.', [report('Load-in note', ['ESC-09', 'late', 'riser'])]),
+  ]),
+  define('ent-shift-02', 'finance', 'LX-204', 'shift', ['LedgerTerminal', 'SplitCalculator', 'RightsRegistry'], [
+    stage('match', 'Match the statement lines', 'documents', 'Reconcile the statement against registered splits and identify the exception.', [number('matched', 'Matched lines', '24'), pick('exception', 'Exception type', ['Unclaimed split', 'Duplicate registration'], 'Unclaimed split')]),
+    stage('file', 'File the exception report', 'documents', 'Submit the royalty exception report for LX-204.', [report('Royalty exception report', ['LX-204', 'unclaimed', 'split'])]),
+  ]),
+  define('ent-shift-03', 'press', 'Release Press Kit', 'shift', ['PressKitBuilder', 'ContactRegistry', 'OutreachScheduler'], [
+    stage('kit', 'Complete the press kit', 'creative', 'Assemble the release press kit with the artist and distributor credits.', [text('release', 'Release title', 'Glassline Nocturne'), pick('credit', 'Credit line', ['Artist and distributor credited', 'Missing distributor'], 'Artist and distributor credited')]),
+    stage('outreach', 'Verify and schedule outreach', 'documents', 'Submit the verified outreach schedule.', [report('Outreach schedule', ['Glassline Nocturne', 'verified', 'scheduled'])]),
+  ]),
+  define('ent-shift-04', 'artist', 'Open Call Breakdown', 'shift', ['BreakdownBoard', 'EligibilityCheck', 'CallbackLog'], [
+    stage('breakdown', 'Publish the breakdown', 'logistics', 'Publish the role breakdown with the required discipline.', [text('role', 'Role code', 'OC-Lead'), pick('discipline', 'Required discipline', ['Acting', 'Dance'], 'Acting')]),
+    stage('callbacks', 'File the callback log', 'documents', 'Submit the callback log with eligibility checks.', [report('Callback log', ['OC-Lead', 'eligible', 'callbacks'])]),
+  ]),
+  define('ent-shift-05', 'engineer', 'Studio B Patch Bay', 'shift', ['PatchBay', 'CueConsole', 'SignalMeter'], [
+    stage('trace', 'Trace the dead channel', 'diagnostics', 'Identify the dead channel and the symptom before repatching.', [number('channel', 'Dead channel', '12'), pick('symptom', 'Symptom', ['No signal', 'Phantom power fault'], 'No signal')]),
+    stage('verify', 'Repatch and confirm', 'equipment', 'Repatch the bay and confirm all channels.', [pick('patch', 'Patch action', ['Repatched channel 12', 'Left channel open'], 'Repatched channel 12'), number('channels', 'Confirmed channels', '16')]),
+  ]),
+  define('ent-shift-06', 'artist', 'Autumn Lookbook Rack', 'shift', ['WardrobeCatalog', 'ContinuityTags', 'RackScanner'], [
+    stage('pull', 'Pull the wardrobe', 'logistics', 'Pull the rack and verify the size run.', [text('rack', 'Rack code', 'AL-08'), pick('sizes', 'Size run', ['Complete', 'Missing sizes'], 'Complete')]),
+    stage('deliver', 'Tag continuity and deliver', 'documents', 'Submit the wardrobe continuity note.', [report('Wardrobe continuity', ['AL-08', 'continuity', 'delivered'])]),
+  ]),
 ].map(definition => [definition.id, definition]));
 
 export function getWorkDefinition(id: string): WorkDefinition | undefined {

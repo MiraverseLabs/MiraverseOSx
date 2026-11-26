@@ -41,12 +41,27 @@ export const SHIPPED_AUDIO_ASSETS = [
   { id: 'audio-marlie', label: 'Marlie Sea Tide Signal (Master WAV)', audioUrl: '/sounds/mixkit-water-sci-fi-bleep-902.wav', coverArtUrl: '/media/albums/album-marble-lilies.jpg', genre: 'Indie Acoustic', durationSeconds: 190 },
 ] as const;
 
-export const VENUE_CATALOG = [
-  { orgId: 'ORG_LOOKING_GLASS', name: 'The Looking Glass', district: 'Glassline District', capacity: 180, minRecognition: 0, rentalCost: 65, suggestedTicket: 18 },
-  { orgId: 'ORG_VELVET_STUDIO', name: 'The Velvet Cultural Studio', district: 'Velvet Row', capacity: 450, minRecognition: 8, rentalCost: 190, suggestedTicket: 28 },
-  { orgId: 'ORG_MARIGOLD_THEATRE', name: 'The Marigold Theatre', district: 'Promenade Quarter', capacity: 1200, minRecognition: 16, rentalCost: 480, suggestedTicket: 45 },
-  { orgId: 'ORG_SILVERLEAF_STADIUM', name: 'Silverleaf Stadium', district: 'Silverleaf Park', capacity: 45000, minRecognition: 55, rentalCost: 4500, suggestedTicket: 95 },
+export interface EntertainmentVenueMeta {
+  orgId: string;
+  name: string;
+  district: string;
+  capacity: number;
+  minRecognition: number;
+  rentalCost: number;
+  suggestedTicket: number;
+  locationId?: string;
+}
+
+export const VENUE_CATALOG: readonly EntertainmentVenueMeta[] = [
+  { orgId: 'ORG_LOOKING_GLASS', name: 'The Looking Glass', district: 'Glassline District', capacity: 180, minRecognition: 0, rentalCost: 65, suggestedTicket: 18, locationId: 'loc-looking-glass' },
+  { orgId: 'ORG_VELVET_STUDIO', name: 'The Velvet Cultural Studio', district: 'Promenade Quarter', capacity: 450, minRecognition: 8, rentalCost: 190, suggestedTicket: 28, locationId: 'loc-velvet-studio' },
+  { orgId: 'ORG_MARIGOLD_THEATRE', name: 'The Marigold Theatre', district: 'Promenade Quarter', capacity: 1200, minRecognition: 12, rentalCost: 480, suggestedTicket: 45, locationId: 'loc-marigold-theatre' },
+  { orgId: 'ORG_SILVERLEAF_STADIUM', name: 'Silverleaf Stadium', district: 'Silverleaf Park', capacity: 45000, minRecognition: 55, rentalCost: 4500, suggestedTicket: 95, locationId: 'loc-silverleaf-stadium' },
 ] as const;
+
+export function getEntertainmentVenues(state?: Pick<EntertainmentState, 'venues'> | null): readonly EntertainmentVenueMeta[] {
+  return Array.isArray(state?.venues) && state.venues.length > 0 ? state.venues : VENUE_CATALOG;
+}
 
 export type FameTier = 'Unlisted' | 'Local' | 'Rising' | 'Established' | 'Headliner' | 'Realm Icon';
 
@@ -272,6 +287,9 @@ export interface EventTicketReceipt {
 
 export interface EntertainmentState {
   version: 1;
+  authorityMode?: 'standalone' | 'living_world';
+  lastLivingWorldSyncAt?: string;
+  venues?: EntertainmentVenueMeta[];
   lastSimulatedCycle: number;
   playerArtistId: string | null;
   disciplineProgress: Record<EntertainmentDisciplineId, { xp: number; level: number; completedWorks: number }>;
@@ -947,6 +965,9 @@ export function restoreEntertainmentState(raw: any, cycle = 28): EntertainmentSt
   }
   return {
     version: 1,
+    authorityMode: raw.authorityMode === 'living_world' ? 'living_world' : 'standalone',
+    ...(typeof raw.lastLivingWorldSyncAt === 'string' ? { lastLivingWorldSyncAt: raw.lastLivingWorldSyncAt } : {}),
+    ...(Array.isArray(raw.venues) && raw.venues.length > 0 ? { venues: raw.venues } : {}),
     lastSimulatedCycle: Number.isFinite(raw.lastSimulatedCycle) ? raw.lastSimulatedCycle : cycle,
     playerArtistId: typeof raw.playerArtistId === 'string' ? raw.playerArtistId : null,
     disciplineProgress: prog,
@@ -1011,6 +1032,7 @@ export function advanceEntertainmentCycle(rawState: EntertainmentState | undefin
   let releases = state.releases.map((r) => ({ ...r }));
   let concerts = state.concerts.map((c) => ({ ...c }));
   let auditions = state.auditions.map((a) => ({ ...a, applicants: [...a.applicants] }));
+  let projects = state.projects.map((p) => ({ ...p }));
   const contracts = state.contracts.map((c) => ({ ...c }));
   const mediaItems = [...state.mediaItems];
   const controversies = state.controversies.map((c) => ({ ...c }));
@@ -1133,6 +1155,201 @@ export function advanceEntertainmentCycle(rawState: EntertainmentState | undefin
       }
     }
 
+    // Autonomous organization lifecycles: NPC work moves through real production partners,
+    // representation, rights, distribution, media and portfolio stages without player action.
+    const npcArtists = artists.filter((artist) => artist.origin === 'npc' && artist.careerStatus === 'active');
+    const activeNpcProjects = projects.filter((project) => project.status === 'in_production' &&
+      npcArtists.some((artist) => artist.artistId === project.artistId));
+
+    for (const contract of contracts) {
+      if (contract.status === 'active' && contract.expiresCycle <= cyc) {
+        contract.status = 'expired';
+        const artistIndex = artists.findIndex((artist) => artist.artistId === contract.artistId);
+        if (artistIndex >= 0) {
+          const artist = artists[artistIndex];
+          if (contract.contractType === 'management' && artist.managerOrgId === contract.orgId) artists[artistIndex] = { ...artist, managerOrgId: '' };
+          if (contract.contractType === 'label' && artist.labelOrgId === contract.orgId) artists[artistIndex] = { ...artists[artistIndex], labelOrgId: '' };
+          if (contract.contractType === 'publishing' && artist.publisherOrgId === contract.orgId) artists[artistIndex] = { ...artists[artistIndex], publisherOrgId: '' };
+          if (contract.contractType === 'publicity' && artist.prOrgId === contract.orgId) artists[artistIndex] = { ...artists[artistIndex], prOrgId: '' };
+          if (contract.contractType === 'distribution' && artist.distributorOrgId === contract.orgId) artists[artistIndex] = { ...artists[artistIndex], distributorOrgId: '' };
+        }
+      }
+    }
+    for (const artist of npcArtists) {
+      if (cyc % 7 !== deterministicHash(artist.artistId) % 7) continue;
+      const activeManagement = contracts.find((contract) =>
+        contract.artistId === artist.artistId && contract.contractType === 'management' && contract.status === 'active');
+      if (!activeManagement) {
+        const agencyId = artist.recognition >= 55 ? 'ORG_STARSTRUCK' : 'ORG_SECOND_ACT';
+        const agency = getEntertainmentOrganization(agencyId);
+        if (agency) {
+          contracts.unshift({
+            contractId: `CNT-NPC-${cyc}-${artist.artistId}`,
+            artistId: artist.artistId,
+            orgId: agencyId,
+            orgName: agency.name,
+            contractType: 'management',
+            commissionRate: typeof agency.commissionRate === 'number' ? agency.commissionRate : 0.12,
+            royaltySplitArtist: typeof agency.royaltySplitArtist === 'number' ? agency.royaltySplitArtist : 0.82,
+            advanceCredits: 0,
+            obligationCount: 2,
+            completedObligations: 0,
+            startCycle: cyc,
+            expiresCycle: cyc + 24,
+            status: 'active',
+          });
+          const index = artists.findIndex((candidate) => candidate.artistId === artist.artistId);
+          if (index >= 0) {
+            artists[index] = adjustArtistFame(
+              { ...artists[index], managerOrgId: agencyId },
+              { industryReputation: 1.5, mediaVisibility: 1.2 },
+              cyc,
+            );
+          }
+        }
+      }
+    }
+
+    if (npcArtists.length > 0 && activeNpcProjects.length < 3) {
+      const artist = npcArtists[cyc % npcArtists.length];
+      const disciplineIndex = deterministicHash(`${artist.artistId}:${cyc}`) % 3;
+      const template = [
+        {
+          kind: 'single' as const,
+          discipline: 'music' as EntertainmentDisciplineId,
+          title: `${artist.stageName}: Independent Meridian Session`,
+          partnerOrgId: 'ORG_KAJI_PUBLISHING',
+        },
+        {
+          kind: 'series' as const,
+          discipline: 'acting' as EntertainmentDisciplineId,
+          title: `${artist.stageName}: Open-Call Production`,
+          partnerOrgId: 'ORG_MIRRORA_STUDIOS',
+        },
+        {
+          kind: 'fashion_campaign' as const,
+          discipline: 'modeling' as EntertainmentDisciplineId,
+          title: `${artist.stageName}: Meridian Look Campaign`,
+          partnerOrgId: artist.recognition > 40 ? 'ORG_GLASSLINE_DESIGNS' : 'ORG_AMRIELLE',
+        },
+      ][disciplineIndex];
+      if (!projects.some((project) => project.status === 'in_production' && project.artistId === artist.artistId && project.kind === template.kind)) {
+        projects.unshift({
+          projectId: `PRJ-NPC-${cyc}-${artist.artistId}`,
+          artistId: artist.artistId,
+          title: template.title,
+          kind: template.kind,
+          discipline: template.discipline,
+          partnerOrgId: template.partnerOrgId,
+          collaboratorArtistId: '',
+          budgetCredits: 80 + (artist.recognition * 4),
+          deadlineCycle: cyc + 4,
+          progress: 25,
+          quality: Math.round(55 + artist.artisticCredibility * 0.35 + artist.industryReputation * 0.2),
+          masterOwnedByArtist: !artist.labelOrgId,
+          status: 'in_production',
+        });
+      }
+    }
+
+    for (const project of projects) {
+      if (project.status !== 'in_production') continue;
+      const artistIndex = artists.findIndex((artist) => artist.artistId === project.artistId);
+      if (artistIndex < 0 || artists[artistIndex].origin !== 'npc') continue;
+      project.progress = Math.min(100, project.progress + 25);
+      if (project.progress < 100) continue;
+
+      project.status = 'completed';
+      const artist = artists[artistIndex];
+      if (project.discipline === 'music') {
+        const trackId = `TRK-NPC-${cyc}-${artist.artistId}`;
+        const distributorOrgId = artist.labelOrgId ? 'ORG_SONGBIRD' : 'ORG_LUNERUM_DIST';
+        tracks.unshift({
+          trackId,
+          title: project.title,
+          artistId: artist.artistId,
+          stageName: artist.stageName,
+          kind: 'single',
+          genre: artist.genres[0] || 'Independent Pop',
+          durationSeconds: 180 + (deterministicHash(trackId) % 90),
+          audioUrl: SHIPPED_AUDIO_ASSETS[deterministicHash(trackId) % SHIPPED_AUDIO_ASSETS.length].audioUrl,
+          coverArtUrl: '/media/albums/album-neon-starlight.jpg',
+          producerOrgId: project.partnerOrgId,
+          publisherOrgId: artist.publisherOrgId || 'ORG_KAJI_PUBLISHING',
+          collaboratorArtistIds: [],
+          mmrsRegistered: true,
+          masterOwnedByArtist: project.masterOwnedByArtist,
+          quality: project.quality,
+          streams: 0,
+          radioSpins: 0,
+          stickerEdition: '',
+          createdCycle: cyc,
+        });
+        releases.unshift({
+          releaseId: `REL-NPC-${cyc}-${artist.artistId}`,
+          trackId,
+          trackIds: [trackId],
+          artistId: artist.artistId,
+          stageName: artist.stageName,
+          title: project.title,
+          format: 'Single',
+          platform: 'Songbird',
+          distributorOrgId,
+          labelOrgId: artist.labelOrgId,
+          royaltyRate: project.masterOwnedByArtist ? 0.92 : 0.55,
+          releaseCycle: cyc + 1,
+          status: 'scheduled',
+        });
+        mediaItems.unshift({
+          mediaId: `MED-NPC-MUSIC-${cyc}-${artist.artistId}`,
+          orgId: 'ORG_MARLIE_RECORDS',
+          outletName: 'Marlie Records Dispatch',
+          kind: 'feature',
+          headline: `${artist.stageName} Completes a New Independent Session`,
+          summary: `${project.partnerOrgId === 'ORG_KAJI_PUBLISHING' ? 'Kaji Publishing' : 'A Meridion studio'} registered the production for ${artist.stageName}; MMRS rights and Songbird distribution are being prepared.`,
+          subjectArtistIds: [artist.artistId],
+          sentiment: 'positive',
+          cycle: cyc,
+        });
+      } else if (project.discipline === 'modeling') {
+        const sponsorOrgId = project.partnerOrgId === 'ORG_GLASSLINE_DESIGNS' ? 'ORG_AMRIELLE' : 'ORG_ROSEMONT_PORTRAIT';
+        mediaItems.unshift({
+          mediaId: `MED-NPC-FASHION-${cyc}-${artist.artistId}`,
+          orgId: 'ORG_GLASSLINE_DESIGNS',
+          outletName: 'Glassline Look Desk',
+          kind: 'review',
+          headline: `${artist.stageName} Debuts a New ${project.partnerOrgId === 'ORG_GLASSLINE_DESIGNS' ? 'Glassline' : 'Amrielle'} Campaign`,
+          summary: `Willow Whisper cast the campaign, ${getEntertainmentOrganization(sponsorOrgId)?.shortName || 'Rosemont'} delivered portfolio photography, and the collection entered public promotion.`,
+          subjectArtistIds: [artist.artistId],
+          sentiment: 'positive',
+          cycle: cyc,
+        });
+      } else {
+        mediaItems.unshift({
+          mediaId: `MED-NPC-PRODUCTION-${cyc}-${artist.artistId}`,
+          orgId: 'ORG_OPEN_CALL',
+          outletName: 'Open Call Casting',
+          kind: 'review',
+          headline: `${artist.stageName} Wraps ${project.title}`,
+          summary: `Casting, rehearsals and production wrapped with ${getEntertainmentOrganization(project.partnerOrgId)?.shortName || 'the studio'}; premiere promotion and audience response are now entering the cultural cycle.`,
+          subjectArtistIds: [artist.artistId],
+          sentiment: 'positive',
+          cycle: cyc,
+        });
+      }
+      artists[artistIndex] = adjustArtistFame(
+        artist,
+        {
+          recognition: 1.8,
+          artisticCredibility: 2.4,
+          industryReputation: 1.6,
+          mediaVisibility: 2.2,
+          commercialInfluence: 1.2,
+        },
+        cyc,
+      );
+    }
+
     // 4. Autonomous NPC concert scheduling & open audition replenishment
     const scheduledCount = concerts.filter((c) => c.status === 'scheduled').length;
     if (scheduledCount < 3 && artists.length > 0) {
@@ -1168,11 +1385,50 @@ export function advanceEntertainmentCycle(rawState: EntertainmentState | undefin
 
     // Close expired auditions & spawn fresh Open Call breakdowns
     for (const aud of auditions) {
+      if (aud.status === 'open' && aud.applicants.length < 3 && npcArtists.length > 0) {
+        const applicant = npcArtists[(cyc + aud.applicants.length) % npcArtists.length];
+        if (!aud.applicants.some((applicantEntry) => applicantEntry.artistId === applicant.artistId)) {
+          const score = Math.round(
+            applicant.artisticCredibility * 0.35 +
+            applicant.industryReputation * 0.25 +
+            (45 + (deterministicHash(`${aud.auditionId}:${applicant.artistId}:${cyc}`) % 40)) * 0.4,
+          );
+          aud.applicants.push({
+            artistId: applicant.artistId,
+            stageName: applicant.stageName,
+            score,
+            submittedCycle: cyc,
+          });
+        }
+      }
       if (aud.status === 'open' && aud.deadlineCycle <= cyc) {
         if (aud.applicants.length > 0) {
           const best = [...aud.applicants].sort((a, b) => b.score - a.score)[0];
           aud.selectedArtistId = best.artistId;
           aud.status = 'cast';
+          const selectedIndex = artists.findIndex((artist) => artist.artistId === best.artistId);
+          if (selectedIndex >= 0) {
+            projects.unshift({
+              projectId: `PRJ-CAST-NPC-${cyc}-${aud.auditionId}`,
+              artistId: best.artistId,
+              title: aud.title,
+              kind: aud.discipline === 'acting' ? 'series' : aud.discipline === 'dance' ? 'choreography' : aud.discipline === 'modeling' ? 'fashion_campaign' : 'stage_play',
+              discipline: aud.discipline,
+              partnerOrgId: aud.productionOrgId,
+              collaboratorArtistId: '',
+              budgetCredits: aud.stipendCredits * 4,
+              deadlineCycle: cyc + 3,
+              progress: 50,
+              quality: Math.min(98, Math.round(best.score + 12)),
+              masterOwnedByArtist: false,
+              status: 'in_production',
+            });
+            artists[selectedIndex] = adjustArtistFame(
+              artists[selectedIndex],
+              { industryReputation: 2.5, artisticCredibility: 2.0, recognition: 1.5 },
+              cyc,
+            );
+          }
         } else {
           aud.status = 'closed';
         }
@@ -1288,6 +1544,7 @@ export function advanceEntertainmentCycle(rawState: EntertainmentState | undefin
     releases,
     concerts,
     auditions,
+    projects,
     contracts,
     mediaItems: mediaItems.slice(0, 40),
     controversies: controversies.slice(0, 25),
@@ -1295,9 +1552,102 @@ export function advanceEntertainmentCycle(rawState: EntertainmentState | undefin
   };
 }
 
+function normalizeRemoteProduction(raw: any, existing: EntertainmentProject | undefined, cycle: number): EntertainmentProject {
+  const projectId = String(raw.projectId || raw.productionId || existing?.projectId || '');
+  const rawKind = String(raw.kind || existing?.kind || 'film').toLowerCase();
+  const kindMap: Record<string, EntertainmentProject['kind']> = {
+    single: 'single',
+    album: 'album',
+    film: 'film',
+    series: 'series',
+    animation: 'film',
+    dance: 'choreography',
+    choreography: 'choreography',
+    theatre: 'stage_play',
+    stage_play: 'stage_play',
+    modeling: 'fashion_campaign',
+    fashion_campaign: 'fashion_campaign',
+    promo_kit: 'promo_kit',
+  };
+  const disciplineMap: Record<string, EntertainmentDisciplineId> = {
+    single: 'music',
+    album: 'music',
+    film: 'acting',
+    series: 'acting',
+    animation: 'acting',
+    dance: 'dance',
+    choreography: 'dance',
+    theatre: 'theatre',
+    stage_play: 'theatre',
+    modeling: 'modeling',
+    fashion_campaign: 'modeling',
+    promo_kit: 'public_relations',
+  };
+  const statusMap: Record<string, EntertainmentProject['status']> = {
+    in_production: 'in_production',
+    pre_production: 'in_production',
+    development: 'in_production',
+    post_production: 'in_production',
+    completed: 'completed',
+    wrapped: 'completed',
+    released: 'released',
+  };
+  const mappedKind = kindMap[rawKind] ?? existing?.kind ?? 'film';
+  const mappedDiscipline = (raw.discipline as EntertainmentDisciplineId) || disciplineMap[rawKind] || existing?.discipline || 'acting';
+  const mappedStatus = statusMap[String(raw.status || '').toLowerCase()] ?? existing?.status ?? 'in_production';
+  return {
+    projectId,
+    artistId: String(raw.artistId || (Array.isArray(raw.castArtistIds) && raw.castArtistIds[0]) || existing?.artistId || ''),
+    title: String(raw.title || existing?.title || 'Untitled Production'),
+    kind: mappedKind,
+    discipline: mappedDiscipline,
+    partnerOrgId: String(raw.partnerOrgId || raw.studioOrgId || existing?.partnerOrgId || ''),
+    collaboratorArtistId: String(raw.collaboratorArtistId || existing?.collaboratorArtistId || ''),
+    budgetCredits: Number.isFinite(Number(raw.budgetCredits)) ? Number(raw.budgetCredits) : (existing?.budgetCredits ?? 0),
+    deadlineCycle: Number.isFinite(Number(raw.deadlineCycle ?? raw.deadlineDay)) ? Number(raw.deadlineCycle ?? raw.deadlineDay) : (existing?.deadlineCycle ?? cycle + 4),
+    progress: Number.isFinite(Number(raw.progress)) ? Number(raw.progress) : (mappedStatus === 'released' || mappedStatus === 'completed' ? 100 : (existing?.progress ?? 25)),
+    quality: Number.isFinite(Number(raw.quality)) ? Number(raw.quality) : (existing?.quality ?? 70),
+    masterOwnedByArtist: typeof raw.masterOwnedByArtist === 'boolean' ? raw.masterOwnedByArtist : (existing?.masterOwnedByArtist ?? false),
+    audioUrl: typeof raw.audioUrl === 'string' ? raw.audioUrl : existing?.audioUrl,
+    genre: typeof raw.genre === 'string' ? raw.genre : existing?.genre,
+    status: mappedStatus,
+  };
+}
+
+function normalizeRemoteVenue(raw: any): EntertainmentVenueMeta | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const orgId = String(raw.orgId || raw.venueOrgId || raw.OrganizationId || '').trim();
+  const name = String(raw.name || raw.Name || '').trim();
+  if (!orgId || !name) return null;
+  const fallback = VENUE_CATALOG.find((v) => v.orgId === orgId);
+  return {
+    orgId,
+    name,
+    district: String(raw.district || fallback?.district || 'Aureline'),
+    capacity: Number.isFinite(Number(raw.capacity)) ? Number(raw.capacity) : (fallback?.capacity ?? 180),
+    minRecognition: Number.isFinite(Number(raw.minRecognition)) ? Number(raw.minRecognition) : (fallback?.minRecognition ?? 0),
+    rentalCost: Number.isFinite(Number(raw.rentalCost)) ? Number(raw.rentalCost) : (fallback?.rentalCost ?? 65),
+    suggestedTicket: Number.isFinite(Number(raw.suggestedTicket ?? raw.defaultTicket))
+      ? Number(raw.suggestedTicket ?? raw.defaultTicket)
+      : (fallback?.suggestedTicket ?? 18),
+    locationId: typeof raw.locationId === 'string' ? raw.locationId : fallback?.locationId,
+  };
+}
+
 /**
- * Merges live autonomous simulation records from `GET /api/livingworld/entertainment`
- * into the local EntertainmentState without duplicating or clobbering player records.
+ * Reconciles authoritative live simulation records from `GET /api/livingworld/entertainment`
+ * into the frontend EntertainmentState.
+ *
+ * Ownership rules:
+ * - When a remote collection is explicitly supplied (including an empty array `[]`),
+ *   Python's Living World snapshot is authoritative: obsolete local NPC/auto-generated
+ *   records are pruned instead of lingering indefinitely.
+ * - Presentation-only fields (album covers, posters, local ticket attendance flags) are
+ *   preserved by record ID where the remote record omits them.
+ * - Remote `productions` are normalized and mapped into `projects`.
+ * - Remote `venues` update the synced database venue catalog.
+ * - Local UI preferences (`followedArtistIds`, `collectedStickers`, `playedTrackIds`,
+ *   `receiptIds`, `disciplineProgress`) stay client-owned.
  */
 export function mergeLivingWorldEntertainmentSnapshot(
   local: EntertainmentState,
@@ -1305,43 +1655,305 @@ export function mergeLivingWorldEntertainmentSnapshot(
   cycle: number,
 ): EntertainmentState {
   if (!remote || typeof remote !== 'object') return local;
-  const mergeById = <T extends Record<string, any>>(localArr: T[], remoteArr: any[], key: string): T[] => {
-    if (!Array.isArray(remoteArr) || remoteArr.length === 0) return localArr;
-    const map = new Map<string, T>();
+
+  const replaceAuthoritative = <T extends Record<string, any>>(
+    localArr: T[],
+    remoteArr: unknown,
+    key: string,
+    normalize?: (remoteItem: any, existing: T | undefined) => T,
+  ): T[] => {
+    if (!Array.isArray(remoteArr)) return localArr;
+    const localById = new Map<string, T>();
     for (const item of localArr) {
-      if (item && typeof item[key] === 'string') map.set(item[key], item);
+      if (item && typeof item[key] === 'string') localById.set(item[key], item);
     }
-    for (const r of remoteArr) {
-      if (!r || typeof r[key] !== 'string') continue;
-      const existing = map.get(r[key]);
-      map.set(r[key], existing ? ({ ...existing, ...r } as T) : (r as T));
+    const seen = new Set<string>();
+    const next: T[] = [];
+    for (const raw of remoteArr) {
+      if (!raw || typeof raw !== 'object') continue;
+      const id = String(raw[key] || (key === 'projectId' ? raw.productionId : '') || '').trim();
+      if (!id || seen.has(id)) continue;
+      seen.add(id);
+      const existing = localById.get(id);
+      if (normalize) {
+        next.push(normalize(raw, existing));
+      } else {
+        next.push(existing ? ({ ...existing, ...raw } as T) : (raw as T));
+      }
     }
-    return [...map.values()];
+    return next;
   };
 
-  const mergedArtists = mergeById(local.artists, remote.artists || [], 'artistId').map((a) => ({
-    ...a,
-    tier: computeFameTier(a),
-  }));
+  let mergedArtists = replaceAuthoritative<EntertainmentArtist>(
+    local.artists,
+    remote.artists,
+    'artistId',
+    (r, existing) => {
+      const merged: EntertainmentArtist = {
+        ...(existing ?? {}),
+        ...r,
+        disciplines: Array.isArray(r.disciplines) && r.disciplines.length > 0 ? r.disciplines : (existing?.disciplines ?? ['music']),
+        genres: Array.isArray(r.genres) ? r.genres : (existing?.genres ?? []),
+        portfolioArtifactIds: Array.isArray(r.portfolioArtifactIds) ? r.portfolioArtifactIds : (existing?.portfolioArtifactIds ?? []),
+        collaboratorIds: Array.isArray(r.collaboratorIds) ? r.collaboratorIds : (existing?.collaboratorIds ?? []),
+        rivalryIds: Array.isArray(r.rivalryIds) ? r.rivalryIds : (existing?.rivalryIds ?? []),
+        lastActiveCycle: Number.isFinite(Number(r.lastActiveCycle ?? r.lastActiveDay))
+          ? Number(r.lastActiveCycle ?? r.lastActiveDay)
+          : (existing?.lastActiveCycle ?? cycle),
+      };
+      return { ...merged, tier: computeFameTier(merged) };
+    },
+  );
+
+  // Retain an in-flight local player artist registration if Python has not yet persisted it
+  if (local.playerArtistId && !mergedArtists.some((a) => a.artistId === local.playerArtistId)) {
+    const localPlayer = local.artists.find((a) => a.artistId === local.playerArtistId && a.origin === 'player');
+    if (localPlayer) {
+      mergedArtists = [localPlayer, ...mergedArtists];
+    }
+  }
+
   const playerArtist =
     (local.playerArtistId && mergedArtists.find((a) => a.artistId === local.playerArtistId)) ||
     mergedArtists.find((a) => a.origin === 'player');
 
+  const mergedTracks = replaceAuthoritative<EntertainmentTrack>(
+    local.tracks,
+    remote.tracks,
+    'trackId',
+    (r, existing) => ({
+      ...(existing ?? {}),
+      ...r,
+      coverArtUrl: r.coverArtUrl || existing?.coverArtUrl || SHIPPED_AUDIO_ASSETS.find((s) => s.audioUrl === r.audioUrl)?.coverArtUrl,
+      createdCycle: Number.isFinite(Number(r.createdCycle ?? r.createdDay))
+        ? Number(r.createdCycle ?? r.createdDay)
+        : (existing?.createdCycle ?? cycle),
+    }),
+  );
+
+  const mergedReleases = replaceAuthoritative<EntertainmentRelease>(
+    local.releases,
+    remote.releases,
+    'releaseId',
+    (r, existing) => ({
+      ...(existing ?? {}),
+      ...r,
+      trackIds: Array.isArray(r.trackIds) ? r.trackIds : (r.trackId ? [r.trackId] : (existing?.trackIds ?? [])),
+      format: r.format || (r.kind === 'album' ? 'Album' : r.kind === 'ep_track' ? 'EP' : r.kind === 'score' ? 'Soundtrack' : 'Single'),
+      platform: r.platform || (r.platformOrgId ? (getEntertainmentOrganization(r.platformOrgId)?.shortName ?? 'Songbird') : (existing?.platform ?? 'Songbird')),
+      royaltyRate: Number.isFinite(Number(r.royaltyRate ?? r.expectedRoyaltyRate))
+        ? Number(r.royaltyRate ?? r.expectedRoyaltyRate)
+        : (existing?.royaltyRate ?? 0.14),
+      releaseCycle: Number.isFinite(Number(r.releaseCycle ?? r.releasedDay ?? r.scheduledDay))
+        ? Number(r.releaseCycle ?? r.releasedDay ?? r.scheduledDay)
+        : (existing?.releaseCycle ?? cycle),
+    }),
+  );
+
+  const mergedConcerts = replaceAuthoritative<EntertainmentConcert>(
+    local.concerts,
+    remote.concerts,
+    'concertId',
+    (r, existing) => ({
+      ...(existing ?? {}),
+      ...r,
+      scheduledCycle: Number.isFinite(Number(r.scheduledCycle ?? r.scheduledDay))
+        ? Number(r.scheduledCycle ?? r.scheduledDay)
+        : (existing?.scheduledCycle ?? cycle),
+      dateLabel: r.dateLabel || r.date || existing?.dateLabel || `Cycle ${cycle}`,
+      audienceReaction: r.audienceReaction || existing?.audienceReaction || (r.status === 'completed' ? 'Show concluded.' : 'Advance box office open.'),
+    }),
+  );
+
+  const mergedAuditions = replaceAuthoritative<EntertainmentAudition>(
+    local.auditions,
+    remote.auditions,
+    'auditionId',
+    (r, existing) => ({
+      ...(existing ?? {}),
+      ...r,
+      posterUrl: r.posterUrl || existing?.posterUrl,
+      deadlineCycle: Number.isFinite(Number(r.deadlineCycle ?? r.deadlineDay))
+        ? Number(r.deadlineCycle ?? r.deadlineDay)
+        : (existing?.deadlineCycle ?? cycle + 3),
+      status: r.status === 'expired' ? 'closed' : (r.status || existing?.status || 'open'),
+    }),
+  );
+
+  const mergedContracts = replaceAuthoritative<EntertainmentContract>(
+    local.contracts,
+    remote.contracts,
+    'contractId',
+    (r, existing) => ({
+      ...(existing ?? {}),
+      ...r,
+      orgName: r.orgName || getEntertainmentOrganization(r.orgId)?.name || existing?.orgName || r.orgId,
+      startCycle: Number.isFinite(Number(r.startCycle ?? r.startDay))
+        ? Number(r.startCycle ?? r.startDay)
+        : (existing?.startCycle ?? cycle),
+      expiresCycle: Number.isFinite(Number(r.expiresCycle ?? r.expiresDay))
+        ? Number(r.expiresCycle ?? r.expiresDay)
+        : (existing?.expiresCycle ?? cycle + 12),
+    }),
+  );
+
+  const remoteProjectsSource = Array.isArray(remote.productions)
+    ? remote.productions
+    : Array.isArray(remote.projects)
+      ? remote.projects
+      : undefined;
+  const mergedProjects = replaceAuthoritative<EntertainmentProject>(
+    local.projects,
+    remoteProjectsSource,
+    'projectId',
+    (r, existing) => normalizeRemoteProduction(r, existing, cycle),
+  );
+
+  const mergedSponsorships = replaceAuthoritative<EntertainmentSponsorship>(
+    local.sponsorships,
+    remote.sponsorships,
+    'sponsorshipId',
+    (r, existing) => ({
+      ...(existing ?? {}),
+      ...r,
+      sponsorName: r.sponsorName || getEntertainmentOrganization(r.sponsorOrgId)?.name || existing?.sponsorName || r.sponsorOrgId,
+      startCycle: Number.isFinite(Number(r.startCycle ?? r.startDay))
+        ? Number(r.startCycle ?? r.startDay)
+        : (existing?.startCycle ?? cycle),
+    }),
+  );
+
+  const mergedMediaItems = replaceAuthoritative<EntertainmentMediaItem>(
+    local.mediaItems,
+    remote.mediaItems,
+    'mediaId',
+    (r, existing) => {
+      const kindMap: Record<string, EntertainmentMediaItem['kind']> = {
+        release_review: 'review',
+        collaboration: 'feature',
+        awards: 'award_news',
+        feature: 'feature',
+        review: 'review',
+        interview: 'interview',
+        radio_premiere: 'radio_premiere',
+        gossip: 'gossip',
+        statement: 'statement',
+        award_news: 'award_news',
+      };
+      const sentiment =
+        r.sentiment === 'critical' ? 'critical' : r.sentiment === 'mixed' ? 'mixed' : 'positive';
+      return {
+        ...(existing ?? {}),
+        ...r,
+        outletName: r.outletName || getEntertainmentOrganization(r.orgId)?.shortName || existing?.outletName || 'Limelight',
+        kind: kindMap[String(r.kind || '')] ?? existing?.kind ?? 'feature',
+        sentiment,
+        cycle: Number.isFinite(Number(r.cycle ?? r.dayIndex)) ? Number(r.cycle ?? r.dayIndex) : (existing?.cycle ?? cycle),
+      };
+    },
+  ).slice(0, 40);
+
+  const mergedControversies = replaceAuthoritative<EntertainmentControversy>(
+    local.controversies,
+    remote.controversies,
+    'controversyId',
+    (r, existing) => {
+      const sev =
+        typeof r.severity === 'number'
+          ? r.severity
+          : r.severity === 'high'
+            ? 75
+            : r.severity === 'low'
+              ? 25
+              : 50;
+      const status: EntertainmentControversy['status'] =
+        r.status === 'addressed' || r.status === 'resolved'
+          ? 'addressed'
+          : r.status === 'faded'
+            ? 'faded'
+            : 'active';
+      return {
+        ...(existing ?? {}),
+        ...r,
+        topic: r.topic || r.headline || existing?.topic || 'Public Scrutiny',
+        severity: sev,
+        status,
+        cycle: Number.isFinite(Number(r.cycle ?? r.dayIndex)) ? Number(r.cycle ?? r.dayIndex) : (existing?.cycle ?? cycle),
+      };
+    },
+  ).slice(0, 25);
+
+  const mergedAwards = replaceAuthoritative<RadianceAwardCycle>(
+    local.awards,
+    remote.awards,
+    'awardCycleId',
+    (r, existing) => ({
+      ...(existing ?? {}),
+      ...r,
+      cycle: Number.isFinite(Number(r.cycle ?? r.dayIndex ?? r.ceremonyDay))
+        ? Number(r.cycle ?? r.dayIndex ?? r.ceremonyDay)
+        : (existing?.cycle ?? cycle),
+      ceremonyCycle: Number.isFinite(Number(r.ceremonyCycle ?? r.ceremonyDay))
+        ? Number(r.ceremonyCycle ?? r.ceremonyDay)
+        : (existing?.ceremonyCycle ?? cycle + 6),
+    }),
+  ).slice(0, 8);
+
+  const mergedFanCommunities = replaceAuthoritative<FanCommunity>(
+    local.fanCommunities,
+    remote.fanCommunities,
+    'communityId',
+    (r, existing) => ({
+      ...(existing ?? {}),
+      ...r,
+      memberIds: Array.isArray(r.memberIds)
+        ? r.memberIds
+        : Array.isArray(r.memberCharacterIds)
+          ? r.memberCharacterIds
+          : (existing?.memberIds ?? []),
+    }),
+  );
+
+  const mergedTickets = replaceAuthoritative<EventTicketReceipt>(
+    local.tickets,
+    remote.tickets,
+    'ticketId',
+    (r, existing) => ({
+      ...(existing ?? {}),
+      ...r,
+      scheduledCycle: Number.isFinite(Number(r.scheduledCycle ?? r.scheduledDay))
+        ? Number(r.scheduledCycle ?? r.scheduledDay)
+        : (existing?.scheduledCycle ?? cycle),
+      purchasedCycle: Number.isFinite(Number(r.purchasedCycle ?? r.purchasedDay))
+        ? Number(r.purchasedCycle ?? r.purchasedDay)
+        : (existing?.purchasedCycle ?? cycle),
+      attended: Boolean(existing?.attended || r.attended),
+    }),
+  );
+
+  const syncedVenues = Array.isArray(remote.venues)
+    ? remote.venues.map(normalizeRemoteVenue).filter((v): v is EntertainmentVenueMeta => v !== null)
+    : local.venues;
+
   return {
     ...local,
+    authorityMode: 'living_world',
+    lastLivingWorldSyncAt: new Date().toISOString(),
+    ...(syncedVenues && syncedVenues.length > 0 ? { venues: syncedVenues } : {}),
     lastSimulatedCycle: Math.max(local.lastSimulatedCycle, cycle),
     playerArtistId: playerArtist ? playerArtist.artistId : local.playerArtistId,
     artists: mergedArtists,
-    tracks: mergeById(local.tracks, remote.tracks || [], 'trackId'),
-    releases: mergeById(local.releases, remote.releases || [], 'releaseId'),
-    concerts: mergeById(local.concerts, remote.concerts || [], 'concertId'),
-    auditions: mergeById(local.auditions, remote.auditions || [], 'auditionId'),
-    contracts: mergeById(local.contracts, remote.contracts || [], 'contractId'),
-    sponsorships: mergeById(local.sponsorships, remote.sponsorships || [], 'sponsorshipId'),
-    mediaItems: mergeById(local.mediaItems, remote.mediaItems || [], 'mediaId').slice(0, 40),
-    controversies: mergeById(local.controversies, remote.controversies || [], 'controversyId').slice(0, 25),
-    awards: mergeById(local.awards, remote.awards || [], 'awardCycleId').slice(0, 8),
-    fanCommunities: mergeById(local.fanCommunities, remote.fanCommunities || [], 'communityId'),
-    tickets: mergeById(local.tickets, remote.tickets || [], 'ticketId'),
+    tracks: mergedTracks,
+    releases: mergedReleases,
+    concerts: mergedConcerts,
+    auditions: mergedAuditions,
+    contracts: mergedContracts,
+    projects: mergedProjects,
+    sponsorships: mergedSponsorships,
+    mediaItems: mergedMediaItems,
+    controversies: mergedControversies,
+    awards: mergedAwards,
+    fanCommunities: mergedFanCommunities,
+    tickets: mergedTickets,
   };
 }
