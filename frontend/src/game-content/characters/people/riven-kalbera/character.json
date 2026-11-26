@@ -27,7 +27,12 @@
       "file": "people/riven-kalbera/story.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-MA-00481947",
   "legacyMaids": [],
-  "folder": "riven-kalbera"
+  "folder": "riven-kalbera",
+  "firstName": "Riven",
+  "lastName": "Kalbera",
+  "title": null,
+  "occupation": "Independent Investigator",
+  "homeRealm": "Marlowe"
 }

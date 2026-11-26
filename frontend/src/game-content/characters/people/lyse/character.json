@@ -1,6 +1,6 @@
 {
   "id": "char-lyse",
-  "name": "Instructor Lyse",
+  "name": "Instructor Lyse Marivelle",
   "kind": "person",
   "aliases": [],
   "status": "document-only",
@@ -15,5 +15,10 @@
   ],
   "maid": null,
   "legacyMaids": [],
-  "folder": "lyse"
+  "folder": "lyse",
+  "firstName": "Lyse",
+  "lastName": "Marivelle",
+  "title": "Instructor",
+  "occupation": "Instructor",
+  "homeRealm": "Marlowe"
 }

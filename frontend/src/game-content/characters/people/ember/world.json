@@ -6,8 +6,8 @@
     "context": "NPCS",
     "data": {
       "id": "npc-ember",
-      "name": "High Forge-Master Ember",
-      "title": "Lord of the Pyre Foundries",
+      "name": "High Forge-Master Ember Ashborne",
+      "title": "High Forge-Master",
       "role": "Artificer",
       "dialogueTone": "Intense, passionate, and exacting",
       "affiliation": "House Ember",

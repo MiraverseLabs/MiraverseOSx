@@ -1,0 +1,23 @@
+{
+  "id": "char-nyla-baptiste",
+  "name": "Nyla Baptiste",
+  "kind": "person",
+  "aliases": [
+    "NYLA"
+  ],
+  "status": "existing",
+  "notes": [
+    "Independent emerging recording artist and songwriter performing as NYLA (ART-NYLA).",
+    "Genres: Alternative R&B, neo-soul, electronic pop."
+  ],
+  "legacyIds": [],
+  "references": [],
+  "maid": "MAID-MA-00481981",
+  "legacyMaids": [],
+  "folder": "nyla-baptiste",
+  "firstName": "Nyla",
+  "lastName": "Baptiste",
+  "title": null,
+  "occupation": "Recording Artist and Songwriter",
+  "homeRealm": "Marlowe"
+}

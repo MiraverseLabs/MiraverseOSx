@@ -2,14 +2,14 @@
 import { copyProfile } from '../profileData';
 import file0 from '../people/elara-vale/investigations.json' with { type: 'json' };
 import file1 from '../people/kaelen-voss/investigations.json' with { type: 'json' };
-const profiles = new Map<string, { data: unknown; characterId: string }>([
-  ["CASE-FM-401", { data: file0[0].data, characterId: "char-elara-vale" }],
-  ["CASE-DGA-402", { data: file1[0].data, characterId: "char-kaelen-voss" }],
+const profiles = new Map<string, { data: unknown; characterId: string; archivedSubject: boolean }>([
+  ["CASE-FM-401", { data: file0[0].data, characterId: "char-elara-vale", archivedSubject: true }],
+  ["CASE-DGA-402", { data: file1[0].data, characterId: "char-kaelen-voss", archivedSubject: true }],
 ]);
 export function getProfile<T = any>(key: string): T {
   if (!profiles.has(key)) throw new Error("Unknown FORMAL_INVESTIGATION_CASES character profile: " + key);
   const entry = profiles.get(key)!;
   const value = copyProfile(entry.data);
-  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId }) as T;
+  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId, ...(entry.archivedSubject ? { archivedSubject: true } : {}) }) as T;
 }
 export function getProfiles<T = any>(): T[] { return [...profiles.keys()].map(key => getProfile<T>(key)); }

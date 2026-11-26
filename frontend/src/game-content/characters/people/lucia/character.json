@@ -1,6 +1,6 @@
 {
   "id": "char-lucia",
-  "name": "Chancellor Lucia",
+  "name": "Chancellor Lucia Valemont",
   "kind": "person",
   "aliases": [],
   "status": "existing",
@@ -13,7 +13,12 @@
       "file": "people/lucia/world.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-LU-00481971",
   "legacyMaids": [],
-  "folder": "lucia"
+  "folder": "lucia",
+  "firstName": "Lucia",
+  "lastName": "Valemont",
+  "title": "Chancellor",
+  "occupation": "Chancellor",
+  "homeRealm": "Lumia"
 }

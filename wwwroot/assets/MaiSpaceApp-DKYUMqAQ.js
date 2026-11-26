@@ -1,0 +1,1 @@
+import{j as r}from"./framer-motion-C1oor_IG.js";import{M as t}from"./SocialApp-zRmNVwOp.js";import"./lucide-icons-aKmharIV.js";import"./index-DpSjTEez.js";import"./App-Bb89GeNQ.js";import"./usePostalStore-CA1FYz_Y.js";import"./MediaTemplateRenderer-CsoFAalp.js";function f(){return r.jsx(t,{})}export{f as default};

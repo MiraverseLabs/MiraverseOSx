@@ -1,0 +1,28 @@
+[
+  {
+    "collection": "INSTITUTIONAL_REGISTRY",
+    "key": "sup-engineer",
+    "origin": "frontend/src/gameplay/WorkplaceDefinitions.ts:sup-engineer",
+    "context": "INSTITUTIONAL_REGISTRY",
+    "data": {
+      "id": "sup-engineer",
+      "name": "Darius Mensah",
+      "title": "Senior Systems Engineer",
+      "department": "Systems Engineering Directorate",
+      "avatar": "DM",
+      "personality": "Disciplined, hands-on, prioritizes grid fault isolation and clean lockout verification.",
+      "expectations": "Log every voltage trace before energizing a junction. Zero undocumented bypasses.",
+      "approvalRate": 90
+    },
+    "original": {
+      "id": "sup-engineer",
+      "name": "Darius Mensah",
+      "title": "Senior Systems Engineer",
+      "department": "Systems Engineering Directorate",
+      "avatar": "DM",
+      "personality": "Disciplined, hands-on, prioritizes grid fault isolation and clean lockout verification.",
+      "expectations": "Log every voltage trace before energizing a junction. Zero undocumented bypasses.",
+      "approvalRate": 90
+    }
+  }
+]

@@ -13,7 +13,12 @@
       "file": "people/tobias-gale/workplace.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-BR-00481944",
   "legacyMaids": [],
-  "folder": "tobias-gale"
+  "folder": "tobias-gale",
+  "firstName": "Tobias",
+  "lastName": "Gale",
+  "title": null,
+  "occupation": "Transportation Engineer",
+  "homeRealm": "Brisland"
 }

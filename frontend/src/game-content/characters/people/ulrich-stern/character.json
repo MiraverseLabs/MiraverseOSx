@@ -18,7 +18,12 @@
       "file": "people/ulrich-stern/story.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-VR-00481967",
   "legacyMaids": [],
-  "folder": "ulrich-stern"
+  "folder": "ulrich-stern",
+  "firstName": "Ulrich",
+  "lastName": "Stern",
+  "title": null,
+  "occupation": "Student",
+  "homeRealm": "Ve’Raylia"
 }

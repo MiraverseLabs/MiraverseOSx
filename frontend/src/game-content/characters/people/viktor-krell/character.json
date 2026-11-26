@@ -33,7 +33,12 @@
       "file": "people/viktor-krell/relationships.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-FR-00481948",
   "legacyMaids": [],
-  "folder": "viktor-krell"
+  "folder": "viktor-krell",
+  "firstName": "Viktor",
+  "lastName": "Krell",
+  "title": null,
+  "occupation": "Independent Contractor",
+  "homeRealm": "Fross"
 }

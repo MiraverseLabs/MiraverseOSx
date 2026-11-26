@@ -1,6 +1,6 @@
 {
   "id": "char-ember",
-  "name": "High Forge-Master Ember",
+  "name": "High Forge-Master Ember Ashborne",
   "kind": "person",
   "aliases": [],
   "status": "existing",
@@ -13,7 +13,12 @@
       "file": "people/ember/world.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-KA-00481933",
   "legacyMaids": [],
-  "folder": "ember"
+  "folder": "ember",
+  "firstName": "Ember",
+  "lastName": "Ashborne",
+  "title": "High Forge-Master",
+  "occupation": "High Forge-Master",
+  "homeRealm": "Kaji"
 }

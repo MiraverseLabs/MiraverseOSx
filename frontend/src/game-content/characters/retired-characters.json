@@ -1,0 +1,142 @@
+[
+  {
+    "id": "char-elara-vale",
+    "name": "Elara Vale",
+    "folder": "elara-vale",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Permanently preserved as archived historical case subject (CASE-FM-401 / pc-vale); MAID-OR-00481926 permanently retired; excluded from active population."
+  },
+  {
+    "id": "char-felix-ward",
+    "name": "Felix Ward",
+    "folder": "felix-ward",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Legacy WORKNET INSTITUTIONAL_REGISTRY fixture."
+  },
+  {
+    "id": "char-julian-paul-vance",
+    "name": "Dr. Julian Paul Vance",
+    "folder": "julian-paul-vance",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Historical DGA/Registry reference; MAID-OR-00481927 retired."
+  },
+  {
+    "id": "char-kaelen",
+    "name": "Kaelen",
+    "folder": "kaelen",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Legacy persona / AI memory seed."
+  },
+  {
+    "id": "char-kaelen-vance",
+    "name": "Kaelen Vance",
+    "folder": "kaelen-vance",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Legacy WORKNET INSTITUTIONAL_REGISTRY fixture."
+  },
+  {
+    "id": "char-kaelen-voss",
+    "name": "Kaelen Voss",
+    "folder": "kaelen-voss",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Permanently preserved as archived historical case subject (CASE-DGA-402); excluded from active population."
+  },
+  {
+    "id": "char-lyric-enya",
+    "name": "Lyric Enya",
+    "folder": "lyric-enya",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Legacy story-bible / entertainment demo seed."
+  },
+  {
+    "id": "char-mara-thorne",
+    "name": "Mara Thorne",
+    "folder": "mara-thorne",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Legacy PEOPLE / VerseNet portal fixture."
+  },
+  {
+    "id": "char-marcus-vance",
+    "name": "Courier Marcus Vance (No Relation)",
+    "folder": "marcus-vance-courier",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Legacy DGA seedPeople/seedRelationships courier subject."
+  },
+  {
+    "id": "char-marcus-vance-technician",
+    "name": "Marcus Vance",
+    "folder": "marcus-vance-technician",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Permanently preserved as archived historical case subject (P-402 / INV-26-402); excluded from active population."
+  },
+  {
+    "id": "char-maren-holt",
+    "name": "Maren Holt",
+    "folder": "maren-holt",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Legacy WORKNET INSTITUTIONAL_REGISTRY fixture."
+  },
+  {
+    "id": "char-nadia-cruz",
+    "name": "Nadia Cruz",
+    "folder": "nadia-cruz",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Legacy WORKNET INSTITUTIONAL_REGISTRY fixture."
+  },
+  {
+    "id": "char-neryx",
+    "name": "Lord Neryx",
+    "folder": "neryx",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Legacy NPCS entry; royal lineage FAC_NERYX remains in organizations."
+  },
+  {
+    "id": "char-null-cantor",
+    "name": "Null Cantor",
+    "folder": "null-cantor",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Legacy phone-contact entry."
+  },
+  {
+    "id": "char-s-mercer",
+    "name": "Student S. Mercer (Vertex House)",
+    "folder": "s-mercer",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Permanently preserved as archived historical case subject (pc-mercer); excluded from active population."
+  },
+  {
+    "id": "char-thalia-vane",
+    "name": "Thalia Vane",
+    "folder": "thalia-vane",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Legacy WORKNET INSTITUTIONAL_REGISTRY fixture."
+  },
+  {
+    "id": "char-tyler-ross",
+    "name": "Officer Tyler Ross",
+    "folder": "tyler-ross",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Permanently preserved as archived historical case subject (PAT-94102); excluded from active population."
+  },
+  {
+    "id": "char-unidentified-patient-pat95881",
+    "name": "Jane Doe (Unidentified Subject)",
+    "folder": "unidentified-patient-pat95881",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Permanently preserved as archived historical case subject (PAT-95881); excluded from active population."
+  },
+  {
+    "id": "char-vaelen",
+    "name": "Vaelen",
+    "folder": "vaelen",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Legacy persona / AI memory seed."
+  },
+  {
+    "id": "char-vance-lowe",
+    "name": "Vance Lowe",
+    "folder": "vance-lowe",
+    "reason": "Removed during canonical 55-character roster cleanup",
+    "historicalContext": "Legacy WORKNET INSTITUTIONAL_REGISTRY fixture."
+  }
+]

@@ -1,14 +1,24 @@
 import { getProfile as defaultInputsProfile } from '../game-content/characters/collections/defaultInputs';
+import {
+  getActiveRegisteredCitizens,
+  isRetiredCharacterId,
+  type CharacterIdentity,
+} from '../game-content/characters/registry';
+import {
+  allocateCanonicalMaidViaApi,
+  fetchCanonicalCharacters,
+  invalidateCanonicalCaches,
+  updateCanonicalCharacter,
+} from './canonicalDataClient';
 /**
  * MIRAVERSE OS x — Official MAID Identity Registry Service
  * Directives:
  * - MAID is the official, permanent identity number: MAID-<REGISTRATION_REGION_CODE>-<8 DIGITS>
- * - Approved region code: OR (Orynvell). Other regions require confirmation before issuance.
- * - MAID is immutable once assigned. Never regenerates on edit/reopen.
+ * - Approved regional codes: OR, FR, LU, MA, BR, KA, NE, VR (all eight Meridion realms).
+ * - MAID is immutable once assigned (including identifiers issued outside a character's current HomeRealm).
+ * - Retired serials 00481926, 00481927, and 00481928 are permanently reserved and cannot be re-issued.
+ * - Authoritative allocation routes through /api/canonical/maids/allocate when connected.
  * - Existing MRD IDs remain permanent legacy aliases and resolve to the same person.
- * - Two distinct workflows: Add Person and Look Up MAID.
- * - Non-destructive and idempotent migration with pre-migration backup.
- * - Backed by durable offline storage (IndexedDB idb-keyval + localStorage fallback/cache).
  */
 
 import { get as idbGet, set as idbSet } from 'idb-keyval';
@@ -16,11 +26,61 @@ import { generateProceduralPortrait } from './portraitService';
 import { authorizeAuraAction, resolveAuraActor, type AuraActorContext } from '../integration/auraPermissions';
 import { communicationsAuthority } from '../integration/communicationsAccess';
 
-export type RegistrationRegionCode = 'OR';
+export type RegistrationRegionCode = 'OR' | 'FR' | 'LU' | 'MA' | 'BR' | 'KA' | 'NE' | 'VR';
+
+export const AUTHORIZED_REGISTRATION_REGION_CODES: readonly RegistrationRegionCode[] = Object.freeze([
+  'OR', 'FR', 'LU', 'MA', 'BR', 'KA', 'NE', 'VR',
+]);
+
+export const RETIRED_MAID_SERIALS: ReadonlySet<number> = new Set([481926, 481927, 481928]);
 
 export const CONFIRMED_REGISTRATION_REGIONS: Record<string, { code: RegistrationRegionCode; name: string }> = {
   Orynvell: { code: 'OR', name: 'Orynvell (Celestial Crown Center)' },
+  Fross: { code: 'FR', name: 'Fross (Northern Glacial Reach)' },
+  Lumia: { code: 'LU', name: 'Lumia (Sprawl of Starlight)' },
+  Marlowe: { code: 'MA', name: 'Marlowe (Tidal Springs & Coast)' },
+  Brisland: { code: 'BR', name: 'Brisland (Verdant Highlands)' },
+  Kaji: { code: 'KA', name: 'Kaji (Forge-Rift & Hearthlands)' },
+  Nephele: { code: 'NE', name: 'Nephele (Cloud-Spire Sanctuary)' },
+  'Ve’Raylia': { code: 'VR', name: 'Ve’Raylia (Elmore Astral Seat)' },
+  "Ve'Raylia": { code: 'VR', name: 'Ve’Raylia (Elmore Astral Seat)' },
 };
+
+const REGION_CODE_TO_REALM: Record<RegistrationRegionCode, string> = {
+  OR: 'Orynvell',
+  FR: 'Fross',
+  LU: 'Lumia',
+  MA: 'Marlowe',
+  BR: 'Brisland',
+  KA: 'Kaji',
+  NE: 'Nephele',
+  VR: 'Ve’Raylia',
+};
+
+export function resolveRegistrationRegionCode(region?: string | null): RegistrationRegionCode | null {
+  if (!region || typeof region !== 'string') return null;
+  const trimmed = region.trim();
+  const upper = trimmed.toUpperCase();
+  if ((AUTHORIZED_REGISTRATION_REGION_CODES as readonly string[]).includes(upper)) {
+    return upper as RegistrationRegionCode;
+  }
+  const normalized = trimmed.toLowerCase().replace(/['’]/g, '');
+  for (const [label, meta] of Object.entries(CONFIRMED_REGISTRATION_REGIONS)) {
+    if (label.toLowerCase().replace(/['’]/g, '') === normalized) {
+      return meta.code;
+    }
+  }
+  return null;
+}
+
+export function isRetiredMaidSerial(maidOrSerial: string | number | null | undefined): boolean {
+  if (typeof maidOrSerial === 'number') return RETIRED_MAID_SERIALS.has(maidOrSerial);
+  if (!maidOrSerial || typeof maidOrSerial !== 'string') return false;
+  const trimmed = maidOrSerial.trim().toUpperCase();
+  const match = trimmed.match(/^MAID-[A-Z]{2}-(\d{8})$/);
+  const numeric = match ? parseInt(match[1], 10) : parseInt(trimmed, 10);
+  return Number.isFinite(numeric) && RETIRED_MAID_SERIALS.has(numeric);
+}
 
 export interface VerifiedEmailAccount {
   address: string;
@@ -34,8 +94,9 @@ export interface VerifiedEmailAccount {
 }
 
 export interface CanonicalPerson {
-  id: string; // Internal stable UUID
-  maid: string | null; // e.g. "MAID-OR-00481926" or null if pending migration
+  id: string; // Internal stable UUID or canonical CharacterId
+  characterId?: string; // Stable canonical character ID from miraverse.db (e.g. "char-kieran-vesper")
+  maid: string | null; // e.g. "MAID-OR-00481929" or null if pending migration
   maidStatus: 'active' | 'pending_migration';
   registrationRegionCode: RegistrationRegionCode | null;
   registrationDate: string;
@@ -44,6 +105,10 @@ export interface CanonicalPerson {
 
   // Master Identity Attributes
   name: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  title?: string | null;
+  homeRealm?: string | null; // Current canonical home realm (distinct from birthplace & MAID issuing region)
   dob: string;
   place: string; // Birthplace
   home: string; // Current residence
@@ -104,7 +169,11 @@ export interface LookupResult {
 
 export interface NewPersonInput {
   name: string;
-  registrationRegion: 'Orynvell' | 'OR';
+  firstName?: string | null;
+  lastName?: string | null;
+  title?: string | null;
+  homeRealm?: string | null;
+  registrationRegion: RegistrationRegionCode | keyof typeof CONFIRMED_REGISTRATION_REGIONS | string;
   dob: string;
   place: string;
   home: string;
@@ -206,36 +275,52 @@ const STORAGE_KEY_COUNTER_OR = 'miraverse-maid-counter-OR';
 
 /**
  * Validates the official MAID format: MAID-<REGISTRATION_REGION_CODE>-<8 DIGITS>
+ * Supports all 8 authorized Meridion regional codes: OR, FR, LU, MA, BR, KA, NE, VR.
  */
-export function validateMaidFormat(maid: string): { valid: boolean; region?: string; sequence?: string; error?: string } {
+export function validateMaidFormat(maid: string): {
+  valid: boolean;
+  region?: RegistrationRegionCode;
+  sequence?: string;
+  retired?: boolean;
+  error?: string;
+} {
   if (!maid || typeof maid !== 'string') {
     return { valid: false, error: 'MAID cannot be empty.' };
   }
   const match = maid.trim().toUpperCase().match(/^MAID-([A-Z]{2})-(\d{8})$/);
   if (!match) {
-    return { valid: false, error: 'Invalid MAID format. Must follow MAID-<REGION>-<8 DIGITS> (e.g. MAID-OR-00481926).' };
+    return { valid: false, error: 'Invalid MAID format. Must follow MAID-<REGION>-<8 DIGITS> (e.g. MAID-OR-00481929).' };
   }
-  const region = match[1];
+  const rawRegion = match[1];
   const sequence = match[2];
 
-  if (region !== 'OR') {
-    return { valid: false, region, sequence, error: `Registration region code '${region}' is not yet confirmed by the Creative Director. Only 'OR' (Orynvell) is authorized.` };
+  if (!(AUTHORIZED_REGISTRATION_REGION_CODES as readonly string[]).includes(rawRegion)) {
+    return {
+      valid: false,
+      sequence,
+      error: `Registration region code '${rawRegion}' is not authorized. Allowed codes: ${AUTHORIZED_REGISTRATION_REGION_CODES.join(', ')}.`,
+    };
   }
 
-  return { valid: true, region, sequence };
+  const region = rawRegion as RegistrationRegionCode;
+  const retired = RETIRED_MAID_SERIALS.has(parseInt(sequence, 10));
+  return { valid: true, region, sequence, retired };
 }
 
-// In-memory mutex for atomic sequence allocation
-let isAllocating = false;
-
 /**
- * Atomically allocates the next sequential 8-digit MAID for Orynvell (OR).
+ * Offline fallback allocator for sequential 8-digit MAIDs across any of the 8 realms.
+ * Respects retired serials (00481926, 00481927, 00481928) and canonical high-water mark (481974).
+ * When connected to the backend, addPerson / confirmPendingRegistration call /api/canonical/maids/allocate first.
  */
-export function allocateNextMaid(existingPersons: CanonicalPerson[]): string {
-  const region: RegistrationRegionCode = 'OR';
-  
-  // Find highest existing sequence in storage
-  let maxSeq = 481925; // Default canonical starting threshold
+export function allocateNextMaid(
+  existingPersons: CanonicalPerson[],
+  regionInput: RegistrationRegionCode | string = 'OR'
+): string {
+  const region = resolveRegistrationRegionCode(regionInput) || 'OR';
+  const usedSerials = new Set<number>(RETIRED_MAID_SERIALS);
+
+  // Start above canonical DB high-water mark (00481981) so offline allocations never collide with canon.
+  let maxSeq = 481981;
   try {
     const storedCounter = localStorage.getItem(STORAGE_KEY_COUNTER_OR);
     if (storedCounter) {
@@ -246,21 +331,23 @@ export function allocateNextMaid(existingPersons: CanonicalPerson[]): string {
     // fallback
   }
 
-  // Scan existing persons for sequence collision protection
   existingPersons.forEach(p => {
-    if (p.maid && p.maid.startsWith('MAID-OR-')) {
-      const parts = p.maid.split('-');
-      if (parts[2]) {
-        const seqNum = parseInt(parts[2], 10);
-        if (!isNaN(seqNum) && seqNum > maxSeq) {
-          maxSeq = seqNum;
-        }
+    if (!p.maid) return;
+    const match = p.maid.trim().toUpperCase().match(/^MAID-[A-Z]{2}-(\d{8})$/);
+    if (match) {
+      const seqNum = parseInt(match[1], 10);
+      if (!isNaN(seqNum)) {
+        usedSerials.add(seqNum);
+        if (seqNum > maxSeq) maxSeq = seqNum;
       }
     }
   });
 
-  const nextSeq = maxSeq + 1;
-  const maid = `MAID-OR-${String(nextSeq).padStart(8, '0')}`;
+  let nextSeq = maxSeq + 1;
+  while (usedSerials.has(nextSeq)) {
+    nextSeq++;
+  }
+  const maid = `MAID-${region}-${String(nextSeq).padStart(8, '0')}`;
 
   try {
     localStorage.setItem(STORAGE_KEY_COUNTER_OR, String(nextSeq));
@@ -527,12 +614,14 @@ export class MaidIdentityService {
       let maidStatus: 'active' | 'pending_migration' = 'pending_migration';
       let allocatedMaid: string | null = null;
 
-      if (legacy.registrationRegion === 'Orynvell' || legacy.registrationRegionCode === 'OR') {
-        regionCode = 'OR';
+      const resolvedLegacyRegion = resolveRegistrationRegionCode(legacy.registrationRegionCode || legacy.registrationRegion);
+      if (resolvedLegacyRegion) {
+        regionCode = resolvedLegacyRegion;
         maidStatus = 'active';
-        allocatedMaid = legacy.maid && validateMaidFormat(legacy.maid).valid 
-          ? legacy.maid 
-          : allocateNextMaid(currentCanonical);
+        const existingCheck = legacy.maid ? validateMaidFormat(legacy.maid) : null;
+        allocatedMaid = existingCheck?.valid && !existingCheck.retired
+          ? legacy.maid.trim().toUpperCase()
+          : allocateNextMaid(currentCanonical, resolvedLegacyRegion);
         migratedCount++;
       } else {
         // Unknown or unconfirmed registration region: Mark as pending migration
@@ -747,12 +836,13 @@ export class MaidIdentityService {
         return { success: false, person: null as any, error: auth.reason };
       }
     }
-    // Enforce initial registration region validation
-    if (input.registrationRegion !== 'Orynvell' && input.registrationRegion !== 'OR') {
+    // Validate registration region across all 8 authorized Meridion realms
+    const resolvedRegionCode = resolveRegistrationRegionCode(input.registrationRegion);
+    if (!resolvedRegionCode) {
       return {
         success: false,
         person: null as any,
-        error: `Registration region '${input.registrationRegion}' is not authorized for new MAID issuance. Only 'OR' (Orynvell) is confirmed.`
+        error: `Registration region '${input.registrationRegion}' is not authorized for MAID issuance. Allowed codes: ${AUTHORIZED_REGISTRATION_REGION_CODES.join(', ')}.`
       };
     }
 
@@ -772,8 +862,16 @@ export class MaidIdentityService {
       };
     }
 
-    // Allocate atomic, unique MAID
-    const maid = allocateNextMaid(currentList);
+    // Allocate atomic, unique MAID centrally via backend API when online (with retired-serial-safe offline fallback)
+    const apiAlloc = await allocateCanonicalMaidViaApi(resolvedRegionCode, { notes: `AURA Registry registration: ${input.name.trim()}` });
+    if (!apiAlloc.ok && !apiAlloc.offline) {
+      return {
+        success: false,
+        person: null as any,
+        error: apiAlloc.error || 'Authoritative MAID allocation failed.',
+      };
+    }
+    const maid = apiAlloc.ok && apiAlloc.maid ? apiAlloc.maid : allocateNextMaid(currentList, resolvedRegionCode);
     const id = generateUuid();
     const legacyRecord = input.legacyRecordId || `MRD-${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(100 + Math.random() * 900)}`;
 
@@ -781,12 +879,16 @@ export class MaidIdentityService {
       id,
       maid,
       maidStatus: 'active',
-      registrationRegionCode: 'OR',
+      registrationRegionCode: resolvedRegionCode,
       registrationDate: new Date().toISOString(),
       legacyAliases: [legacyRecord],
       legacyRecord,
 
       name: input.name.trim(),
+      firstName: input.firstName ?? null,
+      lastName: input.lastName ?? null,
+      title: input.title ?? null,
+      homeRealm: input.homeRealm ?? (REGION_CODE_TO_REALM[resolvedRegionCode] || null),
       dob: input.dob,
       place: input.place,
       home: input.home,
@@ -916,6 +1018,19 @@ export class MaidIdentityService {
     currentList[idx] = updatedPerson;
     await saveCanonicalList(currentList);
 
+    // Push validated identity updates to authoritative backend if this record is linked to a canonical DB character
+    if (updatedPerson.characterId) {
+      await updateCanonicalCharacter(updatedPerson.characterId, {
+        name: updatedPerson.name,
+        firstName: updatedPerson.firstName ?? undefined,
+        lastName: updatedPerson.lastName ?? undefined,
+        title: updatedPerson.title ?? undefined,
+        occupation: updatedPerson.occupation,
+        homeRealm: updatedPerson.homeRealm ?? undefined,
+      }).catch(() => {});
+      invalidateCanonicalCaches('characters');
+    }
+
     return { success: true, person: updatedPerson };
   }
 
@@ -924,7 +1039,7 @@ export class MaidIdentityService {
    */
   public static async confirmPendingRegistration(
     personIdOrRecord: string,
-    region: 'Orynvell' | 'OR',
+    region: RegistrationRegionCode | keyof typeof CONFIRMED_REGISTRATION_REGIONS | string,
     options?: { actor?: AuraActorContext; enforceAuth?: boolean }
   ): Promise<{ success: boolean; person: CanonicalPerson; error?: string }> {
     if (options?.actor || options?.enforceAuth || communicationsAuthority().isLoggedIn) {
@@ -933,8 +1048,13 @@ export class MaidIdentityService {
         return { success: false, person: null as any, error: auth.reason };
       }
     }
-    if (region !== 'Orynvell' && region !== 'OR') {
-      return { success: false, person: null as any, error: `Only 'OR' (Orynvell) is currently confirmed for MAID issuance.` };
+    const resolvedRegionCode = resolveRegistrationRegionCode(region);
+    if (!resolvedRegionCode) {
+      return {
+        success: false,
+        person: null as any,
+        error: `Registration region '${region}' is not authorized. Allowed codes: ${AUTHORIZED_REGISTRATION_REGION_CODES.join(', ')}.`,
+      };
     }
 
     const currentList = await this.getAllPersons();
@@ -948,11 +1068,18 @@ export class MaidIdentityService {
       return { success: true, person }; // Already has active MAID
     }
 
-    // Allocate official MAID
-    const maid = allocateNextMaid(currentList);
+    // Allocate official MAID centrally via backend API when online
+    const apiAlloc = await allocateCanonicalMaidViaApi(resolvedRegionCode, {
+      characterId: person.characterId,
+      notes: `Pending migration confirmation: ${person.name}`,
+    });
+    if (!apiAlloc.ok && !apiAlloc.offline) {
+      return { success: false, person: null as any, error: apiAlloc.error || 'MAID allocation failed.' };
+    }
+    const maid = apiAlloc.ok && apiAlloc.maid ? apiAlloc.maid : allocateNextMaid(currentList, resolvedRegionCode);
     person.maid = maid;
     person.maidStatus = 'active';
-    person.registrationRegionCode = 'OR';
+    person.registrationRegionCode = resolvedRegionCode;
     person.biometricSeed = person.biometricSeed || maid;
 
     await saveCanonicalList(currentList);
@@ -1068,7 +1195,7 @@ export class MaidIdentityService {
     const idx = typeof seedOverride === 'number' ? Math.abs(seedOverride) : Math.floor(Math.random() * 1000);
     const pick = <T,>(arr: T[], offset = 0): T => arr[(idx + offset) % arr.length];
 
-    const firstNames = ['Lyra', 'Caelum', 'Seraphina', 'Vaelen', 'Isolde', 'Theron', 'Mireille', 'Cassian', 'Aurelia', 'Soren', 'Elowen', 'Dorian'];
+    const firstNames = ['Lyra', 'Caelum', 'Seraphina', 'Valen', 'Isolde', 'Theron', 'Mireille', 'Cassian', 'Aurelia', 'Soren', 'Elowen', 'Dorian'];
     const lastNames = ['Vance', 'Solis', 'Thorne', 'Vesper', 'Kael', 'Marlowe', 'Ashford', 'Valen', 'Lumen', 'Caelis', 'Vey', 'Rostova'];
     const name = `${pick(firstNames)} ${pick(lastNames, 3)}`;
     const year = 1986 + (idx % 20);
@@ -1243,98 +1370,237 @@ export class MaidIdentityService {
   }
 
   /**
-   * Seeds the canonical population database with interconnected Meridion citizens
-   * across Cyberium Academy, Faith Medical, DGAOS/TRACE, and Orynvell Civic Archives if empty.
+   * Builds a CanonicalPerson entry from an authoritative canonical character record,
+   * enriching with any retained rich biometric seed profile from defaultInputs when present.
+   */
+  private static buildPersonFromCanonicalRecord(
+    record: {
+      id: string;
+      name: string;
+      firstName?: string | null;
+      lastName?: string | null;
+      title?: string | null;
+      occupation?: string | null;
+      homeRealm?: string | null;
+      maid?: string | null;
+      aliases?: readonly string[];
+    },
+    idx: number,
+    richSeed?: (NewPersonInput & { fixedMaid?: string; fixedLegacy?: string; characterId?: string }) | null
+  ): CanonicalPerson {
+    const maid = record.maid ? record.maid.trim().toUpperCase() : null;
+    const validated = maid ? validateMaidFormat(maid) : null;
+    const regCode: RegistrationRegionCode | null = validated?.valid && validated.region ? validated.region : null;
+    const homeRealm = record.homeRealm || (regCode ? REGION_CODE_TO_REALM[regCode] : 'Orynvell');
+    const legacyRecord = richSeed?.fixedLegacy || `MRD-CANON-${String(idx + 1).padStart(4, '0')}`;
+    const name = record.name;
+    const occupation = record.occupation || richSeed?.occupation || 'Registered Citizen';
+    const species = richSeed?.species || 'Humanoid · Celestial Citizen';
+    const ancestry = richSeed?.ancestry || `${homeRealm} Lineage`;
+    const dob = richSeed?.dob || '2000-01-01';
+    const place = richSeed?.place || `${homeRealm} Realm`;
+    const home = richSeed?.home || homeRealm;
+
+    const portrait = generateProceduralPortrait({
+      name,
+      species,
+      ancestry,
+      eyes: richSeed?.eyes || 'Luminous Hazel',
+      hair: richSeed?.hair || 'Silver-Black',
+      build: richSeed?.build || 'Medium',
+      height: richSeed?.height || '172 cm',
+      mark: richSeed?.mark || 'None recorded',
+      home,
+      affinity: richSeed?.affinity || 'Gold · civic harmony',
+      powerSource: richSeed?.powerSource || 'Ambient Aether',
+      category: richSeed?.category || 'Registered Citizen',
+      dob,
+    }, 100 + idx * 17);
+
+    const person: CanonicalPerson = {
+      id: record.id,
+      characterId: record.id,
+      maid,
+      maidStatus: maid ? 'active' : 'pending_migration',
+      registrationRegionCode: regCode,
+      registrationDate: new Date(Date.now() - (46 - idx) * 86400000 * 15).toISOString(),
+      legacyAliases: Array.from(new Set([legacyRecord, ...(record.aliases || [])])),
+      legacyRecord,
+      name,
+      firstName: record.firstName ?? null,
+      lastName: record.lastName ?? null,
+      title: record.title ?? null,
+      homeRealm: record.homeRealm ?? null,
+      dob,
+      place,
+      home,
+      address: richSeed?.address || `${homeRealm} Municipal Registry`,
+      phone: richSeed?.phone || `+1 (202) 555-${String(2100 + idx).padStart(4, '0')}`,
+      email: richSeed?.email || `${name.toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.|\.$/g, '')}@auremail.aure`,
+      district: richSeed?.district || `${homeRealm} District`,
+      passport: richSeed?.passport || `${regCode || 'OR'}-${String(480000 + idx).padStart(6, '0')}`,
+      alias: richSeed?.alias || record.aliases?.[0],
+      height: richSeed?.height || '172 cm',
+      eyes: richSeed?.eyes || 'Luminous Hazel',
+      hair: richSeed?.hair || 'Silver-Black',
+      build: richSeed?.build || 'Medium',
+      blood: richSeed?.blood || 'A+ (Aura Calibrated)',
+      mark: richSeed?.mark || 'None recorded',
+      biometricSeed: maid || record.id,
+      portraitData: portrait,
+      species,
+      ancestry,
+      abilities: richSeed?.abilities || 'Standard Resonance',
+      powerSource: richSeed?.powerSource || 'Ambient Aether',
+      affinity: richSeed?.affinity || 'Calibrated Civic Resonance',
+      faction: richSeed?.faction,
+      lore: richSeed?.lore,
+      category: richSeed?.category || 'Registered Citizen',
+      affiliation: richSeed?.affiliation || `${homeRealm} Civic Registry`,
+      occupation,
+      clearance: richSeed?.clearance || 'General civic access',
+      aura: richSeed?.aura || 'Aura Calibrated Standard',
+      medical: richSeed?.medical || 'Faith Medical Group · intake verified',
+      residency: richSeed?.residency || `${homeRealm} · verified`,
+      history: richSeed?.history || `Authoritative canonical citizen record (${homeRealm}).`,
+      status: richSeed?.status || 'ACTIVE / VERIFIED',
+      links: richSeed?.links || 'Canonical miraverse.db citizen identity.',
+      relationships: richSeed?.relationships,
+      relationshipIds: richSeed?.relationshipIds || [],
+      household: richSeed?.household,
+      timeline: richSeed?.timeline,
+      origin: 'Authoritative Canonical Registry (miraverse.db)',
+      storyMode: richSeed?.storyMode || 'Ordinary & Believable',
+      isRestricted: false,
+    };
+    person.emailAccounts = buildVerifiedEmailAccountsForPerson(person);
+    return person;
+  }
+
+  /**
+   * Reconciles cached browser registry entries with the authoritative miraverse.db roster
+   * without allowing stale browser snapshots or counters to overwrite canonical identities.
+   */
+  public static async syncWithCanonicalRegistry(forceRefresh = false): Promise<CanonicalPerson[]> {
+    const { characters } = await fetchCanonicalCharacters(forceRefresh);
+    const activeRegistered = characters.filter(c => c.kind === 'person' && c.status === 'existing');
+    const cached = await loadStoredCanonicalList();
+
+    const richSeedsByMaid = new Map<string, any>();
+    for (const seedMaid of ['MAID-OR-00481929', 'MAID-OR-00481930', 'MAID-OR-00481931']) {
+      try {
+        richSeedsByMaid.set(seedMaid, defaultInputsProfile(seedMaid));
+      } catch {
+        // Optional rich profile
+      }
+    }
+
+    const cachedByCharId = new Map<string, CanonicalPerson>();
+    const cachedByMaid = new Map<string, CanonicalPerson>();
+    const playerCustomPersons: CanonicalPerson[] = [];
+
+    for (const p of cached) {
+      // Exclude retired seed entries (e.g. former Elara Vale / Dr. Julian Paul Vance defaults)
+      if ((p.characterId && isRetiredCharacterId(p.characterId)) || isRetiredMaidSerial(p.maid)) {
+        continue;
+      }
+      if (p.characterId) cachedByCharId.set(p.characterId, p);
+      if (p.maid) cachedByMaid.set(p.maid.trim().toUpperCase(), p);
+      if (!p.characterId && !activeRegistered.some(c => c.maid && p.maid && c.maid.toUpperCase() === p.maid.toUpperCase())) {
+        playerCustomPersons.push(p);
+      }
+    }
+
+    let highestSerial = 481981;
+    const reconciled: CanonicalPerson[] = activeRegistered.map((c, idx) => {
+      const normalizedMaid = c.maid ? c.maid.trim().toUpperCase() : null;
+      if (normalizedMaid) {
+        const m = normalizedMaid.match(/^MAID-[A-Z]{2}-(\d{8})$/);
+        if (m) highestSerial = Math.max(highestSerial, parseInt(m[1], 10));
+      }
+      const existing = cachedByCharId.get(c.characterId) || (normalizedMaid ? cachedByMaid.get(normalizedMaid) : undefined);
+      if (existing) {
+        const validated = normalizedMaid ? validateMaidFormat(normalizedMaid) : null;
+        const merged: CanonicalPerson = {
+          ...existing,
+          characterId: c.characterId,
+          name: c.name,
+          firstName: c.firstName,
+          lastName: c.lastName,
+          title: c.title,
+          occupation: c.occupation || existing.occupation,
+          homeRealm: c.homeRealm,
+          maid: normalizedMaid ?? existing.maid,
+          maidStatus: (normalizedMaid ?? existing.maid) ? 'active' : 'pending_migration',
+          registrationRegionCode: validated?.valid && validated.region ? validated.region : existing.registrationRegionCode,
+        };
+        merged.emailAccounts = buildVerifiedEmailAccountsForPerson(merged);
+        return merged;
+      }
+      const richSeed = normalizedMaid ? richSeedsByMaid.get(normalizedMaid) : null;
+      return this.buildPersonFromCanonicalRecord(
+        {
+          id: c.characterId,
+          name: c.name,
+          firstName: c.firstName,
+          lastName: c.lastName,
+          title: c.title,
+          occupation: c.occupation,
+          homeRealm: c.homeRealm,
+          maid: normalizedMaid,
+          aliases: c.aliases,
+        },
+        idx,
+        richSeed
+      );
+    });
+
+    const combined = [...reconciled, ...playerCustomPersons];
+    try {
+      const storedCounter = parseInt(localStorage.getItem(STORAGE_KEY_COUNTER_OR) || '0', 10);
+      if (!Number.isFinite(storedCounter) || storedCounter < highestSerial) {
+        localStorage.setItem(STORAGE_KEY_COUNTER_OR, String(highestSerial));
+      }
+    } catch {
+      // ignore
+    }
+
+    await saveCanonicalList(combined);
+    return combined;
+  }
+
+  /**
+   * Seeds the canonical population database from the authoritative 46 registered citizens
+   * (enriched with rich biometric profiles where available) — never reintroducing retired serials.
    */
   public static async ensureDefaultPopulationSeeded(): Promise<CanonicalPerson[]> {
     const existing = await loadStoredCanonicalList();
     if (existing.length > 0) {
-      return existing.map((p) => ({
-        ...p,
-        emailAccounts: buildVerifiedEmailAccountsForPerson(p),
-      }));
+      return existing
+        .filter(p => !isRetiredMaidSerial(p.maid) && !(p.characterId && isRetiredCharacterId(p.characterId)))
+        .map((p) => ({
+          ...p,
+          emailAccounts: buildVerifiedEmailAccountsForPerson(p),
+        }));
     }
 
-    const defaultInputs: (NewPersonInput & { fixedMaid: string; fixedLegacy: string })[] = [
-      defaultInputsProfile("MAID-OR-00481926"),
-      defaultInputsProfile("MAID-OR-00481928"),
-      defaultInputsProfile("MAID-OR-00481929"),
-      defaultInputsProfile("MAID-OR-00481930"),
-      defaultInputsProfile("MAID-OR-00481931")
-    ];
+    const richSeedsByMaid = new Map<string, any>();
+    for (const seedMaid of ['MAID-OR-00481929', 'MAID-OR-00481930', 'MAID-OR-00481931']) {
+      try {
+        richSeedsByMaid.set(seedMaid, defaultInputsProfile(seedMaid));
+      } catch {
+        // Optional rich profile
+      }
+    }
 
-    const seededList: CanonicalPerson[] = defaultInputs.map((item, idx) => {
-      const portrait = generateProceduralPortrait({
-        name: item.name,
-        species: item.species,
-        ancestry: item.ancestry,
-        eyes: item.eyes || 'Luminous Hazel',
-        hair: item.hair || 'Silver-Black',
-        build: item.build || 'Medium',
-        height: item.height,
-        mark: item.mark,
-        home: item.home,
-        affinity: item.affinity,
-        powerSource: item.powerSource,
-        category: item.category || 'Citizen',
-        dob: item.dob
-      }, 100 + idx * 17);
-
-      return {
-        id: generateUuid(),
-        maid: item.fixedMaid,
-        maidStatus: 'active',
-        registrationRegionCode: 'OR',
-        registrationDate: new Date(Date.now() - (defaultInputs.length - idx) * 86400000 * 30).toISOString(),
-        legacyAliases: [item.fixedLegacy],
-        legacyRecord: item.fixedLegacy,
-        name: item.name,
-        dob: item.dob,
-        place: item.place,
-        home: item.home,
-        address: item.address || '',
-        phone: item.phone || '',
-        email: item.email || '',
-        district: item.district || '',
-        passport: item.passport || '',
-        alias: item.alias,
-        height: item.height || '172 cm',
-        eyes: item.eyes || 'Luminous Hazel',
-        hair: item.hair || 'Silver-Black',
-        build: item.build || 'Medium',
-        blood: item.blood || 'A+ (Aura Calibrated)',
-        mark: item.mark || 'None recorded',
-        biometricSeed: item.fixedMaid,
-        portraitData: portrait,
-        species: item.species,
-        ancestry: item.ancestry,
-        abilities: item.abilities,
-        powerSource: item.powerSource,
-        affinity: item.affinity,
-        faction: item.faction,
-        lore: item.lore,
-        category: item.category || 'Everyday civilian',
-        affiliation: item.affiliation || 'Independent resident',
-        occupation: item.occupation || 'Resident',
-        clearance: item.clearance || 'General civic access',
-        aura: item.aura || 'Aura Calibrated Standard',
-        medical: item.medical || 'Faith Medical Group · intake verified',
-        residency: item.residency || 'Private residence · verified',
-        history: item.history || 'Official registration established under Orynvell civic authority.',
-        status: item.status || 'ACTIVE / VERIFIED',
-        links: item.links || 'Registered citizen in good standing.',
-        relationships: item.relationships,
-        relationshipIds: item.relationshipIds || [],
-        household: item.household,
-        timeline: item.timeline,
-        origin: 'Authoritative MAID Registration',
-        storyMode: item.storyMode || 'Ordinary & Believable',
-        isRestricted: false
-      };
+    const canonicalCitizens: readonly CharacterIdentity[] = getActiveRegisteredCitizens();
+    const seededList: CanonicalPerson[] = canonicalCitizens.map((c, idx) => {
+      const richSeed = c.maid ? richSeedsByMaid.get(c.maid.trim().toUpperCase()) : null;
+      return this.buildPersonFromCanonicalRecord(c, idx, richSeed);
     });
 
     try {
-      localStorage.setItem(STORAGE_KEY_COUNTER_OR, '481931');
+      localStorage.setItem(STORAGE_KEY_COUNTER_OR, '481981');
     } catch {}
 
     await saveCanonicalList(seededList);

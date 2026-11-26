@@ -25,8 +25,10 @@ internal sealed class WorldSaveApi
         "miraverse-canonical-identities-v1", "miraverse-identity-registry-v3", "trace_records_v2",
         "trace_templates_v2", "trace_open_lab_logs", "miraverse-issued-document-snapshots-v1", "miraverse-external-services-v1"
     };
+    private const int CurrentSaveSchemaVersion = 2;
     private static bool IsWorldKey(string key) => Keys.Contains(key) ||
-        System.Text.RegularExpressions.Regex.IsMatch(key, @"^(?:trace_exam_draft_|DGAOS_SUGGESTION_STATE_)[\w-]{1,200}$", System.Text.RegularExpressions.RegexOptions.ECMAScript);
+        System.Text.RegularExpressions.Regex.IsMatch(key, @"^(?:trace_exam_draft_|DGAOS_SUGGESTION_STATE_)[\w-]{1,200}$", System.Text.RegularExpressions.RegexOptions.ECMAScript) ||
+        System.Text.RegularExpressions.Regex.IsMatch(key, @"^miraverse-maid-counter-(?:OR|FR|LU|MA|BR|KA|NE|VR)$", System.Text.RegularExpressions.RegexOptions.ECMAScript);
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     public WorldSaveApi(string directory)
     {
@@ -39,12 +41,83 @@ internal sealed class WorldSaveApi
             CREATE TABLE IF NOT EXISTS SaveMetadata (Id INTEGER PRIMARY KEY CHECK(Id=1), ServerId TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS WorldSaves (Id INTEGER PRIMARY KEY CHECK(Id=1), Revision INTEGER NOT NULL, UpdatedAt TEXT NOT NULL, Entries TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS WorldSaveHistory (Revision INTEGER PRIMARY KEY, UpdatedAt TEXT NOT NULL, Entries TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS WorldSaveMigrationBackups (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                FromVersion INTEGER NOT NULL,
+                ToVersion INTEGER NOT NULL,
+                OriginalRevision INTEGER NOT NULL,
+                BackedUpAt TEXT NOT NULL,
+                Entries TEXT NOT NULL
+            );
             INSERT OR IGNORE INTO SaveMetadata(Id, ServerId) VALUES (1, $server);
             """;
         command.Parameters.AddWithValue("$server", Guid.NewGuid().ToString());
         command.ExecuteNonQuery();
+        EnsureSaveSchemaVersion(db);
         command.CommandText = "SELECT ServerId FROM SaveMetadata WHERE Id=1";
         serverId = (string)command.ExecuteScalar()!;
+    }
+    private static void EnsureSaveSchemaVersion(SqliteConnection db)
+    {
+        var hasVersionCol = false;
+        using (var info = db.CreateCommand())
+        {
+            info.CommandText = "PRAGMA table_info(SaveMetadata)";
+            using var r = info.ExecuteReader();
+            while (r.Read())
+            {
+                if (string.Equals(r.GetString(1), "SchemaVersion", StringComparison.OrdinalIgnoreCase))
+                {
+                    hasVersionCol = true;
+                    break;
+                }
+            }
+        }
+        if (!hasVersionCol)
+        {
+            using var alter = db.CreateCommand();
+            alter.CommandText = "ALTER TABLE SaveMetadata ADD COLUMN SchemaVersion INTEGER NOT NULL DEFAULT 1";
+            alter.ExecuteNonQuery();
+        }
+        using var tx = db.BeginTransaction();
+        long currentVersion = 1;
+        using (var vcmd = db.CreateCommand())
+        {
+            vcmd.Transaction = tx;
+            vcmd.CommandText = "SELECT SchemaVersion FROM SaveMetadata WHERE Id=1";
+            currentVersion = Convert.ToInt64(vcmd.ExecuteScalar() ?? 1L);
+        }
+        if (currentVersion < CurrentSaveSchemaVersion)
+        {
+            // Preserve a recoverable pre-migration snapshot of the existing WorldSaves row before bumping schema version
+            using (var snap = db.CreateCommand())
+            {
+                snap.Transaction = tx;
+                snap.CommandText = "SELECT Revision, Entries FROM WorldSaves WHERE Id=1";
+                using var r = snap.ExecuteReader();
+                if (r.Read())
+                {
+                    using var bak = db.CreateCommand();
+                    bak.Transaction = tx;
+                    bak.CommandText = """
+                        INSERT INTO WorldSaveMigrationBackups (FromVersion, ToVersion, OriginalRevision, BackedUpAt, Entries)
+                        VALUES ($from, $to, $rev, $at, $entries)
+                        """;
+                    bak.Parameters.AddWithValue("$from", currentVersion);
+                    bak.Parameters.AddWithValue("$to", CurrentSaveSchemaVersion);
+                    bak.Parameters.AddWithValue("$rev", r.GetInt64(0));
+                    bak.Parameters.AddWithValue("$at", DateTimeOffset.UtcNow.ToString("O"));
+                    bak.Parameters.AddWithValue("$entries", r.GetString(1));
+                    bak.ExecuteNonQuery();
+                }
+            }
+            using var upd = db.CreateCommand();
+            upd.Transaction = tx;
+            upd.CommandText = "UPDATE SaveMetadata SET SchemaVersion = $v WHERE Id=1";
+            upd.Parameters.AddWithValue("$v", CurrentSaveSchemaVersion);
+            upd.ExecuteNonQuery();
+        }
+        tx.Commit();
     }
     private SqliteConnection Open() { var db = new SqliteConnection(connectionString); db.Open(); return db; }
     private WorldSnapshot Read(SqliteConnection db, SqliteTransaction? transaction = null)

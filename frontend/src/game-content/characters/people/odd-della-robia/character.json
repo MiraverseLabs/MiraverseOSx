@@ -32,7 +32,12 @@
       "file": "people/odd-della-robia/story.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-BR-00481940",
   "legacyMaids": [],
-  "folder": "odd-della-robia"
+  "folder": "odd-della-robia",
+  "firstName": "Odd",
+  "lastName": "Della Robia",
+  "title": null,
+  "occupation": "Student",
+  "homeRealm": "Brisland"
 }

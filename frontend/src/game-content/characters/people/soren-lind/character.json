@@ -13,7 +13,12 @@
       "file": "people/soren-lind/workplace.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-FR-00481949",
   "legacyMaids": [],
-  "folder": "soren-lind"
+  "folder": "soren-lind",
+  "firstName": "Soren",
+  "lastName": "Lind",
+  "title": null,
+  "occupation": "Architect",
+  "homeRealm": "Fross"
 }

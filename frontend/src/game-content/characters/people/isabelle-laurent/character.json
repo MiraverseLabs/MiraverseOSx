@@ -1,0 +1,26 @@
+{
+  "id": "char-isabelle-laurent",
+  "name": "Isabelle Laurent",
+  "kind": "person",
+  "aliases": [],
+  "status": "existing",
+  "notes": [
+    "Appointed to Public Archives Physical Restoration Lab seat cw-arc-1."
+  ],
+  "legacyIds": [],
+  "references": [
+    {
+      "collection": "INSTITUTIONAL_REGISTRY",
+      "key": "cw-arc-1",
+      "file": "people/isabelle-laurent/workplace.json"
+    }
+  ],
+  "maid": "MAID-LU-00481976",
+  "legacyMaids": [],
+  "folder": "isabelle-laurent",
+  "firstName": "Isabelle",
+  "lastName": "Laurent",
+  "title": null,
+  "occupation": "Archival Research Specialist",
+  "homeRealm": "Lumia"
+}

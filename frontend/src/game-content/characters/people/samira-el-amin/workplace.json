@@ -1,0 +1,28 @@
+[
+  {
+    "collection": "INSTITUTIONAL_REGISTRY",
+    "key": "sup-diplomat",
+    "origin": "frontend/src/gameplay/WorkplaceDefinitions.ts:sup-diplomat",
+    "context": "INSTITUTIONAL_REGISTRY",
+    "data": {
+      "id": "sup-diplomat",
+      "name": "Samira El-Amin",
+      "title": "Senior Diplomatic Affairs Officer",
+      "department": "High Council Civic Administration",
+      "avatar": "SE",
+      "personality": "Composed, incisive, balances cross-realm protocol with pragmatic public mediation.",
+      "expectations": "Verify treaty citations and preserve equitable representation across all eight realms.",
+      "approvalRate": 91
+    },
+    "original": {
+      "id": "sup-diplomat",
+      "name": "Samira El-Amin",
+      "title": "Senior Diplomatic Affairs Officer",
+      "department": "High Council Civic Administration",
+      "avatar": "SE",
+      "personality": "Composed, incisive, balances cross-realm protocol with pragmatic public mediation.",
+      "expectations": "Verify treaty citations and preserve equitable representation across all eight realms.",
+      "approvalRate": 91
+    }
+  }
+]

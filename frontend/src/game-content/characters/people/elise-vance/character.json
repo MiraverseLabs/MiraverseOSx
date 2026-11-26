@@ -13,7 +13,12 @@
       "file": "people/elise-vance/workplace.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481973",
   "legacyMaids": [],
-  "folder": "elise-vance"
+  "folder": "elise-vance",
+  "firstName": "Elise",
+  "lastName": "Vance",
+  "title": null,
+  "occupation": "Public Relations Specialist",
+  "homeRealm": "Orynvell"
 }

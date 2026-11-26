@@ -119,7 +119,9 @@ def collect(root):
         if (person['id'], person['name'], person['folder']) != (item['id'], item['name'], item['folder']):
             raise ValueError(f'Manifest disagrees with {relative}')
         rows['Characters'].append((person['id'], person['name'], person['kind'], person['status'],
-            person['folder'], person.get('maid'), packed(person.get('notes', [])), relative))
+            person['folder'], person.get('maid'), packed(person.get('notes', [])), relative,
+            person.get('firstName'), person.get('lastName'), person.get('title'),
+            person.get('occupation'), person.get('homeRealm')))
         owners[person['id']] = person['id']
         for index, alias in enumerate(person.get('aliases', [])):
             rows['CharacterAliases'].append((person['id'], alias, index))
@@ -217,9 +219,56 @@ def collect(root):
     return rows, files_scanned
 
 
+TABLE_COLUMNS = {
+    'ContentSources': ('Path', 'Category', 'Sha256', 'ContentJson'),
+    'Characters': (
+        'CharacterId', 'Name', 'Kind', 'Status', 'Folder', 'Maid',
+        'NotesJson', 'SourcePath', 'FirstName', 'LastName', 'Title',
+        'Occupation', 'HomeRealm',
+    ),
+    'CharacterAliases': ('CharacterId', 'Alias', 'Position'),
+    'CharacterLegacyIds': ('LegacyId', 'CharacterId', 'Position'),
+    'CharacterProfiles': (
+        'Collection', 'RecordKey', 'CharacterId', 'Context', 'Origin',
+        'SourcePath', 'SourceIndex', 'CollectionOrder', 'DataJson', 'OriginalJson',
+    ),
+    'CharacterRelationships': (
+        'RelationshipId', 'OwnerCharacterId', 'SourceId', 'SourceName',
+        'TargetId', 'TargetName', 'Type', 'Notes', 'SourceCharacterId',
+        'TargetCharacterId', 'Collection', 'RecordKey',
+    ),
+    'WorldRecords': (
+        'SourcePath', 'Section', 'RecordKey', 'Position', 'Domain',
+        'Name', 'Description', 'DataJson',
+    ),
+    'SourceDocuments': ('Path', 'Format', 'Sha256', 'Text', 'Status'),
+    'MigrationInventory': ('Path', 'Category', 'Status', 'Notes'),
+}
+
 KEYS = {'ContentSources': (0,), 'Characters': (0,), 'CharacterAliases': (0, 1),
         'CharacterLegacyIds': (0,), 'CharacterProfiles': (0, 1), 'CharacterRelationships': (0,),
         'WorldRecords': (0, 1, 2), 'SourceDocuments': (0,), 'MigrationInventory': (0,)}
+
+
+def _retired_character_ids(db):
+    exists = db.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='RetiredCharacters'"
+    ).fetchone()
+    if not exists:
+        return set()
+    return {row[0] for row in db.execute('SELECT CharacterId FROM RetiredCharacters')}
+
+
+def _ensure_character_schema(db):
+    cols = {row[1] for row in db.execute('PRAGMA table_info("Characters")')}
+    for col in ('FirstName', 'LastName', 'Title', 'Occupation', 'HomeRealm'):
+        if col not in cols:
+            db.execute(f'ALTER TABLE Characters ADD COLUMN "{col}" TEXT')
+    db.execute(
+        """CREATE UNIQUE INDEX IF NOT EXISTS UniqueCharacterMAID
+           ON Characters (UPPER(TRIM(Maid)))
+           WHERE Maid IS NOT NULL AND TRIM(Maid) != ''"""
+    )
 
 
 def connect_readonly(path):
@@ -231,15 +280,25 @@ def validate(db, expected):
         raise ValueError('Database integrity check failed')
     if list(db.execute('PRAGMA foreign_key_check')):
         raise ValueError('Database has broken references')
+    retired = _retired_character_ids(db)
     for table, entries in expected.items():
         if table == 'MigrationInventory':
             continue  # Inventory can change when reports/backups are added.
-        stored = {tuple(row[i] for i in KEYS[table]): tuple(row) for row in db.execute(f'SELECT * FROM "{table}"')}
-        for row in entries:
+        cols = TABLE_COLUMNS[table]
+        col_sql = ', '.join(f'"{c}"' for c in cols)
+        stored = {tuple(row[i] for i in KEYS[table]): tuple(row) for row in db.execute(f'SELECT {col_sql} FROM "{table}"')}
+        filtered_entries = [
+            row for row in entries
+            if not (table == 'Characters' and row[0] in retired)
+            and not (table in ('CharacterAliases', 'CharacterProfiles') and row[0 if table == 'CharacterAliases' else 2] in retired)
+            and not (table == 'CharacterLegacyIds' and row[1] in retired)
+            and not (table == 'CharacterRelationships' and row[1] in retired)
+        ]
+        for row in filtered_entries:
             key = tuple(row[i] for i in KEYS[table])
             if stored.get(key) != row:
                 raise ValueError(f'{table} differs from source at {key}; database edits have NOT been overwritten.')
-        if set(stored) != {tuple(row[i] for i in KEYS[table]) for row in entries}:
+        if set(stored) != {tuple(row[i] for i in KEYS[table]) for row in filtered_entries}:
             raise ValueError(f'{table} has extra records; source deletion is not applied automatically.')
 
 
@@ -310,21 +369,33 @@ def migrate(root, database, backup_dir=None, check=False):
             # executescript commits implicitly; include BEGIN so schema and data
             # are rolled back together on import or validation failure.
             db.executescript('BEGIN IMMEDIATE;\n' + SCHEMA.read_text(encoding='utf-8') + '\n' + CATEGORIES.read_text(encoding='utf-8'))
+            _ensure_character_schema(db)
+            retired = _retired_character_ids(db)
             for table, entries in rows.items():
                 if table == 'CharacterRelationships':
                     continue  # Derived from profile data, not maintained twice.
-                columns = [row[1] for row in db.execute(f'PRAGMA table_info("{table}")')]
+                columns = TABLE_COLUMNS[table]
+                col_sql = ', '.join(f'"{c}"' for c in columns)
+                placeholders = ','.join('?' for _ in columns)
                 keys = KEYS[table]
                 for entry in entries:
+                    if table == 'Characters' and entry[0] in retired:
+                        continue
+                    if table == 'CharacterAliases' and entry[0] in retired:
+                        continue
+                    if table == 'CharacterLegacyIds' and entry[1] in retired:
+                        continue
+                    if table == 'CharacterProfiles' and entry[2] in retired:
+                        continue
                     where = ' AND '.join(f'"{columns[i]}"=?' for i in keys)
-                    old = db.execute(f'SELECT * FROM "{table}" WHERE {where}', tuple(entry[i] for i in keys)).fetchone()
+                    old = db.execute(f'SELECT {col_sql} FROM "{table}" WHERE {where}', tuple(entry[i] for i in keys)).fetchone()
                     if old is not None:
                         if tuple(old) != entry and table != 'MigrationInventory':
                             raise ValueError(f'{table} differs from source; refusing to overwrite {tuple(entry[i] for i in keys)}')
                         if table == 'MigrationInventory':
                             db.execute(f'UPDATE "{table}" SET Category=?, Status=?, Notes=? WHERE Path=?', (*entry[1:], entry[0]))
                     else:
-                        db.execute(f'INSERT INTO "{table}" VALUES ({",".join("?" for _ in entry)})', entry)
+                        db.execute(f'INSERT INTO "{table}" ({col_sql}) VALUES ({placeholders})', entry)
             consolidate_relationships(db)
             validate(db, rows)
             screening = screen(db)

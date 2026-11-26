@@ -13,7 +13,12 @@
       "file": "people/derek-brody/workplace.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-BR-00481936",
   "legacyMaids": [],
-  "folder": "derek-brody"
+  "folder": "derek-brody",
+  "firstName": "Derek",
+  "lastName": "Brody",
+  "title": "Sergeant",
+  "occupation": "Law Enforcement Officer",
+  "homeRealm": "Brisland"
 }

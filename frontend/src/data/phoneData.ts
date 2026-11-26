@@ -34,7 +34,6 @@ export const INITIAL_SMS_THREADS: Record<string, SmsMessage[]> = {
   'Ulrich': phone_contactProfile("Ulrich"),
   'Sissi': phone_contactProfile("Sissi"),
   'Nerya': phone_contactProfile("Nerya"),
-  'Null Cantor': phone_contactProfile("Null Cantor"),
 };
 
 export const INITIAL_VOICEMAILS: Voicemail[] = [

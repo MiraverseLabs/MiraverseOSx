@@ -13,7 +13,12 @@
       "file": "people/aris-thorne/workplace.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-NE-00481968",
   "legacyMaids": [],
-  "folder": "aris-thorne"
+  "folder": "aris-thorne",
+  "firstName": "Aris",
+  "lastName": "Thorne",
+  "title": "Dr.",
+  "occupation": "Research Scientist",
+  "homeRealm": "Nephele"
 }

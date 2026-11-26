@@ -72,6 +72,15 @@ def load_characters():
                     }
                 )
 
+        retired_ids = set()
+        if connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='RetiredCharacters'"
+        ).fetchone():
+            retired_ids = {
+                r[0]
+                for r in connection.execute("SELECT CharacterId FROM RetiredCharacters").fetchall()
+            }
+
         rows = connection.execute(
             """
             SELECT *
@@ -89,7 +98,7 @@ def load_characters():
             character = dict(row)
             character_id = character["CharacterId"]
 
-            if not character_id or character_id in seen:
+            if not character_id or character_id in seen or character_id in retired_ids:
                 continue
 
             seen.add(character_id)
@@ -183,6 +192,11 @@ class Citizen(mesa.Agent):
         )
         self.normalized = norm
         self.name = norm["name"] or self.canonical_name
+        self.first_name = norm.get("first_name", "")
+        self.last_name = norm.get("last_name", "")
+        self.kind = norm.get("kind", "person")
+        self.record_status = norm.get("record_status", "existing")
+        self.maid = (norm.get("maids") or [None])[0]
 
         # Multi-faceted role attributes
         self.primary_occupation = norm["primary_occupation"]
@@ -200,7 +214,7 @@ class Citizen(mesa.Agent):
         self.current_residence = norm["current_residence"]
         self.workplace = norm["workplace"]
 
-        # Enriched backward-compatible lore fields
+        # Enriched backward-compatible lore fields (HomeRealm kept strictly separate from OriginRealm)
         self.role = (
             norm["primary_occupation"]
             or (norm["institutional_roles"][0] if norm["institutional_roles"] else "")
@@ -215,7 +229,9 @@ class Citizen(mesa.Agent):
             )
             else "Unknown"
         )
-        self.realm = norm["origin_realm"] or self.get_attribute("realm")
+        self.home_realm = norm.get("home_realm", "")
+        self.origin_realm = norm.get("origin_realm", "")
+        self.realm = self.home_realm or self.origin_realm or self.get_attribute("realm")
         self.affiliation = (
             (norm["institutions"][0] if norm["institutions"] else "")
             or (norm["social_affiliations"][0] if norm["social_affiliations"] else "")

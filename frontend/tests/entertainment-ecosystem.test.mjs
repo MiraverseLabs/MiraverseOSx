@@ -124,7 +124,18 @@ test('ordinary citizen can stream music, follow artists, join fan circles, purch
   assert.equal(followRes.following, true);
   assert.equal(store.getState().joinEntertainmentFanCommunity('ART-VIVIENNE').ok, true);
 
-  // Buy 2 tickets to Lyric Enya at The Looking Glass (22 credits each = 44 credits)
+  // Verify ART-NYLA (NYLA / Nyla Baptiste) replaced ART-LYRIC cleanly with independent status and no inherited contracts/awards
+  const nyla = initialState.artists.find((a) => a.artistId === 'ART-NYLA');
+  assert.ok(nyla, 'ART-NYLA must be registered in active entertainment artists');
+  assert.equal(nyla.characterId, 'char-nyla-baptiste');
+  assert.equal(nyla.stageName, 'NYLA');
+  assert.deepEqual(nyla.genres, ['Alternative R&B', 'neo-soul', 'electronic pop']);
+  assert.equal(nyla.managerOrgId, '');
+  assert.equal(nyla.labelOrgId, '');
+  assert.equal(initialState.artists.some((a) => a.artistId === 'ART-LYRIC' || a.stageName === 'Lyric Enya'), false);
+  assert.equal(initialState.contracts.some((c) => c.artistId === 'ART-NYLA' || c.artistId === 'ART-LYRIC'), false);
+
+  // Buy 2 tickets to NYLA at The Looking Glass (22 credits each = 44 credits)
   const creditsBefore = store.getState().gameplay.player.credits;
   const tktRes = store.getState().purchaseEntertainmentTicket('CON-SEED-01', 2);
   assert.equal(tktRes.ok, true);

@@ -13,7 +13,12 @@
       "file": "people/vivienne-rose/workplace.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-LU-00481961",
   "legacyMaids": [],
-  "folder": "vivienne-rose"
+  "folder": "vivienne-rose",
+  "firstName": "Vivienne",
+  "lastName": "Rose",
+  "title": null,
+  "occupation": "Performing Artist",
+  "homeRealm": "Lumia"
 }

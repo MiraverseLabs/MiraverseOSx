@@ -1,8 +1,10 @@
 {
   "id": "char-rowan",
-  "name": "Archivist Rowan",
+  "name": "Archivist Rowan Alderwick",
   "kind": "person",
-  "aliases": [],
+  "aliases": [
+    "@rowan.margins"
+  ],
   "status": "existing",
   "notes": [],
   "legacyIds": [],
@@ -13,7 +15,12 @@
       "file": "people/rowan/social.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-VR-00481932",
   "legacyMaids": [],
-  "folder": "rowan"
+  "folder": "rowan",
+  "firstName": "Rowan",
+  "lastName": "Alderwick",
+  "title": "Archivist",
+  "occupation": "Archivist",
+  "homeRealm": "Ve’Raylia"
 }

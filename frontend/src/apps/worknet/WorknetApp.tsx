@@ -6,6 +6,8 @@ import {
 import { useCommsStore } from '../../store/useCommsStore';
 import { useOSStore } from '../../store/useOSStore';
 import { INSTITUTIONAL_REGISTRY } from './worknetData';
+import { syncCareersFromCanonicalBackend } from '../../gameplay/CareerRegistry';
+import { syncMissionsFromCanonicalBackend } from '../../gameplay/MissionCatalog';
 import { useWorknetAppearance } from './useWorknetAppearance';
 import { employed, stationTrack } from './workplaceModel';
 import { useWorknetState, type WorknetTabId } from './useWorknetState';
@@ -71,6 +73,12 @@ export default function WorknetApp({
     requestLeave,
     visitBreakRoom
   } = useWorknetState();
+
+  // Hydrate reconciled canonical careers & missions from miraverse.db backend when online
+  useEffect(() => {
+    void syncCareersFromCanonicalBackend();
+    void syncMissionsFromCanonicalBackend();
+  }, []);
 
   // Initialize from props if provided
   useEffect(() => {

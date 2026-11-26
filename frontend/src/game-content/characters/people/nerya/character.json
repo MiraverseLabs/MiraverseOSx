@@ -1,6 +1,6 @@
 {
   "id": "char-nerya",
-  "name": "Nerya",
+  "name": "Nerya Solenne",
   "kind": "person",
   "aliases": [],
   "status": "existing",
@@ -13,7 +13,12 @@
       "file": "people/nerya/phone.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-VR-00481963",
   "legacyMaids": [],
-  "folder": "nerya"
+  "folder": "nerya",
+  "firstName": "Nerya",
+  "lastName": "Solenne",
+  "title": null,
+  "occupation": "Botanical Researcher",
+  "homeRealm": "Ve’Raylia"
 }

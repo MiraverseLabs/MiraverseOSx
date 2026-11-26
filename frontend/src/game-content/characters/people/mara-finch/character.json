@@ -13,7 +13,12 @@
       "file": "people/mara-finch/workplace.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-VR-00481943",
   "legacyMaids": [],
-  "folder": "mara-finch"
+  "folder": "mara-finch",
+  "firstName": "Mara",
+  "lastName": "Finch",
+  "title": null,
+  "occupation": "Event Coordinator",
+  "homeRealm": "Ve’Raylia"
 }

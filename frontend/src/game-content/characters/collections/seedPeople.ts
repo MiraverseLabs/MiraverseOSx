@@ -5,17 +5,17 @@ import file1 from '../people/gregory-thorne/agency.json' with { type: 'json' };
 import file2 from '../people/viktor-krell/agency.json' with { type: 'json' };
 import file3 from '../people/marcus-vance-courier/agency.json' with { type: 'json' };
 import file4 from '../people/elena-rostova/agency.json' with { type: 'json' };
-const profiles = new Map<string, { data: unknown; characterId: string }>([
-  ["P-101", { data: file0[0].data, characterId: "char-christian-vance" }],
-  ["P-102", { data: file1[0].data, characterId: "char-gregory-thorne" }],
-  ["P-103", { data: file2[0].data, characterId: "char-viktor-krell" }],
-  ["P-104", { data: file3[0].data, characterId: "char-marcus-vance" }],
-  ["P-105", { data: file4[0].data, characterId: "char-elena-rostova" }],
+const profiles = new Map<string, { data: unknown; characterId: string; archivedSubject: boolean }>([
+  ["P-101", { data: file0[0].data, characterId: "char-christian-vance", archivedSubject: false }],
+  ["P-102", { data: file1[0].data, characterId: "char-gregory-thorne", archivedSubject: false }],
+  ["P-103", { data: file2[0].data, characterId: "char-viktor-krell", archivedSubject: false }],
+  ["P-104", { data: file3[0].data, characterId: "char-marcus-vance", archivedSubject: true }],
+  ["P-105", { data: file4[0].data, characterId: "char-elena-rostova", archivedSubject: false }],
 ]);
 export function getProfile<T = any>(key: string): T {
   if (!profiles.has(key)) throw new Error("Unknown seedPeople character profile: " + key);
   const entry = profiles.get(key)!;
   const value = copyProfile(entry.data);
-  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId }) as T;
+  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId, ...(entry.archivedSubject ? { archivedSubject: true } : {}) }) as T;
 }
 export function getProfiles<T = any>(): T[] { return [...profiles.keys()].map(key => getProfile<T>(key)); }

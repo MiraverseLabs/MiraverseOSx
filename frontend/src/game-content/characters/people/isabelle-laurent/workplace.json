@@ -1,0 +1,38 @@
+[
+  {
+    "collection": "INSTITUTIONAL_REGISTRY",
+    "key": "cw-arc-1",
+    "origin": "frontend/src/gameplay/WorkplaceDefinitions.ts:cw-arc-1",
+    "context": "INSTITUTIONAL_REGISTRY",
+    "data": {
+      "id": "cw-arc-1",
+      "name": "Isabelle Laurent",
+      "title": "Archival Research Specialist",
+      "division": "Physical Restoration Lab",
+      "avatar": "IL",
+      "status": "Desk",
+      "specialty": "Degraded micro-card provenance & ink stabilization",
+      "quote": "Preserve the marginalia first; the footnotes usually outlive the official summary.",
+      "trust": 76,
+      "competence": 86,
+      "familiarity": 64,
+      "cooperation": 85,
+      "conflictHistory": 3
+    },
+    "original": {
+      "id": "cw-arc-1",
+      "name": "Isabelle Laurent",
+      "title": "Archival Research Specialist",
+      "division": "Physical Restoration Lab",
+      "avatar": "IL",
+      "status": "Desk",
+      "specialty": "Degraded micro-card provenance & ink stabilization",
+      "quote": "Preserve the marginalia first; the footnotes usually outlive the official summary.",
+      "trust": 76,
+      "competence": 86,
+      "familiarity": 64,
+      "cooperation": 85,
+      "conflictHistory": 3
+    }
+  }
+]

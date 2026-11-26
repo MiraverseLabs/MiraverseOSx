@@ -4,6 +4,14 @@
     {
       "id": "char-maeryn-seraphima",
       "name": "Queen Maeryn Seraphima",
+      "firstName": "Maeryn",
+      "lastName": "Seraphima",
+      "title": "Queen",
+      "occupation": "Monarch",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481962",
       "folder": "maeryn-seraphima",
       "files": [
         "people/maeryn-seraphima/world.json",
@@ -12,7 +20,15 @@
     },
     {
       "id": "char-holly",
-      "name": "High Warden Holly",
+      "name": "High Warden Holly Evercrest",
+      "firstName": "Holly",
+      "lastName": "Evercrest",
+      "title": "High Warden",
+      "occupation": "High Warden",
+      "homeRealm": "Fross",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-FR-00481942",
       "folder": "holly",
       "files": [
         "people/holly/world.json"
@@ -20,23 +36,31 @@
     },
     {
       "id": "char-lucia",
-      "name": "Chancellor Lucia",
+      "name": "Chancellor Lucia Valemont",
+      "firstName": "Lucia",
+      "lastName": "Valemont",
+      "title": "Chancellor",
+      "occupation": "Chancellor",
+      "homeRealm": "Lumia",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-LU-00481971",
       "folder": "lucia",
       "files": [
         "people/lucia/world.json"
       ]
     },
     {
-      "id": "char-neryx",
-      "name": "Lord Neryx",
-      "folder": "neryx",
-      "files": [
-        "people/neryx/world.json"
-      ]
-    },
-    {
       "id": "char-yoko",
-      "name": "Grand Dispatcher Yoko",
+      "name": "Grand Dispatcher Yoko Mizuhara",
+      "firstName": "Yoko",
+      "lastName": "Mizuhara",
+      "title": "Grand Dispatcher",
+      "occupation": "Grand Dispatcher",
+      "homeRealm": "Brisland",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-BR-00481956",
       "folder": "yoko",
       "files": [
         "people/yoko/world.json"
@@ -44,7 +68,15 @@
     },
     {
       "id": "char-ember",
-      "name": "High Forge-Master Ember",
+      "name": "High Forge-Master Ember Ashborne",
+      "firstName": "Ember",
+      "lastName": "Ashborne",
+      "title": "High Forge-Master",
+      "occupation": "High Forge-Master",
+      "homeRealm": "Kaji",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-KA-00481933",
       "folder": "ember",
       "files": [
         "people/ember/world.json"
@@ -52,7 +84,15 @@
     },
     {
       "id": "char-keket",
-      "name": "Seer Keket",
+      "name": "Seer Keket Nymeris",
+      "firstName": "Keket",
+      "lastName": "Nymeris",
+      "title": "Seer",
+      "occupation": "Seer",
+      "homeRealm": "Nephele",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-NE-00481958",
       "folder": "keket",
       "files": [
         "people/keket/world.json"
@@ -61,6 +101,14 @@
     {
       "id": "char-kieran-vesper",
       "name": "Kieran Vesper",
+      "firstName": "Kieran",
+      "lastName": "Vesper",
+      "title": null,
+      "occupation": "Senior Archivist",
+      "homeRealm": "Nephele",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481929",
       "folder": "kieran-vesper",
       "files": [
         "people/kieran-vesper/world.json",
@@ -70,6 +118,14 @@
     {
       "id": "char-robert-mercer",
       "name": "Dr. Robert Mercer",
+      "firstName": "Robert",
+      "lastName": "Mercer",
+      "title": "Dr.",
+      "occupation": "Medical Researcher",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481953",
       "folder": "robert-mercer",
       "files": [
         "people/robert-mercer/world.json"
@@ -78,6 +134,14 @@
     {
       "id": "char-christian-vance",
       "name": "Ambassador Christian Vance",
+      "firstName": "Christian",
+      "lastName": "Vance",
+      "title": "Ambassador",
+      "occupation": "Diplomat",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481972",
       "folder": "christian-vance",
       "files": [
         "people/christian-vance/agency.json",
@@ -88,6 +152,14 @@
     {
       "id": "char-gregory-thorne",
       "name": "Dr. Gregory Thorne",
+      "firstName": "Gregory",
+      "lastName": "Thorne",
+      "title": "Dr.",
+      "occupation": "Chief Toxicologist",
+      "homeRealm": "Nephele",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-NE-00481969",
       "folder": "gregory-thorne",
       "files": [
         "people/gregory-thorne/agency.json",
@@ -98,6 +170,14 @@
     {
       "id": "char-viktor-krell",
       "name": "Viktor Krell",
+      "firstName": "Viktor",
+      "lastName": "Krell",
+      "title": null,
+      "occupation": "Independent Contractor",
+      "homeRealm": "Fross",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-FR-00481948",
       "folder": "viktor-krell",
       "files": [
         "people/viktor-krell/agency.json",
@@ -106,17 +186,16 @@
       ]
     },
     {
-      "id": "char-marcus-vance",
-      "name": "Courier Marcus Vance (No Relation)",
-      "folder": "marcus-vance-courier",
-      "files": [
-        "people/marcus-vance-courier/agency.json",
-        "people/marcus-vance-courier/relationships.json"
-      ]
-    },
-    {
       "id": "char-elena-rostova",
       "name": "Elena Rostova",
+      "firstName": "Elena",
+      "lastName": "Rostova",
+      "title": null,
+      "occupation": "Intelligence Operative",
+      "homeRealm": "Fross",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481931",
       "folder": "elena-rostova",
       "files": [
         "people/elena-rostova/agency.json",
@@ -128,6 +207,14 @@
     {
       "id": "char-evelyn-cross",
       "name": "Director Evelyn Cross",
+      "firstName": "Evelyn",
+      "lastName": "Cross",
+      "title": "Director",
+      "occupation": "Intelligence Director",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481939",
       "folder": "evelyn-cross",
       "files": [
         "people/evelyn-cross/agency.json"
@@ -135,7 +222,15 @@
     },
     {
       "id": "char-deputy-chief-miller",
-      "name": "Deputy Chief Miller",
+      "name": "Deputy Chief Nathaniel Miller",
+      "firstName": "Nathaniel",
+      "lastName": "Miller",
+      "title": "Deputy Chief",
+      "occupation": "Law Enforcement Officer",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481954",
       "folder": "deputy-chief-miller",
       "files": [
         "people/deputy-chief-miller/agency.json"
@@ -144,6 +239,14 @@
     {
       "id": "char-marcus-chen",
       "name": "Specialist Marcus Chen",
+      "firstName": "Marcus",
+      "lastName": "Chen",
+      "title": "Specialist",
+      "occupation": "Intelligence Specialist",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481937",
       "folder": "marcus-chen",
       "files": [
         "people/marcus-chen/agency.json"
@@ -152,6 +255,14 @@
     {
       "id": "char-jeremie-belpois",
       "name": "Jeremie Belpois",
+      "firstName": "Jeremie",
+      "lastName": "Belpois",
+      "title": null,
+      "occupation": "Student",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481935",
       "folder": "jeremie-belpois",
       "files": [
         "people/jeremie-belpois/social.json",
@@ -164,6 +275,14 @@
     {
       "id": "char-aelita-hopper",
       "name": "Aelita Hopper",
+      "firstName": "Aelita",
+      "lastName": "Hopper",
+      "title": null,
+      "occupation": "Student",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481945",
       "folder": "aelita-hopper",
       "files": [
         "people/aelita-hopper/social.json",
@@ -176,6 +295,14 @@
     {
       "id": "char-sissi-delmas",
       "name": "Sissi Delmas",
+      "firstName": "Sissi",
+      "lastName": "Delmas",
+      "title": null,
+      "occupation": "Student",
+      "homeRealm": "Lumia",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-LU-00481941",
       "folder": "sissi-delmas",
       "files": [
         "people/sissi-delmas/social.json",
@@ -187,6 +314,14 @@
     {
       "id": "char-odd-della-robia",
       "name": "Odd Della Robia",
+      "firstName": "Odd",
+      "lastName": "Della Robia",
+      "title": null,
+      "occupation": "Student",
+      "homeRealm": "Brisland",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-BR-00481940",
       "folder": "odd-della-robia",
       "files": [
         "people/odd-della-robia/social.json",
@@ -198,6 +333,14 @@
     {
       "id": "char-sharon-voss",
       "name": "Dr. Sharon Voss",
+      "firstName": "Sharon",
+      "lastName": "Voss",
+      "title": "Dr.",
+      "occupation": "Research Scientist",
+      "homeRealm": "Fross",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-FR-00481974",
       "folder": "sharon-voss",
       "files": [
         "people/sharon-voss/social.json",
@@ -208,6 +351,14 @@
     {
       "id": "char-riven-kalbera",
       "name": "Riven Kalbera",
+      "firstName": "Riven",
+      "lastName": "Kalbera",
+      "title": null,
+      "occupation": "Independent Investigator",
+      "homeRealm": "Marlowe",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-MA-00481947",
       "folder": "riven-kalbera",
       "files": [
         "people/riven-kalbera/social.json",
@@ -216,16 +367,16 @@
       ]
     },
     {
-      "id": "char-mara-thorne",
-      "name": "Mara Thorne",
-      "folder": "mara-thorne",
-      "files": [
-        "people/mara-thorne/social.json"
-      ]
-    },
-    {
       "id": "char-rowan",
-      "name": "Archivist Rowan",
+      "name": "Archivist Rowan Alderwick",
+      "firstName": "Rowan",
+      "lastName": "Alderwick",
+      "title": "Archivist",
+      "occupation": "Archivist",
+      "homeRealm": "Ve’Raylia",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-VR-00481932",
       "folder": "rowan",
       "files": [
         "people/rowan/social.json"
@@ -234,22 +385,30 @@
     {
       "id": "char-ronald-sterling",
       "name": "Director Ronald Sterling",
+      "firstName": "Ronald",
+      "lastName": "Sterling",
+      "title": "Director",
+      "occupation": "Agency Director",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481966",
       "folder": "ronald-sterling",
       "files": [
         "people/ronald-sterling/workplace.json"
       ]
     },
     {
-      "id": "char-vance-lowe",
-      "name": "Vance Lowe",
-      "folder": "vance-lowe",
-      "files": [
-        "people/vance-lowe/workplace.json"
-      ]
-    },
-    {
       "id": "char-mireille-chen",
       "name": "Mireille Chen",
+      "firstName": "Mireille",
+      "lastName": "Chen",
+      "title": null,
+      "occupation": "Journalist",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481938",
       "folder": "mireille-chen",
       "files": [
         "people/mireille-chen/workplace.json"
@@ -258,6 +417,14 @@
     {
       "id": "char-derek-brody",
       "name": "Sergeant Derek Brody",
+      "firstName": "Derek",
+      "lastName": "Brody",
+      "title": "Sergeant",
+      "occupation": "Law Enforcement Officer",
+      "homeRealm": "Brisland",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-BR-00481936",
       "folder": "derek-brody",
       "files": [
         "people/derek-brody/workplace.json"
@@ -266,6 +433,14 @@
     {
       "id": "char-aris-thorne",
       "name": "Dr. Aris Thorne",
+      "firstName": "Aris",
+      "lastName": "Thorne",
+      "title": "Dr.",
+      "occupation": "Research Scientist",
+      "homeRealm": "Nephele",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-NE-00481968",
       "folder": "aris-thorne",
       "files": [
         "people/aris-thorne/workplace.json"
@@ -274,6 +449,14 @@
     {
       "id": "char-katherine-mercer",
       "name": "Katherine Mercer",
+      "firstName": "Katherine",
+      "lastName": "Mercer",
+      "title": null,
+      "occupation": "University Lecturer",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481952",
       "folder": "katherine-mercer",
       "files": [
         "people/katherine-mercer/workplace.json"
@@ -282,6 +465,14 @@
     {
       "id": "char-soren-lind",
       "name": "Soren Lind",
+      "firstName": "Soren",
+      "lastName": "Lind",
+      "title": null,
+      "occupation": "Architect",
+      "homeRealm": "Fross",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-FR-00481949",
       "folder": "soren-lind",
       "files": [
         "people/soren-lind/workplace.json"
@@ -290,6 +481,14 @@
     {
       "id": "char-silas-oryn",
       "name": "Silas Oryn",
+      "firstName": "Silas",
+      "lastName": "Oryn",
+      "title": null,
+      "occupation": "Policy Analyst",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481959",
       "folder": "silas-oryn",
       "files": [
         "people/silas-oryn/workplace.json"
@@ -298,6 +497,14 @@
     {
       "id": "char-elise-vance",
       "name": "Elise Vance",
+      "firstName": "Elise",
+      "lastName": "Vance",
+      "title": null,
+      "occupation": "Public Relations Specialist",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481973",
       "folder": "elise-vance",
       "files": [
         "people/elise-vance/workplace.json"
@@ -306,6 +513,14 @@
     {
       "id": "char-tobias-gale",
       "name": "Tobias Gale",
+      "firstName": "Tobias",
+      "lastName": "Gale",
+      "title": null,
+      "occupation": "Transportation Engineer",
+      "homeRealm": "Brisland",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-BR-00481944",
       "folder": "tobias-gale",
       "files": [
         "people/tobias-gale/workplace.json"
@@ -314,46 +529,30 @@
     {
       "id": "char-julian-thorne",
       "name": "Julian Thorne",
+      "firstName": "Julian",
+      "lastName": "Thorne",
+      "title": null,
+      "occupation": "Biomedical Engineer",
+      "homeRealm": "Nephele",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-NE-00481970",
       "folder": "julian-thorne",
       "files": [
         "people/julian-thorne/workplace.json"
       ]
     },
     {
-      "id": "char-maren-holt",
-      "name": "Maren Holt",
-      "folder": "maren-holt",
-      "files": [
-        "people/maren-holt/workplace.json"
-      ]
-    },
-    {
-      "id": "char-kaelen-vance",
-      "name": "Kaelen Vance",
-      "folder": "kaelen-vance",
-      "files": [
-        "people/kaelen-vance/workplace.json"
-      ]
-    },
-    {
-      "id": "char-nadia-cruz",
-      "name": "Nadia Cruz",
-      "folder": "nadia-cruz",
-      "files": [
-        "people/nadia-cruz/workplace.json"
-      ]
-    },
-    {
-      "id": "char-thalia-vane",
-      "name": "Thalia Vane",
-      "folder": "thalia-vane",
-      "files": [
-        "people/thalia-vane/workplace.json"
-      ]
-    },
-    {
       "id": "char-gregory-bell",
       "name": "Gregory Bell",
+      "firstName": "Gregory",
+      "lastName": "Bell",
+      "title": null,
+      "occupation": "Financial Analyst",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481934",
       "folder": "gregory-bell",
       "files": [
         "people/gregory-bell/workplace.json"
@@ -362,6 +561,14 @@
     {
       "id": "char-corin-mercer",
       "name": "Corin Mercer",
+      "firstName": "Corin",
+      "lastName": "Mercer",
+      "title": null,
+      "occupation": "Legal Consultant",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481951",
       "folder": "corin-mercer",
       "files": [
         "people/corin-mercer/workplace.json"
@@ -370,6 +577,14 @@
     {
       "id": "char-mara-finch",
       "name": "Mara Finch",
+      "firstName": "Mara",
+      "lastName": "Finch",
+      "title": null,
+      "occupation": "Event Coordinator",
+      "homeRealm": "Ve’Raylia",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-VR-00481943",
       "folder": "mara-finch",
       "files": [
         "people/mara-finch/workplace.json"
@@ -378,6 +593,14 @@
     {
       "id": "char-vivienne-rose",
       "name": "Vivienne Rose",
+      "firstName": "Vivienne",
+      "lastName": "Rose",
+      "title": null,
+      "occupation": "Performing Artist",
+      "homeRealm": "Lumia",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-LU-00481961",
       "folder": "vivienne-rose",
       "files": [
         "people/vivienne-rose/workplace.json"
@@ -386,6 +609,14 @@
     {
       "id": "char-leo-sterling",
       "name": "Leo Sterling",
+      "firstName": "Leo",
+      "lastName": "Sterling",
+      "title": null,
+      "occupation": "Music Producer",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481965",
       "folder": "leo-sterling",
       "files": [
         "people/leo-sterling/workplace.json"
@@ -394,22 +625,30 @@
     {
       "id": "char-talia-moss",
       "name": "Talia Moss",
+      "firstName": "Talia",
+      "lastName": "Moss",
+      "title": null,
+      "occupation": "Fashion Designer",
+      "homeRealm": "Ve’Raylia",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-VR-00481957",
       "folder": "talia-moss",
       "files": [
         "people/talia-moss/workplace.json"
       ]
     },
     {
-      "id": "char-felix-ward",
-      "name": "Felix Ward",
-      "folder": "felix-ward",
-      "files": [
-        "people/felix-ward/workplace.json"
-      ]
-    },
-    {
       "id": "char-cassian-rook",
       "name": "Dean Cassian Rook",
+      "firstName": "Cassian",
+      "lastName": "Rook",
+      "title": "Dean",
+      "occupation": "Academic Dean",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481960",
       "folder": "cassian-rook",
       "files": [
         "people/cassian-rook/mail.json",
@@ -417,27 +656,16 @@
       ]
     },
     {
-      "id": "char-elara-vale",
-      "name": "Elara Vale",
-      "folder": "elara-vale",
-      "files": [
-        "people/elara-vale/mail.json",
-        "people/elara-vale/registry.json",
-        "people/elara-vale/investigations.json"
-      ]
-    },
-    {
-      "id": "char-julian-paul-vance",
-      "name": "Dr. Julian Paul Vance",
-      "folder": "julian-paul-vance",
-      "files": [
-        "people/julian-paul-vance/mail.json",
-        "people/julian-paul-vance/registry.json"
-      ]
-    },
-    {
       "id": "char-sora-takahashi",
       "name": "Sora Takahashi",
+      "firstName": "Sora",
+      "lastName": "Takahashi",
+      "title": null,
+      "occupation": "Digital Media Specialist",
+      "homeRealm": "Kaji",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481930",
       "folder": "sora-takahashi",
       "files": [
         "people/sora-takahashi/registry.json"
@@ -446,30 +674,30 @@
     {
       "id": "char-mai",
       "name": "Mai",
+      "firstName": null,
+      "lastName": null,
+      "title": null,
+      "occupation": null,
+      "homeRealm": null,
+      "kind": "companion",
+      "status": "existing",
+      "maid": null,
       "folder": "mai",
       "files": [
         "people/mai/dialogue.json"
       ]
     },
     {
-      "id": "char-vaelen",
-      "name": "Vaelen",
-      "folder": "vaelen",
-      "files": [
-        "people/vaelen/dialogue.json"
-      ]
-    },
-    {
-      "id": "char-kaelen",
-      "name": "Kaelen",
-      "folder": "kaelen",
-      "files": [
-        "people/kaelen/dialogue.json"
-      ]
-    },
-    {
       "id": "char-vael",
-      "name": "Headmistress Vael",
+      "name": "Headmistress Serena Vael",
+      "firstName": "Serena",
+      "lastName": "Vael",
+      "title": "Headmistress",
+      "occupation": "School Administrator",
+      "homeRealm": "Lumia",
+      "kind": "person",
+      "status": "document-only",
+      "maid": null,
       "folder": "vael",
       "files": [
         "people/vael/story.json"
@@ -477,7 +705,15 @@
     },
     {
       "id": "char-idris",
-      "name": "Professor Idris",
+      "name": "Professor Idris Aurelian",
+      "firstName": "Idris",
+      "lastName": "Aurelian",
+      "title": "Professor",
+      "occupation": "Professor",
+      "homeRealm": "Lumia",
+      "kind": "person",
+      "status": "document-only",
+      "maid": null,
       "folder": "idris",
       "files": [
         "people/idris/story.json"
@@ -485,7 +721,15 @@
     },
     {
       "id": "char-rhen",
-      "name": "Coach Rhen",
+      "name": "Coach Rhen Calder",
+      "firstName": "Rhen",
+      "lastName": "Calder",
+      "title": "Coach",
+      "occupation": "Coach",
+      "homeRealm": "Brisland",
+      "kind": "person",
+      "status": "document-only",
+      "maid": null,
       "folder": "rhen",
       "files": [
         "people/rhen/story.json"
@@ -493,7 +737,15 @@
     },
     {
       "id": "char-lyse",
-      "name": "Instructor Lyse",
+      "name": "Instructor Lyse Marivelle",
+      "firstName": "Lyse",
+      "lastName": "Marivelle",
+      "title": "Instructor",
+      "occupation": "Instructor",
+      "homeRealm": "Marlowe",
+      "kind": "person",
+      "status": "document-only",
+      "maid": null,
       "folder": "lyse",
       "files": [
         "people/lyse/story.json"
@@ -501,7 +753,15 @@
     },
     {
       "id": "char-oryn",
-      "name": "Professor Oryn",
+      "name": "Professor Oryn Westmere",
+      "firstName": "Oryn",
+      "lastName": "Westmere",
+      "title": "Professor",
+      "occupation": "Professor",
+      "homeRealm": "Marlowe",
+      "kind": "person",
+      "status": "document-only",
+      "maid": null,
       "folder": "oryn",
       "files": [
         "people/oryn/story.json"
@@ -510,6 +770,14 @@
     {
       "id": "char-yumi-ishiyuma",
       "name": "Yumi Ishiyuma",
+      "firstName": "Yumi",
+      "lastName": "Ishiyuma",
+      "title": null,
+      "occupation": "Student",
+      "homeRealm": "Nephele",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-NE-00481946",
       "folder": "yumi-ishiyuma",
       "files": [
         "people/yumi-ishiyuma/phone.json",
@@ -519,6 +787,14 @@
     {
       "id": "char-ulrich-stern",
       "name": "Ulrich Stern",
+      "firstName": "Ulrich",
+      "lastName": "Stern",
+      "title": null,
+      "occupation": "Student",
+      "homeRealm": "Ve’Raylia",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-VR-00481967",
       "folder": "ulrich-stern",
       "files": [
         "people/ulrich-stern/phone.json",
@@ -528,6 +804,14 @@
     {
       "id": "char-franz-hopper",
       "name": "Franz Hopper",
+      "firstName": "Franz",
+      "lastName": "Hopper",
+      "title": null,
+      "occupation": "Computer Scientist",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "document-only",
+      "maid": null,
       "folder": "franz-hopper",
       "files": [
         "people/franz-hopper/story.json"
@@ -536,6 +820,14 @@
     {
       "id": "char-echo-neket",
       "name": "Echo Neket",
+      "firstName": "Echo",
+      "lastName": "Neket",
+      "title": null,
+      "occupation": "Communications Specialist",
+      "homeRealm": "Nephele",
+      "kind": "person",
+      "status": "document-only",
+      "maid": null,
       "folder": "echo-neket",
       "files": [
         "people/echo-neket/story.json"
@@ -544,46 +836,46 @@
     {
       "id": "char-solis-agni",
       "name": "Solis Agni",
+      "firstName": "Solis",
+      "lastName": "Agni",
+      "title": null,
+      "occupation": "Cultural Historian",
+      "homeRealm": "Kaji",
+      "kind": "person",
+      "status": "document-only",
+      "maid": null,
       "folder": "solis-agni",
       "files": [
         "people/solis-agni/story.json"
       ]
     },
     {
-      "id": "char-lyric-enya",
-      "name": "Lyric Enya",
-      "folder": "lyric-enya",
-      "files": [
-        "people/lyric-enya/story.json"
-      ]
-    },
-    {
       "id": "char-nerya",
-      "name": "Nerya",
+      "name": "Nerya Solenne",
+      "firstName": "Nerya",
+      "lastName": "Solenne",
+      "title": null,
+      "occupation": "Botanical Researcher",
+      "homeRealm": "Ve’Raylia",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-VR-00481963",
       "folder": "nerya",
       "files": [
         "people/nerya/phone.json"
       ]
     },
     {
-      "id": "char-null-cantor",
-      "name": "Null Cantor",
-      "folder": "null-cantor",
-      "files": [
-        "people/null-cantor/phone.json"
-      ]
-    },
-    {
-      "id": "char-marcus-vance-technician",
-      "name": "Marcus Vance",
-      "folder": "marcus-vance-technician",
-      "files": [
-        "people/marcus-vance-technician/investigations.json"
-      ]
-    },
-    {
       "id": "char-dominic-sterling",
       "name": "Dominic Sterling",
+      "firstName": "Dominic",
+      "lastName": "Sterling",
+      "title": null,
+      "occupation": "Corporate Executive",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481964",
       "folder": "dominic-sterling",
       "files": [
         "people/dominic-sterling/investigations.json"
@@ -591,7 +883,15 @@
     },
     {
       "id": "char-unidentified-driver-p404",
-      "name": "Driver of Navy Fleet SUV (Unidentified)",
+      "name": "Adrian Locke",
+      "firstName": "Adrian",
+      "lastName": "Locke",
+      "title": null,
+      "occupation": "Naval Fleet Driver",
+      "homeRealm": "Marlowe",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-MA-00481950",
       "folder": "unidentified-driver-p404",
       "files": [
         "people/unidentified-driver-p404/investigations.json"
@@ -600,41 +900,127 @@
     {
       "id": "char-travis-miller",
       "name": "Trooper Travis Miller",
+      "firstName": "Travis",
+      "lastName": "Miller",
+      "title": "Trooper",
+      "occupation": "Law Enforcement Officer",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481955",
       "folder": "travis-miller",
       "files": [
         "people/travis-miller/investigations.json"
       ]
     },
     {
-      "id": "char-tyler-ross",
-      "name": "Officer Tyler Ross",
-      "folder": "tyler-ross",
+      "id": "char-amara-okafor",
+      "name": "Amara Okafor",
+      "firstName": "Amara",
+      "lastName": "Okafor",
+      "title": null,
+      "occupation": "Intelligence Analyst",
+      "homeRealm": "Orynvell",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-OR-00481975",
+      "folder": "amara-okafor",
       "files": [
-        "people/tyler-ross/investigations.json"
+        "people/amara-okafor/workplace.json"
       ]
     },
     {
-      "id": "char-unidentified-patient-pat95881",
-      "name": "Jane Doe (Unidentified Subject)",
-      "folder": "unidentified-patient-pat95881",
+      "id": "char-darius-mensah",
+      "name": "Darius Mensah",
+      "firstName": "Darius",
+      "lastName": "Mensah",
+      "title": null,
+      "occupation": "Senior Systems Engineer",
+      "homeRealm": "Kaji",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-KA-00481977",
+      "folder": "darius-mensah",
       "files": [
-        "people/unidentified-patient-pat95881/investigations.json"
+        "people/darius-mensah/workplace.json"
       ]
     },
     {
-      "id": "char-kaelen-voss",
-      "name": "Kaelen Voss",
-      "folder": "kaelen-voss",
+      "id": "char-isabelle-laurent",
+      "name": "Isabelle Laurent",
+      "firstName": "Isabelle",
+      "lastName": "Laurent",
+      "title": null,
+      "occupation": "Archival Research Specialist",
+      "homeRealm": "Lumia",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-LU-00481976",
+      "folder": "isabelle-laurent",
       "files": [
-        "people/kaelen-voss/investigations.json"
+        "people/isabelle-laurent/workplace.json"
       ]
     },
     {
-      "id": "char-s-mercer",
-      "name": "Student S. Mercer (Vertex House)",
-      "folder": "s-mercer",
+      "id": "char-mateo-rivera",
+      "name": "Mateo Rivera",
+      "firstName": "Mateo",
+      "lastName": "Rivera",
+      "title": null,
+      "occupation": "Community Services Coordinator",
+      "homeRealm": "Ve’Raylia",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-VR-00481980",
+      "folder": "mateo-rivera",
       "files": [
-        "people/s-mercer/investigations.json"
+        "people/mateo-rivera/workplace.json"
+      ]
+    },
+    {
+      "id": "char-mei-lin-zhao",
+      "name": "Mei Lin Zhao",
+      "firstName": "Mei Lin",
+      "lastName": "Zhao",
+      "title": null,
+      "occupation": "Systems Integration Engineer",
+      "homeRealm": "Brisland",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-BR-00481978",
+      "folder": "mei-lin-zhao",
+      "files": [
+        "people/mei-lin-zhao/workplace.json"
+      ]
+    },
+    {
+      "id": "char-nyla-baptiste",
+      "name": "Nyla Baptiste",
+      "firstName": "Nyla",
+      "lastName": "Baptiste",
+      "title": null,
+      "occupation": "Recording Artist and Songwriter",
+      "homeRealm": "Marlowe",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-MA-00481981",
+      "folder": "nyla-baptiste",
+      "files": []
+    },
+    {
+      "id": "char-samira-el-amin",
+      "name": "Samira El-Amin",
+      "firstName": "Samira",
+      "lastName": "El-Amin",
+      "title": null,
+      "occupation": "Senior Diplomatic Affairs Officer",
+      "homeRealm": "Marlowe",
+      "kind": "person",
+      "status": "existing",
+      "maid": "MAID-MA-00481979",
+      "folder": "samira-el-amin",
+      "files": [
+        "people/samira-el-amin/workplace.json"
       ]
     }
   ],
@@ -650,10 +1036,6 @@
     {
       "collection": "NPCS",
       "key": "npc-lucia"
-    },
-    {
-      "collection": "NPCS",
-      "key": "npc-neryx"
     },
     {
       "collection": "NPCS",
@@ -741,19 +1123,11 @@
     },
     {
       "collection": "PEOPLE",
-      "key": "mara"
-    },
-    {
-      "collection": "PEOPLE",
       "key": "rowan"
     },
     {
       "collection": "INSTITUTIONAL_REGISTRY",
       "key": "sup-dga"
-    },
-    {
-      "collection": "INSTITUTIONAL_REGISTRY",
-      "key": "cw-dga-1"
     },
     {
       "collection": "INSTITUTIONAL_REGISTRY",
@@ -793,22 +1167,6 @@
     },
     {
       "collection": "INSTITUTIONAL_REGISTRY",
-      "key": "cw-arc-1"
-    },
-    {
-      "collection": "INSTITUTIONAL_REGISTRY",
-      "key": "sup-engineer"
-    },
-    {
-      "collection": "INSTITUTIONAL_REGISTRY",
-      "key": "cw-eng-1"
-    },
-    {
-      "collection": "INSTITUTIONAL_REGISTRY",
-      "key": "sup-diplomat"
-    },
-    {
-      "collection": "INSTITUTIONAL_REGISTRY",
       "key": "cw-dip-1"
     },
     {
@@ -830,10 +1188,6 @@
     {
       "collection": "INSTITUTIONAL_REGISTRY",
       "key": "sup-questnotice"
-    },
-    {
-      "collection": "INSTITUTIONAL_REGISTRY",
-      "key": "cw-qn-1"
     },
     {
       "collection": "AUREMAIL_DIRECTORY",
@@ -858,22 +1212,6 @@
     {
       "collection": "AUREMAIL_DIRECTORY",
       "key": "dir-riven"
-    },
-    {
-      "collection": "AUREMAIL_DIRECTORY",
-      "key": "dir-elara-vale"
-    },
-    {
-      "collection": "AUREMAIL_DIRECTORY",
-      "key": "dir-julian-vance"
-    },
-    {
-      "collection": "defaultInputs",
-      "key": "MAID-OR-00481926"
-    },
-    {
-      "collection": "defaultInputs",
-      "key": "MAID-OR-00481928"
     },
     {
       "collection": "defaultInputs",
@@ -902,14 +1240,6 @@
     {
       "collection": "personas",
       "key": "Sissi"
-    },
-    {
-      "collection": "personas",
-      "key": "Vaelen"
-    },
-    {
-      "collection": "personas",
-      "key": "Kaelen"
     },
     {
       "collection": "personas",
@@ -946,10 +1276,6 @@
     {
       "collection": "phone-contact",
       "key": "Nerya"
-    },
-    {
-      "collection": "phone-contact",
-      "key": "Null Cantor"
     },
     {
       "collection": "story-bible",
@@ -1014,10 +1340,6 @@
     {
       "collection": "story-bible",
       "key": "Riven Kalbera"
-    },
-    {
-      "collection": "story-bible",
-      "key": "Lyric Enya"
     },
     {
       "collection": "DGA_26_194_STARTING_PAYLOAD",
@@ -1098,6 +1420,305 @@
     {
       "collection": "seedRelationships",
       "key": "REL-006"
+    },
+    {
+      "collection": "INSTITUTIONAL_REGISTRY",
+      "key": "cw-arc-1"
+    },
+    {
+      "collection": "INSTITUTIONAL_REGISTRY",
+      "key": "cw-dga-1"
+    },
+    {
+      "collection": "INSTITUTIONAL_REGISTRY",
+      "key": "cw-eng-1"
+    },
+    {
+      "collection": "INSTITUTIONAL_REGISTRY",
+      "key": "cw-qn-1"
+    },
+    {
+      "collection": "INSTITUTIONAL_REGISTRY",
+      "key": "sup-diplomat"
+    },
+    {
+      "collection": "INSTITUTIONAL_REGISTRY",
+      "key": "sup-engineer"
+    }
+  ],
+  "canonicalRosterCount": 62,
+  "retiredCharacters": [
+    {
+      "id": "char-elara-vale",
+      "name": "Elara Vale",
+      "folder": "elara-vale",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Permanently preserved as archived historical case subject (CASE-FM-401 / pc-vale); MAID-OR-00481926 permanently retired; excluded from active population."
+    },
+    {
+      "id": "char-felix-ward",
+      "name": "Felix Ward",
+      "folder": "felix-ward",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Legacy WORKNET INSTITUTIONAL_REGISTRY fixture."
+    },
+    {
+      "id": "char-julian-paul-vance",
+      "name": "Dr. Julian Paul Vance",
+      "folder": "julian-paul-vance",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Historical DGA/Registry reference; MAID-OR-00481927 retired."
+    },
+    {
+      "id": "char-kaelen",
+      "name": "Kaelen",
+      "folder": "kaelen",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Legacy persona / AI memory seed."
+    },
+    {
+      "id": "char-kaelen-vance",
+      "name": "Kaelen Vance",
+      "folder": "kaelen-vance",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Legacy WORKNET INSTITUTIONAL_REGISTRY fixture."
+    },
+    {
+      "id": "char-kaelen-voss",
+      "name": "Kaelen Voss",
+      "folder": "kaelen-voss",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Permanently preserved as archived historical case subject (CASE-DGA-402); excluded from active population."
+    },
+    {
+      "id": "char-lyric-enya",
+      "name": "Lyric Enya",
+      "folder": "lyric-enya",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Legacy story-bible / entertainment demo seed."
+    },
+    {
+      "id": "char-mara-thorne",
+      "name": "Mara Thorne",
+      "folder": "mara-thorne",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Legacy PEOPLE / VerseNet portal fixture."
+    },
+    {
+      "id": "char-marcus-vance",
+      "name": "Courier Marcus Vance (No Relation)",
+      "folder": "marcus-vance-courier",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Legacy DGA seedPeople/seedRelationships courier subject."
+    },
+    {
+      "id": "char-marcus-vance-technician",
+      "name": "Marcus Vance",
+      "folder": "marcus-vance-technician",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Permanently preserved as archived historical case subject (P-402 / INV-26-402); excluded from active population."
+    },
+    {
+      "id": "char-maren-holt",
+      "name": "Maren Holt",
+      "folder": "maren-holt",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Legacy WORKNET INSTITUTIONAL_REGISTRY fixture."
+    },
+    {
+      "id": "char-nadia-cruz",
+      "name": "Nadia Cruz",
+      "folder": "nadia-cruz",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Legacy WORKNET INSTITUTIONAL_REGISTRY fixture."
+    },
+    {
+      "id": "char-neryx",
+      "name": "Lord Neryx",
+      "folder": "neryx",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Legacy NPCS entry; royal lineage FAC_NERYX remains in organizations."
+    },
+    {
+      "id": "char-null-cantor",
+      "name": "Null Cantor",
+      "folder": "null-cantor",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Legacy phone-contact entry."
+    },
+    {
+      "id": "char-s-mercer",
+      "name": "Student S. Mercer (Vertex House)",
+      "folder": "s-mercer",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Permanently preserved as archived historical case subject (pc-mercer); excluded from active population."
+    },
+    {
+      "id": "char-thalia-vane",
+      "name": "Thalia Vane",
+      "folder": "thalia-vane",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Legacy WORKNET INSTITUTIONAL_REGISTRY fixture."
+    },
+    {
+      "id": "char-tyler-ross",
+      "name": "Officer Tyler Ross",
+      "folder": "tyler-ross",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Permanently preserved as archived historical case subject (PAT-94102); excluded from active population."
+    },
+    {
+      "id": "char-unidentified-patient-pat95881",
+      "name": "Jane Doe (Unidentified Subject)",
+      "folder": "unidentified-patient-pat95881",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Permanently preserved as archived historical case subject (PAT-95881); excluded from active population."
+    },
+    {
+      "id": "char-vaelen",
+      "name": "Vaelen",
+      "folder": "vaelen",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Legacy persona / AI memory seed."
+    },
+    {
+      "id": "char-vance-lowe",
+      "name": "Vance Lowe",
+      "folder": "vance-lowe",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Legacy WORKNET INSTITUTIONAL_REGISTRY fixture."
+    }
+  ],
+  "archivedSubjects": [
+    {
+      "id": "char-elara-vale",
+      "name": "Elara Vale",
+      "folder": "elara-vale",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Permanently preserved as archived historical case subject (CASE-FM-401 / pc-vale); MAID-OR-00481926 permanently retired; excluded from active population.",
+      "files": [
+        "people/elara-vale/investigations.json"
+      ],
+      "references": [
+        {
+          "collection": "FORMAL_INVESTIGATION_CASES",
+          "key": "CASE-FM-401",
+          "file": "people/elara-vale/investigations.json"
+        },
+        {
+          "collection": "PATIENT_CARE_ASSIGNMENTS",
+          "key": "pc-vale",
+          "file": "people/elara-vale/investigations.json"
+        }
+      ]
+    },
+    {
+      "id": "char-kaelen-voss",
+      "name": "Kaelen Voss",
+      "folder": "kaelen-voss",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Permanently preserved as archived historical case subject (CASE-DGA-402); excluded from active population.",
+      "files": [
+        "people/kaelen-voss/investigations.json"
+      ],
+      "references": [
+        {
+          "collection": "FORMAL_INVESTIGATION_CASES",
+          "key": "CASE-DGA-402",
+          "file": "people/kaelen-voss/investigations.json"
+        }
+      ]
+    },
+    {
+      "id": "char-marcus-vance",
+      "name": "Courier Marcus Vance (No Relation)",
+      "folder": "marcus-vance-courier",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Legacy DGA seedPeople/seedRelationships courier subject.",
+      "files": [
+        "people/marcus-vance-courier/agency.json",
+        "people/marcus-vance-courier/relationships.json"
+      ],
+      "references": [
+        {
+          "collection": "seedPeople",
+          "key": "P-104",
+          "file": "people/marcus-vance-courier/agency.json"
+        },
+        {
+          "collection": "seedRelationships",
+          "key": "REL-005",
+          "file": "people/marcus-vance-courier/relationships.json"
+        }
+      ]
+    },
+    {
+      "id": "char-marcus-vance-technician",
+      "name": "Marcus Vance",
+      "folder": "marcus-vance-technician",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Permanently preserved as archived historical case subject (P-402 / INV-26-402); excluded from active population.",
+      "files": [
+        "people/marcus-vance-technician/investigations.json"
+      ],
+      "references": [
+        {
+          "collection": "INV_26_402_STARTING_PAYLOAD",
+          "key": "P-402",
+          "file": "people/marcus-vance-technician/investigations.json"
+        }
+      ]
+    },
+    {
+      "id": "char-s-mercer",
+      "name": "Student S. Mercer (Vertex House)",
+      "folder": "s-mercer",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Permanently preserved as archived historical case subject (pc-mercer); excluded from active population.",
+      "files": [
+        "people/s-mercer/investigations.json"
+      ],
+      "references": [
+        {
+          "collection": "PATIENT_CARE_ASSIGNMENTS",
+          "key": "pc-mercer",
+          "file": "people/s-mercer/investigations.json"
+        }
+      ]
+    },
+    {
+      "id": "char-tyler-ross",
+      "name": "Officer Tyler Ross",
+      "folder": "tyler-ross",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Permanently preserved as archived historical case subject (PAT-94102); excluded from active population.",
+      "files": [
+        "people/tyler-ross/investigations.json"
+      ],
+      "references": [
+        {
+          "collection": "MOTORCYCLE_CRASH_MEDICAL_CHART",
+          "key": "PAT-94102",
+          "file": "people/tyler-ross/investigations.json"
+        }
+      ]
+    },
+    {
+      "id": "char-unidentified-patient-pat95881",
+      "name": "Jane Doe (Unidentified Subject)",
+      "folder": "unidentified-patient-pat95881",
+      "reason": "Removed during canonical 55-character roster cleanup",
+      "historicalContext": "Permanently preserved as archived historical case subject (PAT-95881); excluded from active population.",
+      "files": [
+        "people/unidentified-patient-pat95881/investigations.json"
+      ],
+      "references": [
+        {
+          "collection": "OVERDOSE_TOXICOLOGY_MEDICAL_CHART",
+          "key": "PAT-95881",
+          "file": "people/unidentified-patient-pat95881/investigations.json"
+        }
+      ]
     }
   ]
 }

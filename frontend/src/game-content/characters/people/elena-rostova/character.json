@@ -37,5 +37,10 @@
   ],
   "maid": "MAID-OR-00481931",
   "legacyMaids": [],
-  "folder": "elena-rostova"
+  "folder": "elena-rostova",
+  "firstName": "Elena",
+  "lastName": "Rostova",
+  "title": null,
+  "occupation": "Intelligence Operative",
+  "homeRealm": "Fross"
 }

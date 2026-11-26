@@ -6,8 +6,8 @@
     "context": "NPCS",
     "data": {
       "id": "npc-lucia",
-      "name": "Chancellor Lucia",
-      "title": "High Speaker of the Sol-Forum",
+      "name": "Chancellor Lucia Valemont",
+      "title": "Chancellor",
       "role": "Councilor",
       "dialogueTone": "Eloquent, scholarly, and radiant",
       "affiliation": "House Lucia",

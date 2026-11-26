@@ -31,7 +31,12 @@
       "file": "people/gregory-thorne/relationships.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-NE-00481969",
   "legacyMaids": [],
-  "folder": "gregory-thorne"
+  "folder": "gregory-thorne",
+  "firstName": "Gregory",
+  "lastName": "Thorne",
+  "title": "Dr.",
+  "occupation": "Chief Toxicologist",
+  "homeRealm": "Nephele"
 }

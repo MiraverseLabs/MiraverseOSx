@@ -24,11 +24,53 @@ def citizen(model, character_id):
     return found
 
 
+def load_canonical_careers():
+    import json
+    import sqlite3
+    from contextlib import closing
+    from paths import SOURCE_DATABASE
+
+    if not SOURCE_DATABASE.is_file():
+        return []
+    try:
+        with closing(sqlite3.connect(f"file:{SOURCE_DATABASE.resolve().as_posix()}?mode=ro", uri=True)) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                """
+                SELECT c.id, c.name, c.archetype, c.description, c.primary_stat,
+                       p.FrontendId, p.Category, p.StationId, p.BaseSalaryCredits, p.ReputationKey
+                FROM Careers c
+                LEFT JOIN CareerProgression p ON p.CareerId = c.id
+                ORDER BY c.id
+                """
+            ).fetchall()
+            return [
+                {
+                    "canonicalId": r["id"],
+                    "frontendId": r["FrontendId"],
+                    "name": r["name"],
+                    "archetype": r["archetype"],
+                    "category": r["Category"] or r["archetype"],
+                    "description": r["description"] or "",
+                    "primaryStat": r["primary_stat"] or "",
+                    "stationId": r["StationId"] or r["FrontendId"] or r["id"],
+                    "baseSalaryCredits": r["BaseSalaryCredits"],
+                    "reputationKey": r["ReputationKey"] or "",
+                }
+                for r in rows
+            ]
+    except sqlite3.Error:
+        return []
+
+
 def list_careers(model):
-    return {'careers': [copy.deepcopy(c.employment) if c.employment else {
-        'characterId': c.character_id, 'title': c.primary_occupation, 'employer': c.workplace,
-        'schedule': c.schedule_mode, 'source': 'canonical profile',
-    } for c in model.agents if c.employment or c.primary_occupation]}
+    return {
+        'careers': [copy.deepcopy(c.employment) if c.employment else {
+            'characterId': c.character_id, 'title': c.primary_occupation, 'employer': c.workplace,
+            'schedule': c.schedule_mode, 'source': 'canonical profile',
+        } for c in model.agents if c.employment or c.primary_occupation],
+        'canonicalCareers': load_canonical_careers(),
+    }
 
 
 def assign_career(model, payload):

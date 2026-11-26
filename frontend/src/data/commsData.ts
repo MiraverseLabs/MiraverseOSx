@@ -116,10 +116,10 @@ export const LEGACY_PLAYER_EMAIL_ACCOUNTS: AureMailAccount[] = [
     accountType: 'personal',
     institution: 'AureMail Public Relay',
     roleLabel: 'Verified Citizen',
-    maid: 'MAID-OR-00481926',
+    maid: '',
     verified: true,
     status: 'active',
-    signature: 'Sent via AureMail Personal Relay · MAID-OR-00481926',
+    signature: 'Sent via AureMail Personal Relay',
   },
   {
     id: 'acc-academic',
@@ -128,7 +128,7 @@ export const LEGACY_PLAYER_EMAIL_ACCOUNTS: AureMailAccount[] = [
     accountType: 'academic',
     institution: 'Cyberium Academy',
     roleLabel: 'Enrolled Scholar',
-    maid: 'MAID-OR-00481926',
+    maid: '',
     verified: true,
     status: 'active',
     signature: 'Cyberium Academy Student Systems · Academic Relay',
@@ -140,7 +140,7 @@ export const LEGACY_PLAYER_EMAIL_ACCOUNTS: AureMailAccount[] = [
     accountType: 'work',
     institution: 'WorkNet Municipal Registry',
     roleLabel: 'Assigned Contractor',
-    maid: 'MAID-OR-00481926',
+    maid: '',
     verified: true,
     status: 'active',
     signature: 'WorkNet Verified Assignment Relay',
@@ -152,7 +152,7 @@ export const LEGACY_PLAYER_EMAIL_ACCOUNTS: AureMailAccount[] = [
     accountType: 'institutional',
     institution: 'Department of Global Affairs',
     roleLabel: 'Provisional Field Liaison',
-    maid: 'MAID-OR-00481926',
+    maid: '',
     verified: true,
     status: 'active',
     requiredClearance: 1,
@@ -165,7 +165,7 @@ export const LEGACY_PLAYER_EMAIL_ACCOUNTS: AureMailAccount[] = [
     accountType: 'institutional',
     institution: 'Faith Medical Group',
     roleLabel: 'Clinical Support Fellow',
-    maid: 'MAID-OR-00481926',
+    maid: '',
     verified: true,
     status: 'active',
     requiredClearance: 1,
@@ -306,16 +306,13 @@ export const AUREMAIL_DIRECTORY: AureMailDirectoryContact[] = [
     verified: true,
     description: 'Processes institutional job deliverables, contract verifications, and career progression filings.',
   },
-  // Core Story NPCs
+  // Core Story NPCs (Canonical 55-character roster)
   AUREMAIL_DIRECTORYProfile("dir-dean-rook"),
   AUREMAIL_DIRECTORYProfile("dir-dr-voss"),
   AUREMAIL_DIRECTORYProfile("dir-aelita"),
   AUREMAIL_DIRECTORYProfile("dir-jeremie"),
   AUREMAIL_DIRECTORYProfile("dir-odd"),
   AUREMAIL_DIRECTORYProfile("dir-riven"),
-  // Canonical Registry Citizens (MAID linked)
-  AUREMAIL_DIRECTORYProfile("dir-elara-vale"),
-  AUREMAIL_DIRECTORYProfile("dir-julian-vance"),
 ];
 
 export const INITIAL_EMAILS: EmailItem[] = [
@@ -351,7 +348,7 @@ export const INITIAL_EMAILS: EmailItem[] = [
         claimed: false,
         mockKey: 'dga-registration',
         previewTitle: 'Provisional Scholar Registration Record',
-        previewText: 'Official enrollment record linked to MAID-OR-00481926. Opening or saving this file does not grant currency.',
+        previewText: 'Official enrollment record linked to your registered MAID. Opening or saving this file does not grant currency.',
         targetApp: 'docstudio',
         version: 'v1.0-canonical',
         provenance: 'Signed by Cyberium Academy Registration Office · MAID-OR-00000101',
@@ -403,7 +400,7 @@ Registration Office`,
     labels: ['System', 'Accounts'],
     attachment: null,
     attachments: [],
-    body: `Your canonical citizen identity (MAID-OR-00481926) has been linked to your verified AureMail accounts:
+    body: `Your canonical citizen identity has been linked to your verified AureMail accounts:
 
 • Personal: citizen@auremail.aure
 • Academic: scholar@cyberium.edu

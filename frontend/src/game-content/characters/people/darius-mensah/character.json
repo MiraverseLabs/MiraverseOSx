@@ -1,0 +1,26 @@
+{
+  "id": "char-darius-mensah",
+  "name": "Darius Mensah",
+  "kind": "person",
+  "aliases": [],
+  "status": "existing",
+  "notes": [
+    "Appointed Systems Engineering Directorate supervisor seat sup-engineer."
+  ],
+  "legacyIds": [],
+  "references": [
+    {
+      "collection": "INSTITUTIONAL_REGISTRY",
+      "key": "sup-engineer",
+      "file": "people/darius-mensah/workplace.json"
+    }
+  ],
+  "maid": "MAID-KA-00481977",
+  "legacyMaids": [],
+  "folder": "darius-mensah",
+  "firstName": "Darius",
+  "lastName": "Mensah",
+  "title": null,
+  "occupation": "Senior Systems Engineer",
+  "homeRealm": "Kaji"
+}

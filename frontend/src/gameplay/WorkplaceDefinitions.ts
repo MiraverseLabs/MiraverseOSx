@@ -96,7 +96,7 @@ export const INSTITUTIONAL_REGISTRY: Record<WorkplaceStationId, InstitutionalThe
     divisions: [
       { id: 'shield', name: 'Shield Defense Division', head: 'Cmdr. Helena Reyes', description: 'Perimeter fortifications, tactical patrols, and public infrastructure protection.', staffCount: 42 },
       { id: 'eyes', name: 'Eyes Intelligence Bureau', head: 'Director Ronald Sterling', description: 'SIGINT intercept analysis, regional telemetry surveillance, and undercover inquiry.', staffCount: 28 },
-      { id: 'blackout', name: 'Blackout Containment Unit', head: 'Chief Inspector Vance Lowe', description: 'Deep-layer glitch suppression, PRISM quarantine, and PID anomaly containment.', staffCount: 16 }
+      { id: 'blackout', name: 'Blackout Containment Unit', head: 'Amara Okafor', description: 'Deep-layer glitch suppression, PRISM quarantine, and PID anomaly containment.', staffCount: 16 }
     ],
     supervisor: INSTITUTIONAL_REGISTRYProfile("sup-dga"),
     coworkers: [
@@ -208,7 +208,7 @@ export const INSTITUTIONAL_REGISTRY: Record<WorkplaceStationId, InstitutionalThe
     icon: BookOpen,
     clearanceRequired: 2,
     divisions: [
-      { id: 'restoration', name: 'Physical Restoration Lab', head: 'Conservator Maren Holt', description: 'Low-field magnetic foil restoration, parchment stabilization, and ink chemical recovery.', staffCount: 19 },
+      { id: 'restoration', name: 'Physical Restoration Lab', head: 'Isabelle Laurent', description: 'Low-field magnetic foil restoration, parchment stabilization, and ink chemical recovery.', staffCount: 19 },
       { id: 'catalog', name: 'Pre-Collapse Classification Office', head: 'Archivist Julian Thorne', description: 'Cartography, dynastic lineage charters, and council transcript indexing.', staffCount: 22 }
     ],
     supervisor: INSTITUTIONAL_REGISTRYProfile("sup-archives"),
@@ -241,8 +241,8 @@ export const INSTITUTIONAL_REGISTRY: Record<WorkplaceStationId, InstitutionalThe
     icon: Cpu,
     clearanceRequired: 1,
     divisions: [
-      { id: 'transit', name: 'Glassline Telemetry & Relay Deck', head: 'Chief Engineer Kaelen Vance', description: 'Terminal junctions, capacitor arrays, and civic communication buses.', staffCount: 34 },
-      { id: 'firmware', name: 'Firmware Architecture & Firewall Labs', head: 'Lead Developer Nadia Cruz', description: 'Bus telemetry revisions, adaptive harmonic firewalls, and hardware flashing.', staffCount: 20 }
+      { id: 'transit', name: 'Glassline Telemetry & Relay Deck', head: 'Darius Mensah', description: 'Terminal junctions, capacitor arrays, and civic communication buses.', staffCount: 34 },
+      { id: 'firmware', name: 'Firmware Architecture & Firewall Labs', head: 'Mei Lin Zhao', description: 'Bus telemetry revisions, adaptive harmonic firewalls, and hardware flashing.', staffCount: 20 }
     ],
     supervisor: INSTITUTIONAL_REGISTRYProfile("sup-engineer"),
     coworkers: [
@@ -274,7 +274,7 @@ export const INSTITUTIONAL_REGISTRY: Record<WorkplaceStationId, InstitutionalThe
     icon: Building,
     clearanceRequired: 2,
     divisions: [
-      { id: 'treaties', name: 'Treaty Bureau & Resource Arbitration', head: 'Envoy Thalia Vane', description: 'Inter-regional parity agreements, resource negotiations, and pact drafting.', staffCount: 22 },
+      { id: 'treaties', name: 'Treaty Bureau & Resource Arbitration', head: 'Samira El-Amin', description: 'Inter-regional parity agreements, resource negotiations, and pact drafting.', staffCount: 22 },
       { id: 'civic', name: 'Citizen Petitions & Public Hearing Office', head: 'Ombudsman Gregory Bell', description: 'Zoning disputes, civil arbitration, and municipal ordinance public sessions.', staffCount: 18 }
     ],
     supervisor: INSTITUTIONAL_REGISTRYProfile("sup-diplomat"),
@@ -451,7 +451,7 @@ export const INSTITUTIONAL_REGISTRY: Record<WorkplaceStationId, InstitutionalThe
     clearanceRequired: 0,
     divisions: [
       { id: 'errands', name: 'Neighborhood Dispatch Desk', head: 'Coordinator Talia Moss', description: 'Community deliveries, shop deliveries, and domestic assistance.', staffCount: 12 },
-      { id: 'urgent', name: 'Civic Rapid Response Office', head: 'Dispatcher Felix Ward', description: 'Lost item recovery, street lighting notices, and pet wellness requests.', staffCount: 10 }
+      { id: 'urgent', name: 'Civic Rapid Response Office', head: 'Mateo Rivera', description: 'Lost item recovery, street lighting notices, and pet wellness requests.', staffCount: 10 }
     ],
     supervisor: INSTITUTIONAL_REGISTRYProfile("sup-questnotice"),
     coworkers: [
@@ -530,7 +530,7 @@ export const CANONICAL_DYNAMIC_EVENTS: DynamicWorkplaceEvent[] = [
     title: 'Glassline Terminal 14 Grounding Alarm',
     category: 'Urgent Maintenance',
     severity: 'High',
-    description: 'Telemetry alerts show intermittent ground faulting along Glassline Terminal 14. Lead Engineer Kaelen needs an emergency lockout and continuity check.',
+    description: 'Telemetry alerts show intermittent ground faulting along Glassline Terminal 14. Senior Systems Engineer Darius Mensah needs an emergency lockout and continuity check.',
     actionLabel: 'Perform Continuity Check (12 min)',
     staminaCost: 7,
     rewardCredits: 55,
@@ -682,7 +682,7 @@ export const INITIAL_DELEGATION_TASKS: DelegationTask[] = [
 export const INITIAL_SUBORDINATE_LEAVES: SubordinateLeaveRequest[] = [
   {
     id: 'sub-lv-01',
-    subordinateName: 'Vance Lowe',
+    subordinateName: 'Amara Okafor',
     subordinateId: 'cw-dga-1',
     stationId: 'dga',
     shiftDuty: 'Evening SIGINT Carrier Sweep',

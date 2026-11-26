@@ -1,0 +1,26 @@
+{
+  "id": "char-mateo-rivera",
+  "name": "Mateo Rivera",
+  "kind": "person",
+  "aliases": [],
+  "status": "existing",
+  "notes": [
+    "Appointed to QUESTNOTICE Civic Rapid Response Office seat cw-qn-1."
+  ],
+  "legacyIds": [],
+  "references": [
+    {
+      "collection": "INSTITUTIONAL_REGISTRY",
+      "key": "cw-qn-1",
+      "file": "people/mateo-rivera/workplace.json"
+    }
+  ],
+  "maid": "MAID-VR-00481980",
+  "legacyMaids": [],
+  "folder": "mateo-rivera",
+  "firstName": "Mateo",
+  "lastName": "Rivera",
+  "title": null,
+  "occupation": "Community Services Coordinator",
+  "homeRealm": "Ve’Raylia"
+}

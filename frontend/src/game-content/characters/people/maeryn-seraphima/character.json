@@ -18,7 +18,12 @@
       "file": "people/maeryn-seraphima/story.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481962",
   "legacyMaids": [],
-  "folder": "maeryn-seraphima"
+  "folder": "maeryn-seraphima",
+  "firstName": "Maeryn",
+  "lastName": "Seraphima",
+  "title": "Queen",
+  "occupation": "Monarch",
+  "homeRealm": "Orynvell"
 }

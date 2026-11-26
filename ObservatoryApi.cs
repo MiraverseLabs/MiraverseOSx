@@ -15,11 +15,7 @@ internal sealed class ObservatoryApi
 
     public ObservatoryApi(string dataDirectory)
     {
-        var configured = Environment.GetEnvironmentVariable("MIRAVERSE_SOURCE_DATABASE");
-        var repositoryDatabase = Path.Combine(Directory.GetCurrentDirectory(), "miraverse.db");
-        dbPath = !string.IsNullOrEmpty(configured) ? Path.GetFullPath(configured)
-            : File.Exists(repositoryDatabase) ? repositoryDatabase
-            : Path.Combine(AppContext.BaseDirectory, "miraverse.db");
+        dbPath = DatabasePaths.ResolveSourceDatabase();
     }
 
     private SqliteConnection Open()
@@ -45,7 +41,7 @@ internal sealed class ObservatoryApi
             if (route == "stats")
             {
                 var stats = new Dictionary<string, long>();
-                foreach (var table in new[] { "Characters", "CharacterProfiles", "Careers", "Missions", "Events", "EntertainmentOrganizations", "LivingWorldRuns" })
+                foreach (var table in new[] { "Characters", "RetiredCharacters", "MaidRegistry", "CharacterProfiles", "Careers", "CareerProgression", "Missions", "MissionCatalogMeta", "Events", "EntertainmentOrganizations", "LivingWorldRuns", "LivingWorldTransactions" })
                 {
                     try
                     {
@@ -92,8 +88,9 @@ internal sealed class ObservatoryApi
                 var list = new List<object>();
                 using var cmd = db.CreateCommand();
                 cmd.CommandText = """
-                    SELECT CharacterId, Name, Kind, Status, Folder
-                    FROM Characters
+                    SELECT CharacterId, Name, FirstName, LastName, Title, Occupation, HomeRealm,
+                           Kind, Status, Maid, Folder, Aliases, ProfileCount
+                    FROM BrowseCharacters
                     ORDER BY Name
                     LIMIT 500
                     """;
@@ -104,9 +101,18 @@ internal sealed class ObservatoryApi
                     {
                         characterId = reader.GetString(0),
                         name = reader.IsDBNull(1) ? "" : reader.GetString(1),
-                        kind = reader.IsDBNull(2) ? "" : reader.GetString(2),
-                        status = reader.IsDBNull(3) ? "" : reader.GetString(3),
-                        collection = reader.IsDBNull(4) ? "" : reader.GetString(4)
+                        firstName = reader.IsDBNull(2) ? null : reader.GetString(2),
+                        lastName = reader.IsDBNull(3) ? null : reader.GetString(3),
+                        title = reader.IsDBNull(4) ? null : reader.GetString(4),
+                        occupation = reader.IsDBNull(5) ? null : reader.GetString(5),
+                        homeRealm = reader.IsDBNull(6) ? null : reader.GetString(6),
+                        kind = reader.IsDBNull(7) ? "" : reader.GetString(7),
+                        status = reader.IsDBNull(8) ? "" : reader.GetString(8),
+                        maid = reader.IsDBNull(9) ? null : reader.GetString(9),
+                        collection = reader.IsDBNull(10) ? "" : reader.GetString(10),
+                        folder = reader.IsDBNull(10) ? "" : reader.GetString(10),
+                        aliases = reader.IsDBNull(11) ? "" : reader.GetString(11),
+                        profileCount = reader.IsDBNull(12) ? 0 : reader.GetInt64(12)
                     });
                 }
                 await WorldSaveApi.Reply(response, 200, new { citizens = list });

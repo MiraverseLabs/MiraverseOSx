@@ -96,7 +96,7 @@ export default function LoreExplorer() {
 
   // Card issuance form state
   const [cardHolderName, setCardHolderName] = useState(library.card?.holderName || player?.name || 'Citizen Reader');
-  const [cardMaid, setCardMaid] = useState(library.card?.maid || identity?.maid || 'MAID-OR-00481926');
+  const [cardMaid, setCardMaid] = useState(library.card?.maid || identity?.maid || '');
   const [cardBranch, setCardBranch] = useState<string>(library.card?.homeBranch || LIBRARY_BRANCHES[0]);
   const [cardTier, setCardTier] = useState<LibraryCardTier>(library.card?.tier || 'citizen');
   const [reflectionsDraft, setReflectionsDraft] = useState(library.reflections || '');

@@ -13,7 +13,12 @@
       "file": "people/silas-oryn/workplace.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481959",
   "legacyMaids": [],
-  "folder": "silas-oryn"
+  "folder": "silas-oryn",
+  "firstName": "Silas",
+  "lastName": "Oryn",
+  "title": null,
+  "occupation": "Policy Analyst",
+  "homeRealm": "Orynvell"
 }

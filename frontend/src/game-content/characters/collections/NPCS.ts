@@ -3,27 +3,25 @@ import { copyProfile } from '../profileData';
 import file0 from '../people/maeryn-seraphima/world.json' with { type: 'json' };
 import file1 from '../people/holly/world.json' with { type: 'json' };
 import file2 from '../people/lucia/world.json' with { type: 'json' };
-import file3 from '../people/neryx/world.json' with { type: 'json' };
-import file4 from '../people/yoko/world.json' with { type: 'json' };
-import file5 from '../people/ember/world.json' with { type: 'json' };
-import file6 from '../people/keket/world.json' with { type: 'json' };
-import file7 from '../people/kieran-vesper/world.json' with { type: 'json' };
-import file8 from '../people/robert-mercer/world.json' with { type: 'json' };
-const profiles = new Map<string, { data: unknown; characterId: string }>([
-  ["npc-maeryn", { data: file0[0].data, characterId: "char-maeryn-seraphima" }],
-  ["npc-holly", { data: file1[0].data, characterId: "char-holly" }],
-  ["npc-lucia", { data: file2[0].data, characterId: "char-lucia" }],
-  ["npc-neryx", { data: file3[0].data, characterId: "char-neryx" }],
-  ["npc-yoko", { data: file4[0].data, characterId: "char-yoko" }],
-  ["npc-ember", { data: file5[0].data, characterId: "char-ember" }],
-  ["npc-keket", { data: file6[0].data, characterId: "char-keket" }],
-  ["npc-vesper", { data: file7[0].data, characterId: "char-kieran-vesper" }],
-  ["npc-mercer", { data: file8[0].data, characterId: "char-robert-mercer" }],
+import file3 from '../people/yoko/world.json' with { type: 'json' };
+import file4 from '../people/ember/world.json' with { type: 'json' };
+import file5 from '../people/keket/world.json' with { type: 'json' };
+import file6 from '../people/kieran-vesper/world.json' with { type: 'json' };
+import file7 from '../people/robert-mercer/world.json' with { type: 'json' };
+const profiles = new Map<string, { data: unknown; characterId: string; archivedSubject: boolean }>([
+  ["npc-maeryn", { data: file0[0].data, characterId: "char-maeryn-seraphima", archivedSubject: false }],
+  ["npc-holly", { data: file1[0].data, characterId: "char-holly", archivedSubject: false }],
+  ["npc-lucia", { data: file2[0].data, characterId: "char-lucia", archivedSubject: false }],
+  ["npc-yoko", { data: file3[0].data, characterId: "char-yoko", archivedSubject: false }],
+  ["npc-ember", { data: file4[0].data, characterId: "char-ember", archivedSubject: false }],
+  ["npc-keket", { data: file5[0].data, characterId: "char-keket", archivedSubject: false }],
+  ["npc-vesper", { data: file6[0].data, characterId: "char-kieran-vesper", archivedSubject: false }],
+  ["npc-mercer", { data: file7[0].data, characterId: "char-robert-mercer", archivedSubject: false }],
 ]);
 export function getProfile<T = any>(key: string): T {
   if (!profiles.has(key)) throw new Error("Unknown NPCS character profile: " + key);
   const entry = profiles.get(key)!;
   const value = copyProfile(entry.data);
-  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId }) as T;
+  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId, ...(entry.archivedSubject ? { archivedSubject: true } : {}) }) as T;
 }
 export function getProfiles<T = any>(): T[] { return [...profiles.keys()].map(key => getProfile<T>(key)); }

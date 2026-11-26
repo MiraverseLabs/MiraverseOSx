@@ -31,7 +31,12 @@
       "file": "people/christian-vance/relationships.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481972",
   "legacyMaids": [],
-  "folder": "christian-vance"
+  "folder": "christian-vance",
+  "firstName": "Christian",
+  "lastName": "Vance",
+  "title": "Ambassador",
+  "occupation": "Diplomat",
+  "homeRealm": "Orynvell"
 }

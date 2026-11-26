@@ -8,22 +8,20 @@ import file4 from '../people/yumi-ishiyuma/phone.json' with { type: 'json' };
 import file5 from '../people/ulrich-stern/phone.json' with { type: 'json' };
 import file6 from '../people/sissi-delmas/phone.json' with { type: 'json' };
 import file7 from '../people/nerya/phone.json' with { type: 'json' };
-import file8 from '../people/null-cantor/phone.json' with { type: 'json' };
-const profiles = new Map<string, { data: unknown; characterId: string }>([
-  ["Aelita", { data: file0[0].data, characterId: "char-aelita-hopper" }],
-  ["Jeremie", { data: file1[0].data, characterId: "char-jeremie-belpois" }],
-  ["Dr. Voss", { data: file2[0].data, characterId: "char-sharon-voss" }],
-  ["Odd", { data: file3[0].data, characterId: "char-odd-della-robia" }],
-  ["Yumi", { data: file4[0].data, characterId: "char-yumi-ishiyuma" }],
-  ["Ulrich", { data: file5[0].data, characterId: "char-ulrich-stern" }],
-  ["Sissi", { data: file6[0].data, characterId: "char-sissi-delmas" }],
-  ["Nerya", { data: file7[0].data, characterId: "char-nerya" }],
-  ["Null Cantor", { data: file8[0].data, characterId: "char-null-cantor" }],
+const profiles = new Map<string, { data: unknown; characterId: string; archivedSubject: boolean }>([
+  ["Aelita", { data: file0[0].data, characterId: "char-aelita-hopper", archivedSubject: false }],
+  ["Jeremie", { data: file1[0].data, characterId: "char-jeremie-belpois", archivedSubject: false }],
+  ["Dr. Voss", { data: file2[0].data, characterId: "char-sharon-voss", archivedSubject: false }],
+  ["Odd", { data: file3[0].data, characterId: "char-odd-della-robia", archivedSubject: false }],
+  ["Yumi", { data: file4[0].data, characterId: "char-yumi-ishiyuma", archivedSubject: false }],
+  ["Ulrich", { data: file5[0].data, characterId: "char-ulrich-stern", archivedSubject: false }],
+  ["Sissi", { data: file6[0].data, characterId: "char-sissi-delmas", archivedSubject: false }],
+  ["Nerya", { data: file7[0].data, characterId: "char-nerya", archivedSubject: false }],
 ]);
 export function getProfile<T = any>(key: string): T {
   if (!profiles.has(key)) throw new Error("Unknown phone-contact character profile: " + key);
   const entry = profiles.get(key)!;
   const value = copyProfile(entry.data);
-  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId }) as T;
+  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId, ...(entry.archivedSubject ? { archivedSubject: true } : {}) }) as T;
 }
 export function getProfiles<T = any>(): T[] { return [...profiles.keys()].map(key => getProfile<T>(key)); }

@@ -33,7 +33,12 @@
       "file": "people/sissi-delmas/story.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-LU-00481941",
   "legacyMaids": [],
-  "folder": "sissi-delmas"
+  "folder": "sissi-delmas",
+  "firstName": "Sissi",
+  "lastName": "Delmas",
+  "title": null,
+  "occupation": "Student",
+  "homeRealm": "Lumia"
 }

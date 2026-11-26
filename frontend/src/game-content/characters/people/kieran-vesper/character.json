@@ -26,5 +26,10 @@
   ],
   "maid": "MAID-OR-00481929",
   "legacyMaids": [],
-  "folder": "kieran-vesper"
+  "folder": "kieran-vesper",
+  "firstName": "Kieran",
+  "lastName": "Vesper",
+  "title": null,
+  "occupation": "Senior Archivist",
+  "homeRealm": "Nephele"
 }

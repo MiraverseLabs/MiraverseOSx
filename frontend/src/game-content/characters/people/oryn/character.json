@@ -1,6 +1,6 @@
 {
   "id": "char-oryn",
-  "name": "Professor Oryn",
+  "name": "Professor Oryn Westmere",
   "kind": "person",
   "aliases": [],
   "status": "document-only",
@@ -15,5 +15,10 @@
   ],
   "maid": null,
   "legacyMaids": [],
-  "folder": "oryn"
+  "folder": "oryn",
+  "firstName": "Oryn",
+  "lastName": "Westmere",
+  "title": "Professor",
+  "occupation": "Professor",
+  "homeRealm": "Marlowe"
 }

@@ -35,7 +35,12 @@
       "file": "people/jeremie-belpois/story.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481935",
   "legacyMaids": [],
-  "folder": "jeremie-belpois"
+  "folder": "jeremie-belpois",
+  "firstName": "Jeremie",
+  "lastName": "Belpois",
+  "title": null,
+  "occupation": "Student",
+  "homeRealm": "Orynvell"
 }

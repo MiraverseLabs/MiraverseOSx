@@ -16,30 +16,28 @@ import file12 from '../people/franz-hopper/story.json' with { type: 'json' };
 import file13 from '../people/echo-neket/story.json' with { type: 'json' };
 import file14 from '../people/solis-agni/story.json' with { type: 'json' };
 import file15 from '../people/riven-kalbera/story.json' with { type: 'json' };
-import file16 from '../people/lyric-enya/story.json' with { type: 'json' };
-const profiles = new Map<string, { data: unknown; characterId: string }>([
-  ["Queen Maeryn Seraphima", { data: file0[0].data, characterId: "char-maeryn-seraphima" }],
-  ["Headmistress Vael", { data: file1[0].data, characterId: "char-vael" }],
-  ["Professor Idris", { data: file2[0].data, characterId: "char-idris" }],
-  ["Coach Rhen", { data: file3[0].data, characterId: "char-rhen" }],
-  ["Instructor Lyse", { data: file4[0].data, characterId: "char-lyse" }],
-  ["Professor Oryn", { data: file5[0].data, characterId: "char-oryn" }],
-  ["Aelita Hopper", { data: file6[0].data, characterId: "char-aelita-hopper" }],
-  ["Jeremie Belpois", { data: file7[0].data, characterId: "char-jeremie-belpois" }],
-  ["Odd Della Robia", { data: file8[0].data, characterId: "char-odd-della-robia" }],
-  ["Yumi Ishiyuma", { data: file9[0].data, characterId: "char-yumi-ishiyuma" }],
-  ["Ulrich Stern", { data: file10[0].data, characterId: "char-ulrich-stern" }],
-  ["Sissi Delmas", { data: file11[0].data, characterId: "char-sissi-delmas" }],
-  ["Franz Hopper", { data: file12[0].data, characterId: "char-franz-hopper" }],
-  ["Echo Neket", { data: file13[0].data, characterId: "char-echo-neket" }],
-  ["Solis Agni", { data: file14[0].data, characterId: "char-solis-agni" }],
-  ["Riven Kalbera", { data: file15[0].data, characterId: "char-riven-kalbera" }],
-  ["Lyric Enya", { data: file16[0].data, characterId: "char-lyric-enya" }],
+const profiles = new Map<string, { data: unknown; characterId: string; archivedSubject: boolean }>([
+  ["Queen Maeryn Seraphima", { data: file0[0].data, characterId: "char-maeryn-seraphima", archivedSubject: false }],
+  ["Headmistress Vael", { data: file1[0].data, characterId: "char-vael", archivedSubject: false }],
+  ["Professor Idris", { data: file2[0].data, characterId: "char-idris", archivedSubject: false }],
+  ["Coach Rhen", { data: file3[0].data, characterId: "char-rhen", archivedSubject: false }],
+  ["Instructor Lyse", { data: file4[0].data, characterId: "char-lyse", archivedSubject: false }],
+  ["Professor Oryn", { data: file5[0].data, characterId: "char-oryn", archivedSubject: false }],
+  ["Aelita Hopper", { data: file6[0].data, characterId: "char-aelita-hopper", archivedSubject: false }],
+  ["Jeremie Belpois", { data: file7[0].data, characterId: "char-jeremie-belpois", archivedSubject: false }],
+  ["Odd Della Robia", { data: file8[0].data, characterId: "char-odd-della-robia", archivedSubject: false }],
+  ["Yumi Ishiyuma", { data: file9[0].data, characterId: "char-yumi-ishiyuma", archivedSubject: false }],
+  ["Ulrich Stern", { data: file10[0].data, characterId: "char-ulrich-stern", archivedSubject: false }],
+  ["Sissi Delmas", { data: file11[0].data, characterId: "char-sissi-delmas", archivedSubject: false }],
+  ["Franz Hopper", { data: file12[0].data, characterId: "char-franz-hopper", archivedSubject: false }],
+  ["Echo Neket", { data: file13[0].data, characterId: "char-echo-neket", archivedSubject: false }],
+  ["Solis Agni", { data: file14[0].data, characterId: "char-solis-agni", archivedSubject: false }],
+  ["Riven Kalbera", { data: file15[0].data, characterId: "char-riven-kalbera", archivedSubject: false }],
 ]);
 export function getProfile<T = any>(key: string): T {
   if (!profiles.has(key)) throw new Error("Unknown story-bible character profile: " + key);
   const entry = profiles.get(key)!;
   const value = copyProfile(entry.data);
-  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId }) as T;
+  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId, ...(entry.archivedSubject ? { archivedSubject: true } : {}) }) as T;
 }
 export function getProfiles<T = any>(): T[] { return [...profiles.keys()].map(key => getProfile<T>(key)); }

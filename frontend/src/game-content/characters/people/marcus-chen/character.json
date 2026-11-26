@@ -13,7 +13,12 @@
       "file": "people/marcus-chen/agency.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481937",
   "legacyMaids": [],
-  "folder": "marcus-chen"
+  "folder": "marcus-chen",
+  "firstName": "Marcus",
+  "lastName": "Chen",
+  "title": "Specialist",
+  "occupation": "Intelligence Specialist",
+  "homeRealm": "Orynvell"
 }

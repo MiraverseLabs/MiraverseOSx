@@ -1,6 +1,6 @@
 {
   "id": "char-unidentified-driver-p404",
-  "name": "Driver of Navy Fleet SUV (Unidentified)",
+  "name": "Adrian Locke",
   "kind": "person",
   "aliases": [],
   "status": "existing",
@@ -13,7 +13,12 @@
       "file": "people/unidentified-driver-p404/investigations.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-MA-00481950",
   "legacyMaids": [],
-  "folder": "unidentified-driver-p404"
+  "folder": "unidentified-driver-p404",
+  "firstName": "Adrian",
+  "lastName": "Locke",
+  "title": null,
+  "occupation": "Naval Fleet Driver",
+  "homeRealm": "Marlowe"
 }

@@ -72,6 +72,7 @@ KNOWN_REALMS: tuple[str, ...] = (
     "Nephele",
     "Marlowe",
     "Brisland",
+    "Ve’Raylia",
 )
 
 SOCIAL_ROLE_PHRASES: tuple[str, ...] = (
@@ -164,10 +165,12 @@ def _split_list_or_text(raw: object) -> list[str]:
 def _infer_realm_from_text(text: str) -> str:
     if not text:
         return ""
-    lower = text.lower()
+    lower = text.lower().replace("'", "’")
     for realm in KNOWN_REALMS:
         if realm.lower() in lower:
             return realm
+    if "veraylia" in lower.replace("’", "") or "elmore" in lower:
+        return "Ve’Raylia"
     if "aureline" in lower or "cyacademy" in lower or "meridion" in lower:
         return "Orynvell"
     if "northwake" in lower:
@@ -181,12 +184,20 @@ def normalize_character_profile(
 ) -> dict[str, Any]:
     """
     Context-aware profile normalizer across all 18 Miraverse profile collections.
-    Distinguishes occupational, specialization, institutional, social, narrative,
-    and historical roles, and determines default living-population eligibility.
+    Uses explicit canonical miraverse.db identity columns (FirstName, LastName, Title,
+    Occupation, HomeRealm) first before considering legacy profile fallbacks.
+    Never interprets HomeRealm as BirthRealm / OriginRealm.
     """
     character_id = str(character.get("CharacterId") or "")
     canonical_name = _clean_str(character.get("Name")) or character_id
     canonical_maid = _clean_str(character.get("Maid"))
+    canonical_first_name = _clean_str(character.get("FirstName"))
+    canonical_last_name = _clean_str(character.get("LastName"))
+    canonical_title = _clean_str(character.get("Title"))
+    canonical_occupation = _clean_str(character.get("Occupation"))
+    canonical_home_realm = _clean_str(character.get("HomeRealm"))
+    canonical_kind = _clean_str(character.get("Kind")) or "person"
+    canonical_status = _clean_str(character.get("Status")) or "existing"
     profiles: list[dict[str, Any]] = list(character.get("profiles") or [])
 
     collections_present = {str(p.get("collection", "")) for p in profiles}
@@ -206,13 +217,14 @@ def normalize_character_profile(
     if canonical_maid:
         _append_unique(maids, canonical_maid)
 
-    # 2. Geography & Residence
+    # 2. Geography & Residence — keep HomeRealm strictly separate from BirthRealm / OriginRealm
+    home_realm: str = canonical_home_realm
     origin_realm: str = ""
     current_residence: str = ""
     workplace: str = ""
 
-    # 3. Seven Distinct Role Facets
-    primary_occupation: str = ""
+    # 3. Seven Distinct Role Facets — seed explicit canonical DB values first
+    primary_occupation: str = canonical_occupation
     secondary_occupations: list[str] = []
     specializations: list[str] = []
     institutional_roles: list[str] = []
@@ -221,7 +233,7 @@ def normalize_character_profile(
     historical_roles: list[str] = []
 
     # Additional Career / Institution / Title metadata
-    professional_title: str = ""
+    professional_title: str = canonical_title
     qualifications: list[str] = []
     institutions: list[str] = []
 
@@ -249,7 +261,7 @@ def normalize_character_profile(
             return
         if not primary_occupation:
             primary_occupation = cleaned
-        elif prefer_primary and primary_occupation.lower() != cleaned.lower():
+        elif prefer_primary and not canonical_occupation and primary_occupation.lower() != cleaned.lower():
             _append_unique(secondary_occupations, primary_occupation)
             primary_occupation = cleaned
         elif primary_occupation.lower() != cleaned.lower():
@@ -616,6 +628,8 @@ def normalize_character_profile(
     classification, eligible_default, eligibility_reason = _classify_character(
         character_id=character_id,
         canonical_name=canonical_name,
+        canonical_kind=canonical_kind,
+        canonical_status=canonical_status,
         collections_present=collections_present,
         primary_occupation=primary_occupation,
         secondary_occupations=secondary_occupations,
@@ -634,6 +648,10 @@ def normalize_character_profile(
     normalized: dict[str, Any] = {
         "character_id": character_id,
         "name": canonical_name,
+        "first_name": canonical_first_name,
+        "last_name": canonical_last_name,
+        "kind": canonical_kind,
+        "record_status": canonical_status,
         "aliases": aliases,
         "legacy_names": legacy_names,
         "maids": maids,
@@ -643,7 +661,8 @@ def normalize_character_profile(
         "biography": " ".join(biography_parts[:2]),
         "emails": emails,
         "phones": phones,
-        # Geography & Residence
+        # Geography & Residence (HomeRealm is strictly distinct from BirthRealm / OriginRealm)
+        "home_realm": home_realm,
         "origin_realm": origin_realm,
         "current_residence": current_residence,
         "workplace": workplace,
@@ -719,6 +738,8 @@ def _classify_character(
     *,
     character_id: str,
     canonical_name: str,
+    canonical_kind: str = "person",
+    canonical_status: str = "existing",
     collections_present: set[str],
     primary_occupation: str,
     secondary_occupations: list[str],
@@ -729,6 +750,18 @@ def _classify_character(
     statuses: list[tuple[str, str]],
 ) -> tuple[str, bool, str]:
     name_low = canonical_name.lower()
+    if canonical_kind.lower() == "companion":
+        return (
+            "Companion",
+            False,
+            "Canonical companion record; handled separately from autonomous living citizens.",
+        )
+    if canonical_status.lower() == "document-only":
+        return (
+            "Historical character",
+            False,
+            "Document-only character record; preserved as reference lore and excluded from living citizen loop.",
+        )
     combined_roles = " ".join(
         [primary_occupation]
         + secondary_occupations
@@ -881,10 +914,13 @@ def apply_override_dict(
 
     scalar_keys = (
         "name",
+        "first_name",
+        "last_name",
         "age",
         "dob",
         "species",
         "biography",
+        "home_realm",
         "origin_realm",
         "current_residence",
         "workplace",

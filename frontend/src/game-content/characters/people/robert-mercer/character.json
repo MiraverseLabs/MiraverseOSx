@@ -13,7 +13,12 @@
       "file": "people/robert-mercer/world.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481953",
   "legacyMaids": [],
-  "folder": "robert-mercer"
+  "folder": "robert-mercer",
+  "firstName": "Robert",
+  "lastName": "Mercer",
+  "title": "Dr.",
+  "occupation": "Medical Researcher",
+  "homeRealm": "Orynvell"
 }

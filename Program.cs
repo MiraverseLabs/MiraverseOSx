@@ -42,6 +42,7 @@ namespace MiraverseOSx
     private static LivingWorldApi? _livingWorldApi;
     private static Process? _livingWorldProcess;
     private static ObservatoryApi? _observatoryApi;
+    private static CanonicalDataApi? _canonicalDataApi;
         private static AiHttpHandler? _aiHttpHandler;
         private static readonly HttpClient _httpClient = new HttpClient();
         private static readonly string _externalLaunchToken = Guid.NewGuid().ToString("N");
@@ -76,6 +77,7 @@ namespace MiraverseOSx
             var livingWorldPort = int.TryParse(Environment.GetEnvironmentVariable("MIRAVERSE_LIVINGWORLD_PORT"), out var configuredPort) ? configuredPort : 5010;
             _livingWorldApi = new LivingWorldApi(livingWorldPort);
             _observatoryApi = new ObservatoryApi(dataDirectory);
+            _canonicalDataApi = new CanonicalDataApi();
             EnsureLivingWorldService(livingWorldPort);
             var memoryRepo = new NpcMemoryRepository(dataDirectory);
             var costController = new AiCostController(memoryRepo);
@@ -172,18 +174,15 @@ namespace MiraverseOSx
                 if (_mediaApi != null && await _mediaApi.Handle(context, relPath)) return;
                 if (_livingWorldApi != null && await _livingWorldApi.Handle(context, relPath)) return;
                 if (_observatoryApi != null && await _observatoryApi.Handle(context, relPath)) return;
+                if (_canonicalDataApi != null && await _canonicalDataApi.Handle(context, relPath)) return;
                 if (_aiHttpHandler != null && await _aiHttpHandler.Handle(context, relPath)) return;
 
                 // --- SQLITE API ROUTE INTERCEPTOR ---
                 if (relPath.Equals("api/documents", StringComparison.OrdinalIgnoreCase))
                 {
-                    string dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "miraverse.db");
-                    if (!File.Exists(dbPath))
-                    {
-                        dbPath = Path.Combine(Directory.GetCurrentDirectory(), "miraverse.db");
-                    }
+                    string dbPath = DatabasePaths.ResolveSourceDatabase();
 
-                    using var connection = new SqliteConnection($"Data Source={dbPath}");
+                    using var connection = new SqliteConnection($"Data Source={dbPath};Mode=ReadOnly");
                     var docs = connection.Query<Document>("SELECT * FROM Documents");
 
                     byte[] jsonBytes = JsonSerializer.SerializeToUtf8Bytes(docs);
@@ -300,7 +299,7 @@ namespace MiraverseOSx
                 start.ArgumentList.Add(script); start.ArgumentList.Add("--port"); start.ArgumentList.Add(port.ToString());
                 if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("MIRAVERSE_SOURCE_DATABASE")))
                 {
-                    var source = File.Exists(Path.Combine(root, "miraverse.db")) ? Path.Combine(root, "miraverse.db") : Path.Combine(AppContext.BaseDirectory, "miraverse.db");
+                    var source = DatabasePaths.ResolveSourceDatabase();
                     if (!File.Exists(source)) throw new FileNotFoundException("Canonical database missing. Configure MIRAVERSE_SOURCE_DATABASE.", source);
                     start.Environment["MIRAVERSE_SOURCE_DATABASE"] = source;
                 }

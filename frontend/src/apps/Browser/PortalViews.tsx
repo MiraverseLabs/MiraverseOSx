@@ -12,11 +12,11 @@ interface ViewProps {
 }
 
 const DGA_REGISTRY = [
-  { name: 'Director Vane', maid: 'MAID-0010-DIR', dept: 'Executive Council & Municipal Intelligence', clearance: 'Tier 3 (Master)' },
-  { name: 'Agent Mara Thorne', maid: 'MAID-0492-OPS', dept: 'DGA Tactical & TRACE Forensic Bureau', clearance: 'Tier 2 (High)' },
-  { name: 'Jeremie Belpois', maid: 'MAID-7721-CYC', dept: 'Cyberium Academy Compiler Lab 4', clearance: 'Tier 2 (Academic)' },
-  { name: 'Aelita Schaeffer', maid: 'MAID-7722-CYC', dept: 'Cyberium Academy Research / Node Liaison', clearance: 'Tier 2 (Academic)' },
-  { name: 'Dr. Sharon Voss', maid: 'MAID-3391-MED', dept: 'Faith Medical & Deep Telemetry', clearance: 'Tier 2 (Clinical)' },
+  { name: 'Director Evelyn Cross', maid: 'MAID-OR-00481939', dept: 'Department of Global Affairs · Executive Command', clearance: 'Tier 3 (Master)' },
+  { name: 'Deputy Chief Nathaniel Miller', maid: 'MAID-OR-00481954', dept: 'DGA Tactical & TRACE Forensic Bureau', clearance: 'Tier 2 (High)' },
+  { name: 'Jeremie Belpois', maid: 'MAID-OR-00481935', dept: 'Cyberium Academy Compiler Lab 4', clearance: 'Tier 2 (Academic)' },
+  { name: 'Aelita Hopper', maid: 'MAID-OR-00481945', dept: 'Cyberium Academy Research / Node Liaison', clearance: 'Tier 2 (Academic)' },
+  { name: 'Dr. Sharon Voss', maid: 'MAID-FR-00481974', dept: 'Faith Medical & Deep Telemetry', clearance: 'Tier 2 (Clinical)' },
 ];
 
 function Shell({

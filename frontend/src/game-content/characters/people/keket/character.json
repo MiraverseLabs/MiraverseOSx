@@ -1,6 +1,6 @@
 {
   "id": "char-keket",
-  "name": "Seer Keket",
+  "name": "Seer Keket Nymeris",
   "kind": "person",
   "aliases": [],
   "status": "existing",
@@ -13,7 +13,12 @@
       "file": "people/keket/world.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-NE-00481958",
   "legacyMaids": [],
-  "folder": "keket"
+  "folder": "keket",
+  "firstName": "Keket",
+  "lastName": "Nymeris",
+  "title": "Seer",
+  "occupation": "Seer",
+  "homeRealm": "Nephele"
 }

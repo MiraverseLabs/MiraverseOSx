@@ -24,5 +24,7 @@
   "maid": null,
   "legacyMaids": [],
   "folder": "marcus-vance-courier",
-  "disambiguation": "Diplomatic courier"
+  "disambiguation": "Diplomatic courier",
+  "retiredFromCanon": true,
+  "retirementReason": "Removed during canonical 55-character roster cleanup"
 }

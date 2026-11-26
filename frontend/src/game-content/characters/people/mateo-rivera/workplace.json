@@ -1,0 +1,38 @@
+[
+  {
+    "collection": "INSTITUTIONAL_REGISTRY",
+    "key": "cw-qn-1",
+    "origin": "frontend/src/gameplay/WorkplaceDefinitions.ts:cw-qn-1",
+    "context": "INSTITUTIONAL_REGISTRY",
+    "data": {
+      "id": "cw-qn-1",
+      "name": "Mateo Rivera",
+      "title": "Community Services Coordinator",
+      "division": "Civic Rapid Response Office",
+      "avatar": "MR",
+      "status": "Desk",
+      "specialty": "Neighborhood dispatch, lost-item routing & civic service coordination",
+      "quote": "Small favors keep a district connected—no notice on the board is too minor.",
+      "trust": 82,
+      "competence": 84,
+      "familiarity": 74,
+      "cooperation": 90,
+      "conflictHistory": 2
+    },
+    "original": {
+      "id": "cw-qn-1",
+      "name": "Mateo Rivera",
+      "title": "Community Services Coordinator",
+      "division": "Civic Rapid Response Office",
+      "avatar": "MR",
+      "status": "Desk",
+      "specialty": "Neighborhood dispatch, lost-item routing & civic service coordination",
+      "quote": "Small favors keep a district connected—no notice on the board is too minor.",
+      "trust": 82,
+      "competence": 84,
+      "familiarity": 74,
+      "cooperation": 90,
+      "conflictHistory": 2
+    }
+  }
+]

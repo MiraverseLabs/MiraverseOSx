@@ -1,6 +1,6 @@
 {
   "id": "char-idris",
-  "name": "Professor Idris",
+  "name": "Professor Idris Aurelian",
   "kind": "person",
   "aliases": [],
   "status": "document-only",
@@ -15,5 +15,10 @@
   ],
   "maid": null,
   "legacyMaids": [],
-  "folder": "idris"
+  "folder": "idris",
+  "firstName": "Idris",
+  "lastName": "Aurelian",
+  "title": "Professor",
+  "occupation": "Professor",
+  "homeRealm": "Lumia"
 }

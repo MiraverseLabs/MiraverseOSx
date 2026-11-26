@@ -13,7 +13,12 @@
       "file": "people/mireille-chen/workplace.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481938",
   "legacyMaids": [],
-  "folder": "mireille-chen"
+  "folder": "mireille-chen",
+  "firstName": "Mireille",
+  "lastName": "Chen",
+  "title": null,
+  "occupation": "Journalist",
+  "homeRealm": "Orynvell"
 }

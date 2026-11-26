@@ -13,7 +13,12 @@
       "file": "people/julian-thorne/workplace.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-NE-00481970",
   "legacyMaids": [],
-  "folder": "julian-thorne"
+  "folder": "julian-thorne",
+  "firstName": "Julian",
+  "lastName": "Thorne",
+  "title": null,
+  "occupation": "Biomedical Engineer",
+  "homeRealm": "Nephele"
 }

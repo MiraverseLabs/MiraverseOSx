@@ -1,6 +1,6 @@
 {
   "id": "char-vael",
-  "name": "Headmistress Vael",
+  "name": "Headmistress Serena Vael",
   "kind": "person",
   "aliases": [],
   "status": "document-only",
@@ -15,5 +15,10 @@
   ],
   "maid": null,
   "legacyMaids": [],
-  "folder": "vael"
+  "folder": "vael",
+  "firstName": "Serena",
+  "lastName": "Vael",
+  "title": "Headmistress",
+  "occupation": "School Administrator",
+  "homeRealm": "Lumia"
 }

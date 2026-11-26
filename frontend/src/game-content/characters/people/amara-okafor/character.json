@@ -1,0 +1,26 @@
+{
+  "id": "char-amara-okafor",
+  "name": "Amara Okafor",
+  "kind": "person",
+  "aliases": [],
+  "status": "existing",
+  "notes": [
+    "Appointed to DGA Eyes Intelligence Bureau / Blackout support seat cw-dga-1."
+  ],
+  "legacyIds": [],
+  "references": [
+    {
+      "collection": "INSTITUTIONAL_REGISTRY",
+      "key": "cw-dga-1",
+      "file": "people/amara-okafor/workplace.json"
+    }
+  ],
+  "maid": "MAID-OR-00481975",
+  "legacyMaids": [],
+  "folder": "amara-okafor",
+  "firstName": "Amara",
+  "lastName": "Okafor",
+  "title": null,
+  "occupation": "Intelligence Analyst",
+  "homeRealm": "Orynvell"
+}

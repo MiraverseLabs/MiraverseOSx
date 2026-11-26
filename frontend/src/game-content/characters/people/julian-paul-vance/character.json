@@ -22,5 +22,7 @@
   "legacyMaids": [
     "MAID-OR-00000003"
   ],
-  "folder": "julian-paul-vance"
+  "folder": "julian-paul-vance",
+  "retiredFromCanon": true,
+  "retirementReason": "Removed during canonical 55-character roster cleanup"
 }

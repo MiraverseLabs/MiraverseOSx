@@ -56,16 +56,71 @@ _ORGS_CACHE: list[dict[str, Any]] | None = None
 
 
 def load_entertainment_organizations() -> list[dict[str, Any]]:
+    """Load entertainment organizations from canonical miraverse.db EntertainmentOrganizations first,
+    falling back to organizations.json only when the database table is unavailable."""
     global _ORGS_CACHE
     if _ORGS_CACHE is not None:
         return copy.deepcopy(_ORGS_CACHE)
-    repo_root = Path(__file__).resolve().parents[1]
-    orgs_path = repo_root / "frontend" / "src" / "game-content" / "organizations" / "organizations.json"
-    if orgs_path.is_file():
-        data = json.loads(orgs_path.read_text(encoding="utf-8-sig"))
-        _ORGS_CACHE = list(data.get("entertainmentIndustry", []))
-    else:
-        _ORGS_CACHE = []
+
+    import sqlite3
+    from contextlib import closing
+    from paths import SOURCE_DATABASE
+
+    loaded: list[dict[str, Any]] = []
+    if SOURCE_DATABASE.is_file():
+        try:
+            with closing(
+                sqlite3.connect(f"file:{SOURCE_DATABASE.resolve().as_posix()}?mode=ro", uri=True)
+            ) as conn:
+                conn.row_factory = sqlite3.Row
+                rows = conn.execute(
+                    """
+                    SELECT OrganizationId, Name, ShortName, Sector, Kind, Domain, Handle,
+                           Realm, Seat, Tagline, CommissionRate, RoyaltySplitArtist,
+                           VenueCapacity, MinRecognitionRequired, RentalCostCredits, DataJson
+                    FROM EntertainmentOrganizations
+                    ORDER BY OrganizationId
+                    """
+                ).fetchall()
+                for row in rows:
+                    try:
+                        payload = json.loads(row["DataJson"]) if row["DataJson"] else {}
+                    except (TypeError, ValueError):
+                        payload = {}
+                    if not isinstance(payload, dict):
+                        payload = {}
+                    payload["id"] = row["OrganizationId"]
+                    payload["name"] = row["Name"]
+                    payload["shortName"] = row["ShortName"]
+                    payload["sector"] = row["Sector"]
+                    payload["kind"] = row["Kind"]
+                    payload["domain"] = row["Domain"]
+                    payload["handle"] = row["Handle"]
+                    payload["realm"] = row["Realm"]
+                    payload["seat"] = row["Seat"]
+                    payload["tagline"] = row["Tagline"]
+                    if row["CommissionRate"] is not None:
+                        payload["commissionRate"] = row["CommissionRate"]
+                    if row["RoyaltySplitArtist"] is not None:
+                        payload["royaltySplitArtist"] = row["RoyaltySplitArtist"]
+                    if row["VenueCapacity"] is not None:
+                        payload["venueCapacity"] = row["VenueCapacity"]
+                    if row["MinRecognitionRequired"] is not None:
+                        payload["minRecognitionRequired"] = row["MinRecognitionRequired"]
+                    if row["RentalCostCredits"] is not None:
+                        payload["rentalCostCredits"] = row["RentalCostCredits"]
+                    loaded.append(payload)
+        except sqlite3.Error:
+            loaded = []
+
+    if not loaded:
+        repo_root = Path(__file__).resolve().parents[1]
+        orgs_path = repo_root / "frontend" / "src" / "game-content" / "organizations" / "organizations.json"
+        if orgs_path.is_file():
+            data = json.loads(orgs_path.read_text(encoding="utf-8-sig"))
+            loaded = list(data.get("entertainmentIndustry", []))
+
+    _ORGS_CACHE = loaded
     return copy.deepcopy(_ORGS_CACHE)
 
 

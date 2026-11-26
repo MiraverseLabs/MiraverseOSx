@@ -1,0 +1,26 @@
+{
+  "id": "char-samira-el-amin",
+  "name": "Samira El-Amin",
+  "kind": "person",
+  "aliases": [],
+  "status": "existing",
+  "notes": [
+    "Appointed High Council Civic Administration supervisor seat sup-diplomat."
+  ],
+  "legacyIds": [],
+  "references": [
+    {
+      "collection": "INSTITUTIONAL_REGISTRY",
+      "key": "sup-diplomat",
+      "file": "people/samira-el-amin/workplace.json"
+    }
+  ],
+  "maid": "MAID-MA-00481979",
+  "legacyMaids": [],
+  "folder": "samira-el-amin",
+  "firstName": "Samira",
+  "lastName": "El-Amin",
+  "title": null,
+  "occupation": "Senior Diplomatic Affairs Officer",
+  "homeRealm": "Marlowe"
+}

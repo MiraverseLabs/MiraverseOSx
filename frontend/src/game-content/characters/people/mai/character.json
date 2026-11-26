@@ -15,5 +15,10 @@
   ],
   "maid": null,
   "legacyMaids": [],
-  "folder": "mai"
+  "folder": "mai",
+  "firstName": null,
+  "lastName": null,
+  "title": null,
+  "occupation": null,
+  "homeRealm": null
 }

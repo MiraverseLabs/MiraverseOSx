@@ -15,5 +15,7 @@
   ],
   "maid": null,
   "legacyMaids": [],
-  "folder": "tyler-ross"
+  "folder": "tyler-ross",
+  "retiredFromCanon": true,
+  "retirementReason": "Removed during canonical 55-character roster cleanup"
 }

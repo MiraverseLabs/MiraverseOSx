@@ -1,0 +1,1499 @@
+{
+  "timestampUtc": "20261126T202749Z",
+  "source": {
+    "path": "C:\\Users\\mirav\\OneDrive\\Desktop\\MiraverseOSx\\miraverse.db",
+    "sizeBytes": 47525888,
+    "sha256": "bcedf805bc99e4f64fc34b149b26f5f54503415d97aa3cbc1ef33afc8514d1d4",
+    "integrityCheck": [
+      "ok"
+    ],
+    "foreignKeyCheck": [],
+    "tableCounts": {
+      "Careers": 9,
+      "CharacterAliases": 19,
+      "CharacterLegacyIds": 6,
+      "CharacterProfiles": 91,
+      "Characters": 55,
+      "CodeDefinitions": 12817,
+      "CodeTextFragments": 60261,
+      "ContentCategories": 17,
+      "ContentMigrations": 4,
+      "ContentSources": 219,
+      "Documents": 0,
+      "Emails": 0,
+      "EmbeddedPayloads": 12146,
+      "EmbeddedRecords": 7529,
+      "EntertainmentOrganizations": 25,
+      "Events": 0,
+      "Factions": 0,
+      "LivingWorldRuns": 47,
+      "LivingWorldSchemaMigrations": 1,
+      "LivingWorldTransactions": 241,
+      "Lore_Entries": 0,
+      "MigrationInventory": 773,
+      "Missions": 0,
+      "Modules": 0,
+      "NPCs": 0,
+      "ProfileCollectionCategories": 19,
+      "ProfileTypes": 11,
+      "ProjectFiles": 2732,
+      "ProjectSourceArchive": 771,
+      "Regions": 0,
+      "SourceDocuments": 20,
+      "WorldCategoryMappings": 22,
+      "WorldRecords": 277
+    },
+    "views": [
+      "BrowseAllContent",
+      "BrowseCategorySummary",
+      "BrowseCharacters",
+      "BrowseCodeDefinitions",
+      "BrowseEmbeddedData",
+      "BrowseEmbeddedSummary",
+      "BrowseExtractionIssues",
+      "BrowsePeopleToReview",
+      "BrowseProfiles",
+      "BrowseWorldCatalog",
+      "CareersCatalog",
+      "CasesCatalog",
+      "CharacterReferenceKeys",
+      "CharacterRelationships",
+      "HistoryCatalog",
+      "MediaCatalog",
+      "MissionsCatalog",
+      "ObjectsCatalog",
+      "OrganizationsCatalog",
+      "PlacesCatalog",
+      "ResolvedCharacterReferences"
+    ],
+    "characterBreakdown": [
+      {
+        "Kind": "companion",
+        "Status": "existing",
+        "Cnt": 1
+      },
+      {
+        "Kind": "person",
+        "Status": "document-only",
+        "Cnt": 8
+      },
+      {
+        "Kind": "person",
+        "Status": "existing",
+        "Cnt": 46
+      }
+    ],
+    "registeredMaidCount": 46,
+    "maidPrefixes": [
+      {
+        "Prefix": "MAID-OR",
+        "Cnt": 22
+      },
+      {
+        "Prefix": "MAID-NE",
+        "Cnt": 5
+      },
+      {
+        "Prefix": "MAID-VR",
+        "Cnt": 5
+      },
+      {
+        "Prefix": "MAID-BR",
+        "Cnt": 4
+      },
+      {
+        "Prefix": "MAID-FR",
+        "Cnt": 4
+      },
+      {
+        "Prefix": "MAID-LU",
+        "Cnt": 3
+      },
+      {
+        "Prefix": "MAID-MA",
+        "Cnt": 2
+      },
+      {
+        "Prefix": "MAID-KA",
+        "Cnt": 1
+      }
+    ],
+    "careers": [
+      {
+        "id": "career-archivist",
+        "name": "Archivist / Researcher",
+        "archetype": "Research",
+        "description": "Cataloging, archival research, restoration, public records and historical investigation.",
+        "lore_snippet": null,
+        "primary_stat": "Intellect",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-artist",
+        "name": "Artist / Performer",
+        "archetype": "Creative",
+        "description": "Music, performance, fashion, commissions, public appearances and cultural projects.",
+        "lore_snippet": null,
+        "primary_stat": "Creativity",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-diplomat",
+        "name": "Council Diplomat",
+        "archetype": "Government",
+        "description": "Civic mediation, diplomatic correspondence, policy research and interdepartmental coordination.",
+        "lore_snippet": null,
+        "primary_stat": "Influence",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-ecological-warden",
+        "name": "Ecological Warden",
+        "archetype": "Environment",
+        "description": "Ecological surveys, conservation, restoration, wildlife support and environmental monitoring.",
+        "lore_snippet": null,
+        "primary_stat": "Empathy",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-enforcer",
+        "name": "Enforcer / Guardian",
+        "archetype": "Security",
+        "description": "Protective duties, patrol support, emergency response, containment and public safety.",
+        "lore_snippet": null,
+        "primary_stat": "Resilience",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-finance",
+        "name": "Finance Clerk / Banking Support",
+        "archetype": "Finance",
+        "description": "Financial verification, account support, salary processing, taxation and treasury services.",
+        "lore_snippet": null,
+        "primary_stat": "Intellect",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-healer",
+        "name": "Healer / Medical Support",
+        "archetype": "Healthcare",
+        "description": "Patient support, wellness, treatment assistance, medical records and Veil exposure monitoring.",
+        "lore_snippet": null,
+        "primary_stat": "Empathy",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-odd-jobs",
+        "name": "QUESTNOTICE Odd Jobs",
+        "archetype": "General",
+        "description": "Temporary work, errands, deliveries, community assistance and independent assignments.",
+        "lore_snippet": null,
+        "primary_stat": "Variable",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-systems-engineer",
+        "name": "Systems Engineer",
+        "archetype": "Technology",
+        "description": "System maintenance, debugging, technical audits, tool development and anomaly troubleshooting.",
+        "lore_snippet": null,
+        "primary_stat": "Intellect",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      }
+    ],
+    "careerColumns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "name",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "archetype",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "description",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "lore_snippet",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "primary_stat",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "signature_ability",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "passive_bonus",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "compatible_modules",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "starting_credits",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "1500",
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "starting_xp",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "created_at",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "datetime('now')",
+        "pk": 0
+      }
+    ],
+    "missionColumns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "title",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "type",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "tier",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'Task'",
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "region_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "faction_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "difficulty",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'Novice'",
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "description",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "objectives",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "reward_xp",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "200",
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "reward_credits",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "350",
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "reward_item",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 12,
+        "name": "min_level",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "1",
+        "pk": 0
+      },
+      {
+        "cid": 13,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'Available'",
+        "pk": 0
+      },
+      {
+        "cid": 14,
+        "name": "created_at",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "datetime('now')",
+        "pk": 0
+      }
+    ],
+    "entertainmentOrgColumns": [
+      {
+        "cid": 0,
+        "name": "OrganizationId",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "Name",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "ShortName",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "Sector",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "Kind",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "Domain",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "Handle",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "Realm",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "Seat",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "Tagline",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "CommissionRate",
+        "type": "REAL",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "RoyaltySplitArtist",
+        "type": "REAL",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 12,
+        "name": "VenueCapacity",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 13,
+        "name": "MinRecognitionRequired",
+        "type": "REAL",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 14,
+        "name": "RentalCostCredits",
+        "type": "REAL",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 15,
+        "name": "DataJson",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 16,
+        "name": "UpdatedAt",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "migrations": [
+      {
+        "Version": 1,
+        "Description": "Lossless authored-content import"
+      },
+      {
+        "Version": 2,
+        "Description": "Consistent categories, unique names, derived relationships, keyed catalogues"
+      },
+      {
+        "Version": 3,
+        "Description": "Section XIX entertainment organizations, venues, brand kits, and WORKNET commissions"
+      },
+      {
+        "Version": 4,
+        "Description": "Section XIX organizations, venues, 8 creative design families, and sliced artwork catalog"
+      }
+    ],
+    "characterColumns": [
+      {
+        "cid": 0,
+        "name": "CharacterId",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "Name",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "Kind",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "Status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "Folder",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "Maid",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "NotesJson",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "SourcePath",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "FirstName",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "LastName",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "Title",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "Occupation",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 12,
+        "name": "HomeRealm",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "characterIndexes": [
+      {
+        "name": "UX_Characters_Name",
+        "sql": "CREATE UNIQUE INDEX UX_Characters_Name ON Characters(lower(trim(Name)))"
+      },
+      {
+        "name": "UniqueCharacterMAID",
+        "sql": "CREATE UNIQUE INDEX UniqueCharacterMAID\r\nON Characters (UPPER(TRIM(Maid)))\r\nWHERE Maid IS NOT NULL\r\nAND TRIM(Maid) != ''"
+      },
+      {
+        "name": "sqlite_autoindex_Characters_1",
+        "sql": null
+      },
+      {
+        "name": "sqlite_autoindex_Characters_2",
+        "sql": null
+      }
+    ],
+    "browseCharactersViewSql": "CREATE VIEW BrowseCharacters AS\nSELECT c.CharacterId, c.Name, c.Kind, c.Status, c.Maid, c.Folder,\n       (SELECT group_concat(Alias, '; ') FROM CharacterAliases a\n        WHERE a.CharacterId=c.CharacterId) AS Aliases,\n       (SELECT count(*) FROM CharacterProfiles p\n        WHERE p.CharacterId=c.CharacterId) AS ProfileCount,\n       c.NotesJson\nFROM Characters c"
+  },
+  "backup": {
+    "path": "C:\\Users\\mirav\\OneDrive\\Desktop\\MiraverseOSx\\backups\\miraverse-pre-reconciliation-20261126T202749Z.db",
+    "sizeBytes": 47525888,
+    "sha256": "daf856f898281207f7ffbf18991c7ac6f539f742517c12822d448ca32e2efd86",
+    "integrityCheck": [
+      "ok"
+    ],
+    "foreignKeyCheck": [],
+    "tableCounts": {
+      "Careers": 9,
+      "CharacterAliases": 19,
+      "CharacterLegacyIds": 6,
+      "CharacterProfiles": 91,
+      "Characters": 55,
+      "CodeDefinitions": 12817,
+      "CodeTextFragments": 60261,
+      "ContentCategories": 17,
+      "ContentMigrations": 4,
+      "ContentSources": 219,
+      "Documents": 0,
+      "Emails": 0,
+      "EmbeddedPayloads": 12146,
+      "EmbeddedRecords": 7529,
+      "EntertainmentOrganizations": 25,
+      "Events": 0,
+      "Factions": 0,
+      "LivingWorldRuns": 47,
+      "LivingWorldSchemaMigrations": 1,
+      "LivingWorldTransactions": 241,
+      "Lore_Entries": 0,
+      "MigrationInventory": 773,
+      "Missions": 0,
+      "Modules": 0,
+      "NPCs": 0,
+      "ProfileCollectionCategories": 19,
+      "ProfileTypes": 11,
+      "ProjectFiles": 2732,
+      "ProjectSourceArchive": 771,
+      "Regions": 0,
+      "SourceDocuments": 20,
+      "WorldCategoryMappings": 22,
+      "WorldRecords": 277
+    },
+    "views": [
+      "BrowseAllContent",
+      "BrowseCategorySummary",
+      "BrowseCharacters",
+      "BrowseCodeDefinitions",
+      "BrowseEmbeddedData",
+      "BrowseEmbeddedSummary",
+      "BrowseExtractionIssues",
+      "BrowsePeopleToReview",
+      "BrowseProfiles",
+      "BrowseWorldCatalog",
+      "CareersCatalog",
+      "CasesCatalog",
+      "CharacterReferenceKeys",
+      "CharacterRelationships",
+      "HistoryCatalog",
+      "MediaCatalog",
+      "MissionsCatalog",
+      "ObjectsCatalog",
+      "OrganizationsCatalog",
+      "PlacesCatalog",
+      "ResolvedCharacterReferences"
+    ],
+    "characterBreakdown": [
+      {
+        "Kind": "companion",
+        "Status": "existing",
+        "Cnt": 1
+      },
+      {
+        "Kind": "person",
+        "Status": "document-only",
+        "Cnt": 8
+      },
+      {
+        "Kind": "person",
+        "Status": "existing",
+        "Cnt": 46
+      }
+    ],
+    "registeredMaidCount": 46,
+    "maidPrefixes": [
+      {
+        "Prefix": "MAID-OR",
+        "Cnt": 22
+      },
+      {
+        "Prefix": "MAID-NE",
+        "Cnt": 5
+      },
+      {
+        "Prefix": "MAID-VR",
+        "Cnt": 5
+      },
+      {
+        "Prefix": "MAID-BR",
+        "Cnt": 4
+      },
+      {
+        "Prefix": "MAID-FR",
+        "Cnt": 4
+      },
+      {
+        "Prefix": "MAID-LU",
+        "Cnt": 3
+      },
+      {
+        "Prefix": "MAID-MA",
+        "Cnt": 2
+      },
+      {
+        "Prefix": "MAID-KA",
+        "Cnt": 1
+      }
+    ],
+    "careers": [
+      {
+        "id": "career-archivist",
+        "name": "Archivist / Researcher",
+        "archetype": "Research",
+        "description": "Cataloging, archival research, restoration, public records and historical investigation.",
+        "lore_snippet": null,
+        "primary_stat": "Intellect",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-artist",
+        "name": "Artist / Performer",
+        "archetype": "Creative",
+        "description": "Music, performance, fashion, commissions, public appearances and cultural projects.",
+        "lore_snippet": null,
+        "primary_stat": "Creativity",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-diplomat",
+        "name": "Council Diplomat",
+        "archetype": "Government",
+        "description": "Civic mediation, diplomatic correspondence, policy research and interdepartmental coordination.",
+        "lore_snippet": null,
+        "primary_stat": "Influence",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-ecological-warden",
+        "name": "Ecological Warden",
+        "archetype": "Environment",
+        "description": "Ecological surveys, conservation, restoration, wildlife support and environmental monitoring.",
+        "lore_snippet": null,
+        "primary_stat": "Empathy",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-enforcer",
+        "name": "Enforcer / Guardian",
+        "archetype": "Security",
+        "description": "Protective duties, patrol support, emergency response, containment and public safety.",
+        "lore_snippet": null,
+        "primary_stat": "Resilience",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-finance",
+        "name": "Finance Clerk / Banking Support",
+        "archetype": "Finance",
+        "description": "Financial verification, account support, salary processing, taxation and treasury services.",
+        "lore_snippet": null,
+        "primary_stat": "Intellect",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-healer",
+        "name": "Healer / Medical Support",
+        "archetype": "Healthcare",
+        "description": "Patient support, wellness, treatment assistance, medical records and Veil exposure monitoring.",
+        "lore_snippet": null,
+        "primary_stat": "Empathy",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-odd-jobs",
+        "name": "QUESTNOTICE Odd Jobs",
+        "archetype": "General",
+        "description": "Temporary work, errands, deliveries, community assistance and independent assignments.",
+        "lore_snippet": null,
+        "primary_stat": "Variable",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      },
+      {
+        "id": "career-systems-engineer",
+        "name": "Systems Engineer",
+        "archetype": "Technology",
+        "description": "System maintenance, debugging, technical audits, tool development and anomaly troubleshooting.",
+        "lore_snippet": null,
+        "primary_stat": "Intellect",
+        "signature_ability": null,
+        "passive_bonus": null,
+        "compatible_modules": null,
+        "starting_credits": 1500,
+        "starting_xp": 0,
+        "created_at": "2026-11-26 19:45:17"
+      }
+    ],
+    "careerColumns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "name",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "archetype",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "description",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "lore_snippet",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "primary_stat",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "signature_ability",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "passive_bonus",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "compatible_modules",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "starting_credits",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "1500",
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "starting_xp",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "0",
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "created_at",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "datetime('now')",
+        "pk": 0
+      }
+    ],
+    "missionColumns": [
+      {
+        "cid": 0,
+        "name": "id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "title",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "type",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "tier",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": "'Task'",
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "region_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "faction_id",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "difficulty",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'Novice'",
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "description",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "objectives",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "reward_xp",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "200",
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "reward_credits",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "350",
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "reward_item",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 12,
+        "name": "min_level",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": "1",
+        "pk": 0
+      },
+      {
+        "cid": 13,
+        "name": "status",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "'Available'",
+        "pk": 0
+      },
+      {
+        "cid": 14,
+        "name": "created_at",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": "datetime('now')",
+        "pk": 0
+      }
+    ],
+    "entertainmentOrgColumns": [
+      {
+        "cid": 0,
+        "name": "OrganizationId",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "Name",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "ShortName",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "Sector",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "Kind",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "Domain",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "Handle",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "Realm",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "Seat",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "Tagline",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "CommissionRate",
+        "type": "REAL",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "RoyaltySplitArtist",
+        "type": "REAL",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 12,
+        "name": "VenueCapacity",
+        "type": "INTEGER",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 13,
+        "name": "MinRecognitionRequired",
+        "type": "REAL",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 14,
+        "name": "RentalCostCredits",
+        "type": "REAL",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 15,
+        "name": "DataJson",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 16,
+        "name": "UpdatedAt",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "migrations": [
+      {
+        "Version": 1,
+        "Description": "Lossless authored-content import"
+      },
+      {
+        "Version": 2,
+        "Description": "Consistent categories, unique names, derived relationships, keyed catalogues"
+      },
+      {
+        "Version": 3,
+        "Description": "Section XIX entertainment organizations, venues, brand kits, and WORKNET commissions"
+      },
+      {
+        "Version": 4,
+        "Description": "Section XIX organizations, venues, 8 creative design families, and sliced artwork catalog"
+      }
+    ],
+    "characterColumns": [
+      {
+        "cid": 0,
+        "name": "CharacterId",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 1
+      },
+      {
+        "cid": 1,
+        "name": "Name",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 2,
+        "name": "Kind",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 3,
+        "name": "Status",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 4,
+        "name": "Folder",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 5,
+        "name": "Maid",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 6,
+        "name": "NotesJson",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 7,
+        "name": "SourcePath",
+        "type": "TEXT",
+        "notnull": 1,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 8,
+        "name": "FirstName",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 9,
+        "name": "LastName",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 10,
+        "name": "Title",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 11,
+        "name": "Occupation",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      },
+      {
+        "cid": 12,
+        "name": "HomeRealm",
+        "type": "TEXT",
+        "notnull": 0,
+        "dflt_value": null,
+        "pk": 0
+      }
+    ],
+    "characterIndexes": [
+      {
+        "name": "UX_Characters_Name",
+        "sql": "CREATE UNIQUE INDEX UX_Characters_Name ON Characters(lower(trim(Name)))"
+      },
+      {
+        "name": "UniqueCharacterMAID",
+        "sql": "CREATE UNIQUE INDEX UniqueCharacterMAID\r\nON Characters (UPPER(TRIM(Maid)))\r\nWHERE Maid IS NOT NULL\r\nAND TRIM(Maid) != ''"
+      },
+      {
+        "name": "sqlite_autoindex_Characters_1",
+        "sql": null
+      },
+      {
+        "name": "sqlite_autoindex_Characters_2",
+        "sql": null
+      }
+    ],
+    "browseCharactersViewSql": "CREATE VIEW BrowseCharacters AS\nSELECT c.CharacterId, c.Name, c.Kind, c.Status, c.Maid, c.Folder,\n       (SELECT group_concat(Alias, '; ') FROM CharacterAliases a\n        WHERE a.CharacterId=c.CharacterId) AS Aliases,\n       (SELECT count(*) FROM CharacterProfiles p\n        WHERE p.CharacterId=c.CharacterId) AS ProfileCount,\n       c.NotesJson\nFROM Characters c"
+  }
+}

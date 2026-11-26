@@ -1,6 +1,6 @@
 {
   "id": "char-yoko",
-  "name": "Grand Dispatcher Yoko",
+  "name": "Grand Dispatcher Yoko Mizuhara",
   "kind": "person",
   "aliases": [],
   "status": "existing",
@@ -13,7 +13,12 @@
       "file": "people/yoko/world.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-BR-00481956",
   "legacyMaids": [],
-  "folder": "yoko"
+  "folder": "yoko",
+  "firstName": "Yoko",
+  "lastName": "Mizuhara",
+  "title": "Grand Dispatcher",
+  "occupation": "Grand Dispatcher",
+  "homeRealm": "Brisland"
 }

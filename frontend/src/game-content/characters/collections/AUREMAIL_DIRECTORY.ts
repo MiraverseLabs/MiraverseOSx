@@ -6,22 +6,18 @@ import file2 from '../people/aelita-hopper/mail.json' with { type: 'json' };
 import file3 from '../people/jeremie-belpois/mail.json' with { type: 'json' };
 import file4 from '../people/odd-della-robia/mail.json' with { type: 'json' };
 import file5 from '../people/riven-kalbera/mail.json' with { type: 'json' };
-import file6 from '../people/elara-vale/mail.json' with { type: 'json' };
-import file7 from '../people/julian-paul-vance/mail.json' with { type: 'json' };
-const profiles = new Map<string, { data: unknown; characterId: string }>([
-  ["dir-dean-rook", { data: file0[0].data, characterId: "char-cassian-rook" }],
-  ["dir-dr-voss", { data: file1[0].data, characterId: "char-sharon-voss" }],
-  ["dir-aelita", { data: file2[0].data, characterId: "char-aelita-hopper" }],
-  ["dir-jeremie", { data: file3[0].data, characterId: "char-jeremie-belpois" }],
-  ["dir-odd", { data: file4[0].data, characterId: "char-odd-della-robia" }],
-  ["dir-riven", { data: file5[0].data, characterId: "char-riven-kalbera" }],
-  ["dir-elara-vale", { data: file6[0].data, characterId: "char-elara-vale" }],
-  ["dir-julian-vance", { data: file7[0].data, characterId: "char-julian-paul-vance" }],
+const profiles = new Map<string, { data: unknown; characterId: string; archivedSubject: boolean }>([
+  ["dir-dean-rook", { data: file0[0].data, characterId: "char-cassian-rook", archivedSubject: false }],
+  ["dir-dr-voss", { data: file1[0].data, characterId: "char-sharon-voss", archivedSubject: false }],
+  ["dir-aelita", { data: file2[0].data, characterId: "char-aelita-hopper", archivedSubject: false }],
+  ["dir-jeremie", { data: file3[0].data, characterId: "char-jeremie-belpois", archivedSubject: false }],
+  ["dir-odd", { data: file4[0].data, characterId: "char-odd-della-robia", archivedSubject: false }],
+  ["dir-riven", { data: file5[0].data, characterId: "char-riven-kalbera", archivedSubject: false }],
 ]);
 export function getProfile<T = any>(key: string): T {
   if (!profiles.has(key)) throw new Error("Unknown AUREMAIL_DIRECTORY character profile: " + key);
   const entry = profiles.get(key)!;
   const value = copyProfile(entry.data);
-  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId }) as T;
+  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId, ...(entry.archivedSubject ? { archivedSubject: true } : {}) }) as T;
 }
 export function getProfiles<T = any>(): T[] { return [...profiles.keys()].map(key => getProfile<T>(key)); }

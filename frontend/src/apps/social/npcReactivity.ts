@@ -37,7 +37,7 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
   },
   aelita: {
     id: 'aelita',
-    name: 'Aelita Schaeffer',
+    name: 'Aelita Hopper',
     keywords: ['music', 'song', 'melody', 'art', 'color', 'sketch', 'memory', 'dream', 'quiet', 'piano', 'sound', 'stars'],
     blogComments: {
       generic: [
@@ -62,7 +62,7 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
   },
   sissi: {
     id: 'sissi',
-    name: 'Elisabeth Delmas',
+    name: 'Sissi Delmas',
     keywords: ['style', 'look', 'photo', 'party', 'event', 'weekend', 'outfit', 'evening', 'glamour', 'friends', 'plans'],
     blogComments: {
       generic: [
@@ -87,7 +87,7 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
   },
   odd: {
     id: 'odd',
-    name: 'Odd Della Robbia',
+    name: 'Odd Della Robia',
     keywords: ['funny', 'joke', 'laugh', 'dog', 'snack', 'food', 'comic', 'game', 'doodle', 'fun', 'sketch'],
     blogComments: {
       generic: [
@@ -137,7 +137,7 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
   },
   riven: {
     id: 'riven',
-    name: 'Riven Asterwind',
+    name: 'Riven Kalbera',
     keywords: ['city', 'street', 'walk', 'tower', 'view', 'district', 'outside', 'rain', 'night', 'bridge'],
     blogComments: {
       generic: [
@@ -160,34 +160,9 @@ export const NPC_PERSONAS: Record<string, NpcPersona> = {
       'Dropped by your space. Good to see you are doing well.'
     ]
   },
-  mara: {
-    id: 'mara',
-    name: 'Mara Thorne',
-    keywords: ['book', 'library', 'offline', 'paper', 'print', 'novel', 'chapter', 'author', 'read', 'shelf'],
-    blogComments: {
-      generic: [
-        'Adding this to my reading stack. Always refreshing to see genuine writing.',
-        'Thoughtful prose. It is rare to see people take time with their thoughts like this.',
-        'A nice entry. Writing for yourself first is always the best way.'
-      ],
-      topicMatched: [
-        'This reminds me of an old essay on craft I found in the second-hand shop last month. Beautifully put.',
-        'There is a tactile quality to this reflection that I really appreciate. Keep going.',
-        'Books and quiet hours remain the most reliable antidote to screen fatigue. A lovely post.'
-      ]
-    },
-    guestbookReplies: [
-      'Thank you for leaving a note on my page. May your reading pile bring you good company today.',
-      'Lovely to hear from you. Take your time with the things you love.'
-    ],
-    spontaneousGuestbook: [
-      'Visiting your corner between chapters. Your page layout has a wonderful nostalgic warmth. ✧',
-      'Leaving a little mark in your guestbook. Wishing you peaceful hours and good stories.'
-    ]
-  },
   rowan: {
     id: 'rowan',
-    name: 'Archivist Rowan',
+    name: 'Archivist Rowan Alderwick',
     keywords: ['journal', 'archive', 'history', 'record', 'margin', 'past', 'note', 'ink', 'page', 'memory'],
     blogComments: {
       generic: [

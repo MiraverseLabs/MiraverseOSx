@@ -32,5 +32,7 @@
   "legacyMaids": [
     "MAID-OR-00000001"
   ],
-  "folder": "elara-vale"
+  "folder": "elara-vale",
+  "retiredFromCanon": true,
+  "retirementReason": "Removed during canonical 55-character roster cleanup"
 }

@@ -13,7 +13,12 @@
       "file": "people/dominic-sterling/investigations.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481964",
   "legacyMaids": [],
-  "folder": "dominic-sterling"
+  "folder": "dominic-sterling",
+  "firstName": "Dominic",
+  "lastName": "Sterling",
+  "title": null,
+  "occupation": "Corporate Executive",
+  "homeRealm": "Orynvell"
 }

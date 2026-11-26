@@ -13,7 +13,12 @@
       "file": "people/gregory-bell/workplace.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481934",
   "legacyMaids": [],
-  "folder": "gregory-bell"
+  "folder": "gregory-bell",
+  "firstName": "Gregory",
+  "lastName": "Bell",
+  "title": null,
+  "occupation": "Financial Analyst",
+  "homeRealm": "Orynvell"
 }

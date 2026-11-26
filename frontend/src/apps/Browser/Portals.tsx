@@ -229,14 +229,14 @@ export function DGAPortal() {
     const [bypassCipher, setBypassCipher] = useState('');
     const [bypassFeedback, setBypassFeedback] = useState<string | null>(null);
 
-    // Canonical Citizen Clearance Directory
+    // Canonical Citizen Clearance Directory (backed by miraverse.db via registry.ts)
     const citizenRegistry = [
-        { name: 'Director Vane', maid: 'MAID-0010-DIR', dept: 'Executive Council & Municipal Intelligence', clearance: 'Tier 3 (Master)', status: 'ACTIVE DIRECTIVES LEAD' },
-        { name: 'Agent Mara Thorne', maid: 'MAID-0492-OPS', dept: 'DGA Tactical & TRACE Forensic Bureau', clearance: 'Tier 2 (High Clearance)', status: 'BROAD STREET LEAD AGENT' },
-        { name: 'Jeremie Belpois', maid: 'MAID-7721-CYC', dept: 'Cyberium Academy Compiler Lab 4', clearance: 'Tier 2 (Academic Auth)', status: 'DIAGNOSTIC ADVISOR' },
-        { name: 'Aelita Schaeffer', maid: 'MAID-7722-CYC', dept: 'Cyberium Academy Research / Node Liaison', clearance: 'Tier 2 (Academic Auth)', status: 'SUBTERRANEAN CONTACT' },
-        { name: 'Dr. Sharon Voss', maid: 'MAID-3391-MED', dept: 'Faith Medical & Deep Telemetry', clearance: 'Tier 2 (Clinical Auth)', status: 'PRISM CHIEF RESEARCHER' },
-        { name: 'Dr. Franz Hopper', maid: 'MAID-0001-ARCH', dept: 'Pre-Collapse Network Architect', clearance: 'Tier 3 (Classified)', status: 'HISTORICAL ARCHIVE SEAL' },
+        { name: 'Director Evelyn Cross', maid: 'MAID-OR-00481939', dept: 'Department of Global Affairs · Executive Command', clearance: 'Tier 3 (Master)', status: 'ACTIVE DIRECTIVES LEAD' },
+        { name: 'Deputy Chief Nathaniel Miller', maid: 'MAID-OR-00481954', dept: 'DGA Tactical & TRACE Forensic Bureau', clearance: 'Tier 2 (High Clearance)', status: 'ACTIVE OPERATIONS' },
+        { name: 'Jeremie Belpois', maid: 'MAID-OR-00481935', dept: 'Cyberium Academy Compiler Lab 4', clearance: 'Tier 2 (Academic Auth)', status: 'DIAGNOSTIC ADVISOR' },
+        { name: 'Aelita Hopper', maid: 'MAID-OR-00481945', dept: 'Cyberium Academy Research / Node Liaison', clearance: 'Tier 2 (Academic Auth)', status: 'SUBTERRANEAN CONTACT' },
+        { name: 'Dr. Sharon Voss', maid: 'MAID-FR-00481974', dept: 'Faith Medical & Deep Telemetry', clearance: 'Tier 2 (Clinical Auth)', status: 'PRISM CHIEF RESEARCHER' },
+        { name: 'Franz Hopper', maid: 'DOCUMENT-ONLY', dept: 'Pre-Collapse Network Architect', clearance: 'Tier 3 (Classified)', status: 'HISTORICAL ARCHIVE SEAL' },
     ];
 
     const handleSearchCitizen = (e: React.FormEvent) => {

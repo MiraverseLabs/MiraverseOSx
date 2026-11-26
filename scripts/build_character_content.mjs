@@ -1,38 +1,106 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
 const root = fileURLToPath(new URL('../', import.meta.url));
 const base = path.join(root, 'frontend/src/game-content/characters');
 const read = file => JSON.parse(readFileSync(path.join(base, file), 'utf8'));
 const manifest = read('manifest.json');
 const checking = process.argv.includes('--check');
+
+const retiredEntries = Array.isArray(manifest.retiredCharacters) ? manifest.retiredCharacters : [];
+const retiredIds = new Set(retiredEntries.map(entry => entry.id));
+const archivedSubjects = Array.isArray(manifest.archivedSubjects) ? manifest.archivedSubjects : [];
+
 const outputs = new Map();
-const identities = [], links = [], redirects = {}, profileMap = new Map();
+const identities = [];
+const links = [];
+const redirects = {};
+const profileMap = new Map();
+
 for (const item of manifest.characters) {
+  if (retiredIds.has(item.id)) {
+    throw new Error(`Retired character ${item.id} cannot appear in active manifest.characters`);
+  }
   const person = read(`people/${item.folder}/character.json`);
-  if (person.id !== item.id || person.folder !== item.folder || person.name !== item.name) throw new Error(`Manifest mismatch for ${item.folder}`);
-  identities.push({ id: person.id, name: person.name, kind: person.kind, aliases: person.aliases, status: person.status, notes: [], legacyIds: person.legacyIds });
-  for (const id of person.legacyIds) { if (Object.hasOwn(redirects,id)) throw new Error(`Duplicate old ID ${id}`); redirects[id] = person.id; }
-  for (const ref of person.references) {
-    if (!ref.file.startsWith(`people/${item.folder}/`) || ref.file.includes('..')) throw new Error('Profile escapes its character folder');
+  if (person.retiredFromCanon) {
+    throw new Error(`Character folder ${item.folder} is marked retiredFromCanon and cannot be included in active roster`);
+  }
+  if (person.id !== item.id || person.folder !== item.folder || person.name !== item.name) {
+    throw new Error(`Manifest mismatch for ${item.folder}`);
+  }
+  identities.push({
+    id: person.id,
+    name: person.name,
+    firstName: person.firstName ?? null,
+    lastName: person.lastName ?? null,
+    title: person.title ?? null,
+    occupation: person.occupation ?? null,
+    homeRealm: person.homeRealm ?? null,
+    maid: person.maid ?? null,
+    kind: person.kind,
+    aliases: person.aliases || [],
+    status: person.status,
+    notes: person.notes || [],
+    legacyIds: person.legacyIds || [],
+  });
+  for (const id of person.legacyIds || []) {
+    if (Object.hasOwn(redirects, id)) throw new Error(`Duplicate old ID ${id}`);
+    redirects[id] = person.id;
+  }
+  for (const ref of person.references || []) {
+    if (!ref.file.startsWith(`people/${item.folder}/`) || ref.file.includes('..')) {
+      throw new Error('Profile escapes its character folder');
+    }
     const entries = read(ref.file);
     const index = entries.findIndex(entry => entry.collection === ref.collection && entry.key === ref.key);
     if (index < 0) throw new Error(`Missing profile ${ref.collection}/${ref.key}`);
     const data = entries[index].data;
-    if (data.name && data.name !== person.name) throw new Error(`Conflicting display name in ${ref.file}`);
-    if (ref.collection === 'AUREMAIL_DIRECTORY' && person.maid && data.maid !== person.maid) throw new Error(`Conflicting MAID in ${ref.file}`);
-    if (ref.collection === 'defaultInputs' && data.fixedMaid !== person.maid) throw new Error(`Registry MAID mismatch in ${ref.file}`);
-    const token = JSON.stringify([ref.collection,ref.key]);
+    if (data.name && data.name !== person.name && ref.collection !== 'phone-contact') {
+      throw new Error(`Conflicting display name in ${ref.file}: ${data.name} vs ${person.name}`);
+    }
+    if (ref.collection === 'AUREMAIL_DIRECTORY' && person.maid && data.maid !== person.maid) {
+      throw new Error(`Conflicting MAID in ${ref.file}`);
+    }
+    if (ref.collection === 'defaultInputs' && data.fixedMaid !== person.maid) {
+      throw new Error(`Registry MAID mismatch in ${ref.file}`);
+    }
+    const token = JSON.stringify([ref.collection, ref.key]);
     if (profileMap.has(token)) throw new Error(`Duplicate profile ${token}`);
-    profileMap.set(token, { ...ref, index, characterId: person.id });
-    links.push({ collection: ref.collection, key: ref.key, characterId: person.id });
+    profileMap.set(token, { ...ref, index, characterId: person.id, archivedSubject: false });
+    links.push({ collection: ref.collection, key: ref.key, characterId: person.id, archivedSubject: false });
   }
 }
-for (const [name,value] of [['people.json',identities],['legacy-links.json',links],['id-aliases.json',redirects]]) outputs.set(name, JSON.stringify(value,null,2)+'\n');
+
+// Historical / case-only archived subjects remain strictly separated from active citizen identities.
+for (const subject of archivedSubjects) {
+  for (const ref of subject.references || []) {
+    if (!ref.file.startsWith(`people/${subject.folder}/`) || ref.file.includes('..')) {
+      throw new Error('Archived profile escapes its folder');
+    }
+    const entries = read(ref.file);
+    const index = entries.findIndex(entry => entry.collection === ref.collection && entry.key === ref.key);
+    if (index < 0) throw new Error(`Missing archived profile ${ref.collection}/${ref.key}`);
+    const token = JSON.stringify([ref.collection, ref.key]);
+    if (profileMap.has(token)) throw new Error(`Duplicate archived profile ${token}`);
+    profileMap.set(token, { ...ref, index, characterId: subject.id, archivedSubject: true });
+    links.push({ collection: ref.collection, key: ref.key, characterId: subject.id, archivedSubject: true });
+  }
+}
+
+for (const [name, value] of [
+  ['people.json', identities],
+  ['legacy-links.json', links],
+  ['id-aliases.json', redirects],
+  ['retired-characters.json', retiredEntries],
+]) {
+  outputs.set(name, JSON.stringify(value, null, 2) + '\n');
+}
+
 const collections = [...new Set(manifest.order.map(ref => ref.collection))];
 for (const collection of collections) {
   const refs = manifest.order.filter(ref => ref.collection === collection).map(ref => {
-    const profile = profileMap.get(JSON.stringify([collection,ref.key]));
+    const profile = profileMap.get(JSON.stringify([collection, ref.key]));
     if (!profile) throw new Error(`Missing ordered profile ${collection}/${ref.key}`);
     return profile;
   });
@@ -40,24 +108,34 @@ for (const collection of collections) {
   const code = [
     '// Generated by scripts/build_character_content.mjs. Edit the named character files.',
     "import { copyProfile } from '../profileData';",
-    ...files.map((file,index) => `import file${index} from '../${file}' with { type: 'json' };`),
-    'const profiles = new Map<string, { data: unknown; characterId: string }>([',
-    ...refs.map(ref => `  [${JSON.stringify(ref.key)}, { data: file${files.indexOf(ref.file)}[${ref.index}].data, characterId: ${JSON.stringify(ref.characterId)} }],`),
+    ...files.map((file, index) => `import file${index} from '../${file}' with { type: 'json' };`),
+    'const profiles = new Map<string, { data: unknown; characterId: string; archivedSubject: boolean }>([',
+    ...refs.map(ref => `  [${JSON.stringify(ref.key)}, { data: file${files.indexOf(ref.file)}[${ref.index}].data, characterId: ${JSON.stringify(ref.characterId)}, archivedSubject: ${ref.archivedSubject ? 'true' : 'false'} }],`),
     ']);',
     'export function getProfile<T = any>(key: string): T {',
     `  if (!profiles.has(key)) throw new Error(${JSON.stringify(`Unknown ${collection} character profile: `)} + key);`,
     '  const entry = profiles.get(key)!;',
     '  const value = copyProfile(entry.data);',
-    '  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId }) as T;',
+    '  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId, ...(entry.archivedSubject ? { archivedSubject: true } : {}) }) as T;',
     '}',
-    'export function getProfiles<T = any>(): T[] { return [...profiles.keys()].map(key => getProfile<T>(key)); }', '',
+    'export function getProfiles<T = any>(): T[] { return [...profiles.keys()].map(key => getProfile<T>(key)); }',
+    '',
   ].join('\n');
-  outputs.set(`collections/${collection}.ts`,code);
+  outputs.set(`collections/${collection}.ts`, code);
 }
-if (manifest.order.length !== profileMap.size) throw new Error('A character profile is missing from the ordered collection manifest');
-for (const [file,content] of outputs) {
-  const target = path.join(base,file);
-  if (checking) { if (readFileSync(target,'utf8') !== content) throw new Error(`Stale generated content: ${file}`); }
-  else { mkdirSync(path.dirname(target),{recursive:true}); writeFileSync(target,content); }
+
+if (manifest.order.length !== profileMap.size) {
+  throw new Error(`Character profile count mismatch: manifest.order=${manifest.order.length}, profileMap=${profileMap.size}`);
 }
-console.log(`Validated ${identities.length} character folders, ${links.length} profiles, ${Object.keys(redirects).length} preserved ID aliases.`);
+
+for (const [file, content] of outputs) {
+  const target = path.join(base, file);
+  if (checking) {
+    if (readFileSync(target, 'utf8') !== content) throw new Error(`Stale generated content: ${file}`);
+  } else {
+    mkdirSync(path.dirname(target), { recursive: true });
+    writeFileSync(target, content);
+  }
+}
+
+console.log(`Validated ${identities.length} canonical characters, ${retiredEntries.length} retired exclusions, ${links.length} profiles, ${Object.keys(redirects).length} preserved ID aliases.`);

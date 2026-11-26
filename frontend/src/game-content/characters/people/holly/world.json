@@ -6,8 +6,8 @@
     "context": "NPCS",
     "data": {
       "id": "npc-holly",
-      "name": "High Warden Holly",
-      "title": "Warden of the Northern Ice",
+      "name": "High Warden Holly Evercrest",
+      "title": "High Warden",
       "role": "Warden",
       "dialogueTone": "Direct, stoic, and watchful",
       "affiliation": "House Holly",

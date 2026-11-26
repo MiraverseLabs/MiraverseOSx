@@ -18,10 +18,59 @@ CREATE TABLE IF NOT EXISTS Characters (
     Folder TEXT NOT NULL UNIQUE,
     Maid TEXT,
     NotesJson TEXT NOT NULL CHECK(json_valid(NotesJson)),
-    SourcePath TEXT NOT NULL REFERENCES ContentSources(Path)
+    SourcePath TEXT NOT NULL REFERENCES ContentSources(Path),
+    FirstName TEXT,
+    LastName TEXT,
+    Title TEXT,
+    Occupation TEXT,
+    HomeRealm TEXT
 );
 -- Names remain distinct; aliases and role-qualified identities are preserved.
 CREATE UNIQUE INDEX IF NOT EXISTS UX_Characters_Name ON Characters(lower(trim(Name)));
+CREATE UNIQUE INDEX IF NOT EXISTS UniqueCharacterMAID
+ON Characters (UPPER(TRIM(Maid)))
+WHERE Maid IS NOT NULL
+AND TRIM(Maid) != '';
+
+CREATE TABLE IF NOT EXISTS RetiredCharacters (
+    CharacterId TEXT PRIMARY KEY,
+    Name TEXT NOT NULL,
+    Folder TEXT,
+    Reason TEXT NOT NULL,
+    HistoricalContext TEXT,
+    RetiredAt TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS MaidRegistry (
+    Maid TEXT PRIMARY KEY,
+    RegionCode TEXT NOT NULL CHECK(RegionCode IN ('OR','FR','LU','MA','BR','KA','NE','VR')),
+    SerialNumber INTEGER NOT NULL,
+    CharacterId TEXT REFERENCES Characters(CharacterId) ON DELETE SET NULL,
+    Status TEXT NOT NULL CHECK(Status IN ('active','retired','reserved')),
+    IssuedAt TEXT NOT NULL DEFAULT (datetime('now')),
+    RetiredAt TEXT,
+    Notes TEXT
+);
+CREATE UNIQUE INDEX IF NOT EXISTS UX_MaidRegistry_Normalized
+    ON MaidRegistry(UPPER(TRIM(Maid)));
+CREATE INDEX IF NOT EXISTS IX_MaidRegistry_RegionSerial
+    ON MaidRegistry(RegionCode, SerialNumber);
+CREATE INDEX IF NOT EXISTS IX_MaidRegistry_Character
+    ON MaidRegistry(CharacterId) WHERE CharacterId IS NOT NULL;
+
+CREATE TABLE IF NOT EXISTS MaidRetiredSerials (
+    SerialNumber INTEGER PRIMARY KEY,
+    Maid TEXT,
+    Reason TEXT NOT NULL,
+    RetiredAt TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS MaidSequences (
+    RegionCode TEXT PRIMARY KEY CHECK(RegionCode IN ('OR','FR','LU','MA','BR','KA','NE','VR')),
+    NextSerial INTEGER NOT NULL CHECK(NextSerial >= 1),
+    UpdatedAt TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS CharacterAliases (
     CharacterId TEXT NOT NULL REFERENCES Characters(CharacterId),
     Alias TEXT NOT NULL,
@@ -74,8 +123,10 @@ CREATE TABLE IF NOT EXISTS MigrationInventory (
 );
 
 -- Readable views join the existing identities without exposing them to apps.
-CREATE VIEW IF NOT EXISTS BrowseCharacters AS
-SELECT c.CharacterId, c.Name, c.Kind, c.Status, c.Maid, c.Folder,
+DROP VIEW IF EXISTS BrowseCharacters;
+CREATE VIEW BrowseCharacters AS
+SELECT c.CharacterId, c.Name, c.FirstName, c.LastName, c.Title,
+       c.Occupation, c.HomeRealm, c.Kind, c.Status, c.Maid, c.Folder,
        (SELECT group_concat(Alias, '; ') FROM CharacterAliases a
         WHERE a.CharacterId=c.CharacterId) AS Aliases,
        (SELECT count(*) FROM CharacterProfiles p

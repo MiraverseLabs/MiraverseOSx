@@ -13,7 +13,12 @@
       "file": "people/travis-miller/investigations.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481955",
   "legacyMaids": [],
-  "folder": "travis-miller"
+  "folder": "travis-miller",
+  "firstName": "Travis",
+  "lastName": "Miller",
+  "title": "Trooper",
+  "occupation": "Law Enforcement Officer",
+  "homeRealm": "Orynvell"
 }

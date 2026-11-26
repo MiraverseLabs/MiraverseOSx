@@ -13,7 +13,12 @@
       "file": "people/leo-sterling/workplace.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481965",
   "legacyMaids": [],
-  "folder": "leo-sterling"
+  "folder": "leo-sterling",
+  "firstName": "Leo",
+  "lastName": "Sterling",
+  "title": null,
+  "occupation": "Music Producer",
+  "homeRealm": "Orynvell"
 }

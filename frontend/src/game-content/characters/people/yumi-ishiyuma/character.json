@@ -18,7 +18,12 @@
       "file": "people/yumi-ishiyuma/story.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-NE-00481946",
   "legacyMaids": [],
-  "folder": "yumi-ishiyuma"
+  "folder": "yumi-ishiyuma",
+  "firstName": "Yumi",
+  "lastName": "Ishiyuma",
+  "title": null,
+  "occupation": "Student",
+  "homeRealm": "Nephele"
 }

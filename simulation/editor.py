@@ -61,12 +61,15 @@ def _build_form_from_citizen(citizen) -> dict[str, Any]:
     music_pct = int(round(citizen.music_interest * 100))
     return {
         "name": str(norm.get("name") or citizen.name or ""),
+        "first_name": str(norm.get("first_name") or ""),
+        "last_name": str(norm.get("last_name") or ""),
         "aliases": _join_lines(norm.get("aliases")),
         "legacy_names": _join_lines(norm.get("legacy_names")),
         "age": str(norm.get("age") or ""),
         "species": str(norm.get("species") or ""),
         "biography": str(norm.get("biography") or ""),
-        # Geography
+        # Geography (Home Realm kept separate from Origin / Birth Realm)
+        "home_realm": str(norm.get("home_realm") or ""),
         "origin_realm": str(norm.get("origin_realm") or ""),
         "current_residence": str(norm.get("current_residence") or ""),
         "workplace": str(norm.get("workplace") or ""),
@@ -118,11 +121,14 @@ def _build_form_from_citizen(citizen) -> dict[str, Any]:
 def _form_to_payload(form: dict[str, Any], fallback_name: str) -> dict[str, Any]:
     return {
         "name": str(form.get("name") or fallback_name).strip(),
+        "first_name": str(form.get("first_name") or "").strip(),
+        "last_name": str(form.get("last_name") or "").strip(),
         "aliases": _parse_lines(form.get("aliases")),
         "legacy_names": _parse_lines(form.get("legacy_names")),
         "age": str(form.get("age") or "").strip(),
         "species": str(form.get("species") or "").strip(),
         "biography": str(form.get("biography") or "").strip(),
+        "home_realm": str(form.get("home_realm") or "").strip(),
         "origin_realm": str(form.get("origin_realm") or "").strip(),
         "current_residence": str(form.get("current_residence") or "").strip(),
         "workplace": str(form.get("workplace") or "").strip(),

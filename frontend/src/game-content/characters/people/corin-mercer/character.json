@@ -13,7 +13,12 @@
       "file": "people/corin-mercer/workplace.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481951",
   "legacyMaids": [],
-  "folder": "corin-mercer"
+  "folder": "corin-mercer",
+  "firstName": "Corin",
+  "lastName": "Mercer",
+  "title": null,
+  "occupation": "Legal Consultant",
+  "homeRealm": "Orynvell"
 }

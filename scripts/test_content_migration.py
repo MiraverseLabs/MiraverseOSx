@@ -112,8 +112,56 @@ class ContentMigrationTests(unittest.TestCase):
         migration.migrate(self.root, self.database)
         with closing(sqlite3.connect(self.database)) as db, db:
             with self.assertRaises(sqlite3.IntegrityError):
-                db.execute('INSERT INTO Characters SELECT ?,?,Kind,Status,?,Maid,NotesJson,SourcePath FROM Characters',
-                           ('duplicate', '  Renée  ', 'duplicate'))
+                db.execute(
+                    '''INSERT INTO Characters
+                       (CharacterId,Name,Kind,Status,Folder,Maid,NotesJson,SourcePath,FirstName,LastName,Title,Occupation,HomeRealm)
+                       SELECT ?,?,Kind,Status,?,Maid,NotesJson,SourcePath,FirstName,LastName,Title,Occupation,HomeRealm FROM Characters''',
+                    ('duplicate', '  Renée  ', 'duplicate'),
+                )
+
+    def test_canonical_identity_columns_maid_uniqueness_and_retired_exclusions(self):
+        self.person.update({
+            'maid': 'MAID-VR-00481999',
+            'firstName': 'Renée',
+            'lastName': 'Valen',
+            'title': 'Archivist',
+            'occupation': 'Senior Archivist',
+            'homeRealm': 'Ve’Raylia',
+        })
+        self.write(self.base / 'people/one/character.json', self.person)
+        migration.migrate(self.root, self.database)
+        with closing(sqlite3.connect(self.database)) as db, db:
+            row = db.execute(
+                'SELECT FirstName, LastName, Title, Occupation, HomeRealm, Maid FROM BrowseCharacters WHERE CharacterId=?',
+                ('char-one',),
+            ).fetchone()
+            self.assertEqual(row, ('Renée', 'Valen', 'Archivist', 'Senior Archivist', 'Ve’Raylia', 'MAID-VR-00481999'))
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute(
+                    '''INSERT INTO Characters
+                       (CharacterId,Name,Kind,Status,Folder,Maid,NotesJson,SourcePath)
+                       VALUES ('char-dup','Other Person','person','existing','other','maid-vr-00481999','[]',?)''',
+                    (migration.CHAR_BASE + 'people/one/character.json',),
+                )
+        # Verify RetiredCharacters blocks stale JSON from creating a deleted character
+        retired_db = self.root / 'retired_test.db'
+        with closing(sqlite3.connect(retired_db)) as db, db:
+            db.execute(
+                'CREATE TABLE RetiredCharacters (CharacterId TEXT PRIMARY KEY, Name TEXT NOT NULL, Folder TEXT, Reason TEXT NOT NULL, HistoricalContext TEXT, RetiredAt TEXT NOT NULL DEFAULT (datetime(\'now\')))'
+            )
+            db.execute(
+                "INSERT INTO RetiredCharacters (CharacterId, Name, Folder, Reason) VALUES ('char-retired', 'Old Ghost', 'old-ghost', 'Removed')"
+            )
+        ghost = {'id': 'char-retired', 'name': 'Old Ghost', 'kind': 'person', 'status': 'existing',
+                 'folder': 'old-ghost', 'maid': None, 'notes': [], 'aliases': [], 'legacyIds': [], 'references': []}
+        self.write(self.base / 'people/old-ghost/character.json', ghost)
+        manifest = json.loads((self.root / self.base / 'manifest.json').read_text(encoding='utf-8'))
+        manifest['characters'].append({'id': 'char-retired', 'name': 'Old Ghost', 'folder': 'old-ghost'})
+        self.write(self.base / 'manifest.json', manifest)
+        migration.migrate(self.root, retired_db, self.root / 'backups')
+        with closing(sqlite3.connect(retired_db)) as db:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM Characters WHERE CharacterId='char-retired'").fetchone()[0], 0)
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM Characters WHERE CharacterId='char-one'").fetchone()[0], 1)
 
     def test_keyed_brand_catalogues_are_indexed_without_modifying_their_records(self):
         palette = {'name': 'Palette', 'swatches': {'red': '#ff0000'}}

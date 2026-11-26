@@ -1,6 +1,6 @@
 {
   "id": "char-rhen",
-  "name": "Coach Rhen",
+  "name": "Coach Rhen Calder",
   "kind": "person",
   "aliases": [],
   "status": "document-only",
@@ -15,5 +15,10 @@
   ],
   "maid": null,
   "legacyMaids": [],
-  "folder": "rhen"
+  "folder": "rhen",
+  "firstName": "Rhen",
+  "lastName": "Calder",
+  "title": "Coach",
+  "occupation": "Coach",
+  "homeRealm": "Brisland"
 }

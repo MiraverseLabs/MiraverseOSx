@@ -13,7 +13,12 @@
       "file": "people/evelyn-cross/agency.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481939",
   "legacyMaids": [],
-  "folder": "evelyn-cross"
+  "folder": "evelyn-cross",
+  "firstName": "Evelyn",
+  "lastName": "Cross",
+  "title": "Director",
+  "occupation": "Intelligence Director",
+  "homeRealm": "Orynvell"
 }

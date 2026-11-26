@@ -1,0 +1,26 @@
+{
+  "id": "char-mei-lin-zhao",
+  "name": "Mei Lin Zhao",
+  "kind": "person",
+  "aliases": [],
+  "status": "existing",
+  "notes": [
+    "Appointed to Firmware Architecture & Firewall Labs seat cw-eng-1."
+  ],
+  "legacyIds": [],
+  "references": [
+    {
+      "collection": "INSTITUTIONAL_REGISTRY",
+      "key": "cw-eng-1",
+      "file": "people/mei-lin-zhao/workplace.json"
+    }
+  ],
+  "maid": "MAID-BR-00481978",
+  "legacyMaids": [],
+  "folder": "mei-lin-zhao",
+  "firstName": "Mei Lin",
+  "lastName": "Zhao",
+  "title": null,
+  "occupation": "Systems Integration Engineer",
+  "homeRealm": "Brisland"
+}

@@ -1,6 +1,6 @@
 {
   "id": "char-holly",
-  "name": "High Warden Holly",
+  "name": "High Warden Holly Evercrest",
   "kind": "person",
   "aliases": [],
   "status": "existing",
@@ -13,7 +13,12 @@
       "file": "people/holly/world.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-FR-00481942",
   "legacyMaids": [],
-  "folder": "holly"
+  "folder": "holly",
+  "firstName": "Holly",
+  "lastName": "Evercrest",
+  "title": "High Warden",
+  "occupation": "High Warden",
+  "homeRealm": "Fross"
 }

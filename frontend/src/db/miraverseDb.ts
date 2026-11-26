@@ -5,6 +5,7 @@
 
 import { CAREER_CATALOG, canonicalCareerId } from '../gameplay/CareerRegistry';
 import { getProfiles } from '../game-content/characters/collections/NPCS';
+import { CHARACTER_IDENTITIES, RETIRED_CHARACTER_IDS, getCharacterById, getCharacterByMaid } from '../game-content/characters/registry';
 import { MISSION_CATALOG } from '../gameplay/MissionCatalog';
 import type { CareerTrackInfo, WorknetMission } from '../types';
 
@@ -344,12 +345,17 @@ export const miraverseDb = {
   getRegions: () => REGIONS,
   getFactions: () => FACTIONS,
   getNPCs: () => NPCS,
+  getCanonicalCharacters: () => CHARACTER_IDENTITIES,
+  getCanonicalCharacterById: (id: string) => getCharacterById(id),
+  getCanonicalCharacterByMaid: (maid: string) => getCharacterByMaid(maid),
+  getRetiredCharacterIds: () => RETIRED_CHARACTER_IDS,
   getCareers: (): CareerTrackInfo[] => CAREERS,
   getCareer: (id: string): CareerTrackInfo | undefined => CAREERS.find((c) => c.id === canonicalCareerId(id)),
   getMissions: (): WorknetMission[] => MISSIONS,
-  getMissionsByTrack: (track: string): WorknetMission[] => MISSIONS.filter((m) => m.track === canonicalCareerId(track)),
+  getMissionsByTrack: (track: string): WorknetMission[] => MISSIONS.filter((m) => canonicalCareerId(m.track) === canonicalCareerId(track)),
   getMissionsByType: (type: string): WorknetMission[] => MISSIONS.filter((m) => m.type === type),
   getOrganizations: (): OrganizationInfo[] => ORGANIZATIONS,
+  getEntertainmentOrganizations: () => ENTERTAINMENT_ORGANIZATIONS,
   getDgaDivisions: (): DgaDivision[] => DGA_DIVISIONS,
   getLoreEntries: () => LORE_ENTRIES,
 

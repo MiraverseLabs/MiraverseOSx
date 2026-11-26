@@ -36,8 +36,6 @@ export class NPCEngine {
     Jeremie: personasProfile("Jeremie"),
     Aelita: personasProfile("Aelita"),
     Sissi: personasProfile("Sissi"),
-    Vaelen: personasProfile("Vaelen"),
-    Kaelen: personasProfile("Kaelen"),
     'Dean Cassian Rook': personasProfile("Dean Cassian Rook")
   };
 

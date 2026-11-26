@@ -23,11 +23,14 @@ OBSERVATORY_COLLECTION = "OBSERVATORY_PROFILE"
 
 COMPARE_FIELDS: tuple[tuple[str, str], ...] = (
     ("name", "Display Name"),
+    ("first_name", "First Name"),
+    ("last_name", "Last Name"),
     ("aliases", "Aliases"),
     ("legacy_names", "Historical / Legacy Names"),
     ("age", "Age"),
     ("species", "Species / Lineage"),
     ("biography", "Biography"),
+    ("home_realm", "Home Realm"),
     ("origin_realm", "Origin Realm"),
     ("current_residence", "Current Residence"),
     ("workplace", "Workplace"),
@@ -385,8 +388,24 @@ def commit_approved_overrides(
                 folder = str(crow["Folder"])
                 new_name = str(payload.get("name") or crow["Name"]).strip()
 
-                # 1. Update Characters.Name if changed
-                if new_name != str(crow["Name"]):
+                # 1. Sync authoritative Characters identity columns if changed
+                new_first = str(payload.get("first_name") if payload.get("first_name") is not None else (crow.get("FirstName") or "")).strip() or None
+                new_last = str(payload.get("last_name") if payload.get("last_name") is not None else (crow.get("LastName") or "")).strip() or None
+                new_title = str(payload.get("professional_title") if payload.get("professional_title") is not None else (crow.get("Title") or "")).strip() or None
+                new_occ = str(payload.get("primary_occupation") if payload.get("primary_occupation") is not None else (crow.get("Occupation") or "")).strip() or None
+                new_home_realm = str(payload.get("home_realm") if payload.get("home_realm") is not None else (crow.get("HomeRealm") or "")).strip() or None
+
+                char_cols = {r[1] for r in conn.execute("PRAGMA table_info(Characters)").fetchall()}
+                if {"FirstName", "LastName", "Title", "Occupation", "HomeRealm"}.issubset(char_cols):
+                    conn.execute(
+                        """
+                        UPDATE Characters
+                        SET Name = ?, FirstName = ?, LastName = ?, Title = ?, Occupation = ?, HomeRealm = ?
+                        WHERE CharacterId = ?
+                        """,
+                        (new_name, new_first, new_last, new_title, new_occ, new_home_realm, cid),
+                    )
+                elif new_name != str(crow["Name"]):
                     conn.execute(
                         "UPDATE Characters SET Name = ? WHERE CharacterId = ?",
                         (new_name, cid),

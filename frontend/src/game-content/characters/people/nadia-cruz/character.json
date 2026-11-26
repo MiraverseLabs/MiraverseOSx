@@ -15,5 +15,7 @@
   ],
   "maid": null,
   "legacyMaids": [],
-  "folder": "nadia-cruz"
+  "folder": "nadia-cruz",
+  "retiredFromCanon": true,
+  "retirementReason": "Removed during canonical 55-character roster cleanup"
 }

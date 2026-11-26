@@ -7,7 +7,7 @@
     "data": {
       "id": "npc-mercer",
       "name": "Dr. Robert Mercer",
-      "title": "Chief Clinical Examiner",
+      "title": "Dr.",
       "role": "Physician",
       "dialogueTone": "Clinical, empathetic, and diagnostic",
       "affiliation": "Faith Medical Group",

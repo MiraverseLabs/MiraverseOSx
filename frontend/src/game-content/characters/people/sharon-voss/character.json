@@ -23,7 +23,12 @@
       "file": "people/sharon-voss/phone.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-FR-00481974",
   "legacyMaids": [],
-  "folder": "sharon-voss"
+  "folder": "sharon-voss",
+  "firstName": "Sharon",
+  "lastName": "Voss",
+  "title": "Dr.",
+  "occupation": "Research Scientist",
+  "homeRealm": "Fross"
 }

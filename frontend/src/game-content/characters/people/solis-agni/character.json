@@ -15,5 +15,10 @@
   ],
   "maid": null,
   "legacyMaids": [],
-  "folder": "solis-agni"
+  "folder": "solis-agni",
+  "firstName": "Solis",
+  "lastName": "Agni",
+  "title": null,
+  "occupation": "Cultural Historian",
+  "homeRealm": "Kaji"
 }

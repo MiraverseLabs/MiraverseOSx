@@ -18,7 +18,12 @@
       "file": "people/cassian-rook/dialogue.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481960",
   "legacyMaids": [],
-  "folder": "cassian-rook"
+  "folder": "cassian-rook",
+  "firstName": "Cassian",
+  "lastName": "Rook",
+  "title": "Dean",
+  "occupation": "Academic Dean",
+  "homeRealm": "Orynvell"
 }

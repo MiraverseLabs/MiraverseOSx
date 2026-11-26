@@ -239,7 +239,7 @@ export default function AureSuiteApp() {
     const [chatMessages, setChatMessages] = useState<ChatEntry[]>([
         { id: 'msg-1', sender: 'MAI Core Node', time: '10:02 AM', text: 'Versenet terminal initialized. All seven realm relays are operational. How can I assist your investigation?', tag: 'CORE_AI' },
         { id: 'msg-2', sender: 'Jeremie Belpois', time: '10:04 AM', text: 'Compiler Lab 4 is online. If you need packet traces on Conduit 7 or spell diagnostics, transmit here.', tag: 'LAB_4' },
-        { id: 'msg-3', sender: 'Agent Mara Thorne', time: '10:12 AM', text: 'Curfew enforcement active in Sector 3. Keep your MAID credentials synchronized.', tag: 'DGA_TACTICAL' },
+        { id: 'msg-3', sender: 'DGA Tactical Dispatch', time: '10:12 AM', text: 'Curfew enforcement active in Sector 3. Keep your MAID credentials synchronized.', tag: 'DGA_TACTICAL' },
     ]);
     const [chatInput, setChatInput] = useState('');
     const [isAiStreaming, setIsAiStreaming] = useState(false);
@@ -860,7 +860,7 @@ export default function AureSuiteApp() {
                                     >
                                         <option value="mai">MAI Core Node (AI Companion)</option>
                                         <option value="jeremie">Jeremie Belpois (Compiler Lab 4)</option>
-                                        <option value="thorne">Agent Mara Thorne (DGA Tactical)</option>
+                                        <option value="thorne">DGA Tactical Dispatch (Operations)</option>
                                         <option value="voss">Dr. Sharon Voss (Faith Medical / PRISM)</option>
                                     </select>
                                 </div>

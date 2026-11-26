@@ -6,8 +6,8 @@
     "context": "NPCS",
     "data": {
       "id": "npc-yoko",
-      "name": "Grand Dispatcher Yoko",
-      "title": "Overseer of the Autumn Winds",
+      "name": "Grand Dispatcher Yoko Mizuhara",
+      "title": "Grand Dispatcher",
       "role": "Consul",
       "dialogueTone": "Brisk, pragmatic, and witty",
       "affiliation": "House Yoko",

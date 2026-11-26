@@ -38,7 +38,12 @@
       "file": "people/aelita-hopper/story.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481945",
   "legacyMaids": [],
-  "folder": "aelita-hopper"
+  "folder": "aelita-hopper",
+  "firstName": "Aelita",
+  "lastName": "Hopper",
+  "title": null,
+  "occupation": "Student",
+  "homeRealm": "Orynvell"
 }

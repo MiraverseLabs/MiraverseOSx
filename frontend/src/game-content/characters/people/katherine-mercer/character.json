@@ -13,7 +13,12 @@
       "file": "people/katherine-mercer/workplace.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481952",
   "legacyMaids": [],
-  "folder": "katherine-mercer"
+  "folder": "katherine-mercer",
+  "firstName": "Katherine",
+  "lastName": "Mercer",
+  "title": null,
+  "occupation": "University Lecturer",
+  "homeRealm": "Orynvell"
 }

@@ -1,6 +1,6 @@
 {
   "id": "char-deputy-chief-miller",
-  "name": "Deputy Chief Miller",
+  "name": "Deputy Chief Nathaniel Miller",
   "kind": "person",
   "aliases": [],
   "status": "existing",
@@ -13,7 +13,12 @@
       "file": "people/deputy-chief-miller/agency.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481954",
   "legacyMaids": [],
-  "folder": "deputy-chief-miller"
+  "folder": "deputy-chief-miller",
+  "firstName": "Nathaniel",
+  "lastName": "Miller",
+  "title": "Deputy Chief",
+  "occupation": "Law Enforcement Officer",
+  "homeRealm": "Orynvell"
 }

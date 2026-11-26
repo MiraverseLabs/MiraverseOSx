@@ -13,7 +13,8 @@ import {
   type NewPersonInput,
   type CharacterArchetype,
   validateMaidFormat,
-  generateTenPrintPreview
+  generateTenPrintPreview,
+  CONFIRMED_REGISTRATION_REGIONS,
 } from '../services/maidIdentityService';
 import {
   getIssuedSnapshots,
@@ -142,7 +143,7 @@ export default function RegistryWorkspaceApp() {
     const version = ++loadVersionRef.current;
     try {
       const migration = await MaidIdentityService.migrateLegacyRegistry();
-      const list = await MaidIdentityService.ensureDefaultPopulationSeeded();
+      const list = await MaidIdentityService.syncWithCanonicalRegistry();
       if (!mountedRef.current || version !== loadVersionRef.current) return;
       setMigrationStats(migration);
       setPersons(list);
@@ -487,7 +488,7 @@ export default function RegistryWorkspaceApp() {
 
   const activePerson = lookupResult?.person || null;
   const activeTenPrints = useMemo(
-    () => generateTenPrintPreview(activePerson?.biometricSeed || activePerson?.maid || 'MAID-OR-00481926'),
+    () => generateTenPrintPreview(activePerson?.biometricSeed || activePerson?.maid || 'MAID-OR-00481929'),
     [activePerson?.biometricSeed, activePerson?.maid]
   );
   const draftTenPrints = useMemo(
@@ -693,7 +694,7 @@ export default function RegistryWorkspaceApp() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         aria-describedby="maid-lookup-helper"
-                        placeholder="Enter MAID (MAID-OR-00481926), Legacy ID (MRD-8492-319), Name, or Occupation..."
+                        placeholder="Enter MAID (MAID-OR-00481929), Legacy ID (MRD-8492-322), Name, or Occupation..."
                         className="w-full rounded-xl bg-slate-50 border border-slate-300 pl-10 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:bg-white"
                       />
                     </div>
@@ -917,7 +918,10 @@ export default function RegistryWorkspaceApp() {
                             Sovereign Registration Metadata
                           </h3>
                           <div className="space-y-1.5 text-xs">
-                            <div className="flex justify-between"><span className="text-slate-500">Reg. Region:</span><strong className="text-emerald-400 font-mono">{activePerson.registrationRegionCode || 'PENDING'} (Orynvell)</strong></div>
+                            <div className="flex justify-between"><span className="text-slate-500">Reg. Region:</span><strong className="text-emerald-400 font-mono">{activePerson.registrationRegionCode || 'PENDING'}</strong></div>
+                            {activePerson.homeRealm && (
+                              <div className="flex justify-between"><span className="text-slate-500">Home Realm:</span><strong className="text-slate-800">{activePerson.homeRealm}</strong></div>
+                            )}
                             <div className="flex justify-between"><span className="text-slate-500">Passport No.:</span><strong className="text-amber-300 font-mono">{activePerson.passport}</strong></div>
                             <div className="flex justify-between"><span className="text-slate-500">Clearance:</span><strong className="text-indigo-300">{activePerson.clearance}</strong></div>
                             <div className="flex justify-between"><span className="text-slate-500">Comms / Phone:</span><strong className="text-slate-800 font-mono">{activePerson.phone}</strong></div>
@@ -1391,7 +1395,7 @@ export default function RegistryWorkspaceApp() {
                           </div>
                           <div>
                             <span className="text-[10px] text-slate-500 block uppercase">Registration Region Code</span>
-                            <strong className="font-mono text-emerald-400">{activePerson.registrationRegionCode || 'OR'} (Orynvell)</strong>
+                            <strong className="font-mono text-emerald-400">{activePerson.registrationRegionCode || 'PENDING'}{activePerson.homeRealm ? ` · Home: ${activePerson.homeRealm}` : ''}</strong>
                           </div>
                           <div>
                             <span className="text-[10px] text-slate-500 block uppercase">Permanent Legacy Alias</span>
@@ -1605,9 +1609,16 @@ export default function RegistryWorkspaceApp() {
                           onChange={(e) => setFormData({ ...formData, registrationRegion: e.target.value as any })}
                           className="w-full rounded-lg bg-emerald-50/50 border border-emerald-300 px-3 py-2 text-xs text-emerald-900 font-semibold focus:outline-none"
                         >
-                          <option value="Orynvell">Orynvell (Code: OR — Confirmed)</option>
+                          <option value="Orynvell">Orynvell (Code: OR)</option>
+                          <option value="Fross">Fross (Code: FR)</option>
+                          <option value="Lumia">Lumia (Code: LU)</option>
+                          <option value="Marlowe">Marlowe (Code: MA)</option>
+                          <option value="Brisland">Brisland (Code: BR)</option>
+                          <option value="Kaji">Kaji (Code: KA)</option>
+                          <option value="Nephele">Nephele (Code: NE)</option>
+                          <option value="Ve’Raylia">Ve’Raylia (Code: VR)</option>
                         </select>
-                        <span id="add-region-help" className="text-[10px] text-emerald-400/90">Issues permanent MAID-OR-XXXXXXXX.</span>
+                        <span id="add-region-help" className="text-[10px] text-emerald-600">Issues permanent MAID-XX-XXXXXXXX across all eight authorized realms.</span>
                       </div>
 
                       <div>
@@ -2030,7 +2041,7 @@ export default function RegistryWorkspaceApp() {
                     }
                   ].map((item) => {
                     const Icon = item.icon;
-                    const targetCitizenId = activePerson?.maid || activePerson?.legacyRecord || 'MAID-OR-00481926';
+                    const targetCitizenId = activePerson?.maid || activePerson?.legacyRecord || 'MAID-OR-00481929';
                     return (
                       <div key={item.title} className={`bg-white border ${item.color} shadow-sm rounded-2xl p-5 flex flex-col justify-between space-y-4`}>
                         <div className="space-y-2">
@@ -2079,7 +2090,7 @@ export default function RegistryWorkspaceApp() {
                   <Database size={18} className="text-[#C0AA7F]" /> Non-Destructive Legacy MRD Migration & MAID Ledger
                 </h2>
                 <p className="text-xs text-slate-700 leading-relaxed">
-                  All legacy <code className="text-indigo-300">MRD-XXXX-XXX</code> records are preserved as permanent searchable aliases. Only records with confirmed Orynvell (<code className="text-emerald-300">OR</code>) registration receive automatic <code className="text-[#D3C9B5]">MAID-OR-XXXXXXXX</code> numbers; unconfirmed records remain safely queued for manual region confirmation.
+                  All legacy <code className="text-indigo-300">MRD-XXXX-XXX</code> records are preserved as permanent searchable aliases. Confirmed registrations across all eight Meridion realms (<code className="text-emerald-500">OR, FR, LU, MA, BR, KA, NE, VR</code>) receive permanent <code className="text-[#C0AA7F]">MAID-XX-XXXXXXXX</code> identifiers via centralized database allocation; retired serials 00481926–00481928 are permanently reserved.
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
                   <div className="bg-white border border-slate-200 shadow-xs rounded-xl p-3">
@@ -2087,7 +2098,7 @@ export default function RegistryWorkspaceApp() {
                     <div className="text-lg font-bold text-slate-900 font-mono mt-1">{persons.length}</div>
                   </div>
                   <div className="bg-white border border-slate-200 shadow-xs rounded-xl p-3">
-                    <div className="text-[10px] text-slate-500 uppercase">Active MAID-OR</div>
+                    <div className="text-[10px] text-slate-500 uppercase">Active MAIDs (8 Realms)</div>
                     <div className="text-lg font-bold text-emerald-400 font-mono mt-1">
                       {persons.filter(p => p.maidStatus === 'active').length}
                     </div>
@@ -2147,7 +2158,7 @@ export default function RegistryWorkspaceApp() {
                   powerSource: activePerson?.powerSource || 'Aether',
                   category: activePerson?.category || 'Citizen',
                   dob: activePerson?.dob,
-                  record: activePerson?.maid || activePerson?.legacyRecord || 'MAID-OR-00481926',
+                  record: activePerson?.maid || activePerson?.legacyRecord || 'MAID-OR-00481929',
                   portraitData: activePerson?.portraitData
                 }
           }

@@ -6,8 +6,8 @@
     "context": "NPCS",
     "data": {
       "id": "npc-keket",
-      "name": "Seer Keket",
-      "title": "Keeper of Ancestral Twilight",
+      "name": "Seer Keket Nymeris",
+      "title": "Seer",
       "role": "Seer",
       "dialogueTone": "Whispering, deep, and contemplative",
       "affiliation": "House Keket",

@@ -179,7 +179,7 @@ export const TOPIC_PACKS: TopicPack[] = [
     headline: 'Civic Governance, Law Enforcement, and National Security',
     introduction: 'The primary executive authority in Meridion, responsible for citizen clearance verification, intelligence oversight, and civil defense.',
     paragraphs: [
-      'Headed by Director Vane and overseen by senior operatives including Agent Mara Thorne, the DGA monitors civic compliance, protects vital infrastructure, and investigates criminal syndicates and rogue cyberneticists.',
+      'Headed by Director Evelyn Cross and overseen by senior DGA operatives, the Department of Global Affairs monitors civic compliance, protects vital infrastructure, and investigates criminal syndicates and rogue cyberneticists.',
       'The DGA operates the official dga.gov.aure network portal, providing public access to the Citizen Clearance Registry, civil emergency advisories, and active warrant lists. Operational directives are dispatched via encrypted AureMail wiretaps.',
       'Field investigators from the TRACE and Special Operations divisions coordinate closely with academic and financial auditors to uncover subterranean conspiracies and prevent unauthorized aether extraction.'
     ],
@@ -223,7 +223,7 @@ export const TOPIC_PACKS: TopicPack[] = [
     headline: 'Excellence in Spell Engineering, Cybernetics, and Virtual Systems',
     introduction: 'The leading academic institution dedicated to algorithmic spellcraft, cognitive cybernetics, and advanced machine architecture.',
     paragraphs: [
-      'Situated within the scenic Academic Quad, Cyberium Academy trains scholars, spellwrights, and system engineers. Renowned facilities include the high-performance Compiler Lab 4, overseen by prodigy Jeremie Belpois and research associate Aelita Schaeffer.',
+      'Situated within the scenic Academic Quad, Cyberium Academy trains scholars, spellwrights, and system engineers. Renowned facilities include the high-performance Compiler Lab 4, overseen by prodigy Jeremie Belpois and research associate Aelita Hopper.',
       'The academy developed SpellForge—the proprietary development environment for compiling modular arcane algorithms such as Firewall.mod and Routing.mod.',
       'Historical archives at Cyberium Academy document the foundational research of Dr. Franz Hopper on multi-dimensional virtual spaces and quantum telecommunication conduits.'
     ],

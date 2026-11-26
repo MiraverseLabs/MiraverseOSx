@@ -5,17 +5,17 @@ import file1 from '../people/evelyn-cross/agency.json' with { type: 'json' };
 import file2 from '../people/deputy-chief-miller/agency.json' with { type: 'json' };
 import file3 from '../people/marcus-chen/agency.json' with { type: 'json' };
 import file4 from '../people/viktor-krell/agency.json' with { type: 'json' };
-const profiles = new Map<string, { data: unknown; characterId: string }>([
-  ["NPC-THORNE", { data: file0[1].data, characterId: "char-gregory-thorne" }],
-  ["NPC-CROSS", { data: file1[0].data, characterId: "char-evelyn-cross" }],
-  ["NPC-MILLER", { data: file2[0].data, characterId: "char-deputy-chief-miller" }],
-  ["NPC-CHEN", { data: file3[0].data, characterId: "char-marcus-chen" }],
-  ["NPC-KRELL", { data: file4[1].data, characterId: "char-viktor-krell" }],
+const profiles = new Map<string, { data: unknown; characterId: string; archivedSubject: boolean }>([
+  ["NPC-THORNE", { data: file0[1].data, characterId: "char-gregory-thorne", archivedSubject: false }],
+  ["NPC-CROSS", { data: file1[0].data, characterId: "char-evelyn-cross", archivedSubject: false }],
+  ["NPC-MILLER", { data: file2[0].data, characterId: "char-deputy-chief-miller", archivedSubject: false }],
+  ["NPC-CHEN", { data: file3[0].data, characterId: "char-marcus-chen", archivedSubject: false }],
+  ["NPC-KRELL", { data: file4[1].data, characterId: "char-viktor-krell", archivedSubject: false }],
 ]);
 export function getProfile<T = any>(key: string): T {
   if (!profiles.has(key)) throw new Error("Unknown seedNPCs character profile: " + key);
   const entry = profiles.get(key)!;
   const value = copyProfile(entry.data);
-  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId }) as T;
+  return (Array.isArray(value) ? value : { ...value, characterId: entry.characterId, ...(entry.archivedSubject ? { archivedSubject: true } : {}) }) as T;
 }
 export function getProfiles<T = any>(): T[] { return [...profiles.keys()].map(key => getProfile<T>(key)); }

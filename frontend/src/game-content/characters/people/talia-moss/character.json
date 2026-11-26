@@ -13,7 +13,12 @@
       "file": "people/talia-moss/workplace.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-VR-00481957",
   "legacyMaids": [],
-  "folder": "talia-moss"
+  "folder": "talia-moss",
+  "firstName": "Talia",
+  "lastName": "Moss",
+  "title": null,
+  "occupation": "Fashion Designer",
+  "homeRealm": "Ve’Raylia"
 }
