@@ -1,4 +1,25 @@
 import { WORLD_ORGANIZATIONS } from '../../../game-content/worldAssetLibrary';
+import {
+  SITE_ROUTE_CONFIGS,
+  buildSiteUrl,
+  getSiteRouteConfig,
+  resolveSiteRoute,
+  type ResolvedEntertainmentRoute,
+  type RouteAccess,
+  type SiteRouteConfig,
+  type SiteRouteDef,
+} from './routing/siteRoutes';
+
+export {
+  SITE_ROUTE_CONFIGS,
+  buildSiteUrl,
+  getSiteRouteConfig,
+  resolveSiteRoute,
+  type ResolvedEntertainmentRoute,
+  type RouteAccess,
+  type SiteRouteConfig,
+  type SiteRouteDef,
+};
 
 export interface EntertainmentSiteMeta {
   orgId: string;
@@ -90,6 +111,14 @@ const DOMAIN_MAP = new Map<string, EntertainmentSiteMeta>(
   ENTERTAINMENT_SITES.map((s) => [s.domain.toLowerCase(), s]),
 );
 
+const ORG_MAP = new Map<string, EntertainmentSiteMeta>(
+  ENTERTAINMENT_SITES.map((s) => [s.orgId, s]),
+);
+
+export function getEntertainmentSiteByOrgId(orgId: string): EntertainmentSiteMeta | undefined {
+  return ORG_MAP.get(orgId);
+}
+
 export function matchEntertainmentSite(urlOrHost: string): EntertainmentSiteMeta | undefined {
   if (!urlOrHost) return undefined;
   try {
@@ -106,13 +135,23 @@ export function isEntertainmentUrl(url: string): boolean {
   return Boolean(matchEntertainmentSite(url));
 }
 
+export function resolveEntertainmentRoute(url: string): ResolvedEntertainmentRoute | undefined {
+  const site = matchEntertainmentSite(url);
+  if (!site) return undefined;
+  return resolveSiteRoute(site, url);
+}
+
+// ===========================================================================
+// Legacy 4-pilot compatibility layer (preserves existing deep-link contracts)
+// ===========================================================================
 export type EntertainmentView = 'home' | 'front' | 'workspace' | 'directory' | 'about';
 type PilotView = { path: string; label: string };
 type PilotSite = { layout: 'library' | 'editorial' | 'stadium' | 'atelier'; views: Record<EntertainmentView, PilotView> };
 
 export const entertainmentPilots: Readonly<Record<string, PilotSite>> = {
   ORG_SONGBIRD: {
-    layout: 'library', views: {
+    layout: 'library',
+    views: {
       home: { path: '/', label: 'Home' },
       front: { path: '/listen', label: 'Listen & Top Charts' },
       workspace: { path: '/studio', label: 'Artist Studio' },
@@ -121,7 +160,8 @@ export const entertainmentPilots: Readonly<Record<string, PilotSite>> = {
     },
   },
   ORG_LIMELIGHT: {
-    layout: 'editorial', views: {
+    layout: 'editorial',
+    views: {
       home: { path: '/', label: 'Home' },
       front: { path: '/stories', label: 'Cover Stories & Rankings' },
       workspace: { path: '/studio', label: 'Press Desk' },
@@ -130,7 +170,8 @@ export const entertainmentPilots: Readonly<Record<string, PilotSite>> = {
     },
   },
   ORG_SILVERLEAF_STADIUM: {
-    layout: 'stadium', views: {
+    layout: 'stadium',
+    views: {
       home: { path: '/', label: 'Home' },
       front: { path: '/box-office', label: 'Box Office & Calendar' },
       workspace: { path: '/studio', label: 'Venue Booking' },
@@ -139,7 +180,8 @@ export const entertainmentPilots: Readonly<Record<string, PilotSite>> = {
     },
   },
   ORG_GLASSLINE_DESIGNS: {
-    layout: 'atelier', views: {
+    layout: 'atelier',
+    views: {
       home: { path: '/', label: 'Home' },
       front: { path: '/commissions', label: 'Commissions & Campaigns' },
       workspace: { path: '/studio', label: 'Creative Workspace' },
@@ -161,23 +203,31 @@ export function parseEntertainmentUrl(url: string) {
   if (!site || !pilot) return undefined;
   const { pathname, searchParams } = new URL(url.includes('://') ? url : 'https://' + url);
   const path = pathname.replace(/\/+$/, '') || '/';
-  const view = path === '/discover' ? 'front' :
-    (Object.keys(pilot.views) as EntertainmentView[]).find(key => pilot.views[key].path === path);
+  const view =
+    path === '/discover'
+      ? 'front'
+      : (Object.keys(pilot.views) as EntertainmentView[]).find((key) => pilot.views[key].path === path);
   return { site, pilot, view, params: searchParams };
 }
 
 export function entertainmentPageTitle(url: string): string | null {
   const site = matchEntertainmentSite(url);
   if (!site) return null;
-  const route = parseEntertainmentUrl(url);
-  if (route?.view === 'home') return site.name + ' — ' + site.kind;
-  if (route) return route.view ? route.pilot.views[route.view].label + ' · ' + site.name : 'Page unavailable · ' + site.name;
-  try {
-    const parsed = new URL(url);
-    const sub = parsed.pathname.replace(/^\/+|\/+$/g, '');
-    if (sub) return `${sub[0].toUpperCase()}${sub.slice(1)} · ${site.name}`;
-  } catch {
-    /* ignore */
+
+  // Preserve exact pilot route labels when matching pilot canonical views
+  const pilotRoute = parseEntertainmentUrl(url);
+  if (pilotRoute) {
+    if (pilotRoute.view === 'home') return `${site.name} — ${site.kind}`;
+    if (pilotRoute.view) return `${pilotRoute.pilot.views[pilotRoute.view].label} · ${site.name}`;
   }
-  return `${site.name} — ${site.kind}`;
+
+  // Full 25-site route resolution (including new routes & nested detail pages)
+  const resolved = resolveSiteRoute(site, url);
+  if (resolved.isNotFound || !resolved.route) {
+    return `Page unavailable · ${site.name}`;
+  }
+  if (resolved.route.id === 'home' && resolved.pathname === '/') {
+    return `${site.name} — ${site.kind}`;
+  }
+  return `${resolved.route.label} · ${site.name}`;
 }

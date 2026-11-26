@@ -1,0 +1,993 @@
+/* ============================================================================
+ * WAVE 1 — 10 Distinct Website Visual Systems & Structural Layouts
+ * Each site owns its own color tokens, typography, navigation structure,
+ * and container-query responsive behavior.
+ * ============================================================================ */
+
+/* ---------- 1. SONGBIRD (Dark Streaming App Shell + Left Rail + Bottom Dock) ---------- */
+.site-songbird {
+  --site-bg: #071316;
+  --site-surface-alt: #0d2025;
+  --site-panel: #112930;
+  --site-border: rgba(52, 211, 153, 0.22);
+  --site-ink: #ebfdf7;
+  --site-muted: #8cb8ad;
+  --site-accent: #10b981;
+  --site-accent-ink: #041d15;
+  --site-focus: #34d399;
+  --site-input-bg: #0a1b20;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "rail main"
+    "player player";
+}
+
+.sb-rail {
+  grid-area: rail;
+  background: #040d10;
+  border-inline-end: 1px solid var(--site-border);
+  padding: 1.1rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.sb-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding-inline: 0.45rem;
+}
+
+.sb-brand-mark {
+  inline-size: 32px;
+  block-size: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981, #065f46);
+  color: #031510;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.sb-brand h1 {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.sb-brand small {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--site-muted);
+}
+
+.sb-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.sb-nav-label {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--site-muted);
+  padding: 0.35rem 0.55rem 0.15rem;
+  font-weight: 700;
+}
+
+.sb-nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.5rem;
+  color: var(--site-muted);
+  text-decoration: none;
+  font-size: 0.83rem;
+  font-weight: 600;
+}
+
+.sb-nav a:hover {
+  color: var(--site-ink);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.sb-nav a[aria-current="page"] {
+  color: #ffffff;
+  background: rgba(16, 185, 129, 0.18);
+  box-shadow: inset 3px 0 0 var(--site-accent);
+}
+
+.sb-main {
+  grid-area: main;
+  padding: 1.4rem clamp(1rem, 3cqi, 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  min-inline-size: 0;
+}
+
+.sb-hero-banner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr);
+  gap: 1.25rem;
+  padding: 1.4rem;
+  border-radius: 0.9rem;
+  background: linear-gradient(125deg, #0d3230 0%, #091d22 58%, #071316 100%);
+  border: 1px solid var(--site-border);
+  align-items: center;
+}
+
+.sb-hero-banner h2 {
+  margin: 0.25rem 0 0.5rem;
+  font-size: clamp(1.35rem, 2.8cqi, 2rem);
+  line-height: 1.12;
+}
+
+.sb-shelf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 0.95rem;
+}
+
+.sb-release-tile {
+  background: var(--site-surface-alt);
+  border: 1px solid var(--site-border);
+  border-radius: 0.7rem;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sb-release-tile img {
+  inline-size: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 0.45rem;
+}
+
+.sb-player-dock {
+  grid-area: player;
+  position: sticky;
+  inset-block-end: 0;
+  z-index: 4;
+  background: #040f12;
+  border-block-start: 1px solid var(--site-border);
+  padding: 0.65rem 1.2rem;
+}
+
+@container ent-portal (max-width: 720px) {
+  .site-songbird {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "rail"
+      "main"
+      "player";
+  }
+  .sb-rail {
+    border-inline-end: 0;
+    border-block-end: 1px solid var(--site-border);
+  }
+  .sb-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .sb-hero-banner {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 2. LIMELIGHT (Print-Inspired Entertainment Magazine Masthead) ---------- */
+.site-limelight {
+  --site-bg: #faf6ef;
+  --site-surface-alt: #f2ebe0;
+  --site-border: #d7cab8;
+  --site-ink: #1a121c;
+  --site-muted: #5a4c5e;
+  --site-accent: #8f1d4c;
+  --site-accent-ink: #ffffff;
+  --site-focus: #8f1d4c;
+  --site-input-bg: #ffffff;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.ll-masthead {
+  padding: 1.25rem clamp(1rem, 3cqi, 2.5rem) 0.85rem;
+  border-block-end: 4px double var(--site-ink);
+  text-align: center;
+}
+
+.ll-masthead-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--site-muted);
+  margin-block-end: 0.4rem;
+}
+
+.ll-wordmark {
+  margin: 0;
+  font-size: clamp(2rem, 5cqi, 3.6rem);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.ll-deck-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 1.15rem;
+  padding: 0.6rem 1rem;
+  border-block-end: 1px solid var(--site-border);
+  font-family: system-ui, sans-serif;
+}
+
+.ll-deck-bar a {
+  text-decoration: none;
+  color: var(--site-ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.35rem 0.2rem;
+}
+
+.ll-deck-bar a[aria-current="page"] {
+  color: var(--site-accent);
+  border-block-end: 2px solid var(--site-accent);
+}
+
+.ll-body {
+  padding: 1.5rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
+  max-inline-size: 1180px;
+  margin-inline: auto;
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.65rem;
+}
+
+.ll-front-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: 1.75rem;
+  align-items: start;
+}
+
+.ll-cover-story {
+  border-inline-end: 1px solid var(--site-border);
+  padding-inline-end: 1.5rem;
+}
+
+.ll-cover-story img {
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  margin-block-end: 0.85rem;
+}
+
+.ll-kicker {
+  font-family: system-ui, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--site-accent);
+}
+
+.ll-cover-story h2 {
+  margin: 0.3rem 0 0.6rem;
+  font-size: clamp(1.5rem, 3.2cqi, 2.35rem);
+  line-height: 1.12;
+}
+
+.ll-trending-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.ll-trending-list li {
+  padding-block-end: 0.85rem;
+  border-block-end: 1px solid var(--site-border);
+}
+
+.ll-article-reader {
+  max-inline-size: 46rem;
+  margin-inline: auto;
+  padding: 1.5rem 0;
+  border-block: 3px double var(--site-border);
+}
+
+.ll-article-reader p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+@container ent-portal (max-width: 760px) {
+  .ll-front-grid {
+    grid-template-columns: 1fr;
+  }
+  .ll-cover-story {
+    border-inline-end: 0;
+    padding-inline-end: 0;
+    border-block-end: 1px solid var(--site-border);
+    padding-block-end: 1.25rem;
+  }
+}
+
+/* ---------- 3. GLASSLINE DESIGNS (Luxury Lookbook Vertical Side Rail) ---------- */
+.site-glassline {
+  --site-bg: #faf3f4;
+  --site-surface-alt: #f3e6e9;
+  --site-border: #ddc6cc;
+  --site-ink: #271421;
+  --site-muted: #6c4c5d;
+  --site-accent: #7f3150;
+  --site-accent-ink: #ffffff;
+  --site-focus: #7f3150;
+  --site-input-bg: #ffffff;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+}
+
+.gl-rail {
+  padding: 2rem 1.3rem;
+  border-inline-end: 1px solid var(--site-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.gl-wordmark {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.gl-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-family: system-ui, sans-serif;
+}
+
+.gl-nav a {
+  text-decoration: none;
+  color: var(--site-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  padding-block: 0.35rem;
+}
+
+.gl-nav a[aria-current="page"] {
+  color: var(--site-ink);
+  font-weight: 700;
+  border-inline-start: 2px solid var(--site-accent);
+  padding-inline-start: 0.55rem;
+}
+
+.gl-main {
+  padding: 2rem clamp(1.25rem, 4cqi, 3.2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  min-inline-size: 0;
+}
+
+.gl-campaign-plate {
+  position: relative;
+  border: 1px solid var(--site-border);
+  background: #ffffff;
+}
+
+.gl-campaign-plate img {
+  inline-size: 100%;
+  aspect-ratio: 16 / 8.5;
+  object-fit: cover;
+  object-position: center 22%;
+}
+
+.gl-campaign-caption {
+  padding: 1.35rem 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.gl-lookbook-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1.5rem;
+}
+
+@container ent-portal (max-width: 720px) {
+  .site-glassline {
+    grid-template-columns: 1fr;
+  }
+  .gl-rail {
+    border-inline-end: 0;
+    border-block-end: 1px solid var(--site-border);
+    padding: 1.25rem;
+  }
+  .gl-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.95rem;
+  }
+}
+
+/* ---------- 4. SILVERLEAF STADIUM (Arena Event Poster Wall + Seating Bowl) ---------- */
+.site-silverleaf {
+  --site-bg: #0b1826;
+  --site-surface-alt: #132538;
+  --site-border: rgba(125, 211, 252, 0.24);
+  --site-ink: #f1f7fd;
+  --site-muted: #98b4cc;
+  --site-accent: #f59e0b;
+  --site-accent-ink: #0f172a;
+  --site-focus: #38bdf8;
+  --site-input-bg: #0f2031;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.sl-topbar {
+  background: #07101a;
+  border-block-end: 1px solid var(--site-border);
+  padding: 0.9rem clamp(1rem, 3cqi, 2.2rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.sl-brand h1 {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.5cqi, 1.65rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sl-capacity-pill {
+  font-family: ui-monospace, monospace;
+  font-size: 0.72rem;
+  color: #fde68a;
+  letter-spacing: 0.06em;
+}
+
+.sl-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.sl-nav a {
+  padding: 0.45rem 0.8rem;
+  color: var(--site-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.sl-nav a[aria-current="page"] {
+  color: #0b1826;
+  background: var(--site-accent);
+}
+
+.sl-content {
+  padding: 1.5rem clamp(1rem, 3cqi, 2.2rem) 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sl-poster-wall {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 1.25rem;
+}
+
+.sl-bowl-card {
+  padding: 1.15rem;
+  border: 1px solid var(--site-border);
+  background: var(--site-surface-alt);
+}
+
+.sl-bowl-svg {
+  display: block;
+  inline-size: min(100%, 300px);
+  margin-inline: auto;
+  fill: #1c334a;
+  stroke: #7dd3fc;
+}
+
+.sl-bowl-svg path.is-selected {
+  fill: #f59e0b;
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+
+@container ent-portal (max-width: 760px) {
+  .sl-poster-wall {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 5. WILLOW WHISPER MODELS (Editorial Contact-Sheet Roster) ---------- */
+.site-willow {
+  --site-bg: #f1f4ec;
+  --site-surface-alt: #e6ece0;
+  --site-border: #c5d1bc;
+  --site-ink: #1c2a1f;
+  --site-muted: #526456;
+  --site-accent: #315a42;
+  --site-accent-ink: #ffffff;
+  --site-focus: #315a42;
+  --site-input-bg: #ffffff;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: Georgia, serif;
+}
+
+.ww-header {
+  padding: 1.25rem clamp(1rem, 3cqi, 2.4rem);
+  border-block-end: 1px solid var(--site-border);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ww-header h1 {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.8cqi, 1.95rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ww-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  font-family: system-ui, sans-serif;
+}
+
+.ww-nav a {
+  text-decoration: none;
+  color: var(--site-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  padding-block: 0.3rem;
+}
+
+.ww-nav a[aria-current="page"] {
+  color: var(--site-ink);
+  font-weight: 700;
+  border-block-end: 2px solid var(--site-accent);
+}
+
+.ww-layout {
+  padding: 1.5rem clamp(1rem, 3cqi, 2.4rem) 2.5rem;
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 1.75rem;
+}
+
+.ww-contact-sheet {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+  gap: 1.15rem;
+}
+
+.ww-model-frame {
+  background: #ffffff;
+  border: 1px solid var(--site-border);
+  padding: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ww-model-frame img {
+  inline-size: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+
+@container ent-portal (max-width: 720px) {
+  .ww-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 6. MIRRORA STUDIOS (Dark Cinematic Filmstrip Rail) ---------- */
+.site-mirrora {
+  --site-bg: #0c121d;
+  --site-surface-alt: #141e30;
+  --site-border: rgba(148, 163, 184, 0.24);
+  --site-ink: #f1f5f9;
+  --site-muted: #94a3b8;
+  --site-accent: #6366f1;
+  --site-accent-ink: #ffffff;
+  --site-focus: #818cf8;
+  --site-input-bg: #101827;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: system-ui, sans-serif;
+  display: grid;
+  grid-template-columns: 185px minmax(0, 1fr);
+}
+
+.mr-filmstrip {
+  background: #070b12;
+  border-inline-end: 2px dashed rgba(148, 163, 184, 0.25);
+  padding: 1.25rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.mr-filmstrip h1 {
+  margin: 0;
+  font-size: 1.15rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.mr-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.mr-nav a {
+  padding: 0.55rem 0.65rem;
+  color: var(--site-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.mr-nav a[aria-current="page"] {
+  background: var(--site-accent);
+  color: #ffffff;
+}
+
+.mr-main {
+  padding: 1.5rem clamp(1rem, 3cqi, 2.2rem) 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+  min-inline-size: 0;
+}
+
+.mr-slate-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 1.1rem;
+}
+
+@container ent-portal (max-width: 720px) {
+  .site-mirrora {
+    grid-template-columns: 1fr;
+  }
+  .mr-filmstrip {
+    border-inline-end: 0;
+    border-block-end: 2px dashed rgba(148, 163, 184, 0.25);
+  }
+  .mr-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+/* ---------- 7. MMRS (Indigo & Gold Search-First Repertoire Registry) ---------- */
+.site-mmrs {
+  --site-bg: #f4f5f8;
+  --site-surface-alt: #ffffff;
+  --site-border: #cfd5e3;
+  --site-ink: #151c33;
+  --site-muted: #4b5675;
+  --site-accent: #1e2d68;
+  --site-accent-ink: #ffffff;
+  --site-gold: #b4831f;
+  --site-focus: #1e2d68;
+  --site-input-bg: #ffffff;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: system-ui, sans-serif;
+}
+
+.mmrs-banner {
+  background: #151f49;
+  color: #f8fafc;
+  padding: 1.15rem clamp(1rem, 3cqi, 2.4rem);
+  border-block-end: 3px solid #d4a437;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.mmrs-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.mmrs-nav a {
+  padding: 0.45rem 0.75rem;
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.mmrs-nav a[aria-current="page"] {
+  background: #d4a437;
+  color: #111827;
+}
+
+.mmrs-body {
+  padding: 1.5rem clamp(1rem, 3cqi, 2.4rem) 2.5rem;
+  max-inline-size: 1120px;
+  margin-inline: auto;
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.mmrs-search-panel {
+  background: #ffffff;
+  border: 1px solid var(--site-border);
+  border-block-start: 4px solid var(--site-accent);
+  padding: 1.25rem;
+}
+
+/* ---------- 8. MPA (Warm Member-Led Guild Directory & Left Support Rail) ---------- */
+.site-mpa {
+  --site-bg: #f6f2e8;
+  --site-surface-alt: #ede6d6;
+  --site-border: #cfc4ad;
+  --site-ink: #272c21;
+  --site-muted: #58614e;
+  --site-accent: #3f5c35;
+  --site-accent-ink: #ffffff;
+  --site-focus: #3f5c35;
+  --site-input-bg: #ffffff;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: Georgia, serif;
+  display: grid;
+  grid-template-columns: 235px minmax(0, 1fr);
+}
+
+.mpa-rail {
+  background: #2b3826;
+  color: #f4f1e8;
+  padding: 1.4rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.mpa-rail a {
+  color: #dce3d5;
+  text-decoration: none;
+  font-family: system-ui, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.5rem 0.65rem;
+  display: block;
+}
+
+.mpa-rail a[aria-current="page"] {
+  background: #f6f2e8;
+  color: #272c21;
+  font-weight: 700;
+}
+
+.mpa-main {
+  padding: 1.65rem clamp(1rem, 3cqi, 2.4rem) 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  min-inline-size: 0;
+}
+
+@container ent-portal (max-width: 720px) {
+  .site-mpa {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 9. OPEN CALL CASTING (Cobalt & Lime Audition Search Platform) ---------- */
+.site-opencall {
+  --site-bg: #eef2f9;
+  --site-surface-alt: #ffffff;
+  --site-border: #c9d5ea;
+  --site-ink: #111c33;
+  --site-muted: #4b5d7e;
+  --site-accent: #1d4ed8;
+  --site-accent-ink: #ffffff;
+  --site-lime: #a3e635;
+  --site-focus: #1d4ed8;
+  --site-input-bg: #ffffff;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: system-ui, sans-serif;
+}
+
+.oc-header {
+  background: #102454;
+  color: #ffffff;
+  padding: 0.95rem clamp(1rem, 3cqi, 2.2rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.oc-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.oc-nav a {
+  padding: 0.45rem 0.85rem;
+  color: #dbeafe;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 999px;
+}
+
+.oc-nav a[aria-current="page"] {
+  background: var(--site-lime);
+  color: #0f172a;
+}
+
+.oc-board {
+  padding: 1.4rem clamp(1rem, 3cqi, 2.2rem) 2.5rem;
+  display: grid;
+  grid-template-columns: 245px minmax(0, 1fr);
+  gap: 1.35rem;
+  align-items: start;
+}
+
+.oc-filter-col {
+  background: #ffffff;
+  border: 1px solid var(--site-border);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+@container ent-portal (max-width: 760px) {
+  .oc-board {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 10. MARLIE RECORDS (Coastal Paper Scrapbook Indie Label) ---------- */
+.site-marlie {
+  --site-bg: #f6eedc;
+  --site-surface-alt: #ede1c8;
+  --site-border: #cabba0;
+  --site-ink: #222923;
+  --site-muted: #586359;
+  --site-accent: #1d5952;
+  --site-accent-ink: #ffffff;
+  --site-focus: #1d5952;
+  --site-input-bg: #fbf7ee;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: Georgia, serif;
+}
+
+.mr-coastal-header {
+  padding: 1.35rem clamp(1rem, 3cqi, 2.4rem);
+  border-block-end: 2px solid var(--site-ink);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.mr-coastal-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  font-family: ui-monospace, monospace;
+}
+
+.mr-coastal-nav a {
+  color: var(--site-ink);
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.3rem 0.45rem;
+}
+
+.mr-coastal-nav a[aria-current="page"] {
+  background: var(--site-accent);
+  color: #ffffff;
+}
+
+.mr-coastal-body {
+  padding: 1.5rem clamp(1rem, 3cqi, 2.4rem) 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+.mr-sleeve-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.2rem;
+}
+
+.mr-sleeve-card {
+  background: #fbf7ee;
+  border: 1px solid var(--site-border);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mr-sleeve-card img {
+  inline-size: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}

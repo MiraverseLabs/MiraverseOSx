@@ -1,0 +1,590 @@
+/* ============================================================================
+ * WAVE 3 — 9 Distinct Website Visual Systems & Layouts
+ * Velvet Curtain, Amrielle, Rosemont Portrait, Femme Fatale, Wonder-Wind,
+ * Storyloom Studios, The Marigold Theatre, Radiance Awards, Starstruck.
+ * ============================================================================ */
+
+/* ---------- 17. VELVET CURTAIN PRODUCTIONS (Touring Playbill + Itinerary Rail) ---------- */
+.site-velvet {
+  --site-bg: #1a0f19;
+  --site-surface-alt: #271726;
+  --site-border: rgba(232, 121, 249, 0.25);
+  --site-ink: #fdf2f8;
+  --site-muted: #d1b3c8;
+  --site-accent: #c026d3;
+  --site-accent-ink: #ffffff;
+  --site-focus: #f0abfc;
+  --site-input-bg: #221321;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: system-ui, sans-serif;
+  display: grid;
+  grid-template-columns: 225px minmax(0, 1fr);
+}
+
+.vc-rail {
+  background: #120912;
+  border-inline-end: 1px solid var(--site-border);
+  padding: 1.4rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.vc-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.vc-nav a {
+  padding: 0.5rem 0.7rem;
+  color: var(--site-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.vc-nav a[aria-current="page"] {
+  background: var(--site-accent);
+  color: #ffffff;
+}
+
+.vc-main {
+  padding: 1.6rem clamp(1rem, 3cqi, 2.4rem) 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-inline-size: 0;
+}
+
+@container ent-portal (max-width: 720px) {
+  .site-velvet {
+    grid-template-columns: 1fr;
+  }
+  .vc-rail {
+    border-inline-end: 0;
+    border-block-end: 1px solid var(--site-border);
+  }
+  .vc-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+/* ---------- 18. AMRIELLE (Luxury Plum, Rose & Gold Beauty Storefront) ---------- */
+.site-amrielle {
+  --site-bg: #faf1f4;
+  --site-surface-alt: #f3e4ea;
+  --site-border: #ddc1ce;
+  --site-ink: #381e2f;
+  --site-muted: #725066;
+  --site-accent: #8f3f6c;
+  --site-accent-ink: #ffffff;
+  --site-focus: #8f3f6c;
+  --site-input-bg: #ffffff;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: Georgia, serif;
+}
+
+.am-header {
+  padding: 1.25rem clamp(1rem, 3cqi, 2.5rem);
+  border-block-end: 1px solid var(--site-border);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.am-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem 1.2rem;
+  font-family: system-ui, sans-serif;
+}
+
+.am-nav a {
+  text-decoration: none;
+  color: var(--site-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding-block: 0.25rem;
+}
+
+.am-nav a[aria-current="page"] {
+  color: var(--site-ink);
+  font-weight: 700;
+  border-block-end: 2px solid var(--site-accent);
+}
+
+.am-body {
+  padding: 1.6rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
+  max-inline-size: 1140px;
+  margin-inline: auto;
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.am-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.am-product-card {
+  background: #ffffff;
+  border: 1px solid var(--site-border);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.am-swatch-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.am-swatch {
+  inline-size: 20px;
+  block-size: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+/* ---------- 19. ROSEMONT PORTRAIT HOUSE (Dark Atmospheric Masonry Studio) ---------- */
+.site-rosemont {
+  --site-bg: #141010;
+  --site-surface-alt: #1f1918;
+  --site-border: rgba(212, 168, 140, 0.28);
+  --site-ink: #f5ebe1;
+  --site-muted: #bfa99a;
+  --site-accent: #b87352;
+  --site-accent-ink: #ffffff;
+  --site-focus: #e2a886;
+  --site-input-bg: #1c1615;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: Georgia, serif;
+}
+
+.rp-header {
+  padding: 1.35rem clamp(1rem, 3cqi, 2.5rem);
+  border-block-end: 1px solid var(--site-border);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.rp-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  font-family: system-ui, sans-serif;
+}
+
+.rp-nav a {
+  text-decoration: none;
+  color: var(--site-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding-block: 0.25rem;
+}
+
+.rp-nav a[aria-current="page"] {
+  color: var(--site-ink);
+  border-block-end: 2px solid var(--site-accent);
+}
+
+.rp-body {
+  padding: 1.6rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+/* Multi-column masonry flow per modern-web-guidance css-layout */
+.rp-masonry {
+  columns: 3 210px;
+  column-gap: 1.15rem;
+}
+
+.rp-plate {
+  break-inside: avoid;
+  margin-block-end: 1.15rem;
+  background: var(--site-surface-alt);
+  border: 1px solid var(--site-border);
+  padding: 0.65rem;
+}
+
+.rp-plate img {
+  inline-size: 100%;
+  height: auto;
+  object-fit: cover;
+  margin-block-end: 0.5rem;
+}
+
+/* ---------- 20. FEMME FATALE DANCE COMPANY (Crimson-Noir Rehearsal Collective) ---------- */
+.site-femme {
+  --site-bg: #1c0b10;
+  --site-surface-alt: #2b1219;
+  --site-border: rgba(244, 63, 94, 0.32);
+  --site-ink: #fff1f2;
+  --site-muted: #dfa8b4;
+  --site-accent: #e11d48;
+  --site-accent-ink: #ffffff;
+  --site-focus: #fb7185;
+  --site-input-bg: #261016;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: system-ui, sans-serif;
+}
+
+.ff-header {
+  padding: 1.2rem clamp(1rem, 3cqi, 2.4rem);
+  border-block-end: 3px solid var(--site-accent);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ff-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.ff-nav a {
+  padding: 0.45rem 0.8rem;
+  color: var(--site-muted);
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ff-nav a[aria-current="page"] {
+  background: var(--site-accent);
+  color: #ffffff;
+}
+
+.ff-body {
+  padding: 1.5rem clamp(1rem, 3cqi, 2.4rem) 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ---------- 21. WONDER-WIND DANCE COMPANY (Ethereal Cross-Realm Touring Collective) ---------- */
+.site-wonderwind {
+  --site-bg: #edf4f2;
+  --site-surface-alt: #e1ece8;
+  --site-border: #b8cfc8;
+  --site-ink: #1a3330;
+  --site-muted: #4b6d68;
+  --site-accent: #2c6860;
+  --site-accent-ink: #ffffff;
+  --site-focus: #2c6860;
+  --site-input-bg: #ffffff;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: Georgia, serif;
+}
+
+.wd-header {
+  padding: 1.35rem clamp(1rem, 3cqi, 2.5rem);
+  border-block-end: 1px solid var(--site-border);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.wd-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  font-family: system-ui, sans-serif;
+}
+
+.wd-nav a {
+  text-decoration: none;
+  color: var(--site-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding-block: 0.25rem;
+}
+
+.wd-nav a[aria-current="page"] {
+  color: var(--site-accent);
+  border-block-end: 2px solid var(--site-accent);
+}
+
+.wd-body {
+  padding: 1.6rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
+  max-inline-size: 1120px;
+  margin-inline: auto;
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+/* ---------- 22. STORYLOOM STUDIOS (Warm Parchment Illustrated Animation Studio) ---------- */
+.site-storyloom {
+  --site-bg: #fff5e2;
+  --site-surface-alt: #f7e6c7;
+  --site-border: #d8be92;
+  --site-ink: #322c42;
+  --site-muted: #665d7a;
+  --site-accent: #684c82;
+  --site-accent-ink: #ffffff;
+  --site-focus: #684c82;
+  --site-input-bg: #fffcf5;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: Georgia, serif;
+}
+
+.st-header {
+  padding: 1.3rem clamp(1rem, 3cqi, 2.5rem);
+  border-block-end: 2px solid var(--site-border);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.st-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-family: system-ui, sans-serif;
+}
+
+.st-nav a {
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--site-ink);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.st-nav a[aria-current="page"] {
+  background: var(--site-accent);
+  color: #ffffff;
+}
+
+.st-body {
+  padding: 1.6rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
+  max-inline-size: 1140px;
+  margin-inline: auto;
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.65rem;
+}
+
+/* ---------- 23. THE MARIGOLD THEATRE (Crimson & Gold Repertory Playbill) ---------- */
+.site-marigold {
+  --site-bg: #fcf2dc;
+  --site-surface-alt: #f4e2bc;
+  --site-border: #cfad76;
+  --site-ink: #3a1d19;
+  --site-muted: #6e453b;
+  --site-accent: #8c2323;
+  --site-accent-ink: #fff8eb;
+  --site-focus: #8c2323;
+  --site-input-bg: #fffdf7;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: Georgia, serif;
+}
+
+.mg-banner {
+  background: #471417;
+  color: #fdecc8;
+  padding: 1.25rem clamp(1rem, 3cqi, 2.5rem);
+  border-block-end: 4px solid #d4a348;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mg-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  font-family: system-ui, sans-serif;
+}
+
+.mg-nav a {
+  padding: 0.45rem 0.8rem;
+  color: #f3d6a4;
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.mg-nav a[aria-current="page"] {
+  background: #d4a348;
+  color: #2f1113;
+}
+
+.mg-body {
+  padding: 1.6rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
+  max-inline-size: 1140px;
+  margin-inline: auto;
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+/* ---------- 24. THE RADIANCE AWARDS (Black & Silver Ceremony Hub) ---------- */
+.site-radiance {
+  --site-bg: #0f0d0a;
+  --site-surface-alt: #1b1711;
+  --site-border: rgba(212, 175, 55, 0.35);
+  --site-ink: #faf6eb;
+  --site-muted: #c8bfa8;
+  --site-accent: #d4af37;
+  --site-accent-ink: #120e07;
+  --site-focus: #facc15;
+  --site-input-bg: #17130d;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: Georgia, serif;
+  display: grid;
+  grid-template-columns: 225px minmax(0, 1fr);
+}
+
+.ra-rail {
+  background: #080705;
+  border-inline-end: 1px solid var(--site-border);
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.ra-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-family: system-ui, sans-serif;
+}
+
+.ra-nav a {
+  padding: 0.5rem 0.7rem;
+  color: var(--site-muted);
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ra-nav a[aria-current="page"] {
+  background: var(--site-accent);
+  color: #120e07;
+}
+
+.ra-main {
+  padding: 1.65rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+  min-inline-size: 0;
+}
+
+@container ent-portal (max-width: 720px) {
+  .site-radiance {
+    grid-template-columns: 1fr;
+  }
+  .ra-rail {
+    border-inline-end: 0;
+    border-block-end: 1px solid var(--site-border);
+  }
+  .ra-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+/* ---------- 25. STARSTRUCK ENTERTAINMENT (Cobalt & Ivory Flagship Agency) ---------- */
+.site-starstruck {
+  --site-bg: #f6f7fc;
+  --site-surface-alt: #ffffff;
+  --site-border: #ccd3e8;
+  --site-ink: #12172c;
+  --site-muted: #505a7a;
+  --site-accent: #1d3587;
+  --site-accent-ink: #ffffff;
+  --site-focus: #1d3587;
+  --site-input-bg: #ffffff;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.ss-header {
+  background: #0f1b4c;
+  color: #ffffff;
+  padding: 1.15rem clamp(1rem, 3cqi, 2.5rem);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  border-block-end: 4px solid #e11d48;
+}
+
+.ss-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.ss-nav a {
+  padding: 0.45rem 0.8rem;
+  color: #dbeafe;
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ss-nav a[aria-current="page"] {
+  background: #ffffff;
+  color: #0f1b4c;
+}
+
+.ss-body {
+  padding: 1.6rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
+  max-inline-size: 1160px;
+  margin-inline: auto;
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.65rem;
+}

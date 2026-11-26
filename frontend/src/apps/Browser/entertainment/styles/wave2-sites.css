@@ -1,0 +1,439 @@
+/* ============================================================================
+ * WAVE 2 — 6 Distinct Website Visual Systems & Layouts
+ * Pop Sticker Radio, Kaji Publishing, Lunerum Dist, The Looking Glass,
+ * Second Act Management, and Word of Mouth Publicity.
+ * ============================================================================ */
+
+/* ---------- 11. POP STICKER RADIO (Vibrant Broadcast Console + Sticker Tray) ---------- */
+.site-popsticker {
+  --site-bg: #170a26;
+  --site-surface-alt: #24123b;
+  --site-border: rgba(244, 114, 182, 0.34);
+  --site-ink: #fdf2f8;
+  --site-muted: #d8b4e2;
+  --site-accent: #ec4899;
+  --site-accent-ink: #ffffff;
+  --site-cyan: #38bdf8;
+  --site-focus: #38bdf8;
+  --site-input-bg: #1f0e33;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: system-ui, -apple-system, sans-serif;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.ps-header {
+  background: linear-gradient(90deg, #2a0f44 0%, #3b1354 60%, #1d1a4c 100%);
+  border-block-end: 2px solid var(--site-accent);
+  padding: 0.9rem clamp(1rem, 3cqi, 2.2rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.ps-onair-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.65rem;
+  background: #ec4899;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 999px;
+}
+
+.ps-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.ps-nav a {
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  color: var(--site-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.ps-nav a[aria-current="page"] {
+  background: var(--site-cyan);
+  color: #0b1120;
+}
+
+.ps-body {
+  padding: 1.4rem clamp(1rem, 3cqi, 2.2rem) 2rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.95fr);
+  gap: 1.35rem;
+  align-items: start;
+}
+
+.ps-deck-card {
+  padding: 1.25rem;
+  border-radius: 0.85rem;
+  background: var(--site-surface-alt);
+  border: 1px solid var(--site-border);
+}
+
+.ps-sticker-chip {
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.65rem;
+  border: 1px dashed var(--site-cyan);
+  background: rgba(56, 189, 248, 0.1);
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.ps-dock {
+  position: sticky;
+  inset-block-end: 0;
+  z-index: 4;
+  background: #10061c;
+  border-block-start: 1px solid var(--site-border);
+  padding: 0.65rem 1.2rem;
+}
+
+@container ent-portal (max-width: 760px) {
+  .ps-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 12. KAJI PUBLISHING STUDIOS (Ivory & Espresso Score Library) ---------- */
+.site-kaji {
+  --site-bg: #fcf8ef;
+  --site-surface-alt: #f4ecdc;
+  --site-border: #d5c5a7;
+  --site-ink: #2c2116;
+  --site-muted: #665440;
+  --site-accent: #7a511b;
+  --site-accent-ink: #ffffff;
+  --site-focus: #7a511b;
+  --site-input-bg: #ffffff;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.kj-header {
+  padding: 1.35rem clamp(1rem, 3cqi, 2.5rem);
+  border-block-end: 2px solid var(--site-ink);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.kj-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  font-family: system-ui, sans-serif;
+}
+
+.kj-nav a {
+  text-decoration: none;
+  color: var(--site-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding-block: 0.3rem;
+}
+
+.kj-nav a[aria-current="page"] {
+  color: var(--site-accent);
+  border-block-end: 2px solid var(--site-accent);
+}
+
+.kj-body {
+  padding: 1.6rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
+  max-inline-size: 1140px;
+  margin-inline: auto;
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+/* ---------- 13. LUNERUM DIST (Dark Violet/Teal Release Ops Console) ---------- */
+.site-lunerum {
+  --site-bg: #0c1020;
+  --site-surface-alt: #131932;
+  --site-border: rgba(139, 92, 246, 0.32);
+  --site-ink: #eef2ff;
+  --site-muted: #9aa7cf;
+  --site-accent: #14b8a6;
+  --site-accent-ink: #04201c;
+  --site-focus: #2dd4bf;
+  --site-input-bg: #0f152b;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  display: grid;
+  grid-template-columns: 215px minmax(0, 1fr);
+}
+
+.ln-rail {
+  background: #080b16;
+  border-inline-end: 1px solid var(--site-border);
+  padding: 1.3rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.ln-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.ln-nav a {
+  padding: 0.55rem 0.65rem;
+  color: var(--site-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-inline-start: 2px solid transparent;
+}
+
+.ln-nav a[aria-current="page"] {
+  color: #2dd4bf;
+  background: rgba(20, 184, 166, 0.12);
+  border-inline-start-color: #14b8a6;
+}
+
+.ln-main {
+  padding: 1.5rem clamp(1rem, 3cqi, 2.2rem) 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  min-inline-size: 0;
+  font-family: system-ui, sans-serif;
+}
+
+.ln-metric-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.85rem;
+}
+
+.ln-metric-card {
+  padding: 1rem;
+  background: var(--site-surface-alt);
+  border: 1px solid var(--site-border);
+}
+
+@container ent-portal (max-width: 720px) {
+  .site-lunerum {
+    grid-template-columns: 1fr;
+  }
+  .ln-rail {
+    border-inline-end: 0;
+    border-block-end: 1px solid var(--site-border);
+  }
+  .ln-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+/* ---------- 14. THE LOOKING GLASS (180-Cap Live-Music Club Poster Board) ---------- */
+.site-lookingglass {
+  --site-bg: #181414;
+  --site-surface-alt: #241e1d;
+  --site-border: rgba(245, 158, 11, 0.32);
+  --site-ink: #fbf1dc;
+  --site-muted: #c9b594;
+  --site-accent: #d97706;
+  --site-accent-ink: #1a1006;
+  --site-focus: #fbbf24;
+  --site-input-bg: #201a19;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.lg-marquee {
+  padding: 1.25rem clamp(1rem, 3cqi, 2.4rem);
+  border-block-end: 3px double var(--site-accent);
+  background: radial-gradient(circle at top left, rgba(217, 119, 6, 0.18), transparent 55%), #120e0e;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lg-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.lg-nav a {
+  padding: 0.45rem 0.75rem;
+  color: var(--site-muted);
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.lg-nav a[aria-current="page"] {
+  color: #181414;
+  background: #f59e0b;
+}
+
+.lg-body {
+  padding: 1.5rem clamp(1rem, 3cqi, 2.4rem) 2.5rem;
+  max-inline-size: 1080px;
+  margin-inline: auto;
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-family: system-ui, sans-serif;
+}
+
+.lg-chalkboard {
+  padding: 1.4rem;
+  border: 2px solid var(--site-border);
+  background: #201a18;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.85fr);
+  gap: 1.25rem;
+  align-items: center;
+}
+
+@container ent-portal (max-width: 720px) {
+  .lg-chalkboard {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 15. SECOND ACT MANAGEMENT (Warm Boutique Talent Agency) ---------- */
+.site-secondact {
+  --site-bg: #f8efe9;
+  --site-surface-alt: #f0e2d9;
+  --site-border: #d8bfb2;
+  --site-ink: #372020;
+  --site-muted: #6f4c49;
+  --site-accent: #7a3e38;
+  --site-accent-ink: #ffffff;
+  --site-focus: #7a3e38;
+  --site-input-bg: #ffffff;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: Georgia, serif;
+}
+
+.sa-header {
+  padding: 1.35rem clamp(1rem, 3cqi, 2.6rem);
+  border-block-end: 1px solid var(--site-border);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.sa-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  font-family: system-ui, sans-serif;
+}
+
+.sa-nav a {
+  text-decoration: none;
+  color: var(--site-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding-block: 0.25rem;
+}
+
+.sa-nav a[aria-current="page"] {
+  color: var(--site-ink);
+  border-block-end: 2px solid var(--site-accent);
+}
+
+.sa-body {
+  padding: 1.65rem clamp(1rem, 3cqi, 2.6rem) 2.5rem;
+  max-inline-size: 1120px;
+  margin-inline: auto;
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.65rem;
+}
+
+/* ---------- 16. WORD OF MOUTH PUBLICITY (Sharp Pressroom Index) ---------- */
+.site-wordofmouth {
+  --site-bg: #fff9f8;
+  --site-surface-alt: #f9ecea;
+  --site-border: #e0c3c7;
+  --site-ink: #241418;
+  --site-muted: #674750;
+  --site-accent: #9b1c3c;
+  --site-accent-ink: #ffffff;
+  --site-focus: #9b1c3c;
+  --site-input-bg: #ffffff;
+  background: var(--site-bg);
+  color: var(--site-ink);
+  font-family: system-ui, sans-serif;
+}
+
+.wom-header {
+  padding: 1.15rem clamp(1rem, 3cqi, 2.4rem);
+  border-block-end: 3px solid var(--site-ink);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.wom-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.wom-nav a {
+  padding: 0.45rem 0.75rem;
+  color: var(--site-muted);
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.wom-nav a[aria-current="page"] {
+  background: var(--site-accent);
+  color: #ffffff;
+}
+
+.wom-body {
+  padding: 1.5rem clamp(1rem, 3cqi, 2.4rem) 2.5rem;
+  max-inline-size: 1120px;
+  margin-inline: auto;
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
