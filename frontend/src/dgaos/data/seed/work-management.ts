@@ -46,7 +46,7 @@ export const seedSavedFilters: SavedFilter[] = [
     icon: 'user-check',
     view: 'list',
     criteria: {
-      assignedTo: 'Special Agent Miracle Jerome',
+      assignedTo: 'Special Agent',
       status: ['pending', 'in_progress', 'under_review']
     }
   },
@@ -99,7 +99,7 @@ export const seedCaseTemplates: CaseTemplate[] = [
         description: 'Establish perimeter security and seal primary air intakes.',
         phase: 'Preliminary',
         priority: 'Critical',
-        assignedTo: 'Special Agent Miracle Jerome',
+        assignedTo: 'Special Agent',
         tags: ['#SHIELD', '#CORDON', '#BIOHAZARD']
       },
       {
@@ -203,7 +203,7 @@ export const seedCaseTemplates: CaseTemplate[] = [
         description: 'Search abandoned warehouse and waterside slipway.',
         phase: 'Active Investigation',
         priority: 'High',
-        assignedTo: 'Special Agent Miracle Jerome',
+        assignedTo: 'Special Agent',
         tags: ['#TACTICAL', '#HARBOR'],
         dependsOnOffset: [0]
       }

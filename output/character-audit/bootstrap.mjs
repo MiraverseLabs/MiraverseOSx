@@ -25,7 +25,7 @@ for (const [file, variable, target] of [
 const inventory = JSON.parse(readFileSync('docs/data/character-sources.json', 'utf8')).records;
 const slug = name => name.toLowerCase().replace(/\([^)]*\)/g, '').replace(/^(dr\.|queen|high warden|chancellor|lord|grand dispatcher|high forge-master|seer|senior archivist|ambassador|courier|director|specialist|sergeant|dean|archivist)\s+/i, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const overrides = {
-  'NPC-KRELL': 'viktor-krell', 'DGA-SA-8804': 'miracle-jerome-agent',
+  'NPC-KRELL': 'viktor-krell', 'DGA-SA-8804': 'miracle-Staff-agent',
   'Jeremie': 'jeremie-belpois', 'Aelita': 'aelita-schaeffer', 'Sissi': 'elisabeth-delmas',
   'npc-vesper': 'k-vesper',
 };
@@ -79,10 +79,10 @@ const conflicts = [
   ['sissi-name', ['char-elisabeth-delmas', 'char-sissi-delmas'], 'The document names Sissi Delmas; social uses Elisabeth Delmas and dialogue identifies Sissi as Elisabeth. Document correspondence remains pending.'],
   ['riven-name', ['char-riven-asterwind', 'char-riven-kalbera'], 'The code uses Riven Asterwind; the document uses Riven Kalbera. No surname merge.'],
   ['vesper-identity', ['char-k-vesper', 'char-kieran-vesper'], 'World NPC K. Vesper and registry Kieran Vesper have similar roles; an initial is insufficient to establish identity.'],
-  ['miracle-agent', ['char-miracle-jerome-agent', 'char-miracle-jerome'], 'The primary DGA agent and medical citizen share a name but different identifiers and roles. They remain separate.'],
+  ['miracle-agent', ['char-miracle-Staff-agent', 'char-miracle-Staff'], 'The primary DGA agent and medical citizen share a name but different identifiers and roles. They remain separate.'],
   ['elena-roles', ['char-elena-rostova'], 'Elena Rostova occurs as an agency SCADA engineer and a registry citizen with a separate investigative profile. Name-linked for reference only; roles and saves remain source-owned.'],
   ['elara-maid', ['char-elara-vale'], 'Mail declares MAID-OR-00000001; registry seed declares MAID-OR-00481926. No MAID is reassigned. Mail npcKey rowan also conflicts with the independent Archivist Rowan social profile.'],
-  ['miracle-maid', ['char-miracle-jerome'], 'Mail declares MAID-OR-00000002; registry seed declares MAID-OR-00481927. Mail npcKey ilyra is not a proven character alias.'],
+  ['miracle-maid', ['char-miracle-Staff'], 'Mail declares MAID-OR-00000002; registry seed declares MAID-OR-00481927. Mail npcKey ilyra is not a proven character alias.'],
   ['julian-maid', ['char-julian-paul-vance'], 'Mail declares MAID-OR-00000003; registry seed declares MAID-OR-00481928. Both existing records are preserved.'],
   ['faculty-coverage', ['char-vael', 'char-vaelen', 'char-cassian-rook'], 'The document Headmistress Vael, dialogue scholar Vaelen and code Dean Cassian Rook are separate entries. Similar names and institutional overlap do not prove identity.'],
   ['kaelen-identity', ['char-kaelen', 'char-kaelen-vance'], 'The shadow broker Kaelen and workplace supervisor Kaelen Vance remain separate. No surname is inferred from a short dialogue label.'],

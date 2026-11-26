@@ -222,7 +222,7 @@ export class EventCommsEngine {
       durationSeconds: 42,
       isNew: true,
       subject: `MISSED CALL: ${call.headlineMessage}`,
-      transcript: `“Special Agent Jerome, this is ${call.callerName}. You missed my priority call regarding Docket ${call.caseId}. ${call.headlineMessage}. Review the secure log and execute the corresponding directive immediately upon listening to this dispatch.”`,
+      transcript: `“Special Agent Staff, this is ${call.callerName}. You missed my priority call regarding Docket ${call.caseId}. ${call.headlineMessage}. Review the secure log and execute the corresponding directive immediately upon listening to this dispatch.”`,
       caseId: call.caseId,
       callbackAction: 'ASSIGN_INSPECTION_DIRECTIVE'
     };
@@ -431,7 +431,7 @@ export class EventCommsEngine {
         sender: 'Deputy Director Evelyn Cross [DGA Executive Directorate]',
         recipient: `${state.profile.name} [Lead Investigator]`,
         subject: `EXECUTIVE REVIEW: Evidence Threshold Reached on Docket ${caseId}`,
-        body: `Special Agent Jerome,\n\nYour investigative team has secured sufficient material exhibits (${c.evidence.length} physical and analytical items logged) on Docket ${caseId}. The evidentiary threshold for formal judicial indictment and cabinet briefing has now been satisfied.\n\nYou are authorized to compile the comprehensive dossier and execute the FINAL INCIDENT REPORT for formal Case Closure Review.\n\nOutstanding work on securing the chain of custody.\n\n-- Evelyn Cross\nDeputy Director, Counter-Proliferation & Major Crimes`,
+        body: `Special Agent Staff,\n\nYour investigative team has secured sufficient material exhibits (${c.evidence.length} physical and analytical items logged) on Docket ${caseId}. The evidentiary threshold for formal judicial indictment and cabinet briefing has now been satisfied.\n\nYou are authorized to compile the comprehensive dossier and execute the FINAL INCIDENT REPORT for formal Case Closure Review.\n\nOutstanding work on securing the chain of custody.\n\n-- Evelyn Cross\nDeputy Director, Counter-Proliferation & Major Crimes`,
         timestamp: now,
         read: false,
         status: 'ACTION REQUIRED',
@@ -512,7 +512,7 @@ export class EventCommsEngine {
       sender: 'Department of Justice / Liaison Magistrate',
       recipient: `${state.profile.name} [Lead Investigator]`,
       subject: `OFFICIAL CLOSURE AUDIT RECEIPT // Docket ${caseId}`,
-      body: `Special Agent Jerome,\n\nYour final report on Docket ${caseId} has been archived with federal criminal indexation. Investigative docket status transitioned to ${determination}.\n\nFinal Report Summary:\n${summary}\n\nCase records sealed under Statutory Record Directive 10-A.`,
+      body: `Special Agent Staff,\n\nYour final report on Docket ${caseId} has been archived with federal criminal indexation. Investigative docket status transitioned to ${determination}.\n\nFinal Report Summary:\n${summary}\n\nCase records sealed under Statutory Record Directive 10-A.`,
       timestamp: now,
       read: false,
       status: 'RESPONDED',

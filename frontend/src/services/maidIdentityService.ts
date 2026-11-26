@@ -1257,7 +1257,6 @@ export class MaidIdentityService {
 
     const defaultInputs: (NewPersonInput & { fixedMaid: string; fixedLegacy: string })[] = [
       defaultInputsProfile("MAID-OR-00481926"),
-      defaultInputsProfile("MAID-OR-00481927"),
       defaultInputsProfile("MAID-OR-00481928"),
       defaultInputsProfile("MAID-OR-00481929"),
       defaultInputsProfile("MAID-OR-00481930"),

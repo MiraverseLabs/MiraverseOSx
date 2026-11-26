@@ -217,7 +217,7 @@ export function DgaPhoneConsole({
     // Append player's choice to dialogue history
     const updatedHistory = [
       ...activeCall.dialogueHistory,
-      { speaker: "Special Agent Jerome", text: option.text },
+      { speaker: "Special Agent Staff", text: option.text },
     ];
 
     // Execute option action if any

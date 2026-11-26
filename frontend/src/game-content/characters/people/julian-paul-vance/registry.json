@@ -36,12 +36,12 @@
       "occupation": "Lead Forensic Criminalist & EYES Investigator",
       "clearance": "DGA Senior Officer Clearance · TRACE Level V",
       "aura": "Hardened Shielded Tier IV",
-      "medical": "Faith Medical Group · Tactical Clearance Verified by Dr. Miracle Jerome",
+      "medical": "Faith Medical Group · Tactical Clearance Verified by medical staff",
       "residency": "Citadel Officer Housing, Unit 4A · Verified",
       "history": "Architect of the hybrid forensic findings transmission protocol linking TRACE and DGAOS.",
       "status": "ACTIVE / VERIFIED",
       "links": "Authoritative forensic examiner for DGAOS cases; guest lecturer at Cyacademy.",
-      "relationships": "Colleague of Dr. Miracle Jerome (MAID-OR-00481927) · Mentor to Elara Vale (MAID-OR-00481926) · Investigating Subject Elena Rostova (MAID-OR-00481931)",
+      "relationships": "Colleague of medical staff (MAID-OR-00481927) · Mentor to Elara Vale (MAID-OR-00481926) · Investigating Subject Elena Rostova (MAID-OR-00481931)",
       "relationshipIds": [
         {
           "id": "MAID-OR-00481927",
@@ -95,12 +95,12 @@
       "occupation": "Lead Forensic Criminalist & EYES Investigator",
       "clearance": "DGA Senior Officer Clearance · TRACE Level V",
       "aura": "Hardened Shielded Tier IV",
-      "medical": "Faith Medical Group · Tactical Clearance Verified by Dr. Miracle Jerome",
+      "medical": "Faith Medical Group · Tactical Clearance Verified by medical staff",
       "residency": "Citadel Officer Housing, Unit 4A · Verified",
       "history": "Architect of the hybrid forensic findings transmission protocol linking TRACE and DGAOS.",
       "status": "ACTIVE / VERIFIED",
       "links": "Authoritative forensic examiner for DGAOS cases; guest lecturer at Cyacademy.",
-      "relationships": "Colleague of Dr. Miracle Jerome (MAID-OR-00481927) · Mentor to Elara Vale (MAID-OR-00481926) · Investigating Subject Elena Rostova (MAID-OR-00481931)",
+      "relationships": "Colleague of medical staff (MAID-OR-00481927) · Mentor to Elara Vale (MAID-OR-00481926) · Investigating Subject Elena Rostova (MAID-OR-00481931)",
       "relationshipIds": [
         {
           "id": "MAID-OR-00481927",

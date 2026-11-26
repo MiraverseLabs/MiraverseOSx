@@ -184,8 +184,8 @@ export function DgaCaseRegistry({
   const [newTimelineDesc, setNewTimelineDesc] = useState('');
 
   // Primary Investigator Signature State (for Awaiting Acceptance)
-  const [signatureName, setSignatureName] = useState('Special Agent Miracle Jerome [HQ-04]');
-  const [signatureText, setSignatureText] = useState('/s/ Miracle Jerome, Lead Investigator');
+  const [signatureName, setSignatureName] = useState('Special Agent [HQ-04]');
+  const [signatureText, setSignatureText] = useState('/s/ medical staff, Lead Investigator');
   const [affirmJurisdiction, setAffirmJurisdiction] = useState(false);
   const [isSigning, setIsSigning] = useState(false);
   const [signSuccessToast, setSignSuccessToast] = useState<string | null>(null);
@@ -424,7 +424,7 @@ export function DgaCaseRegistry({
     await createDGATask(activeCase.id, {
       title: taskTitle.trim(),
       description: taskDesc.trim() || 'Field objective task.',
-      assignedTo: activeCase.assignedAgents[0] || 'Special Agent Miracle Jerome',
+      assignedTo: activeCase.assignedAgents[0] || 'Special Agent',
       phase: taskPhase
     });
 
@@ -460,7 +460,7 @@ export function DgaCaseRegistry({
       description: newTimelineDesc.trim(),
       type: 'NOTE_ADDED',
       timestamp: new Date().toISOString(),
-      actor: activeCase.primaryInvestigator || 'Special Agent Miracle Jerome'
+      actor: activeCase.primaryInvestigator || 'Special Agent'
     });
     setNewTimelineDesc('');
   };

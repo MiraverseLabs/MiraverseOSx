@@ -40,7 +40,7 @@ export function MailDesk() {
         subject: current.subject.startsWith('Re:') ? current.subject : `Re: ${current.subject}`,
         body: reply.trim(),
         inReplyTo: current.id,
-        senderName: 'Special Agent Miracle Jerome'
+        senderName: 'Special Agent'
       }
     });
     setMessages(snapshot.messages.filter((item) => item.kind === 'cable' || item.kind === 'channel'));

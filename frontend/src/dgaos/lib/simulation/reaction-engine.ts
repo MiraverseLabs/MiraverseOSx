@@ -92,7 +92,7 @@ export function evaluateTaskCompletionReaction(
         {
           sender: 'Dr. Gregory Thorne (St. Jude Metro)',
           subject: 'FOLLOW-UP: Vance Pupillary Reaction Anomaly',
-          body: `Agent Jerome,\n\nI re-examined Ambassador Vance five minutes ago. The pupillary response remains non-reactive to intense light. This confirms direct receptor alkylation.\n\nKeep me updated on the mass spectrometry results as soon as TRACE completes the run.\n\nDr. Thorne`,
+          body: `Agent Staff,\n\nI re-examined Ambassador Vance five minutes ago. The pupillary response remains non-reactive to intense light. This confirms direct receptor alkylation.\n\nKeep me updated on the mass spectrometry results as soon as TRACE completes the run.\n\nDr. Thorne`,
           priority: 'Priority',
           classification: 'SECRET // NOFORN'
         },
@@ -150,7 +150,7 @@ export function evaluateScheduledEventExecution(
       communications.push({
         id: `CABLE-NPC-${Date.now().toString().slice(-4)}`,
         sender: payload.sender || 'Directorate Desk',
-        recipient: 'Special Agent Miracle Jerome [HQ-04]',
+        recipient: 'Special Agent [HQ-04]',
         subject: payload.subject || 'Follow-up regarding ongoing operations',
         body: payload.body || 'Dispatched report.',
         timestamp: now,

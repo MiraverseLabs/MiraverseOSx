@@ -22,7 +22,7 @@ export function getHandAuthoredMission(missionKey: 'courier' | 'diversion' | 'cl
       priority: 'High',
       leadSystem: 'AEGIS',
       supportingSystems: ['ORACLE', 'TRACE'],
-      assignedAgents: ['Special Agent Miracle Jerome'],
+      assignedAgents: ['Special Agent'],
       summary:
         'Diplomatic courier Marcus Vance failed to report to the embassy transit vault following an unscheduled detour through the harbor free-trade zone. The pouch contained encrypted telemetry keys and sovereign communications archives.',
       objectives: [
@@ -46,7 +46,7 @@ export function getHandAuthoredMission(missionKey: 'courier' | 'diversion' | 'cl
           title: 'Triangulate Last Pouch Transponder Signal',
           description: 'Analyze Harbor cell tower sector dumps to identify pinpoint warehouse coordinates.',
           completed: false,
-          assignedTo: 'Special Agent Miracle Jerome',
+          assignedTo: 'Special Agent',
           phase: 'Preliminary'
         },
         {
@@ -122,7 +122,7 @@ export function getHandAuthoredMission(missionKey: 'courier' | 'diversion' | 'cl
       priority: 'Priority',
       leadSystem: 'CIVITAS',
       supportingSystems: ['TRACE', 'ORACLE'],
-      assignedAgents: ['Special Agent Miracle Jerome'],
+      assignedAgents: ['Special Agent'],
       summary:
         'Audits of Phoenix Biotech import manifests reveal 400 liters of dual-use phosphorus trichloride unaccounted for in customs filings. Physical inventory reconciliation required.',
       objectives: [
@@ -140,7 +140,7 @@ export function getHandAuthoredMission(missionKey: 'courier' | 'diversion' | 'cl
           title: 'Issue CIVITAS Precursor Subpoena to Phoenix Bio',
           description: 'Demand sworn chain-of-custody affidavits from head chemist.',
           completed: false,
-          assignedTo: 'Special Agent Miracle Jerome',
+          assignedTo: 'Special Agent',
           phase: 'Preliminary'
         }
       ],
@@ -182,7 +182,7 @@ export function getHandAuthoredMission(missionKey: 'courier' | 'diversion' | 'cl
     priority: 'Critical',
     leadSystem: 'MEDSTAT',
     supportingSystems: ['TRACE', 'AEGIS'],
-    assignedAgents: ['Special Agent Miracle Jerome'],
+    assignedAgents: ['Special Agent'],
     summary:
       'Three additional patients admitted to regional ICUs presenting with identical cholinergic crises within 6 hours of the Ambassador Vance event. Potential broader aerosol dispersal or municipal water contamination.',
     objectives: [
@@ -200,7 +200,7 @@ export function getHandAuthoredMission(missionKey: 'courier' | 'diversion' | 'cl
         title: 'Collect Water Intake Samples from Metro District 4',
         description: 'Dispatch bio-sampling team to tap water main junctions.',
         completed: false,
-        assignedTo: 'Special Agent Miracle Jerome',
+        assignedTo: 'Special Agent',
         phase: 'Preliminary'
       }
     ],
@@ -284,7 +284,7 @@ export function createTemplateIncident(
     priority: conf.priority as Priority,
     leadSystem: conf.leadSystem as DGASystem,
     supportingSystems: ['TRACE', 'COMMS'],
-    assignedAgents: ['Special Agent Miracle Jerome'],
+    assignedAgents: ['Special Agent'],
     summary: conf.summary!,
     objectives: [
       {
@@ -301,7 +301,7 @@ export function createTemplateIncident(
         title: 'Secure Primary Site Logs and Physical Artifacts',
         description: 'Impound device logs and forward specimens to TRACE lab.',
         completed: false,
-        assignedTo: 'Special Agent Miracle Jerome',
+        assignedTo: 'Special Agent',
         phase: 'Preliminary'
       }
     ],
@@ -433,7 +433,7 @@ export function createMessageTriggeredAssignment(cable: DGACommunication): DGACa
     priority: cable.priority === 'Flash / Immediate' ? 'Critical' : cable.priority === 'Priority' ? 'High' : 'Priority',
     leadSystem: 'COMMS',
     supportingSystems: ['TRACE', 'ORACLE'],
-    assignedAgents: ['Special Agent Miracle Jerome'],
+    assignedAgents: ['Special Agent'],
     summary: `Active assignment spawned directly from incoming diplomatic/intelligence cable (${cable.id}) transmitted by ${cable.sender}.\n\nCable Excerpt: "${cable.body.slice(0, 200)}..."`,
     objectives: [
       {
@@ -450,7 +450,7 @@ export function createMessageTriggeredAssignment(cable: DGACommunication): DGACa
         title: `Follow Up with ${cable.sender}`,
         description: 'Send encrypted acknowledgment and request corroborating intelligence.',
         completed: false,
-        assignedTo: 'Special Agent Miracle Jerome',
+        assignedTo: 'Special Agent',
         phase: 'Preliminary'
       }
     ],
@@ -473,7 +473,7 @@ export function createMessageTriggeredAssignment(cable: DGACommunication): DGACa
         id: `TL-${Date.now()}`,
         timestamp,
         type: 'CASE_OPENED',
-        actor: 'Special Agent Miracle Jerome',
+        actor: 'Special Agent',
         description: `Spawned active assignment from incoming cable ${cable.id}.`
       }
     ],

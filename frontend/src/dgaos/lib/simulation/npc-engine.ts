@@ -36,21 +36,21 @@ export function formatNpcGreeting(npc: NPCProfile, agentName: string): string {
   switch (npc.communicationStyle) {
     case 'clinical_scientific':
       return isHighTension
-        ? `Agent Jerome, we have critical time constraints in the ICU.`
-        : `Agent Jerome, Dr. Thorne here. I am reviewing the biohazard specimen metrics.`;
+        ? `Agent Staff, we have critical time constraints in the ICU.`
+        : `Agent Staff, Dr. Thorne here. I am reviewing the biohazard specimen metrics.`;
     case 'formal_diplomatic':
       return isHighTrust
         ? `Miracle, good to connect directly. The situation on this end is delicate.`
-        : `Special Agent Jerome, Station Geneva transmits diplomatic greetings.`;
+        : `Special Agent Staff, Station Geneva transmits diplomatic greetings.`;
     case 'blunt_tactical':
       return isHighTension
-        ? `Jerome, heads up. We have an operational breach.`
+        ? `Staff, heads up. We have an operational breach.`
         : `Agent, Chen on the line. Cyber boundary dump ready.`;
     case 'bureaucratic':
-      return `Agent Jerome, this communication is logged under Directorate Protocol 44.`;
+      return `Agent Staff, this communication is logged under Directorate Protocol 44.`;
     case 'covert_guarded':
       return `I am speaking under secure carrier only. Keep this off the open cables.`;
     default:
-      return `Agent Jerome, regarding the ongoing assignment:`;
+      return `Agent Staff, regarding the ongoing assignment:`;
   }
 }

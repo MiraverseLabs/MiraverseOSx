@@ -12,7 +12,7 @@ const allRecords=manifest.characters.flatMap(person=>person.files.flatMap(file=>
 const uniqueRecords=[...new Map(allRecords.map(record=>[JSON.stringify([record.collection,record.key]),record])).values()];
 
 test('every old character ID survives and every complete source record is preserved',()=>{
-  assert.equal(CHARACTER_IDENTITIES.length,76);
+  assert.equal(CHARACTER_IDENTITIES.length,75);
   for(const old of baseline.oldIdentities) assert.ok(getCharacterById(old.id),`${old.id} was lost`);
   assert.equal(uniqueRecords.length,baseline.records.length);
   for(const old of baseline.records) {
@@ -32,7 +32,6 @@ test('name variants merge under document names without merging distinct characte
     ['char-elisabeth-delmas','char-sissi-delmas','Sissi Delmas'],
     ['char-riven-asterwind','char-riven-kalbera','Riven Kalbera'],
     ['char-k-vesper','char-kieran-vesper','Kieran Vesper'],
-    ['char-miracle-jerome-agent','char-miracle-jerome','Dr. Miracle Jerome'],
     ['char-elena-rostova-crash','char-elena-rostova','Elena Rostova'],
   ]) {assert.equal(getCharacterById(oldId),getCharacterById(id));assert.equal(getCharacterById(id).name,name);}
   assert.equal(findCharactersByName('Aelita Schaeffer')[0].id,'char-aelita-hopper');
@@ -59,8 +58,8 @@ test('all app projections read person-owned profiles and keep stable app IDs',as
 test('mail uses existing registry identities and wrong patient and NPC associations are removed',async()=>{
   const {getProfile:mail}=await import('../src/game-content/characters/collections/AUREMAIL_DIRECTORY.ts');
   const {getProfile:registry}=await import('../src/game-content/characters/collections/defaultInputs.ts');
-  for(const [key,maid] of [['dir-elara-vale','MAID-OR-00481926'],['dir-miracle-jerome','MAID-OR-00481927'],['dir-julian-vance','MAID-OR-00481928']]) assert.equal(mail(key).maid,registry(maid).fixedMaid);
-  assert.equal(mail('dir-elara-vale').npcKey,undefined);assert.equal(mail('dir-miracle-jerome').npcKey,undefined);
+  for(const [key,maid] of [['dir-elara-vale','MAID-OR-00481926'],['dir-julian-vance','MAID-OR-00481928']]) assert.equal(mail(key).maid,registry(maid).fixedMaid);
+  assert.equal(mail('dir-elara-vale').npcKey,undefined);
   const {getProfile:care}=await import('../src/game-content/characters/collections/PATIENT_CARE_ASSIGNMENTS.ts');
   assert.equal(care('pc-mercer').patientMaid,'');assert.equal(care('pc-vale').patientMaid,'MAID-OR-00481926');
   assert.equal(getCharacterById('char-vael').status,'document-only');

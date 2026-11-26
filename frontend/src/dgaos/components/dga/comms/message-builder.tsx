@@ -8,7 +8,7 @@ const EMPTY: CommsSnapshot = { contacts: [], channels: [], messages: [], events:
 export function MessageEventBuilder() {
   const [data, setData] = useState<CommsSnapshot>(EMPTY);
   const [notice, setNotice] = useState('');
-  const [draft, setDraft] = useState<Partial<DirectoryMessage>>({ kind: 'cable', folder: 'drafts', senderName: 'Special Agent Miracle Jerome', priority: 'Routine' });
+  const [draft, setDraft] = useState<Partial<DirectoryMessage>>({ kind: 'cable', folder: 'drafts', senderName: 'Special Agent', priority: 'Routine' });
   const [event, setEvent] = useState<Partial<CommsTrigger>>({
     name: 'Reply creates a follow-up',
     triggerType: 'reply',

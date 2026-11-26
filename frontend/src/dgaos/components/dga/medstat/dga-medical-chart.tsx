@@ -115,7 +115,7 @@ export function DgaMedicalChart({ onOpenCase, onNavigateTab, cases = [], activeC
   const [newMedIndication, setNewMedIndication] = useState('');
 
   const [newNoteTitle, setNewNoteTitle] = useState('');
-  const [newNoteAuthor, setNewNoteAuthor] = useState('Dr. Miracle Jerome, MD');
+  const [newNoteAuthor, setNewNoteAuthor] = useState('medical staff, MD');
   const [newNoteSubjective, setNewNoteSubjective] = useState('');
   const [newNoteObjective, setNewNoteObjective] = useState('');
   const [newNoteAssessment, setNewNoteAssessment] = useState('');
@@ -266,7 +266,7 @@ export function DgaMedicalChart({ onOpenCase, onNavigateTab, cases = [], activeC
           id: `TR-${Date.now()}`,
           time: `${now} UTC`,
           action: `STAT ${drugName} (${dose}) IV Bolus`,
-          operator: 'Dr. Miracle Jerome, MD',
+          operator: 'medical staff, MD',
           response: responseText
         }
       ]

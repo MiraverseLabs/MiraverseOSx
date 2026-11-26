@@ -124,7 +124,7 @@ export function DgaTaskDetailModal({
       const ev = (parentCase.evidence || []).find((e) => e.id === evidenceId);
       const req = await createDGAForensicRequest(parentCase.id, {
         caseId: parentCase.id,
-        requestedBy: task.assignedTo || 'Special Agent Miracle Jerome',
+        requestedBy: task.assignedTo || 'Special Agent',
         targetModules: ['toxicology', 'spectroscopy', 'microscopy', 'digital'],
         evidenceIds: [evidenceId],
         notes: `Forensic examination requisitioned directly from Directive ${task.id} (${task.title}). Item: ${ev?.title || evidenceId}.`
@@ -145,7 +145,7 @@ export function DgaTaskDetailModal({
     setIsActionBusy(true);
     try {
       const cable = await sendDGACommunication({
-        sender: task.assignedTo || 'Special Agent Miracle Jerome',
+        sender: task.assignedTo || 'Special Agent',
         recipient: 'Directorate Operations & TRACE Forensic Liaison',
         subject: `DIRECTIVE CABLE // ${task.id}: ${task.title}`,
         body: `OPERATIONAL DIRECTIVE STATUS DISPATCH\n\nDirective Reference: ${task.id}\nParent Case: ${parentCase.id} - ${parentCase.title}\nClassification: TOP SECRET // NOFORN\nPriority: ${task.priority || 'Routine'}\nPhase: ${task.phase}\nCurrent Status: ${task.status || (task.completed ? 'completed' : 'pending')}\nAssigned Investigator: ${task.assignedTo}\nLinked Evidence: ${(task.linkedEvidenceIds || []).join(', ') || 'None'}\n\nOPERATIONAL PARAMETERS & DIRECTIVE DETAILS:\n${task.description || 'No detailed instructions provided.'}`,
@@ -430,11 +430,11 @@ export function DgaTaskDetailModal({
                     ASSIGNED AGENT
                   </label>
                   <select
-                    value={task.assignedTo || 'Special Agent Miracle Jerome'}
+                    value={task.assignedTo || 'Special Agent'}
                     onChange={(e) => handleAssigneeChange(e.target.value)}
                     className="w-full bg-[#201f2e] border border-[#353449] rounded px-2 py-1 text-xs text-white font-semibold focus:outline-none truncate"
                   >
-                    <option value="Special Agent Miracle Jerome">SA Miracle Jerome (Lead)</option>
+                    <option value="Special Agent">SA medical staff (Lead)</option>
                     <option value="Special Agent Callum Brody">SA Callum Brody (Forensics)</option>
                     <option value="Dr. Gregory Thorne">Dr. Gregory Thorne (Chief Tox)</option>
                     <option value="Special Agent T. Chen">SA T. Chen (Cyber & SCADA)</option>

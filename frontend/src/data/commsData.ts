@@ -315,7 +315,6 @@ export const AUREMAIL_DIRECTORY: AureMailDirectoryContact[] = [
   AUREMAIL_DIRECTORYProfile("dir-riven"),
   // Canonical Registry Citizens (MAID linked)
   AUREMAIL_DIRECTORYProfile("dir-elara-vale"),
-  AUREMAIL_DIRECTORYProfile("dir-miracle-jerome"),
   AUREMAIL_DIRECTORYProfile("dir-julian-vance"),
 ];
 
@@ -547,12 +546,12 @@ Open Aura Passport or complete and submit the attached AURA_CONSENT_FORM.osform 
         previewText: 'Clinical referral for Veilwilt screening at Faith Medical Group. Save to Fylo or inspect.',
         targetApp: 'browser',
         version: 'v1.2-clinical',
-        provenance: 'Dr. Miracle Jerome · Faith Medical Intake (MAID-OR-00000002)',
+        provenance: 'Faith Medical Intake',
       },
     ],
     body: `Faith Medical Group has created a basic patient record for player. Initial screening indicates mild environmental Veilwilt exposure requiring a baseline diagnostic scan.
 
-Visit faithmed.aure in Browser or reply to this thread to coordinate with Dr. Miracle Jerome's clinical triage desk. The attached INTAKE_SCAN_REQUEST.pdf is your clinical chart referral.`,
+Visit faithmed.aure in Browser or reply to this thread to coordinate with the Faith Medical triage desk. The attached INTAKE_SCAN_REQUEST.pdf is your clinical chart referral.`,
   },
   {
     id: 'MSG-006',

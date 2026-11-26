@@ -473,72 +473,72 @@
       "originalSource": "frontend/src/dgaos/data/seed/npcs.ts:79"
     },
     {
-      "source": "frontend/src/game-content/characters/people/miracle-jerome/agency.json",
+      "source": "frontend/src/game-content/characters/people/miracle-Staff/agency.json",
       "collection": "primarySeedAgent",
       "key": "DGA-SA-8804",
-      "characterId": "char-miracle-jerome",
-      "name": "Dr. Miracle Jerome",
+      "characterId": "char-miracle-Staff",
+      "name": "medical staff",
       "role": "Senior Special Agent / Case Director",
       "institution": "",
       "maid": null,
       "aliases": [
-        "Miracle Jerome"
+        "medical staff"
       ],
       "originalSource": "frontend/src/dgaos/data/seed/agent.ts:17"
     },
     {
-      "source": "frontend/src/game-content/characters/people/miracle-jerome/mail.json",
+      "source": "frontend/src/game-content/characters/people/miracle-Staff/mail.json",
       "collection": "AUREMAIL_DIRECTORY",
-      "key": "dir-miracle-jerome",
-      "characterId": "char-miracle-jerome",
-      "name": "Dr. Miracle Jerome",
+      "key": "dir-miracle-Staff",
+      "characterId": "char-miracle-Staff",
+      "name": "medical staff",
       "role": "Chief Aura Diagnostician",
       "institution": "Faith Medical Group",
       "maid": "MAID-OR-00481927",
       "aliases": [
-        "Miracle Jerome"
+        "medical staff"
       ],
       "originalSource": "frontend/src/data/commsData.ts:388"
     },
     {
-      "source": "frontend/src/game-content/characters/people/miracle-jerome/registry.json",
+      "source": "frontend/src/game-content/characters/people/miracle-Staff/registry.json",
       "collection": "defaultInputs",
       "key": "MAID-OR-00481927",
-      "characterId": "char-miracle-jerome",
-      "name": "Dr. Miracle Jerome",
+      "characterId": "char-miracle-Staff",
+      "name": "medical staff",
       "role": "Chief Attending Physician & Bio-Aura Specialist",
       "institution": "Faith Medical Group · MEDSTAT Division",
       "maid": "MAID-OR-00481927",
       "aliases": [
-        "Miracle Jerome"
+        "medical staff"
       ],
       "originalSource": "frontend/src/services/maidIdentityService.ts:1292"
     },
     {
-      "source": "frontend/src/game-content/characters/people/miracle-jerome/relationships.json",
+      "source": "frontend/src/game-content/characters/people/miracle-Staff/relationships.json",
       "collection": "seedRelationships",
       "key": "REL-001",
-      "characterId": "char-miracle-jerome",
-      "name": "Dr. Miracle Jerome",
+      "characterId": "char-miracle-Staff",
+      "name": "medical staff",
       "role": "",
       "institution": "",
       "maid": null,
       "aliases": [
-        "Miracle Jerome"
+        "medical staff"
       ],
       "originalSource": "frontend/src/dgaos/data/seed/relationships.ts:22"
     },
     {
-      "source": "frontend/src/game-content/characters/people/miracle-jerome/relationships.json",
+      "source": "frontend/src/game-content/characters/people/miracle-Staff/relationships.json",
       "collection": "seedRelationships",
       "key": "REL-007",
-      "characterId": "char-miracle-jerome",
-      "name": "Dr. Miracle Jerome",
+      "characterId": "char-miracle-Staff",
+      "name": "medical staff",
       "role": "",
       "institution": "",
       "maid": null,
       "aliases": [
-        "Miracle Jerome"
+        "medical staff"
       ],
       "originalSource": "frontend/src/dgaos/data/seed/relationships.ts:76"
     },

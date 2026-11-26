@@ -52,7 +52,7 @@ export const seed:LabRecord[] = [
       "custody": [
         {
           "at": "2026-09-30T16:11:41.095Z",
-          "from": "Special Agent Miracle Jerome",
+          "from": "Special Agent",
           "to": "TRACE Evidence Officer",
           "location": "TRACE Vault Room B - Biohazard Lock 4",
           "seal": "SEAL-EV-194-A",
@@ -75,7 +75,7 @@ export const seed:LabRecord[] = [
         "DGA-26-194"
       ],
       "summary": "Ambassador Christian Vance collapsed during closed-door bilateral trade discussions at Embassy Row. Initial toxicology indicates cholinesterase inhibition with an uncatalogued organophosphate analog. Immediate TRACE mass spectrometry and chemical profiling required to determine sovereign state origin.\n\n[Originating DGA Case: DGA-26-194 | Classification: TOP SECRET // NOFORN]",
-      "submitter": "Special Agent Miracle Jerome",
+      "submitter": "Special Agent",
       "module": "toxicology",
       "category": "Forensic Specimen Triage",
       "priority": "Priority",
@@ -123,7 +123,7 @@ export const seed:LabRecord[] = [
       "custody": [
         {
           "at": "2026-09-30T14:51:10.569Z",
-          "from": "Special Agent Miracle Jerome",
+          "from": "Special Agent",
           "to": "TRACE Evidence Officer",
           "location": "TRACE Vault Room B - Biohazard Lock 4",
           "seal": "SEAL-EV-194-C",
@@ -150,7 +150,7 @@ export const seed:LabRecord[] = [
       "custody": [
         {
           "at": "2026-09-30T14:51:10.542Z",
-          "from": "Special Agent Miracle Jerome",
+          "from": "Special Agent",
           "to": "TRACE Evidence Officer",
           "location": "TRACE Vault Room B - Biohazard Lock 4",
           "seal": "SEAL-EV-194-B",
@@ -177,7 +177,7 @@ export const seed:LabRecord[] = [
       "custody": [
         {
           "at": "2026-09-30T14:51:10.516Z",
-          "from": "Special Agent Miracle Jerome",
+          "from": "Special Agent",
           "to": "TRACE Evidence Officer",
           "location": "TRACE Vault Room B - Biohazard Lock 4",
           "seal": "SEAL-EV-194-A",
@@ -200,7 +200,7 @@ export const seed:LabRecord[] = [
         "DGA-26-194"
       ],
       "summary": "Ambassador Christian Vance collapsed during closed-door bilateral trade discussions at Embassy Row. Initial toxicology indicates cholinesterase inhibition with an uncatalogued organophosphate analog. Immediate TRACE mass spectrometry and chemical profiling required to determine sovereign state origin.\n\n[Originating DGA Case: DGA-26-194 | Classification: TOP SECRET // NOFORN]",
-      "submitter": "Special Agent Miracle Jerome",
+      "submitter": "Special Agent",
       "module": "toxicology",
       "category": "Forensic Specimen Triage",
       "priority": "Priority",
@@ -248,7 +248,7 @@ export const seed:LabRecord[] = [
       "custody": [
         {
           "at": "2026-09-30T14:49:03.289Z",
-          "from": "Special Agent Miracle Jerome",
+          "from": "Special Agent",
           "to": "TRACE Evidence Officer",
           "location": "TRACE Vault Room B - Biohazard Lock 4",
           "seal": "SEAL-EV-194-C",
@@ -275,7 +275,7 @@ export const seed:LabRecord[] = [
       "custody": [
         {
           "at": "2026-09-30T14:49:03.262Z",
-          "from": "Special Agent Miracle Jerome",
+          "from": "Special Agent",
           "to": "TRACE Evidence Officer",
           "location": "TRACE Vault Room B - Biohazard Lock 4",
           "seal": "SEAL-EV-194-B",
@@ -302,7 +302,7 @@ export const seed:LabRecord[] = [
       "custody": [
         {
           "at": "2026-09-30T14:49:03.234Z",
-          "from": "Special Agent Miracle Jerome",
+          "from": "Special Agent",
           "to": "TRACE Evidence Officer",
           "location": "TRACE Vault Room B - Biohazard Lock 4",
           "seal": "SEAL-EV-194-A",
@@ -325,7 +325,7 @@ export const seed:LabRecord[] = [
         "DGA-26-194"
       ],
       "summary": "Ambassador Christian Vance collapsed during closed-door bilateral trade discussions at Embassy Row. Initial toxicology indicates cholinesterase inhibition with an uncatalogued organophosphate analog. Immediate TRACE mass spectrometry and chemical profiling required to determine sovereign state origin.\n\n[Originating DGA Case: DGA-26-194 | Classification: TOP SECRET // NOFORN]",
-      "submitter": "Special Agent Miracle Jerome",
+      "submitter": "Special Agent",
       "module": "toxicology",
       "category": "Forensic Specimen Triage",
       "priority": "Priority",
@@ -396,7 +396,7 @@ export const seed:LabRecord[] = [
       "custody": [
         {
           "at": "2026-09-30T13:10:59.259Z",
-          "from": "Special Agent Miracle Jerome",
+          "from": "Special Agent",
           "to": "TRACE Evidence Officer",
           "location": "TRACE Vault Room B - Biohazard Lock 4",
           "seal": "SEAL-EV-091-A",
@@ -419,7 +419,7 @@ export const seed:LabRecord[] = [
         "CYB-26-091"
       ],
       "summary": "Malicious payload identified in Siemens S7-1500 controller firmware controlling electrical substation 14-B. Ingress utilized custom command injection targeting safety trip governors. Immediate forensic analysis of binary memory dumps required.\n\n[Originating DGA Case: CYB-26-091 | Classification: TOP SECRET // NOFORN]",
-      "submitter": "Special Agent Miracle Jerome",
+      "submitter": "Special Agent",
       "module": "toxicology",
       "category": "Forensic Specimen Triage",
       "priority": "Priority",
@@ -439,7 +439,7 @@ export const seed:LabRecord[] = [
         "TEST"
       ],
       "summary": "Verification of DGA to TRACE API transmission protocol.",
-      "submitter": "Special Agent Miracle Jerome",
+      "submitter": "Special Agent",
       "module": "toxicology",
       "category": "Forensic Specimen Triage",
       "priority": "Priority",

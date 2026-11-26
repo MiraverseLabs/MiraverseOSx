@@ -5,7 +5,6 @@ Each character now has one named folder under [people](people). Identity, aliase
 Examples:
 
 - [Aelita Hopper](people/aelita-hopper/README.md): social profile, mail contact, dialogue, phone thread and Game Doc reference. Aelita Schaeffer remains an alias.
-- [Dr. Miracle Jerome](people/miracle-jerome/README.md): medical registry seed, mail, agency profile and authored agency relationships.
 - [Elena Rostova](people/elena-rostova/README.md): civic profile, agency profile, case-context records and relationships.
 - [Marcus Vance the courier](people/marcus-vance-courier/README.md) and [Marcus Vance the technician](people/marcus-vance-technician/README.md): distinct people with separate folders.
 

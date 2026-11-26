@@ -51,9 +51,9 @@ export const seedCommunications: SeedCommunication[] = [
   {
     id: 'COMM-ONBOARD-01',
     sender: 'DGA Enclave Security & Identity Operations',
-    recipient: 'Special Agent Miracle Jerome [HQ-04]',
+    recipient: 'Special Agent [HQ-04]',
     subject: 'CREDENTIALS: Enclave Terminal Activation & Clearance Level 5',
-    body: `Special Agent Jerome,
+    body: `Special Agent Staff,
 
 Your biometric credentials and Level 5 security token have been provisioned for Terminal Node HQ-04. Your clearance covers TRACE Laboratory forensics, wiretap monitoring, and major incident command.
 
@@ -70,9 +70,9 @@ All operational terminal activity is logged in accordance with Federal Directive
   {
     id: 'COMM-ONBOARD-02',
     sender: 'Office of the Deputy Director - E. Cross',
-    recipient: 'Special Agent Miracle Jerome [HQ-04]',
+    recipient: 'Special Agent [HQ-04]',
     subject: 'DIRECTIVE: Operational Protocol DGA-01 & Major Case Command Rules',
-    body: `Agent Jerome,
+    body: `Agent Staff,
 
 Welcome to Major Case Squad. Remember our operational rules:
 
@@ -94,9 +94,9 @@ Deputy Director, Major Case Squad`,
   {
     id: 'COMM-ONBOARD-03',
     sender: 'TRACE Central Forensic Laboratory',
-    recipient: 'Special Agent Miracle Jerome [HQ-04]',
+    recipient: 'Special Agent [HQ-04]',
     subject: 'NOTICE: Laboratory Requisition & Spectroscopy Pipeline Online',
-    body: `To: Special Agent Miracle Jerome
+    body: `To: Special Agent
 From: TRACE Central Forensic Facility
 
 The TRACE laboratory pipeline is currently calibrated and standing by for analytical requisitions. When evidence is logged on an active docket, submit electronic forensic requests through your workstation to schedule mass spectrometry (LC-MS), comparative stereomicroscopy, or digital extraction.
@@ -114,7 +114,7 @@ All instruments are ISO/IEC 17025 accredited.
   {
     id: 'COMM-ONBOARD-04',
     sender: 'Office of Quality Assurance & Legal Compliance',
-    recipient: 'Special Agent Miracle Jerome [HQ-04]',
+    recipient: 'Special Agent [HQ-04]',
     subject: 'POLICY REMINDER: Chain of Custody & Evidence Tamper-Seal Verification',
     body: `Mandatory standard for all investigative personnel:
 
@@ -133,9 +133,9 @@ Prior to opening or transferring any physical or biological exhibit, verify the 
 export const DGA_26_194_INTRO_CABLE: SeedCommunication = {
   id: 'CABLE-7701',
   sender: 'Dr. Gregory Thorne (St. Jude Metro)',
-  recipient: 'Special Agent Miracle Jerome [HQ-04]',
+  recipient: 'Special Agent [HQ-04]',
   subject: 'URGENT: Blood Chemistry Anomalies - Ambassador Vance (Case DGA-26-194)',
-  body: `Agent Jerome,
+  body: `Agent Staff,
 
 We completed our secondary enzyme panel on Ambassador Vance. This is not a natural cerebrovascular accident or cardiac event.
 

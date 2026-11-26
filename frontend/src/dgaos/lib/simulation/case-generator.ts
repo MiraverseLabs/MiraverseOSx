@@ -155,7 +155,7 @@ export function generateProceduralCaseWithBlueprint(
       title: 'Secure Primary Incident Scene and Review Access Logs',
       description: 'Verify all electronic badge readers and security logs within the past 4 hours.',
       completed: false,
-      assignedTo: 'Special Agent Miracle Jerome',
+      assignedTo: 'Special Agent',
       phase: 'Preliminary'
     },
     {
@@ -164,7 +164,7 @@ export function generateProceduralCaseWithBlueprint(
       title: 'Package Recovered Artifacts and Submit to TRACE',
       description: 'Transfer physical specimens to TRACE Forensic Laboratory under chain of custody.',
       completed: false,
-      assignedTo: 'Special Agent Miracle Jerome',
+      assignedTo: 'Special Agent',
       phase: 'Forensic Analysis'
     }
   ];
@@ -177,7 +177,7 @@ export function generateProceduralCaseWithBlueprint(
         title: 'Review Attending Physician / Site Supervisor Report',
         description: 'Interview lead on-scene personnel regarding anomalous symptoms or system behavior.',
         completed: false,
-        assignedTo: 'Special Agent Miracle Jerome',
+        assignedTo: 'Special Agent',
         phase: 'Active Investigation'
       },
       {
@@ -298,7 +298,7 @@ export function generateProceduralCaseWithBlueprint(
     priority: complexity === 'MAJOR_OPERATION' ? 'Critical' : 'High',
     leadSystem,
     supportingSystems,
-    assignedAgents: ['Special Agent Miracle Jerome'],
+    assignedAgents: ['Special Agent'],
     summary: `Active ${domain.toLowerCase()} investigation initiated following alarming telemetry. Multi-system DGA coordination required. Evidence recovered and staged for laboratory processing.`,
     objectives,
     tasks,

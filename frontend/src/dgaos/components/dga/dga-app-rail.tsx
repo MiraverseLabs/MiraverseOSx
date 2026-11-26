@@ -470,7 +470,7 @@ export function DgaAppRail({
       <div className="h-[64px] min-h-[64px] max-h-[64px] border-t border-[#cfcddb] px-2.5 flex items-center bg-[#e7e5f0] shrink-0">
         <button
           onClick={onOpenProfile}
-          title="Click to view Agent Miracle Jerome Credential & Dossier"
+          title="Click to view Agent medical staff Credential & Dossier"
           className="w-full flex items-center gap-2 p-1 rounded-[4px] hover:bg-[#dedceb] transition-colors text-left group cursor-pointer"
         >
           {/* Avatar Initials Badge */}

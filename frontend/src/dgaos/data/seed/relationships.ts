@@ -20,11 +20,9 @@ export interface SeedRelationship {
 }
 
 export const seedRelationships: SeedRelationship[] = [
-  seedRelationshipsProfile("REL-001"),
   seedRelationshipsProfile("REL-002"),
   seedRelationshipsProfile("REL-003"),
   seedRelationshipsProfile("REL-004"),
   seedRelationshipsProfile("REL-005"),
-  seedRelationshipsProfile("REL-006"),
-  seedRelationshipsProfile("REL-007")
+  seedRelationshipsProfile("REL-006")
 ];

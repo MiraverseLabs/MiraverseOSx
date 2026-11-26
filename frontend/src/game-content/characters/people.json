@@ -176,19 +176,6 @@
     "legacyIds": []
   },
   {
-    "id": "char-miracle-jerome",
-    "name": "Dr. Miracle Jerome",
-    "kind": "person",
-    "aliases": [
-      "Miracle Jerome"
-    ],
-    "status": "existing",
-    "notes": [],
-    "legacyIds": [
-      "char-miracle-jerome-agent"
-    ]
-  },
-  {
     "id": "char-jeremie-belpois",
     "name": "Jeremie Belpois",
     "kind": "person",

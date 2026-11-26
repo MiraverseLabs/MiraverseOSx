@@ -122,7 +122,7 @@ export function DgaWorkListView({
       phase: groupBy === 'phase' ? groupKey : 'Active Investigation',
       priority: groupBy === 'priority' ? (groupKey as Priority) : 'Routine',
       status: groupBy === 'status' ? (groupKey as TaskStatus) : 'pending',
-      assignedTo: 'Special Agent Miracle Jerome'
+      assignedTo: 'Special Agent'
     };
 
     await createDGATask(targetCaseId, newTaskData);

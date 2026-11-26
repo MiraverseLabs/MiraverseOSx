@@ -213,7 +213,7 @@ export const CABINET_TRANSCRIPT: CabinetTranscriptEntry[] = [
       '“If we board that Panamanian-flagged ship at dockside, Eurasia will claim we manufactured the incident to derail the trade agreement. We need ironclad spectral proof before the cameras roll.”',
   },
   {
-    speaker: 'Special Agent Miracle Jerome',
+    speaker: 'Special Agent',
     role: 'Lead Case Investigator [HQ-04]',
     timestamp: '06:35 UTC',
     dialogue:

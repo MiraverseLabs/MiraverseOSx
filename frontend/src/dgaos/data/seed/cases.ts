@@ -444,7 +444,7 @@ export const DGA_26_194_STARTING_PAYLOAD = {
       title: 'Extract and Package Vance Blood & Gastric Samples',
       description: 'Coordinate with Dr. Gregory Thorne at St. Jude Metro Hospital to secure three 5mL vials with biohazard seals.',
       completed: false,
-      assignedTo: 'Special Agent Miracle Jerome',
+      assignedTo: 'Special Agent',
       phase: 'Preliminary' as const,
       linkedEvidenceIds: ['EV-194-A']
     },
@@ -454,7 +454,7 @@ export const DGA_26_194_STARTING_PAYLOAD = {
       title: 'Issue Forensic Request to TRACE Forensic Laboratory',
       description: 'Transmit Case DGA-26-194 and specimens EV-194-A through EV-194-C to TRACE Laboratory for spectroscopy run.',
       completed: false,
-      assignedTo: 'Special Agent Miracle Jerome',
+      assignedTo: 'Special Agent',
       phase: 'Forensic Analysis' as const,
       linkedEvidenceIds: ['EV-194-A', 'EV-194-B', 'EV-194-C']
     },

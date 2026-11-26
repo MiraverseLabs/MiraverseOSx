@@ -15,7 +15,7 @@ See [the character directory and conflict resolutions](CHARACTER_INVENTORY.md), 
 
 Use the Game Doc name for the resolved spelling and surname variants. Preserve earlier names as aliases and previous shared IDs as redirects. People who share a surname or first name are not automatically merged. Marcus Vance the courier and Marcus Vance the technician have separate role-labelled folders; the faculty and three Kaelen entries remain distinct.
 
-Preserve case-specific facts in their source context. Elena Rostova's active civic/agency profiles and deceased case profile share an identity but do not overwrite one another or set a global life status. Professional appointments such as Miracle Jerome's medical and agency roles remain separate profile records of one person.
+Preserve case-specific facts in their source context. Elena Rostova's active civic/agency profiles and deceased case profile share an identity but do not overwrite one another or set a global life status. Professional appointments such as medical staff's medical and agency roles remain separate profile records of one person.
 
 Issued identity remains an AURA concern. Corrected mail references use existing registry seed MAIDs. Wrong historical IDs remain provenance only and do not grant identity access. No player-owned saved record is automatically reassigned by name.
 

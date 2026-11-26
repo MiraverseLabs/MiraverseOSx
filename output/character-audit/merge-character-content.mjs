@@ -12,7 +12,7 @@ const inventory = read('docs/data/character-sources.json');
 const redirects = {
   'char-aelita-schaeffer': 'char-aelita-hopper', 'char-odd-della-robbia': 'char-odd-della-robia',
   'char-elisabeth-delmas': 'char-sissi-delmas', 'char-riven-asterwind': 'char-riven-kalbera',
-  'char-k-vesper': 'char-kieran-vesper', 'char-miracle-jerome-agent': 'char-miracle-jerome',
+  'char-k-vesper': 'char-kieran-vesper', 'char-miracle-Staff-agent': 'char-miracle-Staff',
   'char-elena-rostova-crash': 'char-elena-rostova',
 };
 const primary = id => redirects[id] || id;
@@ -35,7 +35,7 @@ groups.get('char-marcus-vance').folder = 'marcus-vance-courier';
 groups.get('char-marcus-vance').disambiguation = 'Diplomatic courier';
 groups.get('char-marcus-vance-technician').disambiguation = 'Motorcycle technician';
 groups.get('char-elena-rostova').notes.push('Life status is scoped to each case or registry profile. Case P-401 records death; earlier agency/civic records are retained as source-specific records, not a global alive/dead flag.');
-groups.get('char-miracle-jerome').notes.push('Medical and agency appointments are retained as separate professional profiles of the same character.');
+groups.get('char-miracle-Staff').notes.push('Medical and agency appointments are retained as separate professional profiles of the same character.');
 groups.get('char-kieran-vesper').notes.push('Senior Archivist K. Vesper is the abbreviated professional form of Kieran Vesper.');
 const caches = new Map();
 const key = node => node?.name ?? node?.value;
@@ -89,7 +89,7 @@ for (const record of records) {
       if (data.maid && data.maid !== character.maid) { character.legacyMaids.push(data.maid); data.legacyMaid = data.maid; }
       data.maid = character.maid;
     }
-    if (reference.key === 'dir-elara-vale' || reference.key === 'dir-miracle-jerome') { data.legacyNpcKey = data.npcKey; delete data.npcKey; }
+    if (reference.key === 'dir-elara-vale' || reference.key === 'dir-miracle-Staff') { data.legacyNpcKey = data.npcKey; delete data.npcKey; }
     if (reference.collection === 'PATIENT_CARE_ASSIGNMENTS' && reference.key === 'pc-mercer') { data.legacyPatientMaid = data.patientMaid; data.patientMaid = ''; }
     if (data.systemContext) for (const alias of character.aliases) if (alias.length > 8) data.systemContext = data.systemContext.replaceAll(alias, character.name);
   }
@@ -159,7 +159,7 @@ const resolutions = {
   'sissi-name': 'Merged under Sissi Delmas. Elisabeth Delmas remains an alias, preserving the established Sissi dialogue and social keys.',
   'riven-name': 'Merged under Riven Kalbera from the Game Doc; Asterwind is retained as an alias.',
   'vesper-identity': 'Merged under Kieran Vesper. K. Vesper is the abbreviated professional name; the world NPC ID remains npc-vesper.',
-  'miracle-agent': 'Merged under Dr. Miracle Jerome with separate medical and agency professional profiles. Both role histories and the agency badge remain intact.',
+  'miracle-agent': 'Merged under medical staff with separate medical and agency professional profiles. Both role histories and the agency badge remain intact.',
   'elena-roles': 'Consolidated under Elena Rostova with separate agency, civic and case-context profiles; professional and investigative details are preserved.',
   'elara-maid': 'Mail now references the existing issued seed MAID-OR-00481926. The old mail MAID is source history only; the unrelated Rowan NPC key is removed. Archivist Rowan remains a separate character.',
   'miracle-maid': 'Mail now references MAID-OR-00481927. The previous mail MAID and borrowed ilyra key remain provenance only. Medical reply routing uses the actual contact ID.',

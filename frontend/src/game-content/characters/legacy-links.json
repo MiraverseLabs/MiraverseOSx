@@ -160,31 +160,6 @@
     "characterId": "char-marcus-chen"
   },
   {
-    "collection": "primarySeedAgent",
-    "key": "DGA-SA-8804",
-    "characterId": "char-miracle-jerome"
-  },
-  {
-    "collection": "AUREMAIL_DIRECTORY",
-    "key": "dir-miracle-jerome",
-    "characterId": "char-miracle-jerome"
-  },
-  {
-    "collection": "defaultInputs",
-    "key": "MAID-OR-00481927",
-    "characterId": "char-miracle-jerome"
-  },
-  {
-    "collection": "seedRelationships",
-    "key": "REL-001",
-    "characterId": "char-miracle-jerome"
-  },
-  {
-    "collection": "seedRelationships",
-    "key": "REL-007",
-    "characterId": "char-miracle-jerome"
-  },
-  {
     "collection": "PEOPLE",
     "key": "jeremie",
     "characterId": "char-jeremie-belpois"

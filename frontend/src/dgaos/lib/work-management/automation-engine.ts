@@ -124,7 +124,7 @@ export function processAutomations(
           priority: rule.actionPayload.priority || 'High',
           completed: false,
           status: 'pending',
-          assignedTo: targetCase.assignedAgents[0] || 'Special Agent Miracle Jerome',
+          assignedTo: targetCase.assignedAgents[0] || 'Special Agent',
           tags: ['#TRACE_RESULT', '#FORENSICS']
         });
         rule.executionCount = (rule.executionCount || 0) + 1;

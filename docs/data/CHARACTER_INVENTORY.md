@@ -6,11 +6,11 @@
 
 Open the character’s folder under frontend/src/game-content/characters/people. character.json owns identity, aliases, legacy IDs and references. Other files hold social, mail, dialogue, phone, registry, workplace, agency, relationship, story or investigation records. Only relevant files are created.
 
-For example, aelita-hopper contains character.json, social.json, mail.json, dialogue.json, phone.json and story.json. dr-miracle-jerome is stored under miracle-jerome with agency, mail, registry and relationship records. The README in each folder lists its files.
+For example, aelita-hopper contains character.json, social.json, mail.json, dialogue.json, phone.json and story.json. dr-miracle-Staff is stored under miracle-Staff with agency, mail, registry and relationship records. The README in each folder lists its files.
 
 ## Merge policy
 
-Game Doc names take precedence for Aelita Hopper, Odd Della Robia, Sissi Delmas and Riven Kalbera. Previous names remain aliases. K. Vesper is consolidated with Kieran Vesper. Miracle Jerome’s agency and medical appointments belong to one character. Elena Rostova’s case and registry facts belong to one identity but retain explicit source contexts; no global alive/dead state is inferred.
+Game Doc names take precedence for Aelita Hopper, Odd Della Robia, Sissi Delmas and Riven Kalbera. Previous names remain aliases. K. Vesper is consolidated with Kieran Vesper. medical staff’s agency and medical appointments belong to one character. Elena Rostova’s case and registry facts belong to one identity but retain explicit source contexts; no global alive/dead state is inferred.
 
 Headmistress Vael, scholar Vaelen and Dean Cassian Rook remain distinct. Broker Kaelen, supervisor Kaelen Vance and subject Kaelen Voss remain distinct. The two Marcus Vance records remain distinct people in role-labelled folders. Archivist Rowan remains separate from Elara Vale.
 
@@ -23,7 +23,7 @@ The three conflicting mail MAIDs now use their existing registry-seed IDs. Previ
 - **sissi-name — resolved:** Merged under Sissi Delmas. Elisabeth Delmas remains an alias, preserving the established Sissi dialogue and social keys.
 - **riven-name — resolved:** Merged under Riven Kalbera from the Game Doc; Asterwind is retained as an alias.
 - **vesper-identity — resolved:** Merged under Kieran Vesper. K. Vesper is the abbreviated professional name; the world NPC ID remains npc-vesper.
-- **miracle-agent — resolved:** Merged under Dr. Miracle Jerome with separate medical and agency professional profiles. Both role histories and the agency badge remain intact.
+- **miracle-agent — resolved:** Merged under medical staff with separate medical and agency professional profiles. Both role histories and the agency badge remain intact.
 - **elena-roles — resolved:** Consolidated under Elena Rostova with separate agency, civic and case-context profiles; professional and investigative details are preserved.
 - **elara-maid — resolved:** Mail now references the existing issued seed MAID-OR-00481926. The old mail MAID is source history only; the unrelated Rowan NPC key is removed. Archivist Rowan remains a separate character.
 - **miracle-maid — resolved:** Mail now references MAID-OR-00481927. The previous mail MAID and borrowed ilyra key remain provenance only. Medical reply routing uses the actual contact ID.
@@ -55,7 +55,7 @@ The three conflicting mail MAIDs now use their existing registry-seed IDs. Previ
 | Director Evelyn Cross | char-evelyn-cross | [evelyn-cross](../../frontend/src/game-content/characters/people/evelyn-cross/README.md) | 1 |
 | Deputy Chief Miller | char-deputy-chief-miller | [deputy-chief-miller](../../frontend/src/game-content/characters/people/deputy-chief-miller/README.md) | 1 |
 | Specialist Marcus Chen | char-marcus-chen | [marcus-chen](../../frontend/src/game-content/characters/people/marcus-chen/README.md) | 1 |
-| Dr. Miracle Jerome | char-miracle-jerome | [miracle-jerome](../../frontend/src/game-content/characters/people/miracle-jerome/README.md) | 5 |
+| medical staff | char-miracle-Staff | [miracle-Staff](../../frontend/src/game-content/characters/people/miracle-Staff/README.md) | 5 |
 | Jeremie Belpois | char-jeremie-belpois | [jeremie-belpois](../../frontend/src/game-content/characters/people/jeremie-belpois/README.md) | 5 |
 | Aelita Hopper | char-aelita-hopper | [aelita-hopper](../../frontend/src/game-content/characters/people/aelita-hopper/README.md) | 5 |
 | Sissi Delmas | char-sissi-delmas | [sissi-delmas](../../frontend/src/game-content/characters/people/sissi-delmas/README.md) | 4 |
@@ -151,11 +151,11 @@ The three conflicting mail MAIDs now use their existing registry-seed IDs. Previ
 | Director Evelyn Cross | seedNPCs | NPC-CROSS | frontend/src/game-content/characters/people/evelyn-cross/agency.json |
 | Deputy Chief Miller | seedNPCs | NPC-MILLER | frontend/src/game-content/characters/people/deputy-chief-miller/agency.json |
 | Specialist Marcus Chen | seedNPCs | NPC-CHEN | frontend/src/game-content/characters/people/marcus-chen/agency.json |
-| Dr. Miracle Jerome | primarySeedAgent | DGA-SA-8804 | frontend/src/game-content/characters/people/miracle-jerome/agency.json |
-| Dr. Miracle Jerome | AUREMAIL_DIRECTORY | dir-miracle-jerome | frontend/src/game-content/characters/people/miracle-jerome/mail.json |
-| Dr. Miracle Jerome | defaultInputs | MAID-OR-00481927 | frontend/src/game-content/characters/people/miracle-jerome/registry.json |
-| Dr. Miracle Jerome | seedRelationships | REL-001 | frontend/src/game-content/characters/people/miracle-jerome/relationships.json |
-| Dr. Miracle Jerome | seedRelationships | REL-007 | frontend/src/game-content/characters/people/miracle-jerome/relationships.json |
+| medical staff | primarySeedAgent | DGA-SA-8804 | frontend/src/game-content/characters/people/miracle-Staff/agency.json |
+| medical staff | AUREMAIL_DIRECTORY | dir-miracle-Staff | frontend/src/game-content/characters/people/miracle-Staff/mail.json |
+| medical staff | defaultInputs | MAID-OR-00481927 | frontend/src/game-content/characters/people/miracle-Staff/registry.json |
+| medical staff | seedRelationships | REL-001 | frontend/src/game-content/characters/people/miracle-Staff/relationships.json |
+| medical staff | seedRelationships | REL-007 | frontend/src/game-content/characters/people/miracle-Staff/relationships.json |
 | Jeremie Belpois | PEOPLE | jeremie | frontend/src/game-content/characters/people/jeremie-belpois/social.json |
 | Jeremie Belpois | AUREMAIL_DIRECTORY | dir-jeremie | frontend/src/game-content/characters/people/jeremie-belpois/mail.json |
 | Jeremie Belpois | personas | Jeremie | frontend/src/game-content/characters/people/jeremie-belpois/dialogue.json |

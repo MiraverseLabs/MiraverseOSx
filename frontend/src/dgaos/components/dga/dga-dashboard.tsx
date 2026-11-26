@@ -649,7 +649,7 @@ export function DgaDashboard({
                             title: t.title,
                             description: 'Operational directive dispatched from command enclave.',
                             completed: t.completed,
-                            assignedTo: 'Special Agent Miracle Jerome',
+                            assignedTo: 'Special Agent',
                             phase: (t.phase as Task['phase']) || 'Active Investigation',
                             priority: t.priority
                           });
@@ -684,7 +684,7 @@ export function DgaDashboard({
                             title: t.title,
                             description: 'Operational directive dispatched from command enclave.',
                             completed: t.completed,
-                            assignedTo: 'Special Agent Miracle Jerome',
+                            assignedTo: 'Special Agent',
                             phase: (t.phase as Task['phase']) || 'Active Investigation',
                             priority: t.priority
                           });

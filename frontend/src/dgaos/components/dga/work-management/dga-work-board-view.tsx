@@ -76,7 +76,7 @@ export function DgaWorkBoardView({
       phase: 'Active Investigation',
       priority: 'Routine',
       status,
-      assignedTo: 'Special Agent Miracle Jerome'
+      assignedTo: 'Special Agent'
     });
 
     setNewTitle('');

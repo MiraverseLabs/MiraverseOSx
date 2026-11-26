@@ -53,7 +53,7 @@ export async function escalateMedicalCaseToInvestigation(
       id: `TL-INV-LINK-${Date.now()}`,
       timestamp: now,
       type: 'CASE_OPENED',
-      actor: 'Special Agent Miracle Jerome [HQ-04]',
+      actor: 'Special Agent [HQ-04]',
       description: `Homicide investigation activated from medical chart ${medicalCaseId}. Forensic specimens EV-417-A through EV-417-D transferred to Evidence Vault under chain of custody.`,
     });
 

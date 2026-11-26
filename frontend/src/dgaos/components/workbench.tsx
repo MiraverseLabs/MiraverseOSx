@@ -60,8 +60,8 @@ export default function Workbench({
  const [query,setQuery]=useState(''),[filter,setFilter]=useState('All'),[modal,setModal]=useState<{type:string;record?:LabRecord;caseId?:string}|null>(null),[draft,setDraft]=useState<Record<string,string>>({}),[step,setStep]=useState(1),[labelRecord,setLabelRecord]=useState<LabRecord|null>(null),[reportDocument,setReportDocument]=useState<LabRecord|null>(null),[benchSheetRecord,setBenchSheetRecord]=useState<LabRecord|null>(null);
  const [activeInstrument,setActiveInstrument]=useState<'microscope'|'spot_plate'|'none'>('microscope'),[worksheetValues,setWorksheetValues]=useState<Record<string,string>>({}),[selectedTemplateId,setSelectedTemplateId]=useState<string>(''),[labSubView,setLabSubView]=useState<'bench'|'directory'>('bench'),[mountedBenchEvidenceId,setMountedBenchEvidenceId]=useState<string>('');
  const [dashboardCaseFilter,setDashboardCaseFilter]=useState<'All'|'Active'|'Awaiting Acceptance'|'Priority'|'Closed'>('All');
- const [workbenchSignName, setWorkbenchSignName] = useState('Miracle Jerome, Senior Special Agent');
- const [workbenchSignature, setWorkbenchSignature] = useState('/s/ Miracle Jerome, Lead Investigator');
+ const [workbenchSignName, setWorkbenchSignName] = useState('medical staff, Senior Special Agent');
+ const [workbenchSignature, setWorkbenchSignature] = useState('/s/ medical staff, Lead Investigator');
  const [workbenchAffirmation, setWorkbenchAffirmation] = useState(false);
  const [prevView,setPrevView]=useState(view);
  if(prevView!==view){
@@ -258,7 +258,7 @@ export default function Workbench({
                      type="text"
                      value={workbenchSignName}
                      onChange={(e) => setWorkbenchSignName(e.target.value)}
-                     placeholder="e.g. Miracle Jerome, Senior Special Agent"
+                     placeholder="e.g. medical staff, Senior Special Agent"
                      className="w-full bg-white border border-amber-300 rounded px-2.5 py-1 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-600"
                    />
                  </div>
@@ -323,7 +323,7 @@ export default function Workbench({
                  <span className="text-xs font-bold uppercase tracking-wider">VERIFIED INVESTIGATOR DOCKET</span>
                </div>
                <div className="text-xs space-y-1 text-emerald-950">
-                 <div><strong>Primary Investigator:</strong> {current.data.primaryInvestigator || 'Miracle Jerome'}</div>
+                 <div><strong>Primary Investigator:</strong> {current.data.primaryInvestigator || 'medical staff'}</div>
                  <div className="font-mono text-[11px] text-emerald-800">
                    <strong>Signature:</strong> {current.data.primaryInvestigatorSignature}
                  </div>

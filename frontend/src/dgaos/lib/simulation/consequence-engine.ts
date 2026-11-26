@@ -60,7 +60,7 @@ export function evaluateDecisionConsequences(
         {
           sender: 'Director Evelyn Cross',
           subject: `ACTION REVIEW: Decision regarding Case ${decision.caseId}`,
-          body: `Agent Jerome,\n\nThe executive committee has acknowledged your decision: "${option.label}".\n\nEnsure all field telemetry is preserved for congressional liaison.`,
+          body: `Agent Staff,\n\nThe executive committee has acknowledged your decision: "${option.label}".\n\nEnsure all field telemetry is preserved for congressional liaison.`,
           priority: 'Priority',
           classification: 'SECRET // NOFORN'
         },

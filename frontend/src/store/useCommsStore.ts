@@ -120,17 +120,17 @@ Sender Account: ${fromAccount.address}
 Your correspondence regarding "${cleanSubj}" has been received. This receipt does not issue an identity, grant organization membership, or activate additional email accounts.
 
 — Orynvell Civic Identity Bureau`;
-    } else if (contact.id === 'dir-faith-intake' || contact.id === 'dir-miracle-jerome' || contact.address === 'intake@faithmed.aure') {
+    } else if (contact.id === 'dir-faith-intake' || contact.address === 'intake@faithmed.aure') {
       replyBody = `Faith Medical Group — Clinical Triage & Telemetry Desk:
 
 Thank you for contacting Faith Medical Group regarding "${cleanSubj}".
 ${
   lowerBody.includes('veilwilt') || lowerBody.includes('scan') || lowerBody.includes('aura') || lowerBody.includes('symptom')
-    ? 'Dr. Miracle Jerome has reviewed your note. If you are experiencing Veilwilt symptoms or aura desynchronization, please complete a clinical diagnostic scan in the Faith Medical Portal and apply the prescribed treatment regimen.'
+    ? 'medical staff has reviewed your note. If you are experiencing Veilwilt symptoms or aura desynchronization, please complete a clinical diagnostic scan in the Faith Medical Portal and apply the prescribed treatment regimen.'
     : 'Your clinical correspondence has been linked to your MAID medical chart.'
 }
 
-— Dr. Miracle Jerome, Chief Aura Diagnostician (MAID-OR-00000002)`;
+— medical staff, Chief Aura Diagnostician (MAID-OR-00000002)`;
     } else if (contact.id === 'dir-dga-dispatch' || contact.address === 'dispatch@dga.gov' || contact.address === 'j.vance@dga.gov') {
       replyBody = `DGAOS / TRACE Forensic Intake Desk — Directive 14-B:
 

@@ -36,12 +36,12 @@
       "occupation": "Licensed Aether-Courier & Signal Salvager",
       "clearance": "Provisional Civic Access · DGA Monitored",
       "aura": "Fluctuating Harmonic Tier II (Veil-Exposed)",
-      "medical": "Faith Medical Group · Veilwilt outpatient stabilization under Dr. Miracle Jerome",
+      "medical": "Faith Medical Group · Veilwilt outpatient stabilization under medical staff",
       "residency": "Old Factory Ward Cooperative Housing, Unit 3B · Verified",
       "history": "Registered in Orynvell; currently assisting TRACE forensic investigators with Sector 4 signal logs.",
       "status": "ACTIVE / MONITORED",
       "links": "Cross-referenced in DGAOS Case Files, TRACE Forensics, and Faith Medical outpatient registry.",
-      "relationships": "Monitored by Dr. Julian Paul Vance (MAID-OR-00481928) · Outpatient of Dr. Miracle Jerome (MAID-OR-00481927)",
+      "relationships": "Monitored by Dr. Julian Paul Vance (MAID-OR-00481928) · Outpatient of medical staff (MAID-OR-00481927)",
       "relationshipIds": [
         {
           "id": "MAID-OR-00481928",
@@ -90,12 +90,12 @@
       "occupation": "Licensed Aether-Courier & Signal Salvager",
       "clearance": "Provisional Civic Access · DGA Monitored",
       "aura": "Fluctuating Harmonic Tier II (Veil-Exposed)",
-      "medical": "Faith Medical Group · Veilwilt outpatient stabilization under Dr. Miracle Jerome",
+      "medical": "Faith Medical Group · Veilwilt outpatient stabilization under medical staff",
       "residency": "Old Factory Ward Cooperative Housing, Unit 3B · Verified",
       "history": "Registered in Orynvell; currently assisting TRACE forensic investigators with Sector 4 signal logs.",
       "status": "ACTIVE / MONITORED",
       "links": "Cross-referenced in DGAOS Case Files, TRACE Forensics, and Faith Medical outpatient registry.",
-      "relationships": "Monitored by Dr. Julian Paul Vance (MAID-OR-00481928) · Outpatient of Dr. Miracle Jerome (MAID-OR-00481927)",
+      "relationships": "Monitored by Dr. Julian Paul Vance (MAID-OR-00481928) · Outpatient of medical staff (MAID-OR-00481927)",
       "relationshipIds": [
         {
           "id": "MAID-OR-00481928",

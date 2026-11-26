@@ -73,7 +73,7 @@ export const DgaDepartmentChannels: React.FC<DgaDepartmentChannelsProps> = ({
       id: `MSG-${Date.now()}`,
       channelId: activeChannelId,
       senderId: 'PLAYER',
-      senderName: 'Special Agent Miracle Jerome',
+      senderName: 'Special Agent',
       senderTitle: 'Lead Case Investigator [HQ-04]',
       senderDepartment: 'Investigation',
       senderAvatar: 'MJ',
@@ -93,7 +93,7 @@ export const DgaDepartmentChannels: React.FC<DgaDepartmentChannelsProps> = ({
         recipient: channel?.name || activeChannelId,
         subject: 'Channel post',
         body: sentText,
-        senderName: 'Special Agent Miracle Jerome'
+        senderName: 'Special Agent'
       }
     }).then(applySnapshot);
   };

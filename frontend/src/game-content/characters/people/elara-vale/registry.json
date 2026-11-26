@@ -36,12 +36,12 @@
       "occupation": "Research Apprentice / Resonance Analyst",
       "clearance": "General Civic Access Â· Academic Clearance II",
       "aura": "Calibrated Harmonic Tier III",
-      "medical": "Faith Medical Group Â· intake verified Â· Dr. Miracle Jerome attending",
+      "medical": "Faith Medical Group Â· intake verified Â· medical staff attending",
       "residency": "Cyacademy Vector Housing 4B Â· Verified Residence",
       "history": "Routine civil registration completed at intake; transferred from Northwake regional enclave.",
       "status": "ACTIVE / VERIFIED",
       "links": "Coordinates academic study group at Aureline Library; holds valid regional transit pass.",
-      "relationships": "Patient of Dr. Miracle Jerome (MAID-OR-00481927) Â· Mentored by Dr. Julian Paul Vance (MAID-OR-00481928) Â· Research Partner of Kieran Vesper (MAID-OR-00481929)",
+      "relationships": "Patient of medical staff (MAID-OR-00481927) Â· Mentored by Dr. Julian Paul Vance (MAID-OR-00481928) Â· Research Partner of Kieran Vesper (MAID-OR-00481929)",
       "relationshipIds": [
         {
           "id": "MAID-OR-00481927",
@@ -95,12 +95,12 @@
       "occupation": "Research Apprentice / Resonance Analyst",
       "clearance": "General Civic Access Â· Academic Clearance II",
       "aura": "Calibrated Harmonic Tier III",
-      "medical": "Faith Medical Group Â· intake verified Â· Dr. Miracle Jerome attending",
+      "medical": "Faith Medical Group Â· intake verified Â· medical staff attending",
       "residency": "Cyacademy Vector Housing 4B Â· Verified Residence",
       "history": "Routine civil registration completed at intake; transferred from Northwake regional enclave.",
       "status": "ACTIVE / VERIFIED",
       "links": "Coordinates academic study group at Aureline Library; holds valid regional transit pass.",
-      "relationships": "Patient of Dr. Miracle Jerome (MAID-OR-00481927) Â· Mentored by Dr. Julian Paul Vance (MAID-OR-00481928) Â· Research Partner of Kieran Vesper (MAID-OR-00481929)",
+      "relationships": "Patient of medical staff (MAID-OR-00481927) Â· Mentored by Dr. Julian Paul Vance (MAID-OR-00481928) Â· Research Partner of Kieran Vesper (MAID-OR-00481929)",
       "relationshipIds": [
         {
           "id": "MAID-OR-00481927",

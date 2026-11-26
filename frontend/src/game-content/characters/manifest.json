@@ -150,17 +150,6 @@
       ]
     },
     {
-      "id": "char-miracle-jerome",
-      "name": "Dr. Miracle Jerome",
-      "folder": "miracle-jerome",
-      "files": [
-        "people/miracle-jerome/agency.json",
-        "people/miracle-jerome/mail.json",
-        "people/miracle-jerome/registry.json",
-        "people/miracle-jerome/relationships.json"
-      ]
-    },
-    {
       "id": "char-jeremie-belpois",
       "name": "Jeremie Belpois",
       "folder": "jeremie-belpois",
@@ -727,10 +716,6 @@
       "key": "NPC-KRELL"
     },
     {
-      "collection": "primarySeedAgent",
-      "key": "DGA-SA-8804"
-    },
-    {
       "collection": "PEOPLE",
       "key": "jeremie"
     },
@@ -880,19 +865,11 @@
     },
     {
       "collection": "AUREMAIL_DIRECTORY",
-      "key": "dir-miracle-jerome"
-    },
-    {
-      "collection": "AUREMAIL_DIRECTORY",
       "key": "dir-julian-vance"
     },
     {
       "collection": "defaultInputs",
       "key": "MAID-OR-00481926"
-    },
-    {
-      "collection": "defaultInputs",
-      "key": "MAID-OR-00481927"
     },
     {
       "collection": "defaultInputs",
@@ -1104,10 +1081,6 @@
     },
     {
       "collection": "seedRelationships",
-      "key": "REL-001"
-    },
-    {
-      "collection": "seedRelationships",
       "key": "REL-002"
     },
     {
@@ -1125,10 +1098,6 @@
     {
       "collection": "seedRelationships",
       "key": "REL-006"
-    },
-    {
-      "collection": "seedRelationships",
-      "key": "REL-007"
     }
   ]
 }

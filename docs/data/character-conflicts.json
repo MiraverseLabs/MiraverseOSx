@@ -48,10 +48,10 @@
     "id": "miracle-agent",
     "status": "resolved",
     "characterIds": [
-      "char-miracle-jerome"
+      "char-miracle-Staff"
     ],
     "description": "The primary DGA agent and medical citizen share a name but different identifiers and roles. They remain separate.",
-    "resolution": "Merged under Dr. Miracle Jerome with separate medical and agency professional profiles. Both role histories and the agency badge remain intact."
+    "resolution": "Merged under medical staff with separate medical and agency professional profiles. Both role histories and the agency badge remain intact."
   },
   {
     "id": "elena-roles",
@@ -75,7 +75,7 @@
     "id": "miracle-maid",
     "status": "resolved",
     "characterIds": [
-      "char-miracle-jerome"
+      "char-miracle-Staff"
     ],
     "description": "Mail declares MAID-OR-00000002; registry seed declares MAID-OR-00481927. Mail npcKey ilyra is not a proven character alias.",
     "resolution": "Mail now references MAID-OR-00481927. The previous mail MAID and borrowed ilyra key remain provenance only. Medical reply routing uses the actual contact ID."

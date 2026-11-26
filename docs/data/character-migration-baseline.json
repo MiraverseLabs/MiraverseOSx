@@ -69,10 +69,6 @@
       "name": "Specialist Marcus Chen"
     },
     {
-      "id": "char-miracle-jerome-agent",
-      "name": "Miracle Jerome"
-    },
-    {
       "id": "char-jeremie-belpois",
       "name": "Jeremie Belpois"
     },
@@ -199,10 +195,6 @@
     {
       "id": "char-elara-vale",
       "name": "Elara Vale"
-    },
-    {
-      "id": "char-miracle-jerome",
-      "name": "Dr. Miracle Jerome"
     },
     {
       "id": "char-julian-paul-vance",
@@ -468,13 +460,6 @@
       "originalSource": "frontend/src/dgaos/data/seed/npcs.ts:103"
     },
     {
-      "collection": "primarySeedAgent",
-      "key": "DGA-SA-8804",
-      "characterId": "char-miracle-jerome-agent",
-      "sha256": "9a8ba4f3bb83c4ba4403d9be2c1e6638ef6c4d7e45b2ce54877197ec771b17c8",
-      "originalSource": "frontend/src/dgaos/data/seed/agent.ts:17"
-    },
-    {
       "collection": "PEOPLE",
       "key": "jeremie",
       "characterId": "char-jeremie-belpois",
@@ -735,13 +720,6 @@
     },
     {
       "collection": "AUREMAIL_DIRECTORY",
-      "key": "dir-miracle-jerome",
-      "characterId": "char-miracle-jerome",
-      "sha256": "16086be0d83d9aff56d4029cceaa545579529d536ef9cce423bcf39bed2391a6",
-      "originalSource": "frontend/src/data/commsData.ts:388"
-    },
-    {
-      "collection": "AUREMAIL_DIRECTORY",
       "key": "dir-julian-vance",
       "characterId": "char-julian-paul-vance",
       "sha256": "e91794367b5e228d682eee905fe04a5368633e817ad784730930758a90f18bf3",
@@ -751,21 +729,14 @@
       "collection": "defaultInputs",
       "key": "MAID-OR-00481926",
       "characterId": "char-elara-vale",
-      "sha256": "bdc6547ba1a593ba2c8d79769aeeb91e7690902d5e5af3286f5253674ae719cc",
+      "sha256": "bf4d00d96d04a02c14dff8a6bc93566c0a7e85d0bf20b7e87d7a74e3ba3452e1",
       "originalSource": "frontend/src/services/maidIdentityService.ts:1245"
-    },
-    {
-      "collection": "defaultInputs",
-      "key": "MAID-OR-00481927",
-      "characterId": "char-miracle-jerome",
-      "sha256": "116f537c337f6c2d5cba670d604feb6c86cf2062b55aad6c6f596b39429e0d3b",
-      "originalSource": "frontend/src/services/maidIdentityService.ts:1292"
     },
     {
       "collection": "defaultInputs",
       "key": "MAID-OR-00481928",
       "characterId": "char-julian-paul-vance",
-      "sha256": "2120547025b8549415210f8d19dde6cc6c47eec35b45e7b93f44ba6a5c572b52",
+      "sha256": "fee14b1cdada99e574f27a7d48e398fe4242e682436f8d6a03e816c82bb52060",
       "originalSource": "frontend/src/services/maidIdentityService.ts:1338"
     },
     {
@@ -786,7 +757,7 @@
       "collection": "defaultInputs",
       "key": "MAID-OR-00481931",
       "characterId": "char-elena-rostova",
-      "sha256": "ff84f0a0279a6826f7441f7e5b007b506fd41b0618e09f22459da6e115a6fd8f",
+      "sha256": "0f0fd8779f7aac781b47536505b56939a4fb3ff9a6276efa1789132c6c6c8b6d",
       "originalSource": "frontend/src/services/maidIdentityService.ts:1477"
     },
     {
@@ -1127,13 +1098,6 @@
     },
     {
       "collection": "seedRelationships",
-      "key": "REL-001",
-      "characterId": "char-miracle-jerome-agent",
-      "sha256": "a8614fa759b2be887f304c3d0bed759dde12264dfd8af86f6d0c49363cfed557",
-      "originalSource": "frontend/src/dgaos/data/seed/relationships.ts:22"
-    },
-    {
-      "collection": "seedRelationships",
       "key": "REL-002",
       "characterId": "char-christian-vance",
       "sha256": "27c4660f501cb5e1622ca1411307f12bf57bcf2df2860c63b7c8c4d469b5d731",
@@ -1166,13 +1130,6 @@
       "characterId": "char-elena-rostova",
       "sha256": "5afad34dab688a941322f6a490a4a1e941cfc8d523611927ec56030d2ef27f9a",
       "originalSource": "frontend/src/dgaos/data/seed/relationships.ts:67"
-    },
-    {
-      "collection": "seedRelationships",
-      "key": "REL-007",
-      "characterId": "char-miracle-jerome-agent",
-      "sha256": "49796bced81da706ee42d686806e8e32f8881563433a5fbfeb014f5cd6d44d60",
-      "originalSource": "frontend/src/dgaos/data/seed/relationships.ts:76"
     }
   ]
 }

@@ -146,7 +146,7 @@ export const DIALOGUE_TREES: Record<string, Record<string, DialogueNode>> = {
     root: {
       id: 'root',
       speakerText:
-        '“Jerome! Good timing. I found something critical in the CCTV review. Check your evidence vault.”',
+        '“Staff! Good timing. I found something critical in the CCTV review. Check your evidence vault.”',
       options: [
         {
           text: '“What exactly did you spot on the camera tapes, Yumi?”',
@@ -271,7 +271,7 @@ export const DIALOGUE_TREES: Record<string, Record<string, DialogueNode>> = {
     root: {
       id: 'root',
       speakerText:
-        '“Special Agent Jerome, Dr. Mercer from Trauma ICU. We have a severe escalation with Ambassador Vance.”',
+        '“Special Agent Staff, Dr. Mercer from Trauma ICU. We have a severe escalation with Ambassador Vance.”',
       options: [
         {
           text: '“Doctor, what is the latest blood gas and cholinesterase status?”',
@@ -335,7 +335,7 @@ export const DIALOGUE_TREES: Record<string, Record<string, DialogueNode>> = {
     },
     end_call: {
       id: 'end_call',
-      speakerText: '“Understood, Agent Jerome. Standing by.” [CALL TERMINATED]',
+      speakerText: '“Understood, Agent Staff. Standing by.” [CALL TERMINATED]',
       options: [],
     },
   },
@@ -343,7 +343,7 @@ export const DIALOGUE_TREES: Record<string, Record<string, DialogueNode>> = {
     root: {
       id: 'root',
       speakerText:
-        '“Jerome. I’m in the elevator heading to the Cabinet room. Give me thirty seconds: what is our evidence posture on Embassy Row?”',
+        '“Staff. I’m in the elevator heading to the Cabinet room. Give me thirty seconds: what is our evidence posture on Embassy Row?”',
       options: [
         {
           text: '“We confirmed a synthetic neurotoxin delivery via catering service.”',

@@ -118,7 +118,7 @@ export function DgaCommsInbox({ messages, cases, onOpenCase }: DgaCommsInboxProp
     if (!composeSubject.trim() || !composeBody.trim()) return;
 
     await sendDGACommunication({
-      sender: 'Special Agent Miracle Jerome [HQ-04]',
+      sender: 'Special Agent [HQ-04]',
       recipient: composeTo,
       subject: composeSubject,
       body: composeBody,
@@ -379,7 +379,7 @@ export function DgaCommsInbox({ messages, cases, onOpenCase }: DgaCommsInboxProp
                   <Send className="w-5 h-5 text-[#5d5a86]" />
                   Transmit Encrypted Satellite Cable
                 </h2>
-                <div className="text-xs text-[#696783]">Origin: Special Agent Miracle Jerome (HQ-04)</div>
+                <div className="text-xs text-[#696783]">Origin: Special Agent (HQ-04)</div>
               </div>
 
               <button

@@ -7,8 +7,7 @@ import file3 from '../people/jeremie-belpois/mail.json' with { type: 'json' };
 import file4 from '../people/odd-della-robia/mail.json' with { type: 'json' };
 import file5 from '../people/riven-kalbera/mail.json' with { type: 'json' };
 import file6 from '../people/elara-vale/mail.json' with { type: 'json' };
-import file7 from '../people/miracle-jerome/mail.json' with { type: 'json' };
-import file8 from '../people/julian-paul-vance/mail.json' with { type: 'json' };
+import file7 from '../people/julian-paul-vance/mail.json' with { type: 'json' };
 const profiles = new Map<string, { data: unknown; characterId: string }>([
   ["dir-dean-rook", { data: file0[0].data, characterId: "char-cassian-rook" }],
   ["dir-dr-voss", { data: file1[0].data, characterId: "char-sharon-voss" }],
@@ -17,8 +16,7 @@ const profiles = new Map<string, { data: unknown; characterId: string }>([
   ["dir-odd", { data: file4[0].data, characterId: "char-odd-della-robia" }],
   ["dir-riven", { data: file5[0].data, characterId: "char-riven-kalbera" }],
   ["dir-elara-vale", { data: file6[0].data, characterId: "char-elara-vale" }],
-  ["dir-miracle-jerome", { data: file7[0].data, characterId: "char-miracle-jerome" }],
-  ["dir-julian-vance", { data: file8[0].data, characterId: "char-julian-paul-vance" }],
+  ["dir-julian-vance", { data: file7[0].data, characterId: "char-julian-paul-vance" }],
 ]);
 export function getProfile<T = any>(key: string): T {
   if (!profiles.has(key)) throw new Error("Unknown AUREMAIL_DIRECTORY character profile: " + key);

@@ -51,7 +51,7 @@ export function DgaGovernmentHub({ onOpenCase, onNavigateTab }: DgaGovernmentHub
               ...d,
               selectedOptionId: optionId,
               enactedAt: new Date().toISOString(),
-              enactedBy: 'Special Agent Miracle Jerome [Authorizing Officer]',
+              enactedBy: 'Special Agent [Authorizing Officer]',
             }
           : d
       )

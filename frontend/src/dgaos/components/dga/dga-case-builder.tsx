@@ -129,7 +129,7 @@ export function DgaCaseBuilder({ caseData, onOpenTraceWithCase }: DgaCaseBuilder
   const [timelineList, setTimelineList] = useState<TimelineEvent[]>(caseData.timeline || []);
 
   // 5. INDICTMENT SIGNATURE
-  const [agentSignature, setAgentSignature] = useState('Special Agent Miracle Jerome [HQ-04]');
+  const [agentSignature, setAgentSignature] = useState('Special Agent [HQ-04]');
 
   // 6. VEHICULAR & MOTORCYCLE CRASH RECONSTRUCTION STATE
   const [vehicleType, setVehicleType] = useState('Sport Motorcycle (Superbike)');
