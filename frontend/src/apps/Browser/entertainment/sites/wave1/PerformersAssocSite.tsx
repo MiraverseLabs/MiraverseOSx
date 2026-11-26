@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield } from 'lucide-react';
+import { Award, BookOpen, FileText, HeartHandshake, Megaphone, Shield, Users } from 'lucide-react';
 import { buildSiteUrl } from '../../entertainmentRouter';
 import { AuthPortalGate } from '../../components/AuthPortalGate';
 import { ContractNegotiationDialog } from '../../components/ContractNegotiationDialog';
@@ -13,11 +13,11 @@ export function PerformersAssocSite({ site, org, resolved, data, navigate }: Sit
   const [guildDialogOpen, setGuildDialogOpen] = useState(false);
 
   const navItems = [
-    { id: 'home', path: '/', label: 'Guild Home' },
+    { id: 'home', path: '/', label: 'Home' },
     { id: 'membership', path: '/membership', label: 'Membership' },
+    { id: 'advocacy', path: '/advocacy', label: 'Advocacy' },
     { id: 'benefits', path: '/benefits', label: 'Benefits' },
     { id: 'contracts', path: '/contracts', label: 'Contracts & Rights' },
-    { id: 'advocacy', path: '/advocacy', label: 'Advocacy' },
     { id: 'training', path: '/training', label: 'Workshops & Training' },
     { id: 'portal', path: '/portal', label: 'Member Portal' },
     { id: 'about', path: '/about', label: 'About MPA' },
@@ -32,9 +32,9 @@ export function PerformersAssocSite({ site, org, resolved, data, navigate }: Sit
     <div className="ent-root site-mpa" data-site-shell="guild-handbook">
       <aside className="mpa-rail" aria-label="Meridion Performers Association rail">
         <div>
-          <Shield size={20} aria-hidden="true" style={{ color: '#c4d9b0', marginBottom: '0.35rem' }} />
-          <h1 style={{ margin: 0, fontSize: '1.15rem', lineHeight: 1.25 }}>{site.name}</h1>
-          <small style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.72rem', color: '#b7c7ab' }}>
+          <Shield size={22} aria-hidden="true" style={{ color: '#e2b770', marginBottom: '0.4rem' }} />
+          <h1 style={{ margin: 0, fontSize: '1.1rem', lineHeight: 1.25 }}>{site.name}</h1>
+          <small style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.7rem', color: '#cab8a3' }}>
             Guildhall Row, Aureline · Pan-Meridion
           </small>
         </div>
@@ -52,67 +52,105 @@ export function PerformersAssocSite({ site, org, resolved, data, navigate }: Sit
           ))}
         </nav>
 
-        <div style={{ marginTop: 'auto', padding: '0.85rem', background: 'rgba(255,255,255,0.08)', fontFamily: 'system-ui, sans-serif', fontSize: '0.76rem' }}>
-          <strong>Contract & Dispute Desk</strong>
-          <p style={{ margin: '0.3rem 0 0.65rem', opacity: 0.85 }}>
-            Need immediate contract review or stage safety advocacy?
+        <div style={{ marginTop: 'auto', padding: '0.85rem', background: 'rgba(255,255,255,0.07)', borderRadius: '0.5rem', fontFamily: 'system-ui, sans-serif', fontSize: '0.75rem' }}>
+          <strong>Performer Support</strong>
+          <p style={{ margin: '0.3rem 0 0.6rem', color: '#d8c8b6' }}>
+            Contract audits, dispute mediation & touring safety desk.
           </p>
           <button
             type="button"
             className="ent-btn-primary"
-            style={{ background: '#f6f2e8', color: '#272c21', inlineSize: '100%' }}
+            style={{ background: '#c8964e', color: '#21150e', inlineSize: '100%' }}
             onClick={() => setGuildDialogOpen(true)}
           >
-            Enroll / Renew Guild Card
+            Join the MPA
           </button>
         </div>
       </aside>
 
       <main className="mpa-main">
-        <SiteFeedbackBanner message={data.feedback} onDismiss={() => data.setFeedback('')} accentColor="#3f5c35" />
+        <SiteFeedbackBanner message={data.feedback} onDismiss={() => data.setFeedback('')} accentColor="#8b5a2b" />
 
         {resolved.isNotFound && <SiteNotFoundView site={site} navigate={navigate} />}
 
-        {/* HOME */}
+        {/* HOME — Round 2 Warm Guild Layout (PDF p. 46) */}
         {routeId === 'home' && (
           <>
-            <section style={{ padding: '1.5rem', background: '#ffffff', border: '1px solid var(--site-border)' }}>
-              <span className="ent-mono-tag" style={{ color: 'var(--site-accent)' }}>
-                PERFORMERS STANDARDS GUILD · CYCLE {data.cycle}
-              </span>
-              <h2 style={{ margin: '0.35rem 0 0.6rem', fontSize: 'clamp(1.4rem, 3cqi, 2.1rem)' }}>
-                {site.tagline}
-              </h2>
-              <p style={{ margin: '0 0 1rem', fontSize: '0.95rem', color: 'var(--site-muted)', lineHeight: 1.6 }}>
-                {site.description}
-              </p>
-              <div className="ent-action-row" style={{ fontFamily: 'system-ui, sans-serif' }}>
-                <button type="button" className="ent-btn-primary" onClick={() => setGuildDialogOpen(true)}>
-                  Enroll in Meridion Performers Association
-                </button>
-                <SiteLink href={buildSiteUrl(site, '/contracts')} navigate={navigate} className="ent-btn-secondary">
-                  Read Standard Contract Protections
-                </SiteLink>
+            <section className="mpa-hero">
+              <img
+                src="/media/entertainment/limelight-cover-editorial.jpg"
+                alt="Working performers collaborating in a warm Meridion rehearsal hall"
+                onError={(e) => {
+                  e.currentTarget.src = '/media/entertainment/willow-editorial.jpg';
+                }}
+              />
+              <div className="mpa-hero-scrim">
+                <span className="ent-mono-tag" style={{ color: '#f3d199' }}>
+                  REPRESENT · SUPPORT · PROTECT · DEVELOP · CYCLE {data.cycle}
+                </span>
+                <h2 style={{ margin: '0.3rem 0 0.5rem', fontSize: 'clamp(1.45rem, 3cqi, 2.2rem)', maxInlineSize: '30rem', lineHeight: 1.1 }}>
+                  A Stronger, Fairer, More Supportive Performing Community
+                </h2>
+                <p style={{ margin: '0 0 0.9rem', fontFamily: 'system-ui, sans-serif', fontSize: '0.84rem', color: '#f3e7d8', maxInlineSize: '32rem' }}>
+                  {site.description}
+                </p>
+                <div className="ent-action-row" style={{ fontFamily: 'system-ui, sans-serif' }}>
+                  <button
+                    type="button"
+                    className="ent-btn-primary"
+                    style={{ background: '#c8964e', color: '#21150e' }}
+                    onClick={() => setGuildDialogOpen(true)}
+                  >
+                    Become a Member →
+                  </button>
+                  <SiteLink href={buildSiteUrl(site, '/contracts')} navigate={navigate} className="ent-btn-secondary" style={{ color: '#fff8ee', borderColor: 'rgba(255,255,255,0.45)' }}>
+                    Contract Protections
+                  </SiteLink>
+                </div>
               </div>
             </section>
 
-            <div className="ent-about-grid">
-              {(org.departments ?? []).map((d) => (
-                <article key={d.id} style={{ padding: '1.1rem', background: '#ffffff', border: '1px solid var(--site-border)' }}>
-                  <h3 style={{ margin: '0 0 0.35rem' }}>{d.name}</h3>
-                  <div className="ent-mono-tag" style={{ color: 'var(--site-accent)', marginBottom: '0.4rem' }}>
-                    Lead: {d.head}
-                  </div>
-                  <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--site-muted)', lineHeight: 1.55 }}>{d.focus}</p>
-                </article>
-              ))}
-            </div>
+            {/* 6-Tile Icon Directory Strip (PDF p. 46) */}
+            <section className="mpa-6grid" aria-label="MPA member services">
+              {[
+                { path: '/membership', title: 'Membership', desc: 'Guild card & collective leverage.', icon: Users },
+                { path: '/advocacy', title: 'Advocacy', desc: 'Fair pay & safe stage rules.', icon: Megaphone },
+                { path: '/benefits', title: 'Benefits', desc: 'Touring health & relief.', icon: Award },
+                { path: '/contracts', title: 'Contracts', desc: 'Royalty review & mediation.', icon: FileText },
+                { path: '/training', title: 'Workshops', desc: 'Skill labs & voice care.', icon: BookOpen },
+                { path: '/portal', title: 'Support', desc: 'Confidential member desk.', icon: HeartHandshake },
+              ].map((card) => {
+                const Icon = card.icon;
+                return (
+                  <SiteLink key={card.title} href={buildSiteUrl(site, card.path)} navigate={navigate} className="mpa-icon-card">
+                    <Icon size={18} aria-hidden="true" style={{ color: '#8b5a2b' }} />
+                    <strong style={{ fontSize: '0.84rem' }}>{card.title}</strong>
+                    <small style={{ color: 'var(--site-muted)', fontSize: '0.72rem' }}>{card.desc}</small>
+                  </SiteLink>
+                );
+              })}
+            </section>
+
+            {/* Bottom Member Access Dock Bar */}
+            <section className="mpa-dock-bar" aria-label="Member access shortcuts">
+              <strong style={{ fontFamily: 'Georgia, serif', fontSize: '1rem' }}>Member Access</strong>
+              <div className="ent-action-row">
+                <SiteLink href={buildSiteUrl(site, '/portal')} navigate={navigate} className="ent-btn-secondary">
+                  Audit My Contracts
+                </SiteLink>
+                <SiteLink href={buildSiteUrl(site, '/training')} navigate={navigate} className="ent-btn-secondary">
+                  Workshops & Training
+                </SiteLink>
+                <button type="button" className="ent-btn-primary" onClick={() => setGuildDialogOpen(true)}>
+                  {isGuildMember ? 'Guild Card Active ✓' : 'Activate Guild Card'}
+                </button>
+              </div>
+            </section>
           </>
         )}
 
-        {/* MEMBERSHIP & BENEFITS */}
         {(routeId === 'membership' || routeId === 'benefits') && (
-          <section style={{ padding: '1.4rem', background: '#ffffff', border: '1px solid var(--site-border)' }} className="ent-widget-stack">
+          <section style={{ padding: '1.4rem', background: '#fffdf9', border: '1px solid var(--site-border)', borderRadius: '0.65rem' }} className="ent-widget-stack">
             <h2 style={{ margin: 0 }}>
               {routeId === 'membership' ? 'Guild Membership & Card Enrollment' : 'Member Benefits & Touring Protections'}
             </h2>
@@ -131,9 +169,8 @@ export function PerformersAssocSite({ site, org, resolved, data, navigate }: Sit
           </section>
         )}
 
-        {/* CONTRACTS & RIGHTS / ADVOCACY / TRAINING */}
         {(routeId === 'contracts' || routeId === 'advocacy' || routeId === 'training') && (
-          <section style={{ padding: '1.4rem', background: '#ffffff', border: '1px solid var(--site-border)' }} className="ent-widget-stack">
+          <section style={{ padding: '1.4rem', background: '#fffdf9', border: '1px solid var(--site-border)', borderRadius: '0.65rem' }} className="ent-widget-stack">
             <h2 style={{ margin: 0 }}>
               {routeId === 'contracts'
                 ? 'Standard Contracts & Performer Rights'
@@ -151,7 +188,6 @@ export function PerformersAssocSite({ site, org, resolved, data, navigate }: Sit
           </section>
         )}
 
-        {/* AUTHENTICATED MEMBER PORTAL */}
         {routeId === 'portal' && (
           <AuthPortalGate
             data={data}
@@ -159,7 +195,7 @@ export function PerformersAssocSite({ site, org, resolved, data, navigate }: Sit
             description="Inspect your active guild standing, audit signed entertainment contracts, or formally terminate an unsatisfactory representation deal."
           >
             <section className="ent-widget-stack" style={{ fontFamily: 'system-ui, sans-serif' }}>
-              <div style={{ padding: '1.1rem', background: '#ffffff', border: '1px solid var(--site-border)' }}>
+              <div style={{ padding: '1.1rem', background: '#fffdf9', border: '1px solid var(--site-border)', borderRadius: '0.65rem' }}>
                 <h2 style={{ margin: '0 0 0.4rem' }}>Guild Card Status</h2>
                 <p style={{ margin: '0 0 0.75rem', fontSize: '0.86rem' }}>
                   Member: <strong>{data.playerArtist?.stageName ?? data.playerName}</strong> · Guild Standing:{' '}
@@ -178,7 +214,7 @@ export function PerformersAssocSite({ site, org, resolved, data, navigate }: Sit
               ) : (
                 <ul className="ent-ticket-list" role="list">
                   {playerContracts.map((c) => (
-                    <li key={c.contractId} className="ent-ticket-item">
+                    <li key={c.contractId} className="ent-ticket-item" style={{ background: '#fffdf9' }}>
                       <div className="ent-ticket-meta">
                         <strong>{c.orgName}</strong>
                         <span>

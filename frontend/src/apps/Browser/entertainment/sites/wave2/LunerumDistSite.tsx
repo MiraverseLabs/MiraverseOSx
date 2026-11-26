@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { RadioTower } from 'lucide-react';
+import { BarChart3, Calendar, RadioTower, Share2, Upload } from 'lucide-react';
 import { buildSiteUrl } from '../../entertainmentRouter';
-import { crossSiteLinks } from '../../services/entertainmentDataService';
+import { crossSiteLinks, getTrackCoverUrl } from '../../services/entertainmentDataService';
 import { AuthPortalGate } from '../../components/AuthPortalGate';
 import { ContractNegotiationDialog } from '../../components/ContractNegotiationDialog';
 import { ReleasePublishForm } from '../../components/GameplayWidgets';
@@ -22,16 +22,17 @@ export function LunerumDistSite({ site, org, resolved, data, navigate }: SiteCom
     { id: 'pricing', path: '/pricing', label: 'Pricing' },
     { id: 'resources', path: '/resources', label: 'Resources' },
     { id: 'portal', path: '/portal', label: 'Artist Portal' },
-    { id: 'about', path: '/about', label: 'About Lunerum' },
+    { id: 'about', path: '/about', label: 'About' },
   ];
 
   return (
     <div className="ent-root site-lunerum" data-site-shell="release-console">
-      <aside className="ln-rail" aria-label="Lunerum Dist workflow navigation">
-        <div>
-          <RadioTower size={19} aria-hidden="true" style={{ color: '#2dd4bf', marginBottom: '0.35rem' }} />
-          <h1 style={{ margin: 0, fontSize: '1.05rem', letterSpacing: '0.06em' }}>{site.name}</h1>
-          <small style={{ color: 'var(--site-muted)', fontSize: '0.7rem' }}>Meridian Quay Data Exchange</small>
+      <header className="ln-topbar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <RadioTower size={18} aria-hidden="true" style={{ color: '#2dd4bf' }} />
+          <h1 style={{ margin: 0, fontSize: '1.05rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            {site.name}
+          </h1>
         </div>
         <nav className="ln-nav" aria-label={resolved.config.navAriaLabel}>
           {navItems.map((item) => (
@@ -45,80 +46,142 @@ export function LunerumDistSite({ site, org, resolved, data, navigate }: SiteCom
             </SiteLink>
           ))}
         </nav>
-      </aside>
+      </header>
 
-      <main className="ln-main">
+      <main className="ln-body">
         <SiteFeedbackBanner message={data.feedback} onDismiss={() => data.setFeedback('')} accentColor="#14b8a6" />
 
         {resolved.isNotFound && <SiteNotFoundView site={site} navigate={navigate} />}
 
-        {/* DISTRIBUTION HOME */}
+        {/* DISTRIBUTION HOME — Round 1/2 Console Layout (PDF p. 21) */}
         {routeId === 'home' && (
           <>
-            <section className="ln-metric-card ent-widget-stack">
-              <span className="ent-mono-tag" style={{ color: '#2dd4bf' }}>
-                MASTER-RETAINED RELEASE OPERATIONS · CYCLE {data.cycle}
-              </span>
-              <h2 style={{ margin: 0, fontSize: 'clamp(1.35rem, 2.8cqi, 2rem)' }}>{site.tagline}</h2>
-              <p style={{ margin: 0, color: 'var(--site-muted)', fontSize: '0.88rem', maxInlineSize: '46rem' }}>
-                {site.description}
-              </p>
-              <div className="ent-action-row">
-                <SiteLink href={buildSiteUrl(site, '/portal')} navigate={navigate} className="ent-btn-primary">
-                  Open Artist Release Console
-                </SiteLink>
-                <button type="button" className="ent-btn-secondary" onClick={() => setDistDialogOpen(true)}>
-                  Configure Distribution Agreement (92% Artist Share)
-                </button>
+            <section className="ln-hero" aria-label="Lunerum Dist release operations">
+              <img
+                src="/media/entertainment/lunerum-mixing-console.jpg"
+                alt="Independent producer working at a dark violet and teal mixing console"
+                onError={(e) => {
+                  e.currentTarget.src = '/media/albums/album-prism-eclipse.jpg';
+                }}
+              />
+              <div className="ent-widget-stack">
+                <span className="ent-mono-tag" style={{ color: '#5eead4' }}>
+                  MUSIC DISTRIBUTION · RELEASE MANAGEMENT · 100% MASTER RETENTION
+                </span>
+                <h2 style={{ margin: 0, fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 'clamp(1.65rem, 3.2cqi, 2.45rem)', lineHeight: 1.05 }}>
+                  Release, Distribute, and Grow.
+                </h2>
+                <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.86rem', maxInlineSize: '34rem' }}>
+                  {site.description}
+                </p>
+                <div className="ent-action-row">
+                  <SiteLink href={buildSiteUrl(site, '/portal')} navigate={navigate} className="ent-btn-primary" style={{ borderRadius: '999px', background: 'linear-gradient(90deg, #8b5cf6, #14b8a6)', color: '#ffffff' }}>
+                    Start a Release →
+                  </SiteLink>
+                  <button type="button" className="ent-btn-secondary" style={{ borderRadius: '999px' }} onClick={() => setDistDialogOpen(true)}>
+                    Configure 92% Artist Deal
+                  </button>
+                </div>
               </div>
+
+              <aside className="ln-metric-card" style={{ background: 'rgba(12, 16, 36, 0.88)', backdropFilter: 'blur(8px)' }} aria-label="Platform highlights">
+                <span className="ent-mono-tag" style={{ color: '#5eead4' }}>
+                  NETWORK TELEMETRY · CYCLE {data.cycle}
+                </span>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.6rem', marginBlock: '0.7rem' }}>
+                  <div>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 900 }}>{lunerumReleases.length}</div>
+                    <small style={{ color: 'var(--site-muted)', fontSize: '0.68rem' }}>Active</small>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#2dd4bf' }}>92%</div>
+                    <small style={{ color: 'var(--site-muted)', fontSize: '0.68rem' }}>Artist Split</small>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#c4b5fd' }}>100%</div>
+                    <small style={{ color: 'var(--site-muted)', fontSize: '0.68rem' }}>Masters</small>
+                  </div>
+                </div>
+                <small style={{ color: 'var(--site-muted)', fontSize: '0.72rem' }}>
+                  Private artist earnings and statements are protected inside the authenticated Artist Portal.
+                </small>
+              </aside>
             </section>
 
-            <div className="ln-metric-strip">
-              <div className="ln-metric-card">
-                <div className="ent-mono-tag" style={{ color: 'var(--site-muted)' }}>
-                  MASTER RETENTION
-                </div>
-                <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#2dd4bf' }}>100%</div>
-                <small style={{ color: 'var(--site-muted)' }}>Artists keep master ownership</small>
-              </div>
-              <div className="ln-metric-card">
-                <div className="ent-mono-tag" style={{ color: 'var(--site-muted)' }}>
-                  ARTIST ROYALTY SPLIT
-                </div>
-                <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>92%</div>
-                <small style={{ color: 'var(--site-muted)' }}>8% transparent delivery fee</small>
-              </div>
-              <div className="ln-metric-card">
-                <div className="ent-mono-tag" style={{ color: 'var(--site-muted)' }}>
-                  DELIVERED CATALOG
-                </div>
-                <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>{lunerumReleases.length}</div>
-                <small style={{ color: 'var(--site-muted)' }}>Active public Songbird releases</small>
-              </div>
-            </div>
-
-            <section className="ent-widget-stack">
-              <h3 style={{ margin: 0 }}>Recent Public Deliveries</h3>
-              <ul className="ent-ticket-list" role="list">
-                {lunerumReleases.map((rel) => (
-                  <li key={rel.releaseId} className="ent-ticket-item">
-                    <div className="ent-ticket-meta">
-                      <strong>{rel.title}</strong>
-                      <span>
-                        {rel.stageName} · {rel.format} · Cycle {rel.releaseCycle} · Delivered to {rel.platform}
-                      </span>
+            {/* 4-Step Horizontal Workflow Bar (PDF p. 21) */}
+            <section className="ln-workflow-strip" aria-label="Distribution workflow steps">
+              {[
+                { title: 'Upload', desc: 'Deliver master stems, sleeve art & credits.', icon: Upload },
+                { title: 'Manage', desc: 'Coordinate schedules & collaborator splits.', icon: Calendar },
+                { title: 'Distribute', desc: 'Route to Songbird, Pop Sticker & shops.', icon: Share2 },
+                { title: 'Analyze', desc: 'Claim private royalties in Artist Portal.', icon: BarChart3 },
+              ].map((step) => {
+                const Icon = step.icon;
+                return (
+                  <div key={step.title} className="ln-step-card">
+                    <Icon size={18} aria-hidden="true" style={{ color: '#2dd4bf', flexShrink: 0, marginTop: '0.15rem' }} />
+                    <div>
+                      <strong style={{ display: 'block', fontSize: '0.88rem' }}>{step.title}</strong>
+                      <small style={{ color: 'var(--site-muted)', fontSize: '0.74rem' }}>{step.desc}</small>
                     </div>
-                    <SiteLink href={crossSiteLinks.songbirdAlbum(rel.trackId)} navigate={navigate} className="ent-btn-secondary">
-                      Verify on Songbird ↗
+                  </div>
+                );
+              })}
+            </section>
+
+            {/* 3-Column Operations Grid */}
+            <section className="ln-ops-grid">
+              <div className="ln-metric-card ent-widget-stack">
+                <h3 style={{ margin: 0, fontSize: '0.96rem' }}>Active Releases</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.65rem' }}>
+                  {lunerumReleases.map((rel) => {
+                    const trk = data.ent.tracks.find((t) => t.trackId === rel.trackId);
+                    return (
+                      <article key={rel.releaseId} style={{ background: '#0c1024', border: '1px solid var(--site-border)', borderRadius: '0.5rem', padding: '0.5rem' }}>
+                        {trk && (
+                          <img src={getTrackCoverUrl(trk)} alt="" loading="lazy" style={{ inlineSize: '100%', aspectRatio: '1 / 1', objectFit: 'cover', borderRadius: '0.35rem', marginBottom: '0.35rem' }} />
+                        )}
+                        <strong style={{ display: 'block', fontSize: '0.76rem' }}>{rel.title}</strong>
+                        <small style={{ color: 'var(--site-muted)', fontSize: '0.68rem' }}>{rel.stageName}</small>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="ln-metric-card ent-widget-stack">
+                <h3 style={{ margin: 0, fontSize: '0.96rem' }}>Release Schedule</h3>
+                {lunerumReleases.map((rel) => (
+                  <div key={rel.releaseId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', paddingBlockEnd: '0.55rem', borderBlockEnd: '1px solid var(--site-border)' }}>
+                    <div>
+                      <strong style={{ fontSize: '0.8rem' }}>{rel.title}</strong>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--site-muted)' }}>
+                        Cycle {rel.releaseCycle} · {rel.platform}
+                      </div>
+                    </div>
+                    <SiteLink href={crossSiteLinks.songbirdAlbum(rel.trackId)} navigate={navigate} className="ent-mono-tag" style={{ color: '#2dd4bf' }}>
+                      Live ↗
                     </SiteLink>
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </div>
+
+              <aside className="ln-metric-card ent-widget-stack">
+                <h3 style={{ margin: 0, fontSize: '0.96rem' }}>Distribution for Independent Artists</h3>
+                <ul style={{ margin: 0, paddingInlineStart: '1.1rem', fontSize: '0.78rem', color: 'var(--site-muted)', lineHeight: 1.6 }}>
+                  <li>Zero master ownership transfer</li>
+                  <li>92% artist net royalty pass-through</li>
+                  <li>Automatic MMRS split-sheet sync</li>
+                  <li>Direct Songbird & Pop Sticker delivery</li>
+                </ul>
+                <SiteLink href={buildSiteUrl(site, '/portal')} navigate={navigate} className="ent-btn-primary" style={{ borderRadius: '999px' }}>
+                  Open Artist Portal →
+                </SiteLink>
+              </aside>
             </section>
           </>
         )}
 
-        {/* PLATFORMS / PRICING / RESOURCES */}
         {(routeId === 'platforms' || routeId === 'pricing' || routeId === 'resources') && (
           <section className="ln-metric-card ent-widget-stack">
             <h2 style={{ margin: 0 }}>
@@ -141,7 +204,6 @@ export function LunerumDistSite({ site, org, resolved, data, navigate }: SiteCom
           </section>
         )}
 
-        {/* AUTHENTICATED ARTIST PORTAL */}
         {routeId === 'portal' && (
           <AuthPortalGate
             data={data}

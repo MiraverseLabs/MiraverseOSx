@@ -1,21 +1,22 @@
 /* ============================================================================
- * WAVE 3 — 9 Distinct Website Visual Systems & Layouts
- * Velvet Curtain, Amrielle, Rosemont Portrait, Femme Fatale, Wonder-Wind,
- * Storyloom Studios, The Marigold Theatre, Radiance Awards, Starstruck.
+ * WAVE 3 — Mockup-Fidelity Visual Systems & Multi-Band Layouts (Sites 17–25)
+ * Velvet Curtain, Amrielle (pp. 29–30), Rosemont Portrait (p. 31),
+ * Femme Fatale (p. 51), Wonder-Wind (pp. 37–38), Storyloom (pp. 32/52),
+ * Marigold Theatre (pp. 34/54), Radiance Awards (p. 63), Starstruck (p. 64).
  * ============================================================================ */
 
 /* ---------- 17. VELVET CURTAIN PRODUCTIONS (Touring Playbill + Itinerary Rail) ---------- */
 .site-velvet {
-  --site-bg: #1a0f19;
-  --site-surface-alt: #271726;
-  --site-border: rgba(232, 121, 249, 0.25);
+  --site-bg: #1b0e18;
+  --site-surface-alt: #281624;
+  --site-border: rgba(232, 121, 249, 0.28);
   --site-ink: #fdf2f8;
-  --site-muted: #d1b3c8;
+  --site-muted: #d8bad0;
   --site-accent: #c026d3;
   --site-accent-ink: #ffffff;
   --site-focus: #f0abfc;
-  --site-input-bg: #221321;
-  background: var(--site-bg);
+  --site-input-bg: #22121f;
+  background: radial-gradient(circle at 80% 0%, #3d1638 0%, #1b0e18 55%);
   color: var(--site-ink);
   font-family: system-ui, sans-serif;
   display: grid;
@@ -23,7 +24,7 @@
 }
 
 .vc-rail {
-  background: #120912;
+  background: #130911;
   border-inline-end: 1px solid var(--site-border);
   padding: 1.4rem 1rem;
   display: flex;
@@ -41,8 +42,9 @@
   padding: 0.5rem 0.7rem;
   color: var(--site-muted);
   text-decoration: none;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
+  border-radius: 0.35rem;
 }
 
 .vc-nav a[aria-current="page"] {
@@ -51,11 +53,38 @@
 }
 
 .vc-main {
-  padding: 1.6rem clamp(1rem, 3cqi, 2.4rem) 2.5rem;
+  padding: 1.4rem clamp(1rem, 3cqi, 2.2rem) 2.4rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.4rem;
   min-inline-size: 0;
+}
+
+.vc-hero {
+  position: relative;
+  min-block-size: 260px;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid var(--site-border);
+  display: flex;
+  align-items: flex-end;
+  background: #23111f;
+}
+
+.vc-hero > img {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.vc-hero-scrim {
+  position: relative;
+  z-index: 1;
+  inline-size: 100%;
+  padding: 1.55rem;
+  background: linear-gradient(95deg, rgba(24, 10, 22, 0.94) 0%, rgba(24, 10, 22, 0.65) 55%, transparent 100%);
 }
 
 @container ent-portal (max-width: 720px) {
@@ -72,16 +101,16 @@
   }
 }
 
-/* ---------- 18. AMRIELLE (Luxury Plum, Rose & Gold Beauty Storefront) ---------- */
+/* ---------- 18. AMRIELLE (PDF pp. 29–30 — Plum & Rose Luxury Storefront) ---------- */
 .site-amrielle {
-  --site-bg: #faf1f4;
-  --site-surface-alt: #f3e4ea;
-  --site-border: #ddc1ce;
-  --site-ink: #381e2f;
-  --site-muted: #725066;
-  --site-accent: #8f3f6c;
+  --site-bg: #f8eff2;
+  --site-surface-alt: #f1e3e8;
+  --site-border: #ddc3ce;
+  --site-ink: #361c2c;
+  --site-muted: #705064;
+  --site-accent: #7f3159;
   --site-accent-ink: #ffffff;
-  --site-focus: #8f3f6c;
+  --site-focus: #7f3159;
   --site-input-bg: #ffffff;
   background: var(--site-bg);
   color: var(--site-ink);
@@ -89,51 +118,116 @@
 }
 
 .am-header {
-  padding: 1.25rem clamp(1rem, 3cqi, 2.5rem);
-  border-block-end: 1px solid var(--site-border);
-  text-align: center;
+  background: #2b1523;
+  color: #fceef4;
+  padding: 0.95rem clamp(1rem, 3cqi, 2.4rem);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.6rem;
+  text-align: center;
 }
 
 .am-nav {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.45rem 1.2rem;
+  gap: 0.4rem 1.2rem;
   font-family: system-ui, sans-serif;
 }
 
 .am-nav a {
   text-decoration: none;
-  color: var(--site-muted);
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
+  color: #dec4d0;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   padding-block: 0.25rem;
 }
 
 .am-nav a[aria-current="page"] {
-  color: var(--site-ink);
+  color: #ffffff;
   font-weight: 700;
-  border-block-end: 2px solid var(--site-accent);
+  border-block-end: 2px solid #f0b4c8;
+}
+
+.am-hero {
+  position: relative;
+  min-block-size: 280px;
+  display: flex;
+  align-items: flex-end;
+  background: #2b1523;
+  color: #fff6fa;
+  overflow: hidden;
+}
+
+.am-hero > img {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.am-hero-scrim {
+  position: relative;
+  z-index: 1;
+  inline-size: 100%;
+  padding: 1.75rem clamp(1rem, 3cqi, 2.5rem);
+  background: linear-gradient(95deg, rgba(43, 21, 35, 0.92) 0%, rgba(43, 21, 35, 0.52) 52%, transparent 100%);
 }
 
 .am-body {
-  padding: 1.6rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
-  max-inline-size: 1140px;
+  padding: 1.4rem clamp(1rem, 3cqi, 2.4rem) 2.4rem;
+  max-inline-size: 1180px;
   margin-inline: auto;
   inline-size: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: 1.5rem;
+}
+
+.am-cat-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.am-cat-tile {
+  position: relative;
+  min-block-size: 105px;
+  border-radius: 0.45rem;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  padding: 0.75rem;
+  color: #ffffff;
+  text-decoration: none;
+  background: #3d1d31;
+}
+
+.am-cat-tile img {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  opacity: 0.62;
+}
+
+.am-cat-tile span {
+  position: relative;
+  z-index: 1;
+  font-family: system-ui, sans-serif;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .am-product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+  gap: 1.1rem;
 }
 
 .am-product-card {
@@ -142,7 +236,7 @@
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.5rem;
 }
 
 .am-swatch-row {
@@ -159,24 +253,24 @@
   cursor: pointer;
 }
 
-/* ---------- 19. ROSEMONT PORTRAIT HOUSE (Dark Atmospheric Masonry Studio) ---------- */
+/* ---------- 19. ROSEMONT PORTRAIT HOUSE (PDF p. 31 — Darkroom Gallery + Ivory Booking Card) ---------- */
 .site-rosemont {
-  --site-bg: #141010;
-  --site-surface-alt: #1f1918;
+  --site-bg: #130f10;
+  --site-surface-alt: #1e1718;
   --site-border: rgba(212, 168, 140, 0.28);
-  --site-ink: #f5ebe1;
-  --site-muted: #bfa99a;
+  --site-ink: #f6ece3;
+  --site-muted: #c2aba0;
   --site-accent: #b87352;
   --site-accent-ink: #ffffff;
   --site-focus: #e2a886;
-  --site-input-bg: #1c1615;
+  --site-input-bg: #1a1415;
   background: var(--site-bg);
   color: var(--site-ink);
   font-family: Georgia, serif;
 }
 
 .rp-header {
-  padding: 1.35rem clamp(1rem, 3cqi, 2.5rem);
+  padding: 1.1rem clamp(1rem, 3cqi, 2.4rem);
   border-block-end: 1px solid var(--site-border);
   display: flex;
   flex-wrap: wrap;
@@ -195,238 +289,358 @@
 .rp-nav a {
   text-decoration: none;
   color: var(--site-muted);
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   padding-block: 0.25rem;
 }
 
 .rp-nav a[aria-current="page"] {
-  color: var(--site-ink);
+  color: #ffffff;
   border-block-end: 2px solid var(--site-accent);
 }
 
 .rp-body {
-  padding: 1.6rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
+  padding: 1.35rem clamp(1rem, 3cqi, 2.4rem) 2.4rem;
+  max-inline-size: 1200px;
+  margin-inline: auto;
+  inline-size: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.6rem;
+  gap: 1.5rem;
 }
 
-/* Multi-column masonry flow per modern-web-guidance css-layout */
+.rp-lower-band {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(235px, 0.9fr);
+  gap: 1.15rem;
+  align-items: start;
+}
+
+.rp-booking-parchment {
+  background: #f5ece2;
+  color: #261918;
+  padding: 1.25rem;
+  border: 1px solid #d5c1b2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
 .rp-masonry {
-  columns: 3 210px;
-  column-gap: 1.15rem;
+  columns: 3 200px;
+  column-gap: 1rem;
 }
 
 .rp-plate {
   break-inside: avoid;
-  margin-block-end: 1.15rem;
+  margin-block-end: 1rem;
   background: var(--site-surface-alt);
   border: 1px solid var(--site-border);
-  padding: 0.65rem;
+  padding: 0.6rem;
 }
 
 .rp-plate img {
   inline-size: 100%;
   height: auto;
   object-fit: cover;
-  margin-block-end: 0.5rem;
+  margin-block-end: 0.45rem;
 }
 
-/* ---------- 20. FEMME FATALE DANCE COMPANY (Crimson-Noir Rehearsal Collective) ---------- */
+@container ent-portal (max-width: 780px) {
+  .rp-lower-band {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 20. FEMME FATALE DANCE COMPANY (PDF p. 51 — Sunlit Rehearsal Loft Collective) ---------- */
 .site-femme {
-  --site-bg: #1c0b10;
-  --site-surface-alt: #2b1219;
-  --site-border: rgba(244, 63, 94, 0.32);
-  --site-ink: #fff1f2;
-  --site-muted: #dfa8b4;
-  --site-accent: #e11d48;
+  --site-bg: #f4f1ec;
+  --site-surface-alt: #eae5dc;
+  --site-border: #d4ccc0;
+  --site-ink: #19161a;
+  --site-muted: #5c555f;
+  --site-accent: #18161a;
   --site-accent-ink: #ffffff;
-  --site-focus: #fb7185;
-  --site-input-bg: #261016;
+  --site-crimson: #be123c;
+  --site-focus: #be123c;
+  --site-input-bg: #ffffff;
   background: var(--site-bg);
   color: var(--site-ink);
   font-family: system-ui, sans-serif;
 }
 
 .ff-header {
-  padding: 1.2rem clamp(1rem, 3cqi, 2.4rem);
-  border-block-end: 3px solid var(--site-accent);
+  background: #ffffff;
+  padding: 0.9rem clamp(1rem, 3cqi, 2.4rem);
+  border-block-end: 1px solid var(--site-border);
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .ff-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.45rem;
 }
 
 .ff-nav a {
-  padding: 0.45rem 0.8rem;
+  padding: 0.42rem 0.78rem;
   color: var(--site-muted);
   text-decoration: none;
   font-size: 0.78rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-weight: 700;
 }
 
 .ff-nav a[aria-current="page"] {
-  background: var(--site-accent);
+  color: var(--site-ink);
+  border-block-end: 2px solid var(--site-crimson);
+}
+
+.ff-hero {
+  position: relative;
+  min-block-size: 295px;
+  display: flex;
+  align-items: flex-end;
+  background: #1f1b20;
   color: #ffffff;
+  overflow: hidden;
+}
+
+.ff-hero > img {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+}
+
+.ff-hero-scrim {
+  position: relative;
+  z-index: 1;
+  inline-size: 100%;
+  padding: 1.75rem clamp(1rem, 3cqi, 2.4rem);
+  background: linear-gradient(95deg, rgba(25, 22, 26, 0.88) 0%, rgba(25, 22, 26, 0.48) 52%, transparent 100%);
 }
 
 .ff-body {
-  padding: 1.5rem clamp(1rem, 3cqi, 2.4rem) 2.5rem;
+  padding: 1.45rem clamp(1rem, 3cqi, 2.4rem) 2.4rem;
+  max-inline-size: 1180px;
+  margin-inline: auto;
+  inline-size: 100%;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-/* ---------- 21. WONDER-WIND DANCE COMPANY (Ethereal Cross-Realm Touring Collective) ---------- */
+/* ---------- 21. WONDER-WIND DANCE COMPANY (PDF pp. 37–38 — Twilight Ethereal Touring Stage) ---------- */
 .site-wonderwind {
-  --site-bg: #edf4f2;
-  --site-surface-alt: #e1ece8;
-  --site-border: #b8cfc8;
-  --site-ink: #1a3330;
-  --site-muted: #4b6d68;
-  --site-accent: #2c6860;
-  --site-accent-ink: #ffffff;
-  --site-focus: #2c6860;
-  --site-input-bg: #ffffff;
-  background: var(--site-bg);
+  --site-bg: #120f24;
+  --site-surface-alt: #1c1736;
+  --site-border: rgba(196, 181, 253, 0.28);
+  --site-ink: #f6f3ff;
+  --site-muted: #bcb2de;
+  --site-accent: #e9d5ff;
+  --site-accent-ink: #1a1230;
+  --site-focus: #c4b5fd;
+  --site-input-bg: #17132e;
+  background: radial-gradient(circle at 50% 0%, #2e2058 0%, #120f24 55%);
   color: var(--site-ink);
   font-family: Georgia, serif;
 }
 
 .wd-header {
-  padding: 1.35rem clamp(1rem, 3cqi, 2.5rem);
+  background: rgba(14, 11, 29, 0.94);
+  padding: 0.95rem clamp(1rem, 3cqi, 2.4rem);
   border-block-end: 1px solid var(--site-border);
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-items: baseline;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.85rem;
 }
 
 .wd-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.85rem;
+  gap: 0.8rem;
   font-family: system-ui, sans-serif;
 }
 
 .wd-nav a {
   text-decoration: none;
   color: var(--site-muted);
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   padding-block: 0.25rem;
 }
 
 .wd-nav a[aria-current="page"] {
-  color: var(--site-accent);
-  border-block-end: 2px solid var(--site-accent);
+  color: #ffffff;
+  border-block-end: 2px solid #e9d5ff;
 }
 
 .wd-body {
-  padding: 1.6rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
-  max-inline-size: 1120px;
+  padding: 1.4rem clamp(1rem, 3cqi, 2.4rem) 2.4rem;
+  max-inline-size: 1180px;
   margin-inline: auto;
   inline-size: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.6rem;
+  gap: 1.45rem;
 }
 
-/* ---------- 22. STORYLOOM STUDIOS (Warm Parchment Illustrated Animation Studio) ---------- */
+.wd-hero {
+  position: relative;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid var(--site-border);
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(245px, 0.85fr);
+  gap: 1.2rem;
+  padding: 1.5rem;
+  min-block-size: 270px;
+  align-items: end;
+  background: #1a1433;
+}
+
+.wd-hero > img {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.wd-hero-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(95deg, rgba(16, 12, 34, 0.92) 0%, rgba(22, 16, 48, 0.45) 55%, rgba(16, 12, 34, 0.88) 100%);
+}
+
+@container ent-portal (max-width: 780px) {
+  .wd-hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 22. STORYLOOM STUDIOS (PDF pp. 32 & 52 — Cozy Illustrated Animation Studio) ---------- */
 .site-storyloom {
-  --site-bg: #fff5e2;
-  --site-surface-alt: #f7e6c7;
-  --site-border: #d8be92;
-  --site-ink: #322c42;
-  --site-muted: #665d7a;
-  --site-accent: #684c82;
+  --site-bg: #f6f1e7;
+  --site-surface-alt: #ece3d2;
+  --site-border: #d5c5ab;
+  --site-ink: #251e2c;
+  --site-muted: #60556b;
+  --site-accent: #c25e28;
   --site-accent-ink: #ffffff;
-  --site-focus: #684c82;
-  --site-input-bg: #fffcf5;
+  --site-focus: #c25e28;
+  --site-input-bg: #fffdf9;
   background: var(--site-bg);
   color: var(--site-ink);
   font-family: Georgia, serif;
 }
 
 .st-header {
-  padding: 1.3rem clamp(1rem, 3cqi, 2.5rem);
-  border-block-end: 2px solid var(--site-border);
+  background: #fffdf8;
+  padding: 0.95rem clamp(1rem, 3cqi, 2.4rem);
+  border-block-end: 1px solid var(--site-border);
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .st-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.45rem;
   font-family: system-ui, sans-serif;
 }
 
 .st-nav a {
-  padding: 0.45rem 0.8rem;
+  padding: 0.42rem 0.8rem;
   border-radius: 999px;
   text-decoration: none;
   color: var(--site-ink);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 
 .st-nav a[aria-current="page"] {
-  background: var(--site-accent);
+  background: #251e2c;
   color: #ffffff;
 }
 
+.st-hero {
+  position: relative;
+  min-block-size: 280px;
+  border-radius: 0.85rem;
+  overflow: hidden;
+  border: 1px solid var(--site-border);
+  display: flex;
+  align-items: flex-end;
+  background: #20192b;
+  color: #fff9f0;
+}
+
+.st-hero > img {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.st-hero-scrim {
+  position: relative;
+  z-index: 1;
+  inline-size: 100%;
+  padding: 1.65rem;
+  background: linear-gradient(95deg, rgba(25, 18, 36, 0.92) 0%, rgba(25, 18, 36, 0.55) 54%, transparent 100%);
+}
+
 .st-body {
-  padding: 1.6rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
-  max-inline-size: 1140px;
+  padding: 1.4rem clamp(1rem, 3cqi, 2.4rem) 2.4rem;
+  max-inline-size: 1180px;
   margin-inline: auto;
   inline-size: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.65rem;
+  gap: 1.5rem;
 }
 
-/* ---------- 23. THE MARIGOLD THEATRE (Crimson & Gold Repertory Playbill) ---------- */
+/* ---------- 23. THE MARIGOLD THEATRE (PDF p. 34 — Crimson Velvet & Antique Gold Playbill) ---------- */
 .site-marigold {
-  --site-bg: #fcf2dc;
-  --site-surface-alt: #f4e2bc;
-  --site-border: #cfad76;
-  --site-ink: #3a1d19;
-  --site-muted: #6e453b;
-  --site-accent: #8c2323;
-  --site-accent-ink: #fff8eb;
-  --site-focus: #8c2323;
-  --site-input-bg: #fffdf7;
-  background: var(--site-bg);
+  --site-bg: #1e0a0d;
+  --site-surface-alt: #2d1015;
+  --site-border: rgba(212, 163, 72, 0.36);
+  --site-ink: #fdf2dc;
+  --site-muted: #d8c0a2;
+  --site-accent: #d4a348;
+  --site-accent-ink: #240c0f;
+  --site-focus: #f4cc7c;
+  --site-input-bg: #260d11;
+  background: radial-gradient(circle at 50% 0%, #44131a 0%, #1e0a0d 55%);
   color: var(--site-ink);
   font-family: Georgia, serif;
 }
 
 .mg-banner {
-  background: #471417;
-  color: #fdecc8;
-  padding: 1.25rem clamp(1rem, 3cqi, 2.5rem);
-  border-block-end: 4px solid #d4a348;
+  background: rgba(30, 10, 13, 0.95);
+  padding: 1rem clamp(1rem, 3cqi, 2.4rem);
+  border-block-end: 2px solid #d4a348;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .mg-nav {
@@ -437,40 +651,71 @@
 }
 
 .mg-nav a {
-  padding: 0.45rem 0.8rem;
+  padding: 0.42rem 0.78rem;
   color: #f3d6a4;
   text-decoration: none;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: 0.3rem;
 }
 
 .mg-nav a[aria-current="page"] {
   background: #d4a348;
-  color: #2f1113;
+  color: #240c0f;
+}
+
+.mg-hero {
+  position: relative;
+  min-block-size: 280px;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid var(--site-border);
+  display: flex;
+  align-items: flex-end;
+  background: #2b0d12;
+}
+
+.mg-hero > img {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.mg-hero-scrim {
+  position: relative;
+  z-index: 1;
+  inline-size: 100%;
+  padding: 1.7rem;
+  background: linear-gradient(95deg, rgba(30, 9, 13, 0.94) 0%, rgba(30, 9, 13, 0.58) 55%, transparent 100%);
 }
 
 .mg-body {
-  padding: 1.6rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
-  max-inline-size: 1140px;
+  padding: 1.4rem clamp(1rem, 3cqi, 2.4rem) 2.4rem;
+  max-inline-size: 1180px;
   margin-inline: auto;
   inline-size: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.6rem;
+  gap: 1.5rem;
 }
 
-/* ---------- 24. THE RADIANCE AWARDS (Black & Silver Ceremony Hub) ---------- */
+/* ---------- 24. THE RADIANCE AWARDS (PDF p. 63 — Black & Metallic Silver Ceremony Hub) ---------- */
 .site-radiance {
-  --site-bg: #0f0d0a;
-  --site-surface-alt: #1b1711;
-  --site-border: rgba(212, 175, 55, 0.35);
-  --site-ink: #faf6eb;
-  --site-muted: #c8bfa8;
-  --site-accent: #d4af37;
-  --site-accent-ink: #120e07;
-  --site-focus: #facc15;
-  --site-input-bg: #17130d;
-  background: var(--site-bg);
+  --site-bg: #09090d;
+  --site-surface-alt: #14141c;
+  --site-border: rgba(203, 213, 225, 0.26);
+  --site-ink: #f8fafc;
+  --site-muted: #94a3b8;
+  --site-accent: #e2e8f0;
+  --site-accent-ink: #09090d;
+  --site-gold: #d4af37;
+  --site-focus: #e2e8f0;
+  --site-input-bg: #111118;
+  background: radial-gradient(circle at 70% 0%, #1f2233 0%, #09090d 55%);
   color: var(--site-ink);
   font-family: Georgia, serif;
   display: grid;
@@ -478,7 +723,7 @@
 }
 
 .ra-rail {
-  background: #080705;
+  background: #060609;
   border-inline-end: 1px solid var(--site-border);
   padding: 1.5rem 1rem;
   display: flex;
@@ -497,22 +742,24 @@
   padding: 0.5rem 0.7rem;
   color: var(--site-muted);
   text-decoration: none;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
+  border-inline-start: 2px solid transparent;
 }
 
 .ra-nav a[aria-current="page"] {
-  background: var(--site-accent);
-  color: #120e07;
+  background: rgba(226, 232, 240, 0.14);
+  color: #ffffff;
+  border-inline-start-color: #e2e8f0;
 }
 
 .ra-main {
-  padding: 1.65rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
+  padding: 1.5rem clamp(1rem, 3cqi, 2.4rem) 2.4rem;
   display: flex;
   flex-direction: column;
-  gap: 1.6rem;
+  gap: 1.5rem;
   min-inline-size: 0;
 }
 
@@ -530,16 +777,16 @@
   }
 }
 
-/* ---------- 25. STARSTRUCK ENTERTAINMENT (Cobalt & Ivory Flagship Agency) ---------- */
+/* ---------- 25. STARSTRUCK ENTERTAINMENT (PDF p. 64 — Cobalt & Ivory Flagship Agency) ---------- */
 .site-starstruck {
   --site-bg: #f6f7fc;
   --site-surface-alt: #ffffff;
   --site-border: #ccd3e8;
-  --site-ink: #12172c;
-  --site-muted: #505a7a;
-  --site-accent: #1d3587;
+  --site-ink: #11182e;
+  --site-muted: #505b7a;
+  --site-accent: #162c7a;
   --site-accent-ink: #ffffff;
-  --site-focus: #1d3587;
+  --site-focus: #162c7a;
   --site-input-bg: #ffffff;
   background: var(--site-bg);
   color: var(--site-ink);
@@ -547,44 +794,45 @@
 }
 
 .ss-header {
-  background: #0f1b4c;
+  background: #0d1a4b;
   color: #ffffff;
-  padding: 1.15rem clamp(1rem, 3cqi, 2.5rem);
+  padding: 1.05rem clamp(1rem, 3cqi, 2.4rem);
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 0.85rem;
   border-block-end: 4px solid #e11d48;
 }
 
 .ss-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
 .ss-nav a {
   padding: 0.45rem 0.8rem;
   color: #dbeafe;
   text-decoration: none;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  border-radius: 0.3rem;
 }
 
 .ss-nav a[aria-current="page"] {
   background: #ffffff;
-  color: #0f1b4c;
+  color: #0d1a4b;
 }
 
 .ss-body {
-  padding: 1.6rem clamp(1rem, 3cqi, 2.5rem) 2.5rem;
-  max-inline-size: 1160px;
+  padding: 1.5rem clamp(1rem, 3cqi, 2.4rem) 2.4rem;
+  max-inline-size: 1180px;
   margin-inline: auto;
   inline-size: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.65rem;
+  gap: 1.5rem;
 }

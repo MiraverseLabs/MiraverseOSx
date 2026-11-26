@@ -12,13 +12,18 @@ export function KajiPublishingSite({ site, org, resolved, data, navigate }: Site
   const routeId = resolved.route?.id;
   const filterId = useId();
   const [genreFilter, setGenreFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [pubDialogOpen, setPubDialogOpen] = useState(false);
 
   const kajiScores = data.ent.tracks.filter(
     (t) => t.publisherOrgId === site.orgId || t.producerOrgId === site.orgId,
   );
   const genres = [...new Set(kajiScores.map((t) => t.genre))];
-  const visibleScores = genreFilter === 'all' ? kajiScores : kajiScores.filter((t) => t.genre === genreFilter);
+  const visibleScores = kajiScores.filter((t) => {
+    if (genreFilter !== 'all' && t.genre !== genreFilter) return false;
+    const q = searchQuery.trim().toLowerCase();
+    return !q || t.title.toLowerCase().includes(q) || t.stageName.toLowerCase().includes(q);
+  });
   const composers = data.publicArtists.filter((a) => a.publisherOrgId === site.orgId);
 
   const navItems = [
@@ -35,10 +40,10 @@ export function KajiPublishingSite({ site, org, resolved, data, navigate }: Site
     <div className="ent-root site-kaji" data-site-shell="score-library">
       <header className="kj-header">
         <div>
-          <span className="ent-mono-tag" style={{ color: 'var(--site-accent)' }}>
-            BASALT ACOUSTIC CHAMBERS · BALISYA, KAJI
+          <span className="ent-mono-tag" style={{ color: '#e5be79' }}>
+            COMPOSITION LIBRARY · PUBLISHING · BALISYA, KAJI
           </span>
-          <h1 style={{ margin: '0.15rem 0 0', fontSize: 'clamp(1.45rem, 3cqi, 2.2rem)', fontWeight: 600 }}>
+          <h1 style={{ margin: '0.1rem 0 0', fontSize: 'clamp(1.25rem, 2.5cqi, 1.8rem)', fontWeight: 500, letterSpacing: '0.06em' }}>
             {site.name}
           </h1>
         </div>
@@ -56,46 +61,93 @@ export function KajiPublishingSite({ site, org, resolved, data, navigate }: Site
         </nav>
       </header>
 
+      {/* Dark Chamber Hero (PDF p. 20) */}
+      {routeId === 'home' && (
+        <section className="kj-hero" aria-label="Kaji Publishing Studios collaboration">
+          <img
+            src="/media/entertainment/kaji-score-studio.jpg"
+            alt="Composers collaborating over orchestral scores inside Kaji Publishing’s Balisya acoustic chambers"
+            onError={(e) => {
+              e.currentTarget.src = '/media/albums/album-chamber-violin.jpg';
+            }}
+          />
+          <div className="kj-hero-scrim">
+            <span className="ent-mono-tag" style={{ color: '#f3d195' }}>
+              ORIGINAL MUSIC FOR STAGE, SCREEN & BEYOND
+            </span>
+            <h2 style={{ margin: '0.3rem 0 0.5rem', fontSize: 'clamp(1.65rem, 3.4cqi, 2.55rem)', fontStyle: 'italic', fontWeight: 400, lineHeight: 1.05, maxInlineSize: '30rem' }}>
+              Composition, Publishing, & Production
+            </h2>
+            <p style={{ margin: '0 0 1rem', fontFamily: 'system-ui, sans-serif', fontSize: '0.84rem', color: '#e9dcc8', maxInlineSize: '32rem' }}>
+              {site.description}
+            </p>
+            <div className="ent-action-row" style={{ fontFamily: 'system-ui, sans-serif' }}>
+              <SiteLink href={buildSiteUrl(site, '/studios')} navigate={navigate} className="ent-btn-primary" style={{ background: '#e5be79', color: '#211711' }}>
+                Book Studio Time →
+              </SiteLink>
+              <button type="button" className="ent-btn-secondary" style={{ color: '#fff8ed', borderColor: 'rgba(255,255,255,0.4)' }} onClick={() => setPubDialogOpen(true)}>
+                Publishing Administration
+              </button>
+              <button type="button" className="ent-btn-secondary" style={{ color: '#f3d195', borderColor: 'rgba(243,209,149,0.4)' }} onClick={() => data.actions.openWorknetMission('ms-art-01')}>
+                WORKNET Mastering Shift ↗
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
       <main className="kj-body">
-        <SiteFeedbackBanner message={data.feedback} onDismiss={() => data.setFeedback('')} accentColor="#7a511b" />
+        <SiteFeedbackBanner message={data.feedback} onDismiss={() => data.setFeedback('')} accentColor="#7a4f1b" />
 
         {resolved.isNotFound && <SiteNotFoundView site={site} navigate={navigate} />}
 
-        {/* CATALOG HOME */}
+        {/* CATALOG HOME — 5-Card Band + Ledger (PDF p. 20) */}
         {routeId === 'home' && (
           <>
-            <section className="ent-about-grid" style={{ padding: '1.25rem', background: '#ffffff', border: '1px solid var(--site-border)', alignItems: 'center' }}>
-              <div className="ent-widget-stack">
-                <span className="ent-mono-tag" style={{ color: 'var(--site-accent)' }}>
-                  SCORE LIBRARY & COMPOSITION CUSTODY
-                </span>
-                <h2 style={{ margin: 0, fontSize: 'clamp(1.35rem, 2.6cqi, 1.95rem)' }}>{site.tagline}</h2>
-                <p style={{ margin: 0, color: 'var(--site-muted)', fontSize: '0.92rem', lineHeight: 1.6 }}>
-                  {site.description}
-                </p>
-                <div className="ent-action-row" style={{ fontFamily: 'system-ui, sans-serif' }}>
-                  <button type="button" className="ent-btn-primary" onClick={() => setPubDialogOpen(true)}>
-                    Review Publishing Administration Terms
-                  </button>
-                  <button
-                    type="button"
-                    className="ent-btn-secondary"
-                    onClick={() => data.actions.openWorknetMission('ms-art-01')}
-                  >
-                    WORKNET: Mastering Shift ↗
-                  </button>
-                </div>
+            <section className="kj-service-band" aria-label="Explore Kaji Publishing services">
+              <div className="kj-catalog-box">
+                <strong style={{ letterSpacing: '0.08em', fontSize: '0.88rem' }}>EXPLORE OUR CATALOG</strong>
+                <label htmlFor="kj-quick-search" className="visually-hidden">
+                  Search Kaji catalog
+                </label>
+                <input
+                  id="kj-quick-search"
+                  type="search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search works or composers..."
+                  className="ent-input"
+                  style={{ color: '#271c13', background: '#ffffff' }}
+                />
+                <SiteLink href={buildSiteUrl(site, '/licensing')} navigate={navigate} style={{ color: '#f3d195', fontFamily: 'system-ui, sans-serif', fontSize: '0.75rem' }}>
+                  Licensing Options →
+                </SiteLink>
+                <SiteLink href={buildSiteUrl(site, '/composers')} navigate={navigate} style={{ color: '#e9dcc8', fontFamily: 'system-ui, sans-serif', fontSize: '0.75rem' }}>
+                  Signed Composers →
+                </SiteLink>
               </div>
-              <img
-                src="/media/albums/album-chamber-violin.jpg"
-                alt="Chamber violin resting beside orchestral score sheets in Balisya"
-                style={{ inlineSize: '100%', aspectRatio: '4 / 3', objectFit: 'cover' }}
-              />
+
+              {[
+                { title: 'Studio Services', desc: 'Tracking, arrangement & mastering.', path: '/studios', img: '/media/entertainment/kaji-score-studio.jpg' },
+                { title: 'Publishing', desc: 'Rights custody & MMRS filings.', path: '/publishing', img: '/media/albums/album-chamber-violin.jpg' },
+                { title: 'Sync Licensing', desc: 'Film, stage & animation scores.', path: '/licensing', img: '/media/posters/poster-citadel-of-echoes.jpg' },
+                { title: 'Writer Portal', desc: 'Advance studio chamber sessions.', path: '/portal', img: '/media/albums/album-marble-lilies.jpg' },
+              ].map((card) => (
+                <SiteLink key={card.title} href={buildSiteUrl(site, card.path)} navigate={navigate} className="kj-photo-tile">
+                  <img src={card.img} alt="" loading="lazy" />
+                  <div>
+                    <strong style={{ display: 'block', fontSize: '0.96rem', fontStyle: 'italic' }}>{card.title}</strong>
+                    <small style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.72rem', color: '#f0e2cc' }}>
+                      {card.desc}
+                    </small>
+                  </div>
+                </SiteLink>
+              ))}
             </section>
 
             <section className="ent-widget-stack">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.65rem' }}>
-                <h2 style={{ margin: 0 }}>Published Works & Score Folio ({visibleScores.length})</h2>
+                <h2 style={{ margin: 0, fontStyle: 'italic' }}>Published Works & Score Folio ({visibleScores.length})</h2>
                 <div className="ent-field" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem', fontFamily: 'system-ui, sans-serif' }}>
                   <label htmlFor={filterId} className="ent-field-label">
                     Style
@@ -146,10 +198,9 @@ export function KajiPublishingSite({ site, org, resolved, data, navigate }: Site
           </>
         )}
 
-        {/* COMPOSERS */}
         {routeId === 'composers' && (
           <section className="ent-widget-stack">
-            <h2 style={{ margin: 0 }}>Kaji Signed Composers & Sound Architects</h2>
+            <h2 style={{ margin: 0, fontStyle: 'italic' }}>Kaji Signed Composers & Sound Architects</h2>
             <ul className="ent-ticket-list" role="list" style={{ fontFamily: 'system-ui, sans-serif' }}>
               {composers.map((c) => (
                 <li key={c.artistId} className="ent-ticket-item" style={{ background: '#ffffff' }}>
@@ -167,10 +218,9 @@ export function KajiPublishingSite({ site, org, resolved, data, navigate }: Site
           </section>
         )}
 
-        {/* PUBLISHING / LICENSING */}
         {(routeId === 'publishing' || routeId === 'licensing') && (
           <section style={{ padding: '1.4rem', background: '#ffffff', border: '1px solid var(--site-border)' }} className="ent-widget-stack">
-            <h2 style={{ margin: 0 }}>
+            <h2 style={{ margin: 0, fontStyle: 'italic' }}>
               {routeId === 'publishing' ? 'Composition Publishing & Writer Stewardship' : 'Sync & Screen Licensing'}
             </h2>
             <p style={{ margin: 0, color: 'var(--site-muted)', fontSize: '0.92rem', lineHeight: 1.65 }}>
@@ -188,36 +238,33 @@ export function KajiPublishingSite({ site, org, resolved, data, navigate }: Site
           </section>
         )}
 
-        {/* RECORDING STUDIOS */}
         {routeId === 'studios' && (
           <section style={{ padding: '1.4rem', background: '#ffffff', border: '1px solid var(--site-border)' }} className="ent-widget-stack">
-            <h2 style={{ margin: 0 }}>Basalt Acoustic Chambers — Recording & Mastering</h2>
+            <h2 style={{ margin: 0, fontStyle: 'italic' }}>Basalt Acoustic Chambers — Recording & Mastering</h2>
             <p style={{ margin: 0, color: 'var(--site-muted)', fontSize: '0.92rem', lineHeight: 1.65 }}>
               Led by Sora Takahashi in Balisya, Kaji. Book a live chamber tracking session to produce a single or
               film score with high acoustic fidelity.
             </p>
-            <div className="ent-action-row" style={{ fontFamily: 'system-ui, sans-serif' }}>
-              <button
-                type="button"
-                className="ent-btn-primary"
-                onClick={() =>
-                  data.actions.createProject({
-                    title: `Balisya Chamber Session (Cycle ${data.cycle})`,
-                    kind: 'single',
-                    discipline: 'music',
-                    partnerOrgId: site.orgId,
-                    collaboratorArtistId: 'ART-SORA',
-                    budgetCredits: 120,
-                  })
-                }
-              >
-                Book Chamber Session with Sora Takahashi (120 ₢)
-              </button>
-            </div>
+            <button
+              type="button"
+              className="ent-btn-primary"
+              style={{ alignSelf: 'flex-start', fontFamily: 'system-ui, sans-serif' }}
+              onClick={() =>
+                data.actions.createProject({
+                  title: `Balisya Chamber Session (Cycle ${data.cycle})`,
+                  kind: 'single',
+                  discipline: 'music',
+                  partnerOrgId: site.orgId,
+                  collaboratorArtistId: 'ART-SORA',
+                  budgetCredits: 120,
+                })
+              }
+            >
+              Book Chamber Session with Sora Takahashi (120 ₢)
+            </button>
           </section>
         )}
 
-        {/* AUTHENTICATED WRITER PORTAL */}
         {routeId === 'portal' && (
           <AuthPortalGate
             data={data}

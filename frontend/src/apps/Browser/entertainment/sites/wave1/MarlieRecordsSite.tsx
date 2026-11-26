@@ -31,22 +31,21 @@ export function MarlieRecordsSite({ site, org, resolved, data, navigate }: SiteC
     { id: 'releases', path: '/releases', label: 'Releases' },
     { id: 'new-releases', path: '/new-releases', label: 'New Releases' },
     { id: 'sessions', path: '/sessions', label: 'Sessions' },
-    { id: 'demos', path: '/demos', label: 'Demo Submissions' },
+    { id: 'demos', path: '/demos', label: 'Demos' },
     { id: 'portal', path: '/portal', label: 'Label Portal' },
-    { id: 'about', path: '/about', label: 'About Marlie' },
+    { id: 'about', path: '/about', label: 'About' },
   ];
 
   return (
     <div className="ent-root site-marlie" data-site-shell="indie-label">
       <header className="mr-coastal-header">
         <div>
-          <span className="ent-mono-tag" style={{ color: 'var(--site-accent)' }}>
-            HARBOR PRESSING ROOMS · ISLAND CITY, MARLOWE
-          </span>
-          <h1 style={{ margin: '0.15rem 0 0', fontSize: 'clamp(1.5rem, 3.2cqi, 2.3rem)', fontWeight: 700 }}>
+          <h1 style={{ margin: 0, fontSize: 'clamp(1.45rem, 3cqi, 2.15rem)', fontStyle: 'italic', fontWeight: 700, color: '#1d5952' }}>
             {site.name}
           </h1>
-          <p style={{ margin: '0.2rem 0 0', fontSize: '0.86rem', color: 'var(--site-muted)' }}>{site.tagline}</p>
+          <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.7rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--site-muted)' }}>
+            Independent Record Label · Island City, Marlowe
+          </span>
         </div>
         <nav className="mr-coastal-nav" aria-label={resolved.config.navAriaLabel}>
           {navItems.map((item) => (
@@ -63,70 +62,150 @@ export function MarlieRecordsSite({ site, org, resolved, data, navigate }: SiteC
       </header>
 
       <main className="mr-coastal-body">
-        <SiteFeedbackBanner message={data.feedback} onDismiss={() => data.setFeedback('')} accentColor="#1d5952" />
+        <SiteFeedbackBanner message={data.feedback} onDismiss={() => data.setFeedback('')} accentColor="#c86442" />
 
         {resolved.isNotFound && <SiteNotFoundView site={site} navigate={navigate} />}
 
-        {/* HOME / RELEASES / NEW RELEASES */}
-        {(routeId === 'home' || routeId === 'releases' || routeId === 'new-releases') && (
+        {/* HOME — Round 2 Coastal Scrapbook Layout (PDF p. 48) */}
+        {routeId === 'home' && (
           <>
-            {routeId === 'home' && (
-              <section style={{ padding: '1.25rem', background: '#fbf7ee', border: '1px solid var(--site-border)', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ maxInlineSize: '38rem' }}>
-                  <h2 style={{ margin: '0 0 0.4rem' }}>Coastal Sessions & Honest Records</h2>
-                  <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--site-muted)', lineHeight: 1.6 }}>
-                    {site.description} Baseline artist royalty share:{' '}
-                    <strong>{Math.round((org.royaltySplitArtist ?? 0.85) * 100)}%</strong>.
-                  </p>
-                </div>
+            <section className="mr-scrapbook-hero" aria-label="Marlie Records coastal studio showcase">
+              <div className="ent-widget-stack">
+                <span className="mr-sticky-note">Independent Music From Meridion ★</span>
+                <h2 style={{ margin: 0, fontSize: 'clamp(1.7rem, 3.4cqi, 2.55rem)', fontStyle: 'italic', lineHeight: 1.08 }}>
+                  A Home for Original Voices.
+                </h2>
+                <p style={{ margin: 0, fontFamily: 'system-ui, sans-serif', fontSize: '0.86rem', color: 'var(--site-muted)', lineHeight: 1.6 }}>
+                  {site.description} Baseline artist royalty share:{' '}
+                  <strong>{Math.round((org.royaltySplitArtist ?? 0.85) * 100)}%</strong>.
+                </p>
                 <div className="ent-action-row" style={{ fontFamily: 'system-ui, sans-serif' }}>
-                  <button type="button" className="ent-btn-primary" onClick={() => setLabelDealOpen(true)}>
-                    Discuss Independent Label Deal
+                  <SiteLink href={buildSiteUrl(site, '/artists')} navigate={navigate} className="ent-btn-primary" style={{ borderRadius: '999px' }}>
+                    Explore the Roster →
+                  </SiteLink>
+                  <button type="button" className="ent-btn-secondary" style={{ borderRadius: '999px' }} onClick={() => setLabelDealOpen(true)}>
+                    Discuss Label Deal
                   </button>
-                  <SiteLink href={buildSiteUrl(site, '/demos')} navigate={navigate} className="ent-btn-secondary">
-                    Submit Demo
+                </div>
+              </div>
+
+              <img
+                src="/media/entertainment/marlie-coastal-session.jpg"
+                alt="Independent musicians recording live in the sunlit coastal Marlie Records harbor studio"
+                style={{ inlineSize: '100%', aspectRatio: '16 / 10', objectFit: 'cover', border: '4px solid #fffcf5', boxShadow: '0 8px 24px rgba(36, 43, 37, 0.16)' }}
+                onError={(e) => {
+                  e.currentTarget.src = '/media/albums/album-meadow-dusk.jpg';
+                }}
+              />
+            </section>
+
+            {/* 3-Column Scrapbook Main Area: Artist Roster | Latest Releases | Label News & Send Demo */}
+            <section className="mr-three-col">
+              <div className="ent-widget-stack">
+                <h3 style={{ margin: 0, fontStyle: 'italic', fontSize: '1.2rem' }}>Artist Roster</h3>
+                <div className="mr-sleeve-grid">
+                  {labelArtists.slice(0, 4).map((art, i) => (
+                    <article key={art.artistId} className="mr-sleeve-card">
+                      <img
+                        src={i % 2 === 0 ? '/media/albums/album-meadow-dusk.jpg' : '/media/albums/album-prism-eclipse.jpg'}
+                        alt={`Portrait sleeve for ${art.stageName}`}
+                        loading="lazy"
+                      />
+                      <strong style={{ fontSize: '0.86rem' }}>
+                        <SiteLink href={crossSiteLinks.songbirdArtist(art.artistId)} navigate={navigate} style={{ color: 'inherit', textDecoration: 'none' }}>
+                          {art.stageName}
+                        </SiteLink>
+                      </strong>
+                      <small style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.7rem', color: 'var(--site-muted)' }}>
+                        {art.genres[0]}
+                      </small>
+                    </article>
+                  ))}
+                </div>
+              </div>
+
+              <div className="ent-widget-stack">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <h3 style={{ margin: 0, fontStyle: 'italic', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <Disc3 size={16} aria-hidden="true" />
+                    <span>Latest Releases</span>
+                  </h3>
+                  <SiteLink href={buildSiteUrl(site, '/releases')} navigate={navigate} style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.74rem', color: '#1d5952', fontWeight: 700 }}>
+                    View All →
                   </SiteLink>
                 </div>
-              </section>
-            )}
-
-            <section className="ent-widget-stack">
-              <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                <Disc3 size={18} aria-hidden="true" />
-                <span>{routeId === 'new-releases' ? 'Latest Pressings & Sleeves' : 'Sleeve Catalog'}</span>
-              </h2>
-              <div className="mr-sleeve-grid">
-                {data.topTracks.map((trk) => (
-                  <article key={trk.trackId} className="mr-sleeve-card">
-                    <img src={getTrackCoverUrl(trk)} alt={`Sleeve art for ${trk.title}`} loading="lazy" />
-                    <strong>{trk.title}</strong>
-                    <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.76rem', color: 'var(--site-muted)' }}>
-                      {trk.stageName} · {trk.genre}
-                    </span>
-                    <SiteLink
-                      href={crossSiteLinks.songbirdAlbum(trk.trackId)}
-                      navigate={navigate}
-                      className="ent-btn-secondary"
-                      style={{ marginTop: 'auto', fontFamily: 'system-ui, sans-serif' }}
-                    >
-                      Stream on Songbird ↗
-                    </SiteLink>
-                  </article>
-                ))}
+                <div className="mr-sleeve-grid">
+                  {data.topTracks.slice(0, 4).map((trk) => (
+                    <article key={trk.trackId} className="mr-sleeve-card">
+                      <img src={getTrackCoverUrl(trk)} alt={`Sleeve art for ${trk.title}`} loading="lazy" />
+                      <strong style={{ fontSize: '0.84rem' }}>{trk.title}</strong>
+                      <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.72rem', color: 'var(--site-muted)' }}>
+                        {trk.stageName}
+                      </span>
+                      <SiteLink href={crossSiteLinks.songbirdAlbum(trk.trackId)} navigate={navigate} style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.72rem', fontWeight: 700, color: '#1d5952' }}>
+                        Stream ↗
+                      </SiteLink>
+                    </article>
+                  ))}
+                </div>
               </div>
+
+              <aside className="ent-widget-stack">
+                <div style={{ padding: '1rem', background: '#fffcf5', border: '1px solid var(--site-border)' }} className="ent-widget-stack">
+                  <h3 style={{ margin: 0, fontStyle: 'italic', fontSize: '1.15rem' }}>Label News</h3>
+                  {data.ent.mediaItems.slice(0, 2).map((m) => (
+                    <div key={m.mediaId} style={{ paddingBlockEnd: '0.55rem', borderBlockEnd: '1px solid var(--site-border)' }}>
+                      <SiteLink href={crossSiteLinks.limelightStory(m.mediaId)} navigate={navigate} style={{ color: 'inherit', fontWeight: 700, fontSize: '0.8rem', fontFamily: 'system-ui, sans-serif', textDecoration: 'none' }}>
+                        {m.headline}
+                      </SiteLink>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ padding: '1.1rem', background: '#f2e2c6', border: '1px solid #d1ba91' }} className="ent-widget-stack">
+                  <h3 style={{ margin: 0, fontStyle: 'italic' }}>Send Us Your Music</h3>
+                  <p style={{ margin: 0, fontFamily: 'system-ui, sans-serif', fontSize: '0.78rem', color: 'var(--site-muted)' }}>
+                    Have a single, EP, or live tape? Maren Tidewell’s A&R Collective listens for honest songwriting.
+                  </p>
+                  <SiteLink href={buildSiteUrl(site, '/demos')} navigate={navigate} className="ent-btn-primary" style={{ background: '#242b25', fontFamily: 'system-ui, sans-serif' }}>
+                    Submit a Demo →
+                  </SiteLink>
+                </div>
+              </aside>
             </section>
           </>
         )}
 
-        {/* ARTISTS */}
+        {(routeId === 'releases' || routeId === 'new-releases') && (
+          <section className="ent-widget-stack">
+            <h2 style={{ margin: 0, fontStyle: 'italic' }}>
+              {routeId === 'new-releases' ? 'Latest Pressings & Sleeves' : 'Complete Sleeve Catalog'}
+            </h2>
+            <div className="mr-sleeve-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(185px, 1fr))' }}>
+              {data.topTracks.map((trk) => (
+                <article key={trk.trackId} className="mr-sleeve-card">
+                  <img src={getTrackCoverUrl(trk)} alt={`Sleeve art for ${trk.title}`} loading="lazy" />
+                  <strong>{trk.title}</strong>
+                  <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.76rem', color: 'var(--site-muted)' }}>
+                    {trk.stageName} · {trk.genre}
+                  </span>
+                  <SiteLink href={crossSiteLinks.songbirdAlbum(trk.trackId)} navigate={navigate} className="ent-btn-secondary" style={{ marginTop: 'auto', fontFamily: 'system-ui, sans-serif' }}>
+                    Stream on Songbird ↗
+                  </SiteLink>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
         {routeId === 'artists' && (
           <section className="ent-widget-stack">
-            <h2 style={{ margin: 0 }}>Marlie Roster & Marlowe Independent Voices</h2>
-            <div className="mr-sleeve-grid">
+            <h2 style={{ margin: 0, fontStyle: 'italic' }}>Marlie Roster & Marlowe Independent Voices</h2>
+            <div className="mr-sleeve-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))' }}>
               {labelArtists.map((art) => (
                 <article key={art.artistId} className="mr-sleeve-card">
                   <strong>{art.stageName}</strong>
-                  <span className="ent-mono-tag" style={{ color: 'var(--site-accent)' }}>
+                  <span className="ent-mono-tag" style={{ color: '#1d5952' }}>
                     {art.genres.join(' · ')}
                   </span>
                   <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--site-muted)' }}>{art.bio}</p>
@@ -139,38 +218,29 @@ export function MarlieRecordsSite({ site, org, resolved, data, navigate }: SiteC
           </section>
         )}
 
-        {/* SESSIONS */}
         {routeId === 'sessions' && (
           <section className="ent-widget-stack">
-            <h2 style={{ margin: 0 }}>Harbor Pressing Sessions & Small-Room Routing</h2>
+            <h2 style={{ margin: 0, fontStyle: 'italic' }}>Harbor Pressing Sessions & Small-Room Routing</h2>
             <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--site-muted)', lineHeight: 1.6 }}>
               Jonah Reed’s Catalog & Small-Room Touring desk pairs coastal Marlowe tracking sessions with intimate
               showcases at The Looking Glass in Glassline District.
             </p>
-            <SiteLink href={crossSiteLinks.orgHome('ORG_LOOKING_GLASS', '/gigs')} navigate={navigate} className="ent-btn-primary" style={{ alignSelf: 'flex-start' }}>
+            <SiteLink href={crossSiteLinks.orgHome('ORG_LOOKING_GLASS', '/gigs')} navigate={navigate} className="ent-btn-primary" style={{ alignSelf: 'flex-start', fontFamily: 'system-ui, sans-serif' }}>
               See Upcoming Nights at The Looking Glass ↗
             </SiteLink>
           </section>
         )}
 
-        {/* DEMO SUBMISSIONS */}
         {routeId === 'demos' && (
           <section className="ent-widget-stack" style={{ fontFamily: 'system-ui, sans-serif' }}>
-            <h2 style={{ margin: 0, fontFamily: 'Georgia, serif' }}>Demo Submissions & Showcase Calls</h2>
-            <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--site-muted)' }}>
-              Maren Tidewell’s A&R Collective listens for distinctive songwriting and live presence. Apply to our
-              Glassline showcase calls or request a creative-control label contract.
-            </p>
-            <AuditionListWidget auditions={marlieAuditions} data={data} accentColor="#1d5952" />
-            <div>
-              <button type="button" className="ent-btn-primary" onClick={() => setLabelDealOpen(true)}>
-                Propose Independent Label Agreement
-              </button>
-            </div>
+            <h2 style={{ margin: 0, fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>Demo Submissions & Showcase Calls</h2>
+            <AuditionListWidget auditions={marlieAuditions} data={data} accentColor="#c86442" />
+            <button type="button" className="ent-btn-primary" style={{ alignSelf: 'flex-start' }} onClick={() => setLabelDealOpen(true)}>
+              Propose Independent Label Agreement
+            </button>
           </section>
         )}
 
-        {/* AUTHENTICATED LABEL PORTAL */}
         {routeId === 'portal' && (
           <AuthPortalGate
             data={data}
@@ -185,7 +255,7 @@ export function MarlieRecordsSite({ site, org, resolved, data, navigate }: SiteC
               <section className="mr-sleeve-card">
                 <h2 style={{ margin: 0 }}>Label Contract Terms</h2>
                 <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--site-muted)' }}>
-                  House baseline: {Math.round((org.royaltySplitArtist ?? 0.85) * 100)}% artist split · Master creative participation.
+                  House baseline: {Math.round((org.royaltySplitArtist ?? 0.85) * 100)}% artist split · Creative control.
                 </p>
                 <button type="button" className="ent-btn-primary" onClick={() => setLabelDealOpen(true)}>
                   Negotiate Label Contract

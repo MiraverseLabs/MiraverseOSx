@@ -63,7 +63,7 @@ export function RosemontPortraitSite({ site, org, resolved, data, navigate }: Si
     { id: 'portraiture', path: '/portraiture', label: 'Portraiture' },
     { id: 'exhibitions', path: '/exhibitions', label: 'Exhibitions' },
     { id: 'book', path: '/book', label: 'Book a Sitting' },
-    { id: 'about', path: '/about', label: '11 Rosemont Terrace' },
+    { id: 'about', path: '/about', label: 'Studio' },
   ];
 
   const visiblePlates =
@@ -76,9 +76,9 @@ export function RosemontPortraitSite({ site, org, resolved, data, navigate }: Si
       <header className="rp-header">
         <div>
           <span className="ent-mono-tag" style={{ color: '#e2a886' }}>
-            11 ROSEMONT TERRACE · CROWN TERRACE, AURELINE
+            PHOTOGRAPHY · PORTRAITURE · 11 ROSEMONT TERRACE
           </span>
-          <h1 style={{ margin: '0.15rem 0 0', fontSize: 'clamp(1.35rem, 2.8cqi, 2rem)', fontWeight: 500 }}>
+          <h1 style={{ margin: '0.1rem 0 0', fontSize: 'clamp(1.3rem, 2.6cqi, 1.9rem)', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             {site.name}
           </h1>
         </div>
@@ -103,49 +103,100 @@ export function RosemontPortraitSite({ site, org, resolved, data, navigate }: Si
 
         {(routeId === 'home' || routeId === 'editorial' || routeId === 'portraiture' || routeId === 'exhibitions') && (
           <>
-            <section style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1rem' }}>
-              <div>
-                <h2 style={{ margin: 0, fontSize: 'clamp(1.35rem, 2.6cqi, 1.95rem)', fontWeight: 500 }}>
-                  {site.tagline}
-                </h2>
-                <p style={{ margin: '0.35rem 0 0', color: 'var(--site-muted)', fontSize: '0.9rem', maxInlineSize: '42rem' }}>
-                  Select any archival plate to inspect full darkroom notes, or book a private sitting with Clara Bell
-                  and Henri Vane.
-                </p>
-              </div>
-              <SiteLink href={buildSiteUrl(site, '/book')} navigate={navigate} className="ent-btn-primary" style={{ fontFamily: 'system-ui, sans-serif' }}>
-                <Camera size={14} aria-hidden="true" />
-                <span>Book a Sitting</span>
-              </SiteLink>
-            </section>
+            {routeId === 'home' && (
+              <section className="vc-hero" style={{ background: '#1a1213', borderColor: 'var(--site-border)' }} aria-label="Rosemont Portrait House showcase">
+                <img src="/media/albums/album-amber-silhouette.jpg" alt="Rosemont Portrait House tungsten darkroom study" />
+                <div className="vc-hero-scrim" style={{ background: 'linear-gradient(95deg, rgba(19, 14, 15, 0.94) 0%, rgba(19, 14, 15, 0.58) 55%, transparent 100%)' }}>
+                  <span className="ent-mono-tag" style={{ color: '#e2a886' }}>
+                    PORTRAIT · EDITORIAL · ALBUM SLEEVES
+                  </span>
+                  <h2 style={{ margin: '0.3rem 0 0.5rem', fontSize: 'clamp(1.85rem, 3.8cqi, 2.8rem)', fontStyle: 'italic', fontWeight: 400, lineHeight: 1.04 }}>
+                    Rosemont Portrait
+                  </h2>
+                  <p style={{ margin: '0 0 1rem', fontFamily: 'system-ui, sans-serif', fontSize: '0.84rem', color: '#dfc9bc', maxInlineSize: '28rem' }}>
+                    {site.tagline} — Photographed by Clara Bell & Henri Vane for musicians, actors, and periodicals.
+                  </p>
+                  <div className="ent-action-row" style={{ fontFamily: 'system-ui, sans-serif' }}>
+                    <SiteLink href={buildSiteUrl(site, '/book')} navigate={navigate} className="ent-btn-primary" style={{ background: '#f5ece2', color: '#1e1414' }}>
+                      <Camera size={14} aria-hidden="true" />
+                      <span>Book a Sitting →</span>
+                    </SiteLink>
+                    <SiteLink href={buildSiteUrl(site, '/editorial')} navigate={navigate} className="ent-btn-secondary">
+                      Editorial Plates
+                    </SiteLink>
+                  </div>
+                </div>
+              </section>
+            )}
 
-            <div className="rp-masonry">
-              {visiblePlates.map((plate) => (
-                <figure key={plate.id} className="rp-plate">
-                  <img src={plate.src} alt={plate.caption} loading="lazy" />
-                  <figcaption style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
-                    <div>
-                      <strong style={{ display: 'block', fontSize: '0.92rem' }}>{plate.title}</strong>
-                      <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.74rem', color: 'var(--site-muted)' }}>
-                        {plate.caption}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      className="ent-btn-secondary"
-                      style={{ fontFamily: 'system-ui, sans-serif', minBlockSize: '30px', padding: '0.2rem 0.55rem', fontSize: '0.74rem' }}
-                      onClick={() => setSelectedPlate(plate)}
-                    >
-                      Inspect
-                    </button>
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
+            {/* Masonry Portfolio + Ivory Parchment Book-the-Studio Sidebar (PDF p. 31) */}
+            <section className="rp-lower-band">
+              <div className="ent-widget-stack">
+                <h2 style={{ margin: 0, fontSize: '1.15rem', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 500 }}>
+                  {routeId === 'home' ? 'Featured Collections & Glass Plates' : `${routeId} Archive`}
+                </h2>
+                <div className="rp-masonry">
+                  {visiblePlates.map((plate) => (
+                    <figure key={plate.id} className="rp-plate">
+                      <img src={plate.src} alt={plate.caption} loading="lazy" />
+                      <figcaption style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                        <div>
+                          <strong style={{ display: 'block', fontSize: '0.9rem' }}>{plate.title}</strong>
+                          <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.72rem', color: 'var(--site-muted)' }}>
+                            {plate.caption}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          className="ent-btn-secondary"
+                          style={{ fontFamily: 'system-ui, sans-serif', minBlockSize: '30px', padding: '0.2rem 0.55rem', fontSize: '0.72rem' }}
+                          onClick={() => setSelectedPlate(plate)}
+                        >
+                          Inspect
+                        </button>
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </div>
+
+              <aside className="rp-booking-parchment" aria-label="Book the Rosemont studio">
+                <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.68rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#8a5239', fontWeight: 800 }}>
+                  CROWN TERRACE STUDIO
+                </span>
+                <h3 style={{ margin: 0, fontSize: '1.45rem', fontStyle: 'italic', fontWeight: 500 }}>
+                  Book the Studio
+                </h3>
+                <p style={{ margin: 0, fontFamily: 'system-ui, sans-serif', fontSize: '0.8rem', color: '#5c4642', lineHeight: 1.55 }}>
+                  Album sleeve sittings, Limelight press kits, and archival glass-plate portraiture tailored to your
+                  next release.
+                </p>
+                <div style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.78rem', display: 'flex', flexDirection: 'column', gap: '0.3rem', borderBlock: '1px solid #d5c1b2', paddingBlock: '0.6rem' }}>
+                  <span>01 · Select Session Package (60 ₢)</span>
+                  <span>02 · Choose Darkroom Lighting Style</span>
+                  <span>03 · Sync Press Plates to Limelight</span>
+                </div>
+                <button
+                  type="button"
+                  className="ent-btn-primary"
+                  style={{ background: '#261918', color: '#f5ece2', fontFamily: 'system-ui, sans-serif' }}
+                  onClick={() =>
+                    data.actions.createProject({
+                      title: `Rosemont Portrait Press Kit (Cycle ${data.cycle})`,
+                      kind: 'promo_kit',
+                      discipline: 'modeling',
+                      partnerOrgId: site.orgId,
+                      budgetCredits: 60,
+                    })
+                  }
+                >
+                  Book Now (60 ₢) →
+                </button>
+              </aside>
+            </section>
           </>
         )}
 
-        {/* BOOK A SITTING */}
         {routeId === 'book' && (
           <section style={{ padding: '1.5rem', background: 'var(--site-surface-alt)', border: '1px solid var(--site-border)', maxInlineSize: '46rem' }} className="ent-widget-stack">
             <h2 style={{ margin: 0, fontWeight: 500 }}>Commission Album Sleeve or Press Portrait Sitting</h2>
@@ -185,7 +236,6 @@ export function RosemontPortraitSite({ site, org, resolved, data, navigate }: Si
         {routeId === 'about' && <OrgAboutSection site={site} org={org} data={data} navigate={navigate} />}
       </main>
 
-      {/* Native <dialog> Lightbox */}
       <dialog
         ref={lightboxRef}
         className="ent-native-dialog"

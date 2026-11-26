@@ -132,14 +132,14 @@ test('all 25 site modules are registered and reference only existing local media
   const velvetSource = fs.readFileSync(path.join(entDir, 'sites', 'wave3', 'VelvetCurtainSite.tsx'), 'utf8');
   assert.ok(velvetSource.includes('Velvet Curtain'), 'ORG_VELVET_CURTAIN must preserve Velvet Curtain touring identity');
 
-  // Verify every /media/... and /icons/... path referenced in all 25 site components resolves to a real file
+  // Verify every /media/..., /icons/..., and /images/... path referenced in all 25 site components resolves to a real file
   const waveDirs = ['wave1', 'wave2', 'wave3'].map((w) => path.join(entDir, 'sites', w));
   let assetChecks = 0;
   for (const dir of waveDirs) {
     for (const file of fs.readdirSync(dir)) {
       if (!file.endsWith('.tsx')) continue;
       const src = fs.readFileSync(path.join(dir, file), 'utf8');
-      const matches = src.matchAll(/['"](\/(?:media|icons)\/[^'"]+)['"]/g);
+      const matches = src.matchAll(/['"](\/(?:media|icons|images)\/[^'"]+)['"]/g);
       for (const m of matches) {
         const rel = m[1].replace(/^\//, '');
         const full = path.join(publicDir, rel);
@@ -148,5 +148,5 @@ test('all 25 site modules are registered and reference only existing local media
       }
     }
   }
-  assert.ok(assetChecks >= 10, `Expected >= 10 verified local media/icon asset references, checked ${assetChecks}`);
+  assert.ok(assetChecks >= 25, `Expected >= 25 verified local media/icon/image asset references, checked ${assetChecks}`);
 });

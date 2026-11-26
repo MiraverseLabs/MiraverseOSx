@@ -1,5 +1,5 @@
 import { useId, useState } from 'react';
-import { ArrowLeft, Filter } from 'lucide-react';
+import { ArrowLeft, CheckSquare, Filter } from 'lucide-react';
 import { buildSiteUrl } from '../../entertainmentRouter';
 import { crossSiteLinks } from '../../services/entertainmentDataService';
 import { AuthPortalGate } from '../../components/AuthPortalGate';
@@ -33,7 +33,7 @@ export function OpenCallCastingSite({ site, org, resolved, data, navigate }: Sit
     { id: 'productions', path: '/productions', label: 'Productions' },
     { id: 'casting', path: '/casting', label: 'Casting Professionals' },
     { id: 'applications', path: '/applications', label: 'My Applications' },
-    { id: 'about', path: '/about', label: 'How It Works' },
+    { id: 'about', path: '/about', label: 'Resources' },
   ];
 
   const mySubmissions = data.playerArtist
@@ -44,11 +44,11 @@ export function OpenCallCastingSite({ site, org, resolved, data, navigate }: Sit
     <div className="ent-root site-opencall" data-site-shell="casting-platform">
       <header className="oc-header">
         <div>
-          <h1 style={{ margin: 0, fontSize: 'clamp(1.2rem, 2.3cqi, 1.55rem)', letterSpacing: '-0.02em' }}>
+          <h1 style={{ margin: 0, fontSize: 'clamp(1.15rem, 2.2cqi, 1.45rem)', fontWeight: 900, color: '#102454' }}>
             {site.name}
           </h1>
-          <span style={{ fontSize: '0.74rem', color: '#bfdbfe' }}>
-            3B Promenade Studios, Aureline · Screen, Stage, Voice & Music Breakdowns
+          <span style={{ fontSize: '0.72rem', color: 'var(--site-muted)' }}>
+            Auditions · Productions · Talent · 3B Promenade Studios, Aureline
           </span>
         </div>
         <nav className="oc-nav" aria-label={resolved.config.navAriaLabel}>
@@ -65,7 +65,42 @@ export function OpenCallCastingSite({ site, org, resolved, data, navigate }: Sit
         </nav>
       </header>
 
-      <div style={{ paddingInline: 'clamp(1rem, 3cqi, 2.2rem)' }}>
+      {/* Angled Cobalt Hero + Sticky Checklist (PDF p. 47) */}
+      {routeId === 'home' && (
+        <section className="oc-hero-banner" aria-label="Open Call Casting hero">
+          <div className="ent-widget-stack">
+            <h2 style={{ margin: 0, fontSize: 'clamp(1.65rem, 3.2cqi, 2.35rem)', fontStyle: 'italic', lineHeight: 1.05 }}>
+              Find Your Next Role
+            </h2>
+            <p style={{ margin: 0, color: '#dbeafe', fontSize: '0.86rem', maxInlineSize: '34rem' }}>
+              Verified screen, theatre, voice, dance, and live-music breakdowns across Meridion. Filter by
+              discipline, eligibility, and stipend before submitting your self-tape.
+            </p>
+            <div className="ent-action-row">
+              <SiteLink href={buildSiteUrl(site, '/applications')} navigate={navigate} className="ent-btn-primary" style={{ background: '#ea580c' }}>
+                Track My Applications ({mySubmissions.length}) →
+              </SiteLink>
+              <SiteLink href={buildSiteUrl(site, '/productions')} navigate={navigate} className="ent-btn-secondary" style={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.45)' }}>
+                Partner Studios
+              </SiteLink>
+            </div>
+          </div>
+
+          <aside className="oc-sticky-checklist" aria-label="Casting disciplines covered">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem', color: '#1d4ed8' }}>
+              <CheckSquare size={14} aria-hidden="true" />
+              <span>NOW CASTING</span>
+            </div>
+            <div>✓ Film & Serialized TV</div>
+            <div>✓ Repertory Theatre & Stage</div>
+            <div>✓ Dance & Movement</div>
+            <div>✓ Voice & Animated Features</div>
+            <div>✓ Club & Label Showcases</div>
+          </aside>
+        </section>
+      )}
+
+      <div style={{ paddingInline: 'clamp(1rem, 3cqi, 2rem)' }}>
         <SiteFeedbackBanner message={data.feedback} onDismiss={() => data.setFeedback('')} accentColor="#1d4ed8" />
       </div>
 
@@ -75,13 +110,13 @@ export function OpenCallCastingSite({ site, org, resolved, data, navigate }: Sit
         </main>
       )}
 
-      {/* FIND AUDITIONS BOARD */}
+      {/* FIND AUDITIONS BOARD — Round 2 Layout (PDF p. 47) */}
       {routeId === 'home' && (
         <div className="oc-board">
-          <aside className="oc-filter-col" aria-label="Filter auditions">
+          <aside className="oc-filter-col" aria-label="Search and filter auditions">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <Filter size={15} aria-hidden="true" style={{ color: '#1d4ed8' }} />
-              <h2 style={{ margin: 0, fontSize: '0.92rem' }}>Filter Breakdowns</h2>
+              <h2 style={{ margin: 0, fontSize: '0.92rem' }}>Search & Filter Auditions</h2>
             </div>
             <div className="ent-field">
               <label htmlFor={searchId} className="ent-field-label">
@@ -98,39 +133,91 @@ export function OpenCallCastingSite({ site, org, resolved, data, navigate }: Sit
             </div>
             <div className="ent-field">
               <label htmlFor={discId} className="ent-field-label">
-                Discipline
+                Category
               </label>
-              <select
-                id={discId}
-                value={discipline}
-                onChange={(e) => setDiscipline(e.target.value)}
-                className="ent-input"
-              >
-                <option value="all">All Disciplines</option>
+              <select id={discId} value={discipline} onChange={(e) => setDiscipline(e.target.value)} className="ent-input">
+                <option value="all">All Categories</option>
                 <option value="acting">Acting & Voice</option>
-                <option value="music">Music</option>
+                <option value="music">Music & Live</option>
                 <option value="dance">Dance & Movement</option>
-                <option value="modeling">Modeling</option>
+                <option value="modeling">Modeling & Campaigns</option>
               </select>
             </div>
             <label className="ent-checkbox-row">
               <input type="checkbox" checked={openOnly} onChange={(e) => setOpenOnly(e.target.checked)} />
-              <span>Open to unrepresented performers only</span>
+              <span>Open to unrepresented talent</span>
             </label>
-            <div style={{ paddingTop: '0.6rem', borderTop: '1px solid var(--site-border)', fontSize: '0.76rem', color: 'var(--site-muted)' }}>
-              Showing <strong>{filteredAuditions.length}</strong> of {data.ent.auditions.length} verified calls
+            <div style={{ paddingTop: '0.55rem', borderTop: '1px solid var(--site-border)', fontSize: '0.76rem', color: 'var(--site-muted)' }}>
+              Showing <strong>{filteredAuditions.length}</strong> of {data.ent.auditions.length} active calls
             </div>
           </aside>
 
           <main className="ent-widget-stack" style={{ minInlineSize: 0 }}>
-            <h2 style={{ margin: 0 }}>Active Casting Breakdowns (Cycle {data.cycle})</h2>
-            <AuditionListWidget
-              auditions={filteredAuditions}
-              data={data}
-              accentColor="#1d4ed8"
-              navigate={navigate}
-              detailBaseSite={site}
-            />
+            <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Featured Auditions (Cycle {data.cycle})</h2>
+            <div className="oc-featured-cards">
+              {filteredAuditions.map((aud) => (
+                <article key={aud.auditionId} className="oc-aud-card">
+                  {aud.posterUrl && <img src={aud.posterUrl} alt="" loading="lazy" />}
+                  <div style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1 }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                      <span style={{ fontSize: '0.66rem', fontWeight: 800, padding: '0.15rem 0.45rem', borderRadius: '999px', background: aud.openToUnrepresented ? '#dcfce7' : '#e0e7ff', color: aud.openToUnrepresented ? '#166534' : '#3730a3' }}>
+                        {aud.openToUnrepresented ? 'OPEN CALL' : 'AGENCY REQUIRED'}
+                      </span>
+                      <span style={{ fontSize: '0.66rem', fontWeight: 800, padding: '0.15rem 0.45rem', borderRadius: '999px', background: '#fef3c7', color: '#92400e' }}>
+                        {aud.stipendCredits} ₢ Stipend
+                      </span>
+                    </div>
+                    <strong style={{ fontSize: '0.84rem', lineHeight: 1.3 }}>
+                      <SiteLink
+                        href={buildSiteUrl(site, `/auditions/${encodeURIComponent(aud.auditionId)}`)}
+                        navigate={navigate}
+                        style={{ color: 'inherit', textDecoration: 'none' }}
+                      >
+                        {aud.title}
+                      </SiteLink>
+                    </strong>
+                    <small style={{ color: 'var(--site-muted)', fontSize: '0.72rem' }}>
+                      Min Cred {aud.minCredibility} · Closes Cycle {aud.deadlineCycle}
+                    </small>
+                    {aud.status === 'open' ? (
+                      <button
+                        type="button"
+                        className="ent-btn-primary"
+                        style={{ marginTop: 'auto', minBlockSize: '32px', fontSize: '0.75rem' }}
+                        onClick={() => data.actions.submitAudition(aud.auditionId)}
+                      >
+                        Submit Audition
+                      </button>
+                    ) : (
+                      <span className="ent-mono-tag" style={{ marginTop: 'auto' }}>
+                        {aud.status.toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {/* Application Tracking 5-Step Stepper (PDF p. 47) */}
+            <section style={{ background: '#ffffff', border: '1px solid var(--site-border)', borderRadius: '0.7rem', padding: '1rem' }} className="ent-widget-stack">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <h3 style={{ margin: 0, fontSize: '0.94rem' }}>Application Tracking Pipeline</h3>
+                <SiteLink href={buildSiteUrl(site, '/applications')} navigate={navigate} style={{ fontSize: '0.76rem', fontWeight: 700, color: '#1d4ed8' }}>
+                  Open Private Application Tracker →
+                </SiteLink>
+              </div>
+              <div className="oc-stepper" aria-label="Casting workflow stages">
+                <span className={`oc-step-pill ${mySubmissions.length > 0 ? 'is-done' : ''}`}>1. Submitted</span>
+                <span>→</span>
+                <span className={`oc-step-pill ${mySubmissions.length > 0 ? 'is-done' : ''}`}>2. In Review</span>
+                <span>→</span>
+                <span className="oc-step-pill">3. Callback</span>
+                <span>→</span>
+                <span className="oc-step-pill">4. Audition</span>
+                <span>→</span>
+                <span className="oc-step-pill">5. Decision</span>
+              </div>
+            </section>
           </main>
         </div>
       )}
@@ -147,12 +234,12 @@ export function OpenCallCastingSite({ site, org, resolved, data, navigate }: Sit
             );
           }
           return (
-            <main style={{ padding: '1.5rem clamp(1rem, 3cqi, 2.2rem)' }} className="ent-widget-stack">
+            <main style={{ padding: '1.5rem clamp(1rem, 3cqi, 2rem)' }} className="ent-widget-stack">
               <SiteLink href={buildSiteUrl(site, '/')} navigate={navigate} style={{ color: '#1d4ed8', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
                 <ArrowLeft size={14} aria-hidden="true" />
                 <span>All Audition Breakdowns</span>
               </SiteLink>
-              <div className="ent-about-grid" style={{ background: '#ffffff', padding: '1.4rem', border: '1px solid var(--site-border)' }}>
+              <div className="ent-about-grid" style={{ background: '#ffffff', padding: '1.4rem', border: '1px solid var(--site-border)', borderRadius: '0.7rem' }}>
                 {aud.posterUrl && (
                   <img
                     src={aud.posterUrl}
@@ -191,9 +278,8 @@ export function OpenCallCastingSite({ site, org, resolved, data, navigate }: Sit
           );
         })()}
 
-      {/* PRODUCTIONS */}
       {routeId === 'productions' && (
-        <main style={{ padding: '1.5rem clamp(1rem, 3cqi, 2.2rem)' }} className="ent-widget-stack">
+        <main style={{ padding: '1.5rem clamp(1rem, 3cqi, 2rem)' }} className="ent-widget-stack">
           <h2 style={{ margin: 0 }}>Partner Productions Currently Casting</h2>
           <div className="ent-directory-grid">
             {data.partnerSites.map((p) => (
@@ -206,12 +292,12 @@ export function OpenCallCastingSite({ site, org, resolved, data, navigate }: Sit
               </article>
             ))}
           </div>
+          <AuditionListWidget auditions={data.ent.auditions} data={data} accentColor="#1d4ed8" navigate={navigate} detailBaseSite={site} />
         </main>
       )}
 
-      {/* CASTING PROFESSIONALS */}
       {routeId === 'casting' && (
-        <main style={{ padding: '1.5rem clamp(1rem, 3cqi, 2.2rem)' }} className="ent-widget-stack">
+        <main style={{ padding: '1.5rem clamp(1rem, 3cqi, 2rem)' }} className="ent-widget-stack">
           <h2 style={{ margin: 0 }}>Casting Directors & Breakdown Desks</h2>
           <ul className="ent-dept-list" role="list">
             {(org.departments ?? []).map((d) => (
@@ -226,9 +312,8 @@ export function OpenCallCastingSite({ site, org, resolved, data, navigate }: Sit
         </main>
       )}
 
-      {/* AUTHENTICATED MY APPLICATIONS */}
       {routeId === 'applications' && (
-        <main style={{ padding: '1.5rem clamp(1rem, 3cqi, 2.2rem)' }}>
+        <main style={{ padding: '1.5rem clamp(1rem, 3cqi, 2rem)' }}>
           <AuthPortalGate
             data={data}
             portalName="My Audition Submissions & Callback Tracker"
@@ -261,7 +346,7 @@ export function OpenCallCastingSite({ site, org, resolved, data, navigate }: Sit
       )}
 
       {routeId === 'about' && (
-        <main style={{ padding: '1.5rem clamp(1rem, 3cqi, 2.2rem)' }}>
+        <main style={{ padding: '1.5rem clamp(1rem, 3cqi, 2rem)' }}>
           <OrgAboutSection site={site} org={org} data={data} navigate={navigate} />
         </main>
       )}

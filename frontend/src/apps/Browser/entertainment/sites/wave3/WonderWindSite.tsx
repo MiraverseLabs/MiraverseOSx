@@ -39,10 +39,10 @@ export function WonderWindSite({ site, org, resolved, data, navigate }: SiteComp
     <div className="ent-root site-wonderwind" data-site-shell="touring-dance">
       <header className="wd-header">
         <div>
-          <span className="ent-mono-tag" style={{ color: 'var(--site-accent)' }}>
-            TRADE-WIND PAVILION · ELODIA, BRISLAND
+          <span className="ent-mono-tag" style={{ color: '#e9d5ff' }}>
+            TOURING PERFORMANCE COLLECTIVE · ELODIA, BRISLAND
           </span>
-          <h1 style={{ margin: '0.15rem 0 0', fontSize: 'clamp(1.35rem, 2.8cqi, 2rem)', fontWeight: 500 }}>
+          <h1 style={{ margin: '0.1rem 0 0', fontSize: 'clamp(1.25rem, 2.5cqi, 1.8rem)', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
             {site.name}
           </h1>
         </div>
@@ -61,45 +61,67 @@ export function WonderWindSite({ site, org, resolved, data, navigate }: SiteComp
       </header>
 
       <main className="wd-body">
-        <SiteFeedbackBanner message={data.feedback} onDismiss={() => data.setFeedback('')} accentColor="#2c6860" />
+        <SiteFeedbackBanner message={data.feedback} onDismiss={() => data.setFeedback('')} accentColor="#c4b5fd" />
 
         {resolved.isNotFound && <SiteNotFoundView site={site} navigate={navigate} />}
 
-        {/* PRODUCTIONS & TOUR */}
+        {/* PRODUCTIONS & TOUR — Twilight Hero + Floating ON TOUR Card (PDF pp. 37–38) */}
         {(routeId === 'home' || routeId === 'tour') && (
           <>
-            <section className="ent-about-grid" style={{ padding: '1.35rem', background: '#ffffff', border: '1px solid var(--site-border)', alignItems: 'center' }}>
-              <div className="ent-widget-stack">
-                <h2 style={{ margin: 0, fontWeight: 500 }}>{site.tagline}</h2>
-                <p style={{ margin: 0, color: 'var(--site-muted)', fontSize: '0.92rem', lineHeight: 1.6 }}>
+            <section className="wd-hero" aria-label="Wonder-Wind touring spotlight">
+              <img
+                src="/media/posters/poster-wind-archive-collage.jpg"
+                alt="Wonder-Wind spatial movement touring collage across Meridion"
+              />
+              <div className="wd-hero-scrim" aria-hidden="true" />
+
+              <div style={{ position: 'relative', zIndex: 1 }} className="ent-widget-stack">
+                <span className="ent-mono-tag" style={{ color: '#e9d5ff' }}>
+                  MOVEMENT BEYOND BORDERS · CROSS-REALM ENSEMBLE
+                </span>
+                <h2 style={{ margin: 0, fontSize: 'clamp(1.75rem, 3.6cqi, 2.75rem)', fontStyle: 'italic', fontWeight: 400, lineHeight: 1.04 }}>
+                  {site.tagline}
+                </h2>
+                <p style={{ margin: 0, fontFamily: 'system-ui, sans-serif', fontSize: '0.84rem', color: '#e2dbf8', maxInlineSize: '30rem', lineHeight: 1.55 }}>
                   {site.description}
                 </p>
                 <div className="ent-action-row" style={{ fontFamily: 'system-ui, sans-serif' }}>
-                  <SiteLink href={buildSiteUrl(site, '/workshops')} navigate={navigate} className="ent-btn-primary">
-                    Open Ensemble Auditions
+                  <SiteLink href={buildSiteUrl(site, '/workshops')} navigate={navigate} className="ent-btn-primary" style={{ borderRadius: '999px' }}>
+                    Join Ensemble Workshops →
                   </SiteLink>
-                  <SiteLink href={crossSiteLinks.songbirdArtist('ART-SORA')} navigate={navigate} className="ent-btn-secondary">
+                  <SiteLink href={crossSiteLinks.songbirdArtist('ART-SORA')} navigate={navigate} className="ent-btn-secondary" style={{ borderRadius: '999px' }}>
                     Hear Sora Takahashi’s Score ↗
                   </SiteLink>
                 </div>
               </div>
-              <img
-                src="/media/posters/poster-wind-archive-collage.jpg"
-                alt="Wonder-Wind and Marigold Theatre Wind Archive spatial choreography poster"
-                style={{ inlineSize: '100%', maxBlockSize: '280px', objectFit: 'cover' }}
-              />
+
+              <aside style={{ position: 'relative', zIndex: 1, background: 'rgba(18, 14, 36, 0.88)', border: '1px solid var(--site-border)', borderRadius: '0.65rem', padding: '1rem', fontFamily: 'system-ui, sans-serif' }} className="ent-widget-stack">
+                <strong style={{ letterSpacing: '0.1em', fontSize: '0.78rem', color: '#e9d5ff' }}>✦ ON TOUR</strong>
+                {TOUR_STOPS.map((stop) => (
+                  <div key={stop.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem', fontSize: '0.76rem', paddingBlockEnd: '0.45rem', borderBlockEnd: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div>
+                      <strong>{stop.realm}</strong>
+                      <div style={{ color: 'var(--site-muted)', fontSize: '0.7rem' }}>{stop.venue}</div>
+                    </div>
+                    <SiteLink href={buildSiteUrl(site, '/tour')} navigate={navigate} style={{ color: '#e9d5ff', fontWeight: 700, fontSize: '0.72rem' }}>
+                      Details →
+                    </SiteLink>
+                  </div>
+                ))}
+              </aside>
             </section>
 
+            {/* Realm Filter Itinerary */}
             <section className="ent-widget-stack">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.65rem' }}>
-                <h2 style={{ margin: 0, fontWeight: 500 }}>Cross-Realm Tour Itinerary</h2>
+                <h2 style={{ margin: 0, fontWeight: 500, fontStyle: 'italic' }}>Cross-Realm Tour Itinerary</h2>
                 <div className="ent-action-row" style={{ fontFamily: 'system-ui, sans-serif' }}>
                   {['All', 'Brisland', 'Orynvell', 'Kaji', 'Marlowe'].map((realm) => (
                     <button
                       key={realm}
                       type="button"
                       className={realmFilter === realm ? 'ent-btn-primary' : 'ent-btn-secondary'}
-                      style={{ minBlockSize: '32px', padding: '0.2rem 0.65rem', fontSize: '0.76rem' }}
+                      style={{ minBlockSize: '32px', padding: '0.2rem 0.7rem', fontSize: '0.75rem', borderRadius: '999px' }}
                       onClick={() => setRealmFilter(realm)}
                     >
                       {realm}
@@ -110,7 +132,7 @@ export function WonderWindSite({ site, org, resolved, data, navigate }: SiteComp
 
               <ul className="ent-ticket-list" role="list" style={{ fontFamily: 'system-ui, sans-serif' }}>
                 {visibleStops.map((stop) => (
-                  <li key={stop.id} className="ent-ticket-item" style={{ background: '#ffffff' }}>
+                  <li key={stop.id} className="ent-ticket-item">
                     <div className="ent-ticket-meta">
                       <strong>{stop.work}</strong>
                       <span>
@@ -118,7 +140,7 @@ export function WonderWindSite({ site, org, resolved, data, navigate }: SiteComp
                       </span>
                       <small>{stop.note}</small>
                     </div>
-                    <span className="ent-mono-tag" style={{ color: 'var(--site-accent)' }}>
+                    <span className="ent-mono-tag" style={{ color: '#e9d5ff' }}>
                       {stop.realm}
                     </span>
                   </li>
@@ -128,10 +150,9 @@ export function WonderWindSite({ site, org, resolved, data, navigate }: SiteComp
           </>
         )}
 
-        {/* COMPANY & COLLABORATIONS */}
         {(routeId === 'company' || routeId === 'collaborations') && (
-          <section style={{ padding: '1.4rem', background: '#ffffff', border: '1px solid var(--site-border)' }} className="ent-widget-stack">
-            <h2 style={{ margin: 0, fontWeight: 500 }}>
+          <section style={{ padding: '1.4rem', background: 'var(--site-surface-alt)', border: '1px solid var(--site-border)', borderRadius: '0.65rem' }} className="ent-widget-stack">
+            <h2 style={{ margin: 0, fontWeight: 500, fontStyle: 'italic' }}>
               {routeId === 'company' ? 'Kaelen Zephyr & Linnea Moss — Artistic Direction' : 'Live Musician & Spatial Collaborations'}
             </h2>
             <p style={{ margin: 0, color: 'var(--site-muted)', fontSize: '0.92rem', lineHeight: 1.65 }}>
@@ -158,13 +179,12 @@ export function WonderWindSite({ site, org, resolved, data, navigate }: SiteComp
           </section>
         )}
 
-        {/* WORKSHOPS & AUDITIONS */}
         {routeId === 'workshops' && (
           <section className="ent-widget-stack" style={{ fontFamily: 'system-ui, sans-serif' }}>
-            <h2 style={{ margin: 0, fontFamily: 'Georgia, serif', fontWeight: 500 }}>
+            <h2 style={{ margin: 0, fontFamily: 'Georgia, serif', fontStyle: 'italic', fontWeight: 500 }}>
               Spatial Movement Workshops & Open Ensemble Auditions
             </h2>
-            <AuditionListWidget auditions={wwAuditions} data={data} accentColor="#2c6860" />
+            <AuditionListWidget auditions={wwAuditions} data={data} accentColor="#c4b5fd" />
           </section>
         )}
 

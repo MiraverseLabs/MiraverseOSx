@@ -53,9 +53,9 @@ export function AmrielleSite({ site, org, resolved, data, navigate }: SiteCompon
     { id: 'home', path: '/', label: 'Collections' },
     { id: 'beauty', path: '/beauty', label: 'Beauty' },
     { id: 'fragrance', path: '/fragrance', label: 'Fragrance' },
-    { id: 'campaigns', path: '/campaigns', label: 'Campaigns' },
+    { id: 'campaigns', path: '/campaigns', label: 'Ambassadors' },
     { id: 'shop', path: '/shop', label: 'Shop' },
-    { id: 'about', path: '/about', label: 'Maison Amrielle' },
+    { id: 'about', path: '/about', label: 'The House' },
   ];
 
   const renderProductGrid = (category?: 'beauty' | 'fragrance') => {
@@ -64,11 +64,11 @@ export function AmrielleSite({ site, org, resolved, data, navigate }: SiteCompon
       <div className="am-product-grid">
         {items.map((item) => (
           <article key={item.id} className="am-product-card">
-            <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--site-accent)' }}>
+            <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--site-accent)' }}>
               {item.category}
             </span>
             <h3 style={{ margin: 0, fontSize: '1.08rem', fontWeight: 600 }}>{item.name}</h3>
-            <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--site-muted)', fontFamily: 'system-ui, sans-serif' }}>
+            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--site-muted)', fontFamily: 'system-ui, sans-serif' }}>
               {item.notes}
             </p>
             <div className="am-swatch-row" aria-label={`Shades for ${item.name}`}>
@@ -80,7 +80,7 @@ export function AmrielleSite({ site, org, resolved, data, navigate }: SiteCompon
                   className="am-swatch"
                   style={{
                     background: hex,
-                    outline: selectedSwatches[item.id] === hex ? '2px solid #381e2f' : undefined,
+                    outline: selectedSwatches[item.id] === hex ? '2px solid #361c2c' : undefined,
                     outlineOffset: '2px',
                   }}
                   onClick={() => setSelectedSwatches((prev) => ({ ...prev, [item.id]: hex }))}
@@ -109,15 +109,15 @@ export function AmrielleSite({ site, org, resolved, data, navigate }: SiteCompon
   return (
     <div className="ent-root site-amrielle" data-site-shell="beauty-storefront">
       <header className="am-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', fontFamily: 'system-ui, sans-serif', fontSize: '0.72rem', color: 'var(--site-muted)' }}>
-          <span>Crown Promenade, Aureline</span>
-          <span>Perfumery & Stage Cosmetics</span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700, color: 'var(--site-ink)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', fontFamily: 'system-ui, sans-serif', fontSize: '0.7rem', color: '#dec4d0' }}>
+          <span>CROWN PROMENADE, AURELINE</span>
+          <span>BEAUTY · FRAGRANCE · STAGE ENDURANCE</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700, color: '#ffffff' }}>
             <ShoppingBag size={14} aria-hidden="true" />
             <span>Bag ({bagCount})</span>
           </span>
         </div>
-        <h1 style={{ margin: 0, fontSize: 'clamp(1.75rem, 4cqi, 2.8rem)', fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+        <h1 style={{ margin: 0, fontSize: 'clamp(1.7rem, 3.8cqi, 2.65rem)', fontWeight: 400, letterSpacing: '0.24em', textTransform: 'uppercase' }}>
           {site.name}
         </h1>
         <nav className="am-nav" aria-label={resolved.config.navAriaLabel}>
@@ -134,43 +134,97 @@ export function AmrielleSite({ site, org, resolved, data, navigate }: SiteCompon
         </nav>
       </header>
 
+      {/* Luxury Fragrance Hero (PDF pp. 29–30) */}
+      {routeId === 'home' && (
+        <section className="am-hero" aria-label="Amrielle signature fragrance spotlight">
+          <img
+            src="/media/entertainment/amrielle-still-life.jpg"
+            alt="Amrielle rose-toned glass perfume flacons and stage cosmetics arranged on warm travertine"
+          />
+          <div className="am-hero-scrim">
+            <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.7rem', letterSpacing: '0.18em', color: '#f3c2d5', textTransform: 'uppercase' }}>
+              NEW AT MAISON AMRIELLE · VIVIENNE ROSE EDITION
+            </span>
+            <h2 style={{ margin: '0.25rem 0 0.45rem', fontSize: 'clamp(1.85rem, 3.8cqi, 2.8rem)', fontStyle: 'italic', fontWeight: 400, lineHeight: 1.04 }}>
+              Nocturne de Verre
+            </h2>
+            <p style={{ margin: '0 0 1rem', fontFamily: 'system-ui, sans-serif', fontSize: '0.84rem', color: '#f5dce6', maxInlineSize: '28rem' }}>
+              {site.tagline} — Botanical perfumery and stage-enduring cosmetics crafted in Aureline.
+            </p>
+            <div className="ent-action-row" style={{ fontFamily: 'system-ui, sans-serif' }}>
+              <SiteLink href={buildSiteUrl(site, '/shop')} navigate={navigate} className="ent-btn-primary" style={{ background: '#f5dce6', color: '#2b1523', borderRadius: '999px' }}>
+                Shop the Collection →
+              </SiteLink>
+              <button
+                type="button"
+                className="ent-btn-secondary"
+                style={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.45)', borderRadius: '999px' }}
+                onClick={() =>
+                  data.actions.acceptSponsorship(site.orgId, `Amrielle Cycle ${data.cycle} Botanical Mist Campaign`)
+                }
+              >
+                <Sparkles size={13} aria-hidden="true" />
+                <span>Ambassador Campaign</span>
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
       <main className="am-body">
-        <SiteFeedbackBanner message={data.feedback} onDismiss={() => data.setFeedback('')} accentColor="#8f3f6c" />
+        <SiteFeedbackBanner message={data.feedback} onDismiss={() => data.setFeedback('')} accentColor="#7f3159" />
 
         {resolved.isNotFound && <SiteNotFoundView site={site} navigate={navigate} />}
 
-        {/* COLLECTIONS HOME */}
+        {/* HOME — 5-Category Strip + Collective Split + Bestsellers (PDF pp. 29–30) */}
         {routeId === 'home' && (
           <>
-            <figure style={{ margin: 0, background: '#ffffff', border: '1px solid var(--site-border)' }}>
-              <img
-                src="/media/entertainment/amrielle-still-life.jpg"
-                alt="Amrielle rose-toned glass perfume flacons and stage cosmetics arranged on warm travertine"
-                style={{ inlineSize: '100%', aspectRatio: '16 / 7.5', objectFit: 'cover' }}
-              />
-              <figcaption style={{ padding: '1.15rem 1.35rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
-                <div>
-                  <h2 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 500 }}>{site.tagline}</h2>
-                  <p style={{ margin: '0.25rem 0 0', fontFamily: 'system-ui, sans-serif', fontSize: '0.84rem', color: 'var(--site-muted)' }}>
-                    Featuring Nocturne de Verre — our Cycle {data.cycle} collaboration with Vivienne Rose.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  className="ent-btn-primary"
-                  style={{ fontFamily: 'system-ui, sans-serif' }}
-                  onClick={() =>
-                    data.actions.acceptSponsorship(site.orgId, `Amrielle Cycle ${data.cycle} Botanical Mist Campaign`)
-                  }
-                >
-                  <Sparkles size={14} aria-hidden="true" />
-                  <span>Accept Brand Ambassador Campaign</span>
-                </button>
-              </figcaption>
-            </figure>
+            <section className="am-cat-strip" aria-label="Shop Amrielle categories">
+              {[
+                { label: 'Fragrance', path: '/fragrance', img: '/media/entertainment/amrielle-still-life.jpg' },
+                { label: 'Stage Beauty', path: '/beauty', img: '/media/entertainment/glassline-atelier.jpg' },
+                { label: 'Ambassadors', path: '/campaigns', img: '/media/entertainment/willow-editorial.jpg' },
+                { label: 'Full Boutique', path: '/shop', img: '/media/albums/album-marble-lilies.jpg' },
+              ].map((cat) => (
+                <SiteLink key={cat.label} href={buildSiteUrl(site, cat.path)} navigate={navigate} className="am-cat-tile">
+                  <img src={cat.img} alt="" loading="lazy" />
+                  <span>{cat.label} →</span>
+                </SiteLink>
+              ))}
+            </section>
+
+            <section className="ent-about-grid">
+              <article style={{ background: '#2b1523', color: '#fdf2f6', padding: '1.35rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.6rem' }}>
+                <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '0.68rem', letterSpacing: '0.16em', color: '#f0b4c8' }}>
+                  THE AMRIELLE COLLECTIVE
+                </span>
+                <h2 style={{ margin: 0, fontStyle: 'italic', fontWeight: 400, fontSize: '1.65rem' }}>
+                  Meet Our Ambassadors
+                </h2>
+                <p style={{ margin: 0, fontFamily: 'system-ui, sans-serif', fontSize: '0.82rem', color: '#e6cad6', lineHeight: 1.55 }}>
+                  Performers, vocalists, and dancers across Meridion who carry Amrielle from rehearsal rooms to
+                  Silverleaf Stadium.
+                </p>
+                <SiteLink href={buildSiteUrl(site, '/campaigns')} navigate={navigate} className="ent-btn-primary" style={{ background: '#f0b4c8', color: '#2b1523', fontFamily: 'system-ui, sans-serif', alignSelf: 'flex-start' }}>
+                  Meet the Circle →
+                </SiteLink>
+              </article>
+
+              <article style={{ background: '#ffffff', border: '1px solid var(--site-border)', padding: '1.35rem' }} className="ent-widget-stack">
+                <h3 style={{ margin: 0, fontStyle: 'italic', fontWeight: 500 }}>Active Endorsements</h3>
+                {amrielleCampaigns.map((sp) => (
+                  <div key={sp.sponsorshipId} style={{ paddingBlockEnd: '0.6rem', borderBlockEnd: '1px solid var(--site-border)', fontFamily: 'system-ui, sans-serif', fontSize: '0.82rem' }}>
+                    <strong>{sp.campaignTitle}</strong>
+                    <div style={{ color: 'var(--site-muted)' }}>
+                      {sp.stageName} × {sp.sponsorName} · {sp.feeCredits.toLocaleString()} ₢
+                    </div>
+                  </div>
+                ))}
+              </article>
+            </section>
 
             <section className="ent-widget-stack">
-              <h2 style={{ margin: 0, fontWeight: 500 }}>Signature House Editions</h2>
+              <h2 style={{ margin: 0, fontStyle: 'italic', fontWeight: 500 }}>Bestsellers & Rituals</h2>
               {renderProductGrid()}
             </section>
           </>
@@ -178,34 +232,30 @@ export function AmrielleSite({ site, org, resolved, data, navigate }: SiteCompon
 
         {routeId === 'beauty' && (
           <section className="ent-widget-stack">
-            <h2 style={{ margin: 0, fontWeight: 500 }}>Stage Cosmetics & Personal Rituals</h2>
+            <h2 style={{ margin: 0, fontStyle: 'italic', fontWeight: 500 }}>Stage Cosmetics & Personal Rituals</h2>
             {renderProductGrid('beauty')}
           </section>
         )}
 
         {routeId === 'fragrance' && (
           <section className="ent-widget-stack">
-            <h2 style={{ margin: 0, fontWeight: 500 }}>Maison Amrielle Perfumery</h2>
+            <h2 style={{ margin: 0, fontStyle: 'italic', fontWeight: 500 }}>Maison Amrielle Perfumery</h2>
             {renderProductGrid('fragrance')}
           </section>
         )}
 
         {routeId === 'shop' && (
           <section className="ent-widget-stack">
-            <h2 style={{ margin: 0, fontWeight: 500 }}>Boutique Counter</h2>
+            <h2 style={{ margin: 0, fontStyle: 'italic', fontWeight: 500 }}>Boutique Counter</h2>
             {renderProductGrid()}
           </section>
         )}
 
-        {/* CAMPAIGNS */}
         {routeId === 'campaigns' && (
           <section className="ent-widget-stack" style={{ fontFamily: 'system-ui, sans-serif' }}>
-            <h2 style={{ margin: 0, fontFamily: 'Georgia, serif', fontWeight: 500 }}>
+            <h2 style={{ margin: 0, fontFamily: 'Georgia, serif', fontStyle: 'italic', fontWeight: 500 }}>
               Ambassador Endorsements & Active Campaigns ({amrielleCampaigns.length})
             </h2>
-            <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--site-muted)' }}>
-              Colette Amrielle and Rene Sato partner with musicians, models, and dancers across Meridion.
-            </p>
             <div className="ent-action-row">
               <button
                 type="button"

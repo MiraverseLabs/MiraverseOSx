@@ -207,6 +207,7 @@ def _ensure_artist_defaults(record: dict[str, Any], day_index: int = 0, step_ind
         "totalRoyaltiesEarned": 0.0,
         "totalBoxOfficeEarned": 0.0,
         "unclaimedPlayerRoyalties": 0.0,
+        "royaltySplitArtist": 0.80,
         "portfolioIds": [],
         "origin": "npc",
         "activeSinceDay": day_index,
@@ -629,6 +630,14 @@ def handle_audition(run: dict[str, Any], payload: dict[str, Any]) -> dict[str, A
         raise ValueError("Register an artist/performer profile before auditioning")
     _ensure_artist_defaults(artist, clock.day_index, clock.tick_count)
 
+    disc = str(audition.get("discipline") or "").casefold()
+    if (
+        disc
+        and disc not in [str(d).casefold() for d in artist.get("disciplines", [])]
+        and not payload.get("allowCrossDiscipline")
+    ):
+        raise ValueError(f"This casting call requires the {disc} discipline")
+
     if not audition.get("openToUnrepresented", True) and not artist.get("managerOrgId"):
         raise ValueError("This casting call requires representation from Starstruck, Second Act, or Willow Whisper")
 
@@ -957,7 +966,10 @@ def handle_publicity_or_fan_action(run: dict[str, Any], payload: dict[str, Any])
         plays = max(1, min(50, int(payload.get("plays") or 1)))
         track["streams"] = int(track.get("streams") or 0) + plays
         artist = next((a for a in state.get("artists", []) if a.get("artistId") == track.get("artistId")), None)
-        royalty = round(plays * 0.35, 2)
+        release = next((r for r in state.get("releases", []) if r.get("trackId") == track_id), None)
+        rate = float(release.get("expectedRoyaltyRate", 0.14)) if release else 0.12
+        split = float(artist.get("royaltySplitArtist", 0.80)) if artist else 0.80
+        royalty = round(plays * rate * split, 2)
         if artist is not None:
             artist["monthlyListeners"] = int(artist.get("monthlyListeners") or 0) + plays
             artist["totalRoyaltiesEarned"] = round(float(artist.get("totalRoyaltiesEarned") or 0.0) + royalty, 2)
@@ -1311,6 +1323,72 @@ def _citizen_is_player_linked(model: Any, character_id: str) -> bool:
     return False
 
 
+def _slot_hour(slot: str) -> int:
+    return {"afternoon": 14, "evening": 19, "late": 22}.get(str(slot or "evening").casefold(), 19)
+
+
+def _listener_affinity(citizen: Any, track: dict[str, Any]) -> float:
+    prefs = " ".join(str(x) for x in (getattr(citizen, "preferences", []) or [])).casefold()
+    genre = str(track.get("genre") or "").casefold()
+    score = float(getattr(citizen, "music_interest", 0.0)) * 0.6
+    if genre and genre in prefs:
+        score += 2.0
+    if getattr(citizen, "activity", "") in ("Entertainment", "Socializing"):
+        score += 1.2
+    if float(getattr(citizen, "sociability", 0.0)) > 0.6:
+        score += 0.4
+    return score
+
+
+def _choose_track(listener: Any, tracks: list[dict[str, Any]], rng: Any) -> dict[str, Any] | None:
+    if not tracks:
+        return None
+    prefs = " ".join(str(x) for x in (getattr(listener, "preferences", []) or [])).casefold()
+    best: dict[str, Any] | None = None
+    best_score = -1.0
+    for track in tracks:
+        score = float(track.get("quality", 50.0)) * 0.01
+        score += math.log1p(max(0, int(track.get("streams", 0)))) * 0.06
+        score += min(3.0, int(track.get("radioSpins", 0)) * 0.03)
+        genre = str(track.get("genre") or "").casefold()
+        if genre and genre in prefs:
+            score += 1.4
+        score += rng.random() * 0.9
+        if score > best_score:
+            best_score = score
+            best = track
+    return best
+
+
+def _venue_choices(
+    actor: dict[str, Any], concerts: list[dict[str, Any]], target_day: int, rng: Any
+) -> list[tuple[float, str, dict[str, Any]]]:
+    rec = float(actor.get("recognition", 0.0))
+    budget = 400.0 + float(actor.get("totalRoyaltiesEarned", 0.0)) * 0.08 + float(actor.get("totalBoxOfficeEarned", 0.0)) * 0.05
+    choices: list[tuple[float, str, dict[str, Any]]] = []
+    for venue_org, meta in STAGE_VENUES.items():
+        if rec < float(meta["minRecognition"]):
+            continue
+        if float(meta["rentalCost"]) > budget:
+            continue
+        available = not any(
+            c.get("status") == "scheduled"
+            and c.get("venueOrgId") == venue_org
+            and int(c.get("scheduledDay", -1)) == target_day
+            and str(c.get("slot", "evening")) == "evening"
+            for c in concerts
+        )
+        if not available:
+            continue
+        ideal = max(180.0, rec * 650.0)
+        fit = -abs(float(meta["capacity"]) - ideal) / 1200.0
+        cost = -float(meta["rentalCost"]) / 6000.0
+        score = fit + cost + rng.random() * 0.4
+        choices.append((score, venue_org, meta))
+    choices.sort(key=lambda item: item[0], reverse=True)
+    return choices
+
+
 def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> None:
     """Bounded interval-driven autonomous industry simulation inside PopulationModel.step()."""
     living = model.living_agents
@@ -1346,11 +1424,17 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
         media_items = ext.setdefault("media_items", [])
         fan_communities = ext.setdefault("fan_communities", [])
 
-        # 1. Talent discovery & NPC artist onboarding (bounded roster)
+        # 1. Talent discovery & NPC artist onboarding (scales with eligible population and demand)
         existing_char_ids = {a.get("characterId") for a in artists if a.get("characterId")}
-        candidates = [c for c in living if c.character_id not in existing_char_ids and _is_entertainment_candidate(c)]
-        if len(artists) < max(4, min(14, len(living) // 5)) and candidates:
+        open_auditions = [a for a in auditions if a.get("status") == "open"]
+        target_roster = max(4, min(80, len(living) // 3 + len(open_auditions)))
+        recruit_slots = max(0, min(3, target_roster - len(artists)))
+        for _ in range(recruit_slots):
+            candidates = [c for c in living if c.character_id not in existing_char_ids and _is_entertainment_candidate(c)]
+            if not candidates:
+                break
             recruit = rng.choice(candidates)
+            existing_char_ids.add(recruit.character_id)
             disciplines = _infer_disciplines(recruit)
             genres = ["Celestial Ambient"] if recruit.realm in ("Orynvell", "Lumia") else ["Marlowe Tidewave"] if recruit.realm == "Marlowe" else ["Glassline Synth"]
             created = upsert_artist(
@@ -1374,18 +1458,33 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
                 ctype = "label" if rep_org == "ORG_MARLIE_RECORDS" else "management"
                 manage_contract(run_env, {"artistId": created["artistId"], "orgId": rep_org, "contractType": ctype})
 
-        # 2. Ensure Open Call Casting & company auditions stay populated
-        open_auditions = [a for a in auditions if a.get("status") == "open"]
+        # 2. Ensure auditions stay populated from actual productions and organizational activity
         if len(open_auditions) < 3:
-            templates = (
-                ("Mirrora Evening Drama — Supporting Lead", "ORG_OPEN_CALL", "ORG_MIRRORA_STUDIOS", "acting", 16.0, 260.0),
-                ("The Looking Glass — Emerging Acoustic Showcase", "ORG_LOOKING_GLASS", "ORG_LOOKING_GLASS", "music", 8.0, 120.0),
-                ("Femme Fatale — Promenade Cabaret Ensemble", "ORG_FEMME_FATALE", "ORG_MARIGOLD_THEATRE", "dance", 18.0, 210.0),
-                ("Willow Whisper × Glassline Designs — Autumn Lookbook", "ORG_WILLOW_WHISPER", "ORG_GLASSLINE_DESIGNS", "modeling", 14.0, 240.0),
-                ("Storyloom Studios — Lantern Voices Ensemble", "ORG_OPEN_CALL", "ORG_STORYLOOM_STUDIOS", "acting", 12.0, 195.0),
-                ("Marigold Theatre — Repertory Understudy Call", "ORG_MARIGOLD_THEATRE", "ORG_MARIGOLD_THEATRE", "theatre", 15.0, 200.0),
-            )
-            pick_tpl = templates[(clock.day_index + len(auditions)) % len(templates)]
+            productions = ext.setdefault("productions", [])
+            derived: list[tuple[str, str, str, str, float, float]] = []
+            for prod in productions:
+                kind = str(prod.get("kind") or "").casefold()
+                if kind in DISCIPLINES and prod.get("status") in ("in_production", "released"):
+                    derived.append(
+                        (
+                            f"{prod.get('title') or 'Untitled Production'} — {kind.title()} Call",
+                            str(prod.get("studioOrgId") or "ORG_OPEN_CALL"),
+                            str(prod.get("studioOrgId") or "ORG_MIRRORA_STUDIOS"),
+                            kind,
+                            12.0,
+                            220.0,
+                        )
+                    )
+            if not derived:
+                derived = [
+                    ("Mirrora Evening Drama — Supporting Lead", "ORG_OPEN_CALL", "ORG_MIRRORA_STUDIOS", "acting", 16.0, 260.0),
+                    ("The Looking Glass — Emerging Acoustic Showcase", "ORG_LOOKING_GLASS", "ORG_LOOKING_GLASS", "music", 8.0, 120.0),
+                    ("Femme Fatale — Promenade Cabaret Ensemble", "ORG_FEMME_FATALE", "ORG_MARIGOLD_THEATRE", "dance", 18.0, 210.0),
+                    ("Willow Whisper × Glassline Designs — Autumn Lookbook", "ORG_WILLOW_WHISPER", "ORG_GLASSLINE_DESIGNS", "modeling", 14.0, 240.0),
+                    ("Storyloom Studios — Lantern Voices Ensemble", "ORG_OPEN_CALL", "ORG_STORYLOOM_STUDIOS", "acting", 12.0, 195.0),
+                    ("Marigold Theatre — Repertory Understudy Call", "ORG_MARIGOLD_THEATRE", "ORG_MARIGOLD_THEATRE", "theatre", 15.0, 200.0),
+                ]
+            pick_tpl = derived[(clock.day_index + len(auditions)) % len(derived)]
             handle_audition(
                 run_env,
                 {
@@ -1409,7 +1508,8 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
             _ensure_artist_defaults(actor, clock.day_index, clock.tick_count)
             artist_tracks = [t for t in tracks if t.get("artistId") == actor["artistId"]]
 
-            if len(artist_tracks) < 3 and "music" in actor.get("disciplines", ["music"]):
+            catalog_target = min(12, 3 + int(float(actor.get("recognition", 0.0)) // 18))
+            if len(artist_tracks) < catalog_target and "music" in actor.get("disciplines", ["music"]):
                 titles = ("Glassline Nocturne", "Tidewater Signal", "Balisya Brass", "Echoes Over Angel Bay", "Velvet Static", "Elodia Windward", "Radiance After Midnight")
                 title = f"{titles[(len(tracks) + clock.day_index) % len(titles)]}"
                 new_track = add_track(
@@ -1431,58 +1531,87 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
                         "distributorOrgId": actor.get("distributorOrgId") or "ORG_LUNERUM_DIST",
                     },
                 )
+                projects = ext.setdefault("recordingProjects", [])
+                if not any(p.get("artistId") == actor["artistId"] and p.get("status") == "recording" for p in projects):
+                    projects.append(
+                        {
+                            "projectId": str(uuid.uuid4()),
+                            "artistId": actor["artistId"],
+                            "title": f"{actor.get('stageName', 'Artist')} — Day {clock.day_index + 1} Sessions",
+                            "status": "recording",
+                            "startedDay": clock.day_index,
+                            "targetTracks": catalog_target,
+                        }
+                    )
 
-            # Apply to an open audition matching discipline
+            # Apply to an open audition the artist is actually eligible for
+            actor_disciplines = {str(d).casefold() for d in actor.get("disciplines", [])}
             for aud in auditions:
-                if aud.get("status") == "open" and not any(ap.get("artistId") == actor["artistId"] for ap in aud.get("applicants", [])):
-                    handle_audition(run_env, {"auditionId": aud["auditionId"], "artistId": actor["artistId"], "skillScore": 60.0 + rng.random() * 30.0})
-                    break
+                if aud.get("status") != "open":
+                    continue
+                disc = str(aud.get("discipline") or "").casefold()
+                if disc and disc not in actor_disciplines:
+                    continue
+                if any(ap.get("artistId") == actor["artistId"] for ap in aud.get("applicants", [])):
+                    continue
+                handle_audition(run_env, {"auditionId": aud["auditionId"], "artistId": actor["artistId"], "skillScore": 60.0 + rng.random() * 30.0})
+                break
 
             # Schedule an upcoming live venue performance if none pending for this artist
             has_scheduled_show = any(c.get("artistId") == actor["artistId"] and c.get("status") == "scheduled" for c in concerts)
             if not has_scheduled_show and len(concerts) < 30:
-                rec = float(actor.get("recognition", 0.0))
-                venue_org = "ORG_SILVERLEAF_STADIUM" if rec >= 60.0 else "ORG_MARIGOLD_THEATRE" if rec >= 18.0 else "ORG_LOOKING_GLASS"
-                vmeta = STAGE_VENUES[venue_org]
                 target_day = clock.day_index + 1
-                try:
-                    schedule_concert(
-                        run_env,
-                        {
-                            "artistId": actor["artistId"],
-                            "venue": vmeta["name"],
-                            "venueOrgId": venue_org,
-                            "scheduledDay": target_day,
-                            "slot": "evening",
-                            "ticketPrice": vmeta["defaultTicket"],
-                            "capacity": vmeta["capacity"],
-                        },
-                    )
-                except ValueError:
-                    pass
+                choices = _venue_choices(actor, concerts, target_day, rng)
+                if choices:
+                    _, venue_org, vmeta = choices[0]
+                    try:
+                        schedule_concert(
+                            run_env,
+                            {
+                                "artistId": actor["artistId"],
+                                "venue": vmeta["name"],
+                                "venueOrgId": venue_org,
+                                "scheduledDay": target_day,
+                                "slot": "evening",
+                                "ticketPrice": vmeta["defaultTicket"],
+                                "capacity": vmeta["capacity"],
+                            },
+                        )
+                    except ValueError:
+                        pass
 
         # 4. Citizen streaming, Pop Sticker radio airplay & concert attendance
         released_ids = {r.get("trackId") for r in releases if r.get("status") == "released"}
         playable_tracks = [t for t in tracks if t.get("trackId") in released_ids or len(releases) == 0]
         if playable_tracks:
-            listeners = [c for c in living if c.activity in ("Entertainment", "Relaxing", "Commuting", "Socializing")]
-            for listener in listeners[:12]:
-                chosen = rng.choice(playable_tracks)
+            listener_pool = [c for c in living if c.activity in ("Entertainment", "Relaxing", "Commuting", "Socializing")]
+            listener_pool.sort(
+                key=lambda c: _listener_affinity(c, playable_tracks[0]) + float(getattr(c, "music_interest", 0.0)),
+                reverse=True,
+            )
+            audience = listener_pool[: max(8, min(30, len(listener_pool)))]
+            releases_by_track = {r.get("trackId"): r for r in releases if r.get("status") == "released"}
+            for listener in audience:
+                chosen = _choose_track(listener, playable_tracks, rng)
+                if chosen is None:
+                    break
                 chosen["streams"] = int(chosen.get("streams") or 0) + 1
                 art = next((a for a in artists if a.get("artistId") == chosen.get("artistId")), None)
                 if art is not None:
                     art["monthlyListeners"] = int(art.get("monthlyListeners") or 0) + 1
-                    royalty = 0.25
+                    release = releases_by_track.get(chosen.get("trackId"))
+                    rate = float(release.get("expectedRoyaltyRate", 0.14)) if release else 0.12
+                    split = float(art.get("royaltySplitArtist", 0.80))
+                    royalty = round(rate * split, 4)
                     art["totalRoyaltiesEarned"] = round(float(art.get("totalRoyaltiesEarned") or 0.0) + royalty, 2)
                     cid = str(art.get("characterId") or "")
                     if art.get("origin") == "player" or _citizen_is_player_linked(model, cid):
                         art["unclaimedPlayerRoyalties"] = round(float(art.get("unclaimedPlayerRoyalties") or 0.0) + royalty, 2)
                     elif cid in citizens_by_id:
-                        split = 0.85
                         model.record_transaction(
                             citizens_by_id[cid],
                             "royalty",
-                            round(royalty * split, 2),
+                            round(royalty, 2),
                             f"Songbird & MMRS streaming royalty: {chosen['title']}",
                         )
                     adjust_fame(art, {"recognition": 0.08, "commercialInfluence": 0.06}, clock.day_index, clock.tick_count)
@@ -1493,7 +1622,8 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
             if concert.get("status") != "scheduled":
                 continue
             sday = int(concert.get("scheduledDay", clock.day_index))
-            if clock.day_index < sday or (clock.day_index == sday and clock.hour < 18):
+            slot_hour = _slot_hour(str(concert.get("slot", "evening")))
+            if clock.day_index < sday or (clock.day_index == sday and clock.hour < slot_hour):
                 continue
             cid_key = str(concert.get("concertId"))
             if cid_key in settled:
@@ -1598,24 +1728,31 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
 
             # Close due auditions & cast highest-scoring applicant
             for aud in auditions:
-                if aud.get("status") == "open" and int(aud.get("deadlineDay", 0)) <= clock.day_index and aud.get("applicants"):
-                    winner = max(aud["applicants"], key=lambda ap: float(ap.get("score", 0.0)))
-                    aud["status"] = "cast"
-                    aud["selectedArtistId"] = winner["artistId"]
-                    art = next((a for a in artists if a.get("artistId") == winner["artistId"]), None)
-                    if art is not None:
-                        stipend = float(aud.get("stipendCredits") or 180.0)
-                        char_id = str(art.get("characterId") or "")
-                        if art.get("origin") == "player" or _citizen_is_player_linked(model, char_id):
-                            art["unclaimedPlayerRoyalties"] = round(float(art.get("unclaimedPlayerRoyalties") or 0.0) + stipend, 2)
-                        elif char_id in citizens_by_id:
-                            model.record_transaction(citizens_by_id[char_id], "commission", stipend, f"Booked role: {aud['title']}")
-                        adjust_fame(
-                            art,
-                            {"industryReputation": 3.5, "artisticCredibility": 2.8, "recognition": 2.2},
-                            clock.day_index,
-                            clock.tick_count,
-                        )
+                if aud.get("status") != "open":
+                    continue
+                if int(aud.get("deadlineDay", 0)) > clock.day_index:
+                    continue
+                if not aud.get("applicants"):
+                    aud["status"] = "expired"
+                    aud["closedDay"] = clock.day_index
+                    continue
+                winner = max(aud["applicants"], key=lambda ap: float(ap.get("score", 0.0)))
+                aud["status"] = "cast"
+                aud["selectedArtistId"] = winner["artistId"]
+                art = next((a for a in artists if a.get("artistId") == winner["artistId"]), None)
+                if art is not None:
+                    stipend = float(aud.get("stipendCredits") or 180.0)
+                    char_id = str(art.get("characterId") or "")
+                    if art.get("origin") == "player" or _citizen_is_player_linked(model, char_id):
+                        art["unclaimedPlayerRoyalties"] = round(float(art.get("unclaimedPlayerRoyalties") or 0.0) + stipend, 2)
+                    elif char_id in citizens_by_id:
+                        model.record_transaction(citizens_by_id[char_id], "commission", stipend, f"Booked role: {aud['title']}")
+                    adjust_fame(
+                        art,
+                        {"industryReputation": 3.5, "artisticCredibility": 2.8, "recognition": 2.2},
+                        clock.day_index,
+                        clock.tick_count,
+                    )
 
             # Expire finished contracts
             for contract in contracts:
