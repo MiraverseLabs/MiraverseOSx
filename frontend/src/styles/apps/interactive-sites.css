@@ -817,3 +817,37 @@
     font-size: 39px;
   }
 }
+
+/* Per-site presentation blocks (no gameplay effect). */
+.is-feature { padding: 34px 0; border-bottom: 1px solid var(--is-rule); }
+.is-feature-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px 20px; margin: 6px 0 18px; }
+.is-feature-head h2 { font: 400 27px/1.3 'Newsreader', Georgia, serif; color: var(--is-ink); margin: 0; }
+.is-feature-badge { font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--is-accent); border: 1px solid var(--is-rule); border-radius: 2px; padding: 5px 8px; }
+.is-feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+.is-feature-card { border: 1px solid var(--is-rule); background: #fffefb; padding: 16px; border-radius: 3px; }
+.is-feature-card h3 { font: 600 15px/1.4 'Plus Jakarta Sans', Arial, sans-serif; color: var(--is-ink); margin: 0 0 3px; }
+.is-feature-card small { font-size: 10px; color: var(--is-accent); }
+.is-feature-card p { font-size: 12px; line-height: 1.8; color: var(--is-muted); margin: 8px 0 0; }
+.is-feature-note { font-size: 11px; color: var(--is-muted); margin: 14px 0 0; }
+
+/* Companion: neighborhood bulletin with a terracotta rule. */
+.is-feature-companion .is-feature-card { border-left: 3px solid var(--is-accent); }
+.is-feature-companion .is-feature-head h2 { color: #8a5546; }
+
+/* Garden: centered conservatory journal. */
+.is-feature-garden { text-align: center; }
+.is-feature-garden .is-feature-head { flex-direction: column; align-items: center; gap: 8px; }
+.is-feature-garden .is-feature-grid { text-align: left; }
+.is-feature-garden .is-feature-card { border-top: 3px solid var(--is-accent); background: #fbfcf6; }
+.is-feature-garden .is-feature-card h3 { color: #4b6651; }
+
+/* Reading: card-catalog drawers with monospace call numbers. */
+.is-feature-reading .is-feature-card { border-style: dashed; background: #f7f6ef; }
+.is-feature-reading .is-feature-card h3 { font-family: 'Courier New', monospace; letter-spacing: .04em; color: #3d5362; }
+.is-feature-reading .is-feature-badge { transform: rotate(-2deg); border-color: #3d5362; color: #3d5362; }
+
+@container (max-width: 650px) {
+  .is-feature { padding: 26px 0; }
+  .is-feature-head h2 { font-size: 23px; }
+  .is-feature-grid { grid-template-columns: 1fr; }
+}

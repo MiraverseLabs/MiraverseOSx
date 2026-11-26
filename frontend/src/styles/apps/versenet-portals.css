@@ -200,3 +200,20 @@
 .vn-service-portal .font-display {
   font-family: 'Plus Jakarta Sans',Arial,sans-serif;
 }
+
+/* Real portal sub-navigation and distinct inner views. */
+.vn-portal-shell { display: flex; flex-direction: column; min-height: 100%; background: #FAFBFD; }
+.vn-portal-nav { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 16px; border-bottom: 1px solid #e2e8f0; background: #fff; position: sticky; top: 0; z-index: 2; }
+.vn-portal-nav button { padding: 6px 12px; border-radius: 999px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 11px; font-weight: 700; color: #334155; cursor: pointer; }
+.vn-portal-nav button[aria-current='page'] { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
+.vn-portal-view { padding: 22px; }
+.vn-portal-view-title { font-size: 18px; font-weight: 800; color: #0f172a; margin: 0 0 12px; }
+.vn-portal-copy { font-size: 13px; line-height: 1.7; color: #475569; margin: 0 0 14px; max-width: 70ch; }
+.vn-portal-list { display: grid; gap: 8px; margin-bottom: 14px; }
+.vn-portal-row { border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; padding: 12px; display: grid; gap: 2px; }
+.vn-portal-row strong { font-size: 13px; }
+.vn-portal-row small { color: #64748b; font-size: 11px; }
+.vn-portal-back { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 10px; background: #1d4ed8; color: #fff; font-weight: 700; font-size: 11px; cursor: pointer; }
+.vn-portal-locked { display: flex; align-items: center; gap: 8px; padding: 16px; border: 1px solid #fcd34d; background: #fffbeb; color: #92400e; border-radius: 12px; font-weight: 700; }
+.vn-portal-diagram { width: 100%; height: auto; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px; margin-bottom: 14px; }
+.vn-portal-seal { border: 1px dashed #fdba74; background: #fff7ed; border-radius: 12px; padding: 16px; color: #7c2d12; display: grid; gap: 6px; margin-bottom: 14px; font-size: 12px; }

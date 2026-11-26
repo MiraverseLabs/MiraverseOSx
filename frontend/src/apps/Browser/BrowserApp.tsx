@@ -21,10 +21,10 @@ import InteractiveSite from './InteractiveSite';
 import { INTERACTIVE_SITES } from './interactiveSites';
 import BroadStreetPublicPage from '../investigation/BroadStreetPublicPage';
 import AureSuiteApp from './AureSuiteApp';
+import { CivinetPortal, QuestNoticePortal } from './Portals';
 import {
-    DGAPortal, ShippingPortal, DarkWebOnionPortal,
-    CivinetPortal, QuestNoticePortal, RoyalHistoryPortal
-} from './Portals';
+    DgaPortalView, ShippingPortalView, RoyalHistoryPortalView, VectorNetPortalView
+} from './PortalViews';
 import { MaiSpacePortal } from './MaiSpacePortal';
 import { useOSStore } from '../../store/useOSStore';
 import {
@@ -125,11 +125,11 @@ function ContentFrame({ url, openTab, navigateTab, atTabLimit }: {
 
     if (domain === 'civinet.mer' || domain === 'civinet.aure' || domain === 'civinet') return <CivinetPortal />;
     if (domain === 'questnotice.mer' || domain === 'questnotice.aure' || domain === 'questnotice') return <QuestNoticePortal />;
-    if (domain === 'royalhistory.mer' || domain === 'royalhistory.aure' || domain === 'royalhistory') return <RoyalHistoryPortal />;
-    if (domain === 'dga.gov' || domain === 'dga.gov.aure') return <DGAPortal />;
+    if (domain === 'royalhistory.mer' || domain === 'royalhistory.aure' || domain === 'royalhistory') return <RoyalHistoryPortalView url={url} navigateTab={navigateTab} />;
+    if (domain === 'dga.gov' || domain === 'dga.gov.aure') return <DgaPortalView url={url} navigateTab={navigateTab} />;
     if (domain === 'records.orynvell.gov') return <OrynvellRecordsSite />;
-    if (domain === 'shipping.aure' || domain === 'cargotrack.aure') return <ShippingPortal />;
-    if (domain.endsWith('.onion') || domain === 'vectornet.aure') return <DarkWebOnionPortal />;
+    if (domain === 'shipping.aure' || domain === 'cargotrack.aure') return <ShippingPortalView url={url} navigateTab={navigateTab} />;
+    if (domain.endsWith('.onion') || domain === 'vectornet.aure') return <VectorNetPortalView url={url} navigateTab={navigateTab} />;
     if (domain === 'auresuite.aure') return <AureSuiteApp />;
     if (domain === 'mai.space' || domain === 'mai.space.aure' || domain === 'maispace.aure' || domain === 'social.aure') return <MaiSpacePortal />;
 

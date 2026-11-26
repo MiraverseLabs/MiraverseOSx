@@ -3,6 +3,7 @@ import { ArrowRight, ArrowUpRight, Globe, Landmark, Music2, Search } from 'lucid
 import { BROWSER_HOME, resolveBrowserInput } from './browserModel';
 import { ENTERTAINMENT_SITES } from './entertainment/entertainmentRouter';
 import { directoryURL, directoryView, DIRECTORY_CATEGORIES, PUBLIC_DIRECTORY } from './verseNetDirectory';
+import { CULTURE_FEATURES, CULTURE_SECTORS, cultureSectorFromParam, cultureURL } from './cultureModel';
 import { VerseNetLink, VerseNetNavigation, type Navigate, type VerseNetPage } from './VerseNetNavigation';
 import { useOSStore } from '../../store/useOSStore';
 
@@ -12,19 +13,9 @@ interface PageProps {
   atTabLimit?: boolean;
 }
 
-const cultureURL = BROWSER_HOME + '/culture';
 const readingURL = BROWSER_HOME + '/reading';
 const cityImage = '/images/wallpapers/aureline-glassline-twilight.png';
 const readingSites = ['meridian.mer', 'socialregister.mer', 'readingroom.aure', 'royalhistory.mer'];
-const cultureGroups = [
-  ['Music and talent', 'Music, Talent & Management'],
-  ['Broadcasting and streaming', 'Broadcasting & Streaming'],
-  ['Fashion and modeling', 'Fashion, Modeling & Visuals'],
-  ['Screen and dance', 'Dance, Screen & Stage'],
-  ['Live events and venues', 'Live Events & Venues'],
-  ['Media and recognition', 'Media & Recognition'],
-  ['Professional services', 'Representation, PR & Rights'],
-] as const;
 
 type LinkedSite = { name: string; domain: string; url: string; description: string };
 
@@ -81,7 +72,7 @@ export default function SearchHome(props: PageProps) {
       </section>
 
       <section className="vn-feature-grid" aria-label="Featured destinations">
-        <VerseNetLink className="vn-feature vn-feature-main" url={cultureURL} navigate={navigateTab} openTab={openTab}>
+        <VerseNetLink className="vn-feature vn-feature-main" url={cultureURL()} navigate={navigateTab} openTab={openTab}>
           {showImage && <img src={cityImage} alt="" onError={() => setShowImage(false)} />}
           <div><span>Glassline District</span><h2>Explore Meridion’s creative scene</h2>
             <p>Find the labels, studios, and stages behind the work.</p><ArrowUpRight size={24} aria-hidden="true" /></div>
@@ -92,7 +83,7 @@ export default function SearchHome(props: PageProps) {
       </section>
 
       <section className="vn-home-section">
-        <header><h2>Arts and entertainment</h2><VerseNetLink url={cultureURL} navigate={navigateTab}>Explore arts and culture <ArrowRight size={16} /></VerseNetLink></header>
+        <header><h2>Arts and entertainment</h2><VerseNetLink url={cultureURL()} navigate={navigateTab}>Explore arts and culture <ArrowRight size={16} /></VerseNetLink></header>
         <div className="vn-culture-strip">{['ORG_SONGBIRD', 'ORG_POP_STICKER', 'ORG_LIMELIGHT', 'ORG_MARLIE_RECORDS'].map(id => {
           const site = ENTERTAINMENT_SITES.find(item => item.orgId === id);
           return site && <SiteRow key={id} site={site} {...props}
@@ -128,6 +119,7 @@ export function NetworkPage({ page, params, ...props }: PageProps & {
 }) {
   const { navigateTab, openTab } = props;
   const { category, filter, matches } = directoryView(params);
+  const activeSector = cultureSectorFromParam(params.get('sector'));
   const [draft, setDraft] = useState(filter);
   const title = page === 'directory' ? 'Website directory' : page === 'culture' ? 'Arts and culture' : 'Reading across Meridion';
   return <div className="vn-network">
@@ -158,13 +150,28 @@ export function NetworkPage({ page, params, ...props }: PageProps & {
           </div>}
         </section>
       </div>}
-      {page === 'culture' && <><p className="vn-index-intro">Explore the people and organizations behind music, fashion, film, and live performance.</p>
-        {cultureGroups.map(([label, sector]) => <section className="vn-home-section" key={sector}>
-          <header><h2>{label}</h2></header>
-          <div className="vn-culture-grid">{ENTERTAINMENT_SITES.filter(site => site.sector === sector).map(site =>
+      {page === 'culture' && <>
+        <section className="vn-culture-hero">
+          <span className="vn-culture-kicker">MERIDION / ARTS & CULTURE</span>
+          <h2>Follow the work, from the studio to the stage.</h2>
+          <p className="vn-index-intro">Explore the people and organizations behind music, fashion, film, and live performance.</p>
+          <div className="vn-culture-features">
+            {CULTURE_FEATURES.map(feature => <VerseNetLink key={feature.id} className="vn-culture-feature" url={'https://' + feature.domain} navigate={navigateTab} openTab={openTab}>
+              <span>{feature.kicker}</span><strong>{feature.title}</strong><p>{feature.blurb}</p>
+            </VerseNetLink>)}
+          </div>
+        </section>
+        <nav className="vn-culture-chips" aria-label="Culture sectors">
+          <VerseNetLink url={cultureURL()} navigate={navigateTab} current={!activeSector}>All</VerseNetLink>
+          {CULTURE_SECTORS.map(item => <VerseNetLink key={item.id} url={cultureURL(item.id)} navigate={navigateTab} current={activeSector === item.id}>{item.label}</VerseNetLink>)}
+        </nav>
+        {CULTURE_SECTORS.filter(item => !activeSector || item.id === activeSector).map(item => <section className="vn-home-section" key={item.id}>
+          <header><h2>{item.label}</h2><span className="vn-culture-blurb">{item.blurb}</span></header>
+          <div className="vn-culture-grid">{ENTERTAINMENT_SITES.filter(site => site.sector === item.sector).map(site =>
             <SiteRow key={site.orgId} site={site} {...props}
               mark={<span className="vn-brand-dot" style={{ backgroundColor: site.accentColor }} />} />)}</div>
-        </section>)}</>}
+        </section>)}
+      </>}
       {page === 'reading' && <><p className="vn-index-intro">Newspapers, magazines, and public collections.</p>
         <div className="vn-reading-features">
           {[

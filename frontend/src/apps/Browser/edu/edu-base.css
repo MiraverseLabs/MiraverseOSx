@@ -467,3 +467,26 @@
     align-items: flex-start;
   }
 }
+
+/* Per-institution subpage variants (presentation only; gameplay unchanged). */
+.edu-section[data-institution='dawn'] .edu-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.edu-section[data-institution='dawn'] .edu-page-header h2 { font-family: 'Newsreader', Georgia, serif; letter-spacing: -.4px; }
+.edu-section[data-institution='dawn'] .edu-module-list { columns: 2; column-gap: 24px; }
+.edu-section[data-institution='dawn'] .edu-module-list li { break-inside: avoid; }
+
+.edu-section[data-institution='cyberium'] .edu-page-header h2,
+.edu-section[data-institution='cyberium'] .edu-subblock h3 { font-family: 'Courier New', monospace; letter-spacing: .02em; }
+.edu-section[data-institution='cyberium'] .edu-grid-3 { grid-template-columns: 1fr; }
+.edu-section[data-institution='cyberium'] .edu-grid-3 .edu-card { border-left: 3px solid #0284c7; background: #f8fbfe; }
+.edu-section[data-institution='cyberium'] .edu-code-pill { font-family: 'Courier New', monospace; }
+
+.edu-section[data-institution='regent'] .edu-page-header { text-align: center; }
+.edu-section[data-institution='regent'] .edu-page-header h2 { color: #182b4d; }
+.edu-section[data-institution='regent'] .edu-grid-3 .edu-card { border: 1px solid #d8c39a; background: #fffdf7; box-shadow: 0 1px 0 #d8c39a; }
+.edu-section[data-institution='regent'] .edu-eyebrow { color: #9c7330; }
+
+@media (max-width: 700px) {
+  .edu-section[data-institution='dawn'] .edu-grid-3,
+  .edu-section[data-institution='cyberium'] .edu-grid-3 { grid-template-columns: 1fr; }
+  .edu-section[data-institution='dawn'] .edu-module-list { columns: 1; }
+}

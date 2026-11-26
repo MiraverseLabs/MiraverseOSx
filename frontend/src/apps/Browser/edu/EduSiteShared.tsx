@@ -117,7 +117,7 @@ export function EduSectionContent({ school, location, navigateTab }: EduSectionP
   // ── /admissions ──────────────────────────────────────────────────────────
   if (location.section === 'admissions') {
     return (
-      <div className="edu-section">
+      <div className="edu-section" data-institution={school.id}>
         {statusBanners}
         <header className="edu-page-header">
           <span className="edu-eyebrow">Office of Admissions · {ctx.academics?.activeTerm || 'Autumn 1000'}</span>
@@ -252,7 +252,7 @@ export function EduSectionContent({ school, location, navigateTab }: EduSectionP
   // ── /academics ───────────────────────────────────────────────────────────
   if (location.section === 'academics') {
     return (
-      <div className="edu-section">
+      <div className="edu-section" data-institution={school.id}>
         {statusBanners}
         <header className="edu-page-header">
           <span className="edu-eyebrow">Colleges, Departments & Credentials</span>
@@ -326,7 +326,7 @@ export function EduSectionContent({ school, location, navigateTab }: EduSectionP
       const prereqMet = !prereqCourse || Boolean(ctx.records[prereqCourse.id]?.completedAt);
 
       return (
-        <div className="edu-section">
+        <div className="edu-section" data-institution={school.id}>
           {statusBanners}
           <button className="edu-btn-link" onClick={() => go('courses')}>
             ← Back to Course Catalog
@@ -443,7 +443,7 @@ export function EduSectionContent({ school, location, navigateTab }: EduSectionP
         : ctx.schoolCourses.filter(c => c.departmentId === deptFilter);
 
     return (
-      <div className="edu-section">
+      <div className="edu-section" data-institution={school.id}>
         {statusBanners}
         <header className="edu-page-header">
           <span className="edu-eyebrow">Registrar Catalog · {ctx.academics?.activeTerm || 'Autumn 1000'}</span>
@@ -516,7 +516,7 @@ export function EduSectionContent({ school, location, navigateTab }: EduSectionP
   // ── /faculty ─────────────────────────────────────────────────────────────
   if (location.section === 'faculty') {
     return (
-      <div className="edu-section">
+      <div className="edu-section" data-institution={school.id}>
         {statusBanners}
         <header className="edu-page-header">
           <span className="edu-eyebrow">People & Scholarship</span>
@@ -552,7 +552,7 @@ export function EduSectionContent({ school, location, navigateTab }: EduSectionP
   // ── /campus-life ─────────────────────────────────────────────────────────
   if (location.section === 'campus-life') {
     return (
-      <div className="edu-section">
+      <div className="edu-section" data-institution={school.id}>
         {statusBanners}
         <header className="edu-page-header">
           <span className="edu-eyebrow">Community, Societies & Bulletins</span>
@@ -604,7 +604,7 @@ export function EduSectionContent({ school, location, navigateTab }: EduSectionP
 
   // ── /portal ──────────────────────────────────────────────────────────────
   return (
-    <div className="edu-section">
+    <div className="edu-section" data-institution={school.id}>
       {statusBanners}
       <header className="edu-page-header">
         <span className="edu-eyebrow">Single Sign-On · MAID Authenticated</span>

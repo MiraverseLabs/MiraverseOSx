@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowUpRight, UserRound, FilePenLine, Inbox, BookOpen, Check, ArrowLeft, Save } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 import { siteOwner, siteProfileKey, siteDraftKey, type InteractiveSite as SiteDefinition, type SiteProfile, type SiteValues } from './interactiveSites';
+import { COMMUNITY_FEATURES } from './communityFeatures';
 
 import type { SiteActionResult } from '../../store/siteActions';
 import '../../styles/apps/interactive-sites.css';
@@ -32,6 +33,7 @@ export default function InteractiveSite({ site, path, navigateTab }: { site: Sit
         {page === '/' && <><div className="is-site-hero"><div><span className="is-kicker">AURELINE / COMMUNITY</span><h1>{site.tagline}</h1><p>{site.description}</p><button className="is-primary" onClick={() => go(profile ? '/request' : '/profile', profile ? site.formTitle : 'Create profile')}>{profile ? site.formTitle : 'Create your site profile'}<ArrowUpRight size={14}/></button></div><SiteEditorialArt site={site}/></div>
           <section className="is-overview"><h2>{profile ? `Welcome back, ${profile.displayName}.` : 'Make a little space in the community.'}</h2><p>{profile ? `Your ${site.formTitle.toLowerCase()} drafts and submitted records stay together here.` : 'A display name, a handle, and an interest are enough to begin. Use your citizen profile; no email or password is needed.'}</p><div className="is-overview-links">{site.topics.map(topic => <button key={topic} onClick={() => navigateTab(`https://versenet.aure/find?q=${encodeURIComponent(topic)}`)}>Browse {topic}<ArrowUpRight size={13}/></button>)}</div></section>
           {profile && <section className="is-overview"><h2>At your desk</h2><div className="is-desk-summary"><button onClick={() => go('/records','My records')}><strong>{records.length}</strong> saved requests</button><button onClick={() => go('/request',site.formTitle)}><strong>{state.drafts[siteDraftKey(site.id,owner)] ? '1' : '0'}</strong> saved draft</button></div></section>}
+          <CommunityFeatureBlock site={site}/>
         </>}
         {page === '/profile' && <ProfileEditor key={`${site.id}:${owner}`} site={site} profile={profile} defaultName={gameplay.player.name || ''}/>}
         {page === '/request' && (!profile ? <ProfileGate onCreate={() => go('/profile','Create profile')}/> : editId && !editable ? <Unavailable onBack={() => go('/records','My records')}/> : <RequestForm key={`${site.id}:${owner}:${editId}`} site={site} initial={draft?.values || editable?.values || {}} editId={editId} hasDraft={Boolean(draft)} onSubmitted={id => go(`/records/${id}`,id)}/>)}
@@ -64,6 +66,19 @@ function RequestForm({site,initial,editId,hasDraft,onSubmitted}:{site:SiteDefini
     {site.fields.map(field=><label key={field.id}><span>{field.label}{!field.required&&<small>Optional</small>}</span>{field.kind==='select'?<select aria-label={field.label} value={values[field.id]||''} aria-invalid={Boolean(result?.errors?.[field.id])} aria-describedby={result?.errors?.[field.id]?`form-error-${field.id}`:undefined} onChange={event=>change(field.id,event.target.value)}><option value="">Choose an option</option>{field.options?.map(option=><option key={option}>{option}</option>)}</select>:field.kind==='textarea'?<textarea aria-label={field.label} rows={4} value={values[field.id]||''} maxLength={field.max} aria-invalid={Boolean(result?.errors?.[field.id])} aria-describedby={result?.errors?.[field.id]?`form-error-${field.id}`:undefined} onChange={event=>change(field.id,event.target.value)}/>:<input aria-label={field.label} type={field.kind==='number'?'number':'text'} min={field.kind==='number'?field.min:undefined} max={field.kind==='number'?field.max:undefined} maxLength={field.kind==='text'?field.max:undefined} value={values[field.id]||''} aria-invalid={Boolean(result?.errors?.[field.id])} aria-describedby={result?.errors?.[field.id]?`form-error-${field.id}`:undefined} onChange={event=>change(field.id,event.target.value)}/>} {result?.errors?.[field.id]&&<small className="is-error" id={`form-error-${field.id}`}>{result.errors[field.id]}</small>}</label>)}
     <div className="is-form-actions"><button className="is-primary" type="submit">{editId?'Save revision':'Submit request'}<ArrowUpRight size={14}/></button><button className="is-secondary" type="button" onClick={()=>setResult(save(site.id,values,editId))}><Save size={13}/> Save draft</button></div>{result&&<p className={`is-feedback ${result.ok?'':'is-error'}`} role={result.ok?'status':'alert'}>{result.message}</p>}
   </form></>;
+}
+
+function CommunityFeatureBlock({ site }: { site: SiteDefinition }) {
+  const set = COMMUNITY_FEATURES[site.id];
+  if (!set) return null;
+  return <section className={`is-feature is-feature-${site.id}`}>
+    <span className="is-kicker">{set.kicker}</span>
+    <div className="is-feature-head"><h2>{set.heading}</h2><span className="is-feature-badge">{set.badge}</span></div>
+    <div className="is-feature-grid">{set.features.map(feature => <article className="is-feature-card" key={feature.id}>
+      <h3>{feature.title}</h3>{feature.meta && <small>{feature.meta}</small>}<p>{feature.body}</p>
+    </article>)}</div>
+    <p className="is-feature-note">{set.note}</p>
+  </section>;
 }
 
 function SiteEditorialArt({ site }: { site: SiteDefinition }) {

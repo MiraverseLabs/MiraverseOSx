@@ -46,7 +46,7 @@ export default function CyberiumSite({
         </div>
         <nav className="cyb-nav" aria-label="Cyberium Academy sections">
           {NAV_ITEMS.map(item => (
-            <button key={item.id} aria-pressed={location.section === item.id} onClick={() => go(item.id)}>
+            <button key={item.id} aria-pressed={location.section === item.id} aria-current={location.section === item.id ? 'page' : undefined} onClick={() => go(item.id)}>
               {item.label}
             </button>
           ))}

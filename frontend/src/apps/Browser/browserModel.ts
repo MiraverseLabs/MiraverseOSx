@@ -3,6 +3,7 @@ import { SOCIAL_REGISTER_SITE } from './publications/socialRegisterModel';
 import { eduPageTitle } from './edu/eduRouter';
 import { faithMedPageTitle } from './medical/faithMedRouter';
 import { ENTERTAINMENT_SITES, entertainmentPageTitle } from './entertainment/entertainmentRouter';
+import { portalPageTitle } from './portalRouter';
 export const BROWSER_HOME = 'https://versenet.aure';
 export const MAX_BROWSER_TABS = 8;
 
@@ -157,6 +158,8 @@ export function browserTitle(url: string): string {
     if (medTitle) return medTitle;
     const entTitle = entertainmentPageTitle(url);
     if (entTitle) return entTitle;
+    const portalTitle = portalPageTitle(url);
+    if (portalTitle) return portalTitle;
     const siteNames: Record<string, string> = { 
       'companion.aure': 'Aureline Companion', 
       'gardenreview.aure': 'Glassline Garden Review', 
