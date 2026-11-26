@@ -66,6 +66,7 @@ export interface PublishedMediaArtifact {
   brandKitId: string;
   channel: MediaChannel;
   verificationTier: VerificationTier;
+  styleVariant?: string;
   slotValues: {
     kicker?: string;
     headline: string;
@@ -130,6 +131,39 @@ export function getMediaTemplate(templateId: string): MediaTemplateDefinition | 
   return MEDIA_TEMPLATES.find(t => t.id === templateId);
 }
 
+export const STYLE_VARIANTS_BY_TEMPLATE: Record<string, { id: string; label: string }[]> = {
+  'tpl-social-poll': [
+    { id: 'minimalist', label: 'Minimalist' },
+    { id: 'playful', label: 'Playful' },
+    { id: 'community', label: 'Community-Focused' },
+    { id: 'editorial', label: 'Editorial' },
+  ],
+  'tpl-social-story': [
+    { id: 'personal-update', label: 'Personal Update' },
+    { id: 'countdown', label: 'Countdown' },
+    { id: 'event-invite', label: 'Event Invitation' },
+    { id: 'new-release', label: 'New Release' },
+    { id: 'major-announcement', label: 'Breaking / Major Announcement' },
+  ],
+  'tpl-social-sponsored-collab': [
+    { id: 'fashion-drop', label: 'New Collection' },
+    { id: 'beauty-ritual', label: 'Beauty Essentials' },
+    { id: 'tech-upgrade', label: 'Tech Upgrade' },
+    { id: 'culinary', label: 'Culinary Feature' },
+    { id: 'everyday-living', label: 'Everyday Living' },
+  ],
+  'tpl-social-music-release': [
+    { id: 'vinyl-sleeve', label: 'Vinyl Sleeve' },
+    { id: 'dreamscape', label: 'Dreamscape Cover' },
+    { id: 'minimalist', label: 'Minimalist Single' },
+  ],
+  'tpl-social-film-release': [
+    { id: 'dark-cinematic', label: 'Dark Cinematic Poster' },
+    { id: 'retro-cinema', label: 'Retro Theatre' },
+    { id: 'fantasy-epic', label: 'Fantasy Horizon' },
+  ],
+};
+
 export function listTemplatesByChannel(channel?: MediaChannel): MediaTemplateDefinition[] {
   return channel ? MEDIA_TEMPLATES.filter(t => t.channel === channel) : [...MEDIA_TEMPLATES];
 }
@@ -152,6 +186,7 @@ export function validateMediaArtifactInput(input: Partial<PublishedMediaArtifact
   if (input.tokenOverrides && Object.values(input.tokenOverrides).some(v => typeof v !== 'string' || /[<>;{}]/.test(v) || v.length > 200)) errors.push('Brand token overrides must be plain color or font values.');
   if (input.slotValues.slides !== undefined && (!Array.isArray(input.slotValues.slides) || input.slotValues.slides.length > 12 || input.slotValues.slides.some(s => !s || typeof s.id !== 'string' || typeof s.headline !== 'string' || typeof s.caption !== 'string'))) errors.push('Invalid carousel slides.');
   for (const key of ['pollOptions', 'coverLines']) if (input.slotValues[key] !== undefined && (!Array.isArray(input.slotValues[key]) || input.slotValues[key].length > 20 || input.slotValues[key].some(v => typeof v !== 'string' || v.length > 500))) errors.push(`Invalid ${key}.`);
+  if (input.styleVariant !== undefined && (typeof input.styleVariant !== 'string' || input.styleVariant.length > 60)) errors.push('Invalid styleVariant.');
   if (headline.length < 2) errors.push('A headline of at least 2 characters is required.');
 
   if (tpl) {
@@ -184,6 +219,7 @@ export function validateMediaArtifactInput(input: Partial<PublishedMediaArtifact
     brandKitId: input.brandKitId || tpl.defaultBrandKitId,
     channel: tpl.channel,
     verificationTier: tier,
+    ...(input.styleVariant ? { styleVariant: input.styleVariant } : {}),
     slotValues: {
       ...input.slotValues,
       headline: headline.slice(0, 180),

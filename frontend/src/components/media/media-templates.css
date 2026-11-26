@@ -59,6 +59,52 @@
   .mira-tpl-card.mira-tpl-adapt:has(> .media) > .media {
     grid-row: 1 / span 3;
   }
+
+  @supports not selector(:has(*)) {
+    .mira-tpl-card.mira-tpl-adapt.has-image {
+      grid-template-columns: minmax(180px, 42%) 1fr;
+      align-items: start;
+      column-gap: 1.25rem;
+    }
+
+    .mira-tpl-card.mira-tpl-adapt.has-image > img,
+    .mira-tpl-card.mira-tpl-adapt.has-image > .media {
+      grid-row: 1 / span 3;
+    }
+  }
+}
+
+/* Style Variations (from Uploaded Story, Poll, Collaboration & Universal Library Boards) */
+.mira-tpl-card[data-style-variant='playful'] {
+  border-radius: 18px;
+  border-width: 2.5px;
+  background: linear-gradient(145deg, #fff1f2 0%, #fef9c3 100%);
+  color: #31102f;
+}
+
+.mira-tpl-card[data-style-variant='countdown'] {
+  background: radial-gradient(circle at top right, rgba(96, 165, 250, 0.25), #0f172a 70%);
+  color: #f8fafc;
+}
+
+.mira-tpl-card[data-style-variant='countdown'] .mira-tpl-headline,
+.mira-tpl-card[data-style-variant='dark-cinematic'] .mira-tpl-headline {
+  color: #ffffff;
+}
+
+.mira-tpl-card[data-style-variant='major-announcement'] {
+  border-top: 6px solid #b91c1c;
+  box-shadow: 0 12px 30px rgba(185, 28, 28, 0.14);
+}
+
+.mira-tpl-card[data-style-variant='dark-cinematic'] {
+  background: linear-gradient(180deg, #0b1319 0%, #142029 100%);
+  color: #f1f5f9;
+}
+
+.mira-tpl-card[data-style-variant='new-release'] > img,
+.mira-tpl-card[data-style-variant='vinyl-sleeve'] > img {
+  aspect-ratio: 1 / 1;
 }
 
 .mira-tpl-card > img {

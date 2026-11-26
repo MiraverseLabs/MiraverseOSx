@@ -26,7 +26,10 @@
   height: auto;
   margin: 0 auto;
   display: block;
-  filter: brightness(1.85);
+  background: #fffdf9;
+  padding: 0.45rem 1.15rem;
+  border-radius: 10px;
+  border: 1.5px solid #c6ae73;
 }
 
 .sr-header-meta {

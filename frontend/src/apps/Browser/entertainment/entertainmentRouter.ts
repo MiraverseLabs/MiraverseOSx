@@ -106,9 +106,72 @@ export function isEntertainmentUrl(url: string): boolean {
   return Boolean(matchEntertainmentSite(url));
 }
 
+export type EntertainmentView = 'home' | 'front' | 'workspace' | 'directory' | 'about';
+type PilotView = { path: string; label: string };
+type PilotSite = { layout: 'library' | 'editorial' | 'stadium' | 'atelier'; views: Record<EntertainmentView, PilotView> };
+
+export const entertainmentPilots: Readonly<Record<string, PilotSite>> = {
+  ORG_SONGBIRD: {
+    layout: 'library', views: {
+      home: { path: '/', label: 'Home' },
+      front: { path: '/listen', label: 'Listen & Top Charts' },
+      workspace: { path: '/studio', label: 'Artist Studio' },
+      directory: { path: '/directory', label: 'Industry Directory' },
+      about: { path: '/about', label: 'About Songbird' },
+    },
+  },
+  ORG_LIMELIGHT: {
+    layout: 'editorial', views: {
+      home: { path: '/', label: 'Home' },
+      front: { path: '/stories', label: 'Cover Stories & Rankings' },
+      workspace: { path: '/studio', label: 'Press Desk' },
+      directory: { path: '/directory', label: 'Industry Directory' },
+      about: { path: '/about', label: 'About Limelight' },
+    },
+  },
+  ORG_SILVERLEAF_STADIUM: {
+    layout: 'stadium', views: {
+      home: { path: '/', label: 'Home' },
+      front: { path: '/box-office', label: 'Box Office & Calendar' },
+      workspace: { path: '/studio', label: 'Venue Booking' },
+      directory: { path: '/directory', label: 'Industry Directory' },
+      about: { path: '/about', label: 'Venue Information' },
+    },
+  },
+  ORG_GLASSLINE_DESIGNS: {
+    layout: 'atelier', views: {
+      home: { path: '/', label: 'Home' },
+      front: { path: '/commissions', label: 'Commissions & Campaigns' },
+      workspace: { path: '/studio', label: 'Creative Workspace' },
+      directory: { path: '/directory', label: 'Industry Directory' },
+      about: { path: '/about', label: 'About the Atelier' },
+    },
+  },
+};
+
+export function entertainmentUrl(site: EntertainmentSiteMeta, view: EntertainmentView, params?: URLSearchParams) {
+  const path = entertainmentPilots[site.orgId]?.views[view].path ?? '/';
+  const query = params?.toString();
+  return site.url + (path === '/' ? '' : path) + (query ? '?' + query : '');
+}
+
+export function parseEntertainmentUrl(url: string) {
+  const site = matchEntertainmentSite(url);
+  const pilot = site && entertainmentPilots[site.orgId];
+  if (!site || !pilot) return undefined;
+  const { pathname, searchParams } = new URL(url.includes('://') ? url : 'https://' + url);
+  const path = pathname.replace(/\/+$/, '') || '/';
+  const view = path === '/discover' ? 'front' :
+    (Object.keys(pilot.views) as EntertainmentView[]).find(key => pilot.views[key].path === path);
+  return { site, pilot, view, params: searchParams };
+}
+
 export function entertainmentPageTitle(url: string): string | null {
   const site = matchEntertainmentSite(url);
   if (!site) return null;
+  const route = parseEntertainmentUrl(url);
+  if (route?.view === 'home') return site.name + ' — ' + site.kind;
+  if (route) return route.view ? route.pilot.views[route.view].label + ' · ' + site.name : 'Page unavailable · ' + site.name;
   try {
     const parsed = new URL(url);
     const sub = parsed.pathname.replace(/^\/+|\/+$/g, '');

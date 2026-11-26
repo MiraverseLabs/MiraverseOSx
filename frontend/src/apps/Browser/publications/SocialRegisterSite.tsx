@@ -17,6 +17,8 @@ import {
 import { restoreFyloState } from '../../files/fyloStore';
 import './publications.css';
 
+const EMPTY_MEDIA: PublishedMediaArtifact[] = [];
+
 function toSocialRegisterArtifact(article: SocialRegisterArticle): PublishedMediaArtifact {
   return {
     id: `art:${article.id}`,
@@ -51,14 +53,17 @@ export default function SocialRegisterSite({
   navigateTab: (url: string, title?: string) => void;
 }) {
   const cycle = useOSStore(s => s.gameplay.timeCycleCount ?? 28);
-  const customMedia: PublishedMediaArtifact[] = useOSStore(s => (s.gameplay as any).publishedMediaArtifacts || []);
+  const customMedia = useOSStore(
+    s => ((s.gameplay as any).publishedMediaArtifacts as PublishedMediaArtifact[] | undefined) ?? EMPTY_MEDIA,
+  );
   const location = parseSocialRegisterLocation(url);
   const [searchInput, setSearchInput] = useState(location.query);
   const [notice, setNotice] = useState('');
 
   const issue01 = useMemo(() => buildSocialRegisterIssue01(cycle), [cycle]);
-  const masthead = getMediaAssetById('canon:brand-sr-masthead');
-  const monogram = getMediaAssetById('canon:brand-sr-monogram');
+  const masthead = getMediaAssetById('canon:brand-sr-masthead-illustrated') || getMediaAssetById('canon:brand-sr-masthead');
+  const monogram = getMediaAssetById('canon:brand-sr-monogram-illustrated') || getMediaAssetById('canon:brand-sr-monogram');
+  const crest = getMediaAssetById('canon:ornament-lily-crown-crest');
 
   const dynamicMagazineStories: SocialRegisterArticle[] = useMemo(
     () =>
@@ -203,7 +208,12 @@ export default function SocialRegisterSite({
           aria-label="The Social Register Home"
         >
           {masthead ? (
-            <img className="sr-masthead-img" src={masthead.src} alt="The Social Register" />
+            <img
+              className="sr-masthead-img"
+              src={masthead.src}
+              alt="The Social Register"
+              fetchPriority="high"
+            />
           ) : (
             <h1 style={{ fontFamily: 'var(--font-editorial-masthead)', fontSize: '2.4rem', margin: 0 }}>THE SOCIAL REGISTER</h1>
           )}
@@ -363,10 +373,11 @@ export default function SocialRegisterSite({
           <>
             <div className="sr-issue-banner">
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                {monogram && <img src={monogram.src} alt="" aria-hidden="true" style={{ width: 58, height: 58 }} />}
+                {monogram && <img src={monogram.src} alt="" aria-hidden="true" style={{ width: 64, height: 64, objectFit: 'contain' }} />}
                 <div>
-                  <div style={{ fontSize: '0.72rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: '#D8C0CB' }}>
-                    COLLECTIBLE MONTHLY FOLIO · ISSUE 01
+                  <div style={{ fontSize: '0.72rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: '#D8C0CB', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {crest && <img src={crest.src} alt="" aria-hidden="true" style={{ height: 18, width: 'auto' }} />}
+                    <span>COLLECTIBLE MONTHLY FOLIO · ISSUE 01</span>
                   </div>
                   <h2 style={{ margin: '0.15rem 0', fontFamily: 'var(--font-editorial-masthead)', fontSize: '1.55rem' }}>
                     “Between Tradition and Tomorrow”

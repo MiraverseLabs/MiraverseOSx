@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import test from 'node:test';
 import { registerHooks } from 'node:module';
+import { fileURLToPath } from 'node:url';
 
 registerHooks({
   resolve(specifier, context, next) {
@@ -20,7 +23,7 @@ const {
   advanceEntertainmentCycle,
   computeCommunityReception,
 } = await import('../src/gameplay/EntertainmentEcosystem.ts');
-const { ENTERTAINMENT_SITES, isEntertainmentUrl, entertainmentPageTitle } = await import(
+const { ENTERTAINMENT_SITES, isEntertainmentUrl, entertainmentPageTitle, entertainmentUrl, parseEntertainmentUrl } = await import(
   '../src/apps/Browser/entertainment/entertainmentRouter.ts'
 );
 const { STARTER_SITES, browserTitle } = await import('../src/apps/Browser/browserModel.ts');
@@ -68,6 +71,32 @@ test('all 25 Section XIX entertainment organizations, domains, and VerseNet titl
     assert.equal(isEntertainmentUrl(url), true, `${domain} should match entertainment router`);
     assert.ok(entertainmentPageTitle(url)?.length > 4);
     assert.equal(browserTitle(url), entertainmentPageTitle(url));
+  }
+});
+
+test('pilot URLs round-trip their views and leave the other entertainment domains on their established routes', () => {
+  for (const [domain, front] of [
+    ['songbird.mer', 'listen'], ['limelight.mer', 'stories'],
+    ['silverleafstadium.mer', 'box-office'], ['glasslinedesigns.mer', 'commissions'],
+  ]) {
+    const base = 'https://' + domain;
+    const site = parseEntertainmentUrl(base).site;
+    for (const [view, path] of [['home', ''], ['front', '/' + front], ['workspace', '/studio'], ['directory', '/directory'], ['about', '/about']]) {
+      const params = new URLSearchParams({ q: 'a & b' });
+      const url = entertainmentUrl(site, view, params);
+      assert.equal(url, base + path + '?q=a+%26+b');
+      const parsed = parseEntertainmentUrl(url);
+      assert.equal(parsed.view, view);
+      assert.equal(parsed.params.get('q'), 'a & b');
+      assert.equal(browserTitle(url), entertainmentPageTitle(url));
+    }
+    assert.equal(parseEntertainmentUrl(base + '/discover/').view, 'front');
+    assert.equal(parseEntertainmentUrl(base + '/elsewhere').view, undefined);
+    assert.match(browserTitle(base + '/elsewhere'), /Page unavailable/);
+  }
+  for (const domain of ['popsticker.mer', 'kajistudios.mer', 'velcur.mer']) {
+    assert.equal(isEntertainmentUrl(domain), true);
+    assert.equal(parseEntertainmentUrl(domain), undefined);
   }
 });
 
@@ -374,5 +403,30 @@ test('livingWorldLink synchronizes remote autonomous entertainment snapshot with
     assert.ok(ent.tracks.some((t) => t.trackId === 'TRK-REMOTE-1'));
   } finally {
     globalThis.fetch = originalFetch;
+  }
+});
+
+test('all shipped audio stems, seed tracks, and casting auditions resolve to real album cover & poster files', async () => {
+  setupStorage();
+  const testsDir = path.dirname(fileURLToPath(import.meta.url));
+  const publicDir = path.resolve(testsDir, '..', 'public');
+
+  for (const stem of SHIPPED_AUDIO_ASSETS) {
+    assert.ok(stem.coverArtUrl, `Missing coverArtUrl on ${stem.id}`);
+    const coverPath = path.join(publicDir, stem.coverArtUrl.replace(/^\//, ''));
+    assert.equal(fs.existsSync(coverPath), true, `Missing album cover file: ${coverPath}`);
+  }
+
+  const store = await createFreshStore();
+  store.getState().loginUser({ name: 'Visual Verifier', credits: 400, clearance: 2 });
+  const ent = store.getState().gameplay.entertainment;
+
+  for (const trk of ent.tracks) {
+    assert.ok(trk.coverArtUrl, `Missing coverArtUrl on track ${trk.trackId}`);
+    assert.equal(fs.existsSync(path.join(publicDir, trk.coverArtUrl.replace(/^\//, ''))), true);
+  }
+  for (const aud of ent.auditions) {
+    assert.ok(aud.posterUrl, `Missing posterUrl on audition ${aud.auditionId}`);
+    assert.equal(fs.existsSync(path.join(publicDir, aud.posterUrl.replace(/^\//, ''))), true);
   }
 });

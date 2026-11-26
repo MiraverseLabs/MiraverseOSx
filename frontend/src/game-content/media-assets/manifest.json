@@ -135,6 +135,294 @@
       "entityIds": ["loc-suite-4b"],
       "caption": "Interior architectural study of Vector Housing Suite 4B in Glassline District",
       "provenance": { "origin": "ai_generated_original", "creator": "Miraverse Environment Studio", "license": "First-Party Original (suite-4b-evening.provenance.json)", "approvalStatus": "approved", "createdAt": "2026-11-23" }
+    },
+    {
+      "id": "canon:brand-sr-masthead-illustrated",
+      "src": "/media/brands/social-register-masthead-illustrated.png",
+      "mimeType": "image/png",
+      "slotRole": "masthead.illustrated",
+      "entityIds": ["ORG_SOCIAL_REGISTER"],
+      "caption": "The Social Register illustrated lily, star, and calligraphic filigree masthead",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:brand-sr-monogram-illustrated",
+      "src": "/media/brands/social-register-monogram-illustrated.png",
+      "mimeType": "image/png",
+      "slotRole": "monogram.illustrated",
+      "entityIds": ["ORG_SOCIAL_REGISTER"],
+      "caption": "The Social Register gold-leaf intertwined SR crest with thistle lilies",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:brand-meridian-masthead-illustrated",
+      "src": "/media/brands/meridian-masthead-illustrated.png",
+      "mimeType": "image/png",
+      "slotRole": "masthead.illustrated",
+      "entityIds": ["ORG_THE_MERIDIAN"],
+      "caption": "The Meridian broadsheet illustrated masthead with celestial globe and twin laurel wreaths",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:brand-meridian-laurel-emblem",
+      "src": "/media/brands/meridian-laurel-emblem.png",
+      "mimeType": "image/png",
+      "slotRole": "monogram.illustrated",
+      "entityIds": ["ORG_THE_MERIDIAN"],
+      "caption": "The Meridian open-volume and laurel M crest",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:brand-meridian-shield-badge",
+      "src": "/media/brands/meridian-shield-badge.png",
+      "mimeType": "image/png",
+      "slotRole": "emblem.shield",
+      "entityIds": ["ORG_THE_MERIDIAN"],
+      "caption": "The Meridian asphalt-blue meridian globe shield emblem",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:ornament-lily-corner-tl",
+      "src": "/media/ornaments/lily-corner-tl.png",
+      "mimeType": "image/png",
+      "slotRole": "ornament.corner_illustrated",
+      "entityIds": ["ORG_SOCIAL_REGISTER"],
+      "caption": "Illustrated gold & thistle lily top-left corner frame ornament",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:ornament-lily-corner-br",
+      "src": "/media/ornaments/lily-corner-br.png",
+      "mimeType": "image/png",
+      "slotRole": "ornament.corner_illustrated_br",
+      "entityIds": ["ORG_SOCIAL_REGISTER"],
+      "caption": "Illustrated gold & thistle lily bottom-right corner frame ornament",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:ornament-celestial-floral-divider",
+      "src": "/media/ornaments/celestial-floral-divider.png",
+      "mimeType": "image/png",
+      "slotRole": "ornament.divider_floral",
+      "entityIds": ["ORG_SOCIAL_REGISTER", "ORG_RADIANCE_AWARDS"],
+      "caption": "Symmetrical celestial star and lily bud editorial divider",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:ornament-gold-filigree-divider",
+      "src": "/media/ornaments/gold-filigree-divider.png",
+      "mimeType": "image/png",
+      "slotRole": "ornament.divider_filigree",
+      "entityIds": ["ORG_SOCIAL_REGISTER", "ORG_THE_MERIDIAN"],
+      "caption": "Fine gold-leaf filigree editorial divider rule",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:ornament-celestial-starburst",
+      "src": "/media/ornaments/celestial-starburst.png",
+      "mimeType": "image/png",
+      "slotRole": "ornament.star_illustrated",
+      "entityIds": ["ORG_RADIANCE_AWARDS", "ORG_SOCIAL_REGISTER"],
+      "caption": "Illustrated four-point celestial starburst ornament",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:ornament-title-plaque-illustrated",
+      "src": "/media/ornaments/ornate-title-plaque.png",
+      "mimeType": "image/png",
+      "slotRole": "ornament.plaque_illustrated",
+      "entityIds": ["ORG_SOCIAL_REGISTER"],
+      "caption": "Notched gold double-rule illustrated frame plaque",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:ornament-lily-crown-crest",
+      "src": "/media/ornaments/lily-crown-crest.png",
+      "mimeType": "image/png",
+      "slotRole": "ornament.crest_illustrated",
+      "entityIds": ["ORG_SOCIAL_REGISTER", "ORG_ROSEMONT_PORTRAIT"],
+      "caption": "Illustrated thistle lily and celestial crown crest",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:place-harbor-twin-moons",
+      "src": "/images/wallpapers/aureline-harbor-twin-moons.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "place.waterfront",
+      "entityIds": ["REG_ORYNVELL", "geo-angel-bay"],
+      "caption": "Aureline Harbor Waterfront beneath Radiance and Echo",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Art Archive", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:place-terraces-twin-moons",
+      "src": "/images/wallpapers/aureline-terraces-twin-moons.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "place.terraces",
+      "entityIds": ["REG_ORYNVELL", "loc-crown-sanctum"],
+      "caption": "Cascading Aureline Terraces and Grand Aqueduct beneath Radiance and Echo",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Art Archive", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:album-neon-starlight",
+      "src": "/media/albums/album-neon-starlight.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.album",
+      "entityIds": ["ORG_STARSTRUCK", "ORG_SONGBIRD", "ORG_POP_STICKER"],
+      "caption": "Neon Starlight Vocal Portrait (Songbird Cover Art)",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Entertainment Art", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:album-marble-lilies",
+      "src": "/media/albums/album-marble-lilies.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.album",
+      "entityIds": ["ORG_MARLIE_RECORDS", "ORG_ROSEMONT_PORTRAIT"],
+      "caption": "Torn Collage Marble & Lilies Sleeve (Indie Acoustic Cover)",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Entertainment Art", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:album-chamber-violin",
+      "src": "/media/albums/album-chamber-violin.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.album",
+      "entityIds": ["ORG_KAJI_PUBLISHING", "ORG_MARIGOLD_THEATRE"],
+      "caption": "Sunlight Chamber Violin & Score (Acoustic & Stage Score Cover)",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Entertainment Art", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:album-amber-silhouette",
+      "src": "/media/albums/album-amber-silhouette.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.album",
+      "entityIds": ["ORG_STARSTRUCK", "ORG_LOOKING_GLASS"],
+      "caption": "Warm Amber Profile Portrait (Alt-R&B / Vocal Release Cover)",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Entertainment Art", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:album-prism-eclipse",
+      "src": "/media/albums/album-prism-eclipse.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.album",
+      "entityIds": ["ORG_SONGBIRD", "ORG_LUNERUM_DIST"],
+      "caption": "Iridescent Eclipse Glass Ribbon (Glassline Synth Cover)",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Entertainment Art", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:album-meadow-dusk",
+      "src": "/media/albums/album-meadow-dusk.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.album",
+      "entityIds": ["ORG_MARLIE_RECORDS", "ORG_WONDER_WIND"],
+      "caption": "Dusk Meadow Horizon Silhouette (Harbor Folk Cover)",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Entertainment Art", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:poster-last-witness",
+      "src": "/media/posters/poster-last-witness-noir.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.poster",
+      "entityIds": ["ORG_MIRRORA_STUDIOS", "ORG_OPEN_CALL"],
+      "caption": "Noir Rain Promenade Mystery Key Art (Mirrora Studios)",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Entertainment Art", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:poster-promenade-sunset",
+      "src": "/media/posters/poster-promenade-sunset.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.poster",
+      "entityIds": ["ORG_MIRRORA_STUDIOS", "ORG_MARIGOLD_THEATRE"],
+      "caption": "Twilight Blossom Duet Key Art (Drama & Stage)",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Entertainment Art", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:poster-citadel-echoes",
+      "src": "/media/posters/poster-citadel-of-echoes.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.poster",
+      "entityIds": ["ORG_STORYLOOM_STUDIOS", "ORG_OPEN_CALL"],
+      "caption": "Twin-Bridge Highland Citadel Key Art (Storyloom Studios)",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Entertainment Art", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:poster-wind-archive",
+      "src": "/media/posters/poster-wind-archive-collage.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.poster",
+      "entityIds": ["ORG_WONDER_WIND", "ORG_MARIGOLD_THEATRE"],
+      "caption": "Documentary Horizon & Foliage Collage Key Art",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Entertainment Art", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:poster-coastal-escapade",
+      "src": "/media/posters/poster-coastal-escapade.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.poster",
+      "entityIds": ["ORG_POP_STICKER", "ORG_VELVET_CURTAIN"],
+      "caption": "Sunny Coastal Coupe & Companion Tour Key Art",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Entertainment Art", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:guide-social-register-sheet",
+      "src": "/media/style-guides/social-register-brand-sheet.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.styleguide",
+      "entityIds": ["ORG_SOCIAL_REGISTER"],
+      "caption": "The Social Register Brand Sheet (Masthead, Monogram, Plaques & Palette)",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:guide-meridian-sheet",
+      "src": "/media/style-guides/meridian-brand-sheet.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.styleguide",
+      "entityIds": ["ORG_THE_MERIDIAN"],
+      "caption": "The Meridian Daily Newspaper Brand Sheet & Desk System",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:guide-template-system",
+      "src": "/media/style-guides/media-template-system.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.styleguide",
+      "entityIds": ["ORG_SOCIAL_REGISTER", "ORG_THE_MERIDIAN"],
+      "caption": "Miraverse Media Template System Master Reference",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:guide-universal-families",
+      "src": "/media/style-guides/universal-creative-families.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.styleguide",
+      "entityIds": ["ORG_STARSTRUCK", "ORG_MARLIE_RECORDS", "ORG_SONGBIRD"],
+      "caption": "Universal Creative Asset Library — Eight Distinct Design Families",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:guide-poll-templates",
+      "src": "/media/style-guides/poll-question-templates.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.styleguide",
+      "entityIds": ["ORG_POP_STICKER", "ORG_SONGBIRD"],
+      "caption": "Poll & Question Templates Reference (Minimalist, Playful, Community, Editorial)",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:guide-sponsored-collab",
+      "src": "/media/style-guides/sponsored-collab-templates.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.styleguide",
+      "entityIds": ["ORG_AMRIELLE", "ORG_GLASSLINE_DESIGNS"],
+      "caption": "Sponsored Collaboration Template Collection Reference",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
+    },
+    {
+      "id": "canon:guide-story-announcement",
+      "src": "/media/style-guides/story-announcement-templates.jpg",
+      "mimeType": "image/jpeg",
+      "slotRole": "media.styleguide",
+      "entityIds": ["ORG_SONGBIRD", "ORG_LIMELIGHT"],
+      "caption": "Story Announcement Templates Reference (Update, Countdown, Event, Release, Breaking)",
+      "provenance": { "origin": "miraverse_original", "creator": "Miraverse Creative Studio", "license": "First-Party Original", "approvalStatus": "approved", "createdAt": "2026-11-26" }
     }
   ]
 }

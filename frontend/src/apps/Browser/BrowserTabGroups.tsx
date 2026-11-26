@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ArrowUpRight, Folder, X } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 
-export default function BrowserTabGroups() {
+export default function BrowserTabGroups({ onOpenTab }: { onOpenTab?: () => void }) {
   const state = useOSStore(s => s.browserState);
   const createGroup = useOSStore(s => s.createBrowserTabGroup);
   const assignGroup = useOSStore(s => s.setBrowserTabGroup);
@@ -39,7 +39,7 @@ export default function BrowserTabGroups() {
           setNotice(result.message);
           if (!result.ok) event.currentTarget.value = group.name;
         }} /><button className="vn-icon" aria-label={`Remove ${group.name} group`} title="Ungroup these tabs" onClick={() => { removeGroup(group.id); setNotice('Group removed. Its open tabs are now session-only.'); }}><X size={14} /></button></header>
-        <ul>{tabs.map(tab => <li key={tab.id}><button onClick={() => activate(tab.id)}><span>{tab.title}</span><small>{new URL(tab.url).hostname}</small><ArrowUpRight size={13} /></button></li>)}</ul>
+        <ul>{tabs.map(tab => <li key={tab.id}><button onClick={() => { activate(tab.id); onOpenTab?.(); }}><span>{tab.title}</span><small>{new URL(tab.url).hostname}</small><ArrowUpRight size={13} /></button></li>)}</ul>
         {!tabs.length && <small>No tabs in this group.</small>}
         {current.groupId !== group.id && <button className="vn-group-action" onClick={() => setNotice(assignGroup(current.id, group.id).message)}>Save current tab to {group.name}</button>}
       </section>;

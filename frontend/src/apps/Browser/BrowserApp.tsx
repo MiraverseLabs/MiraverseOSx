@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { isEduUrl } from './edu/eduRouter';
 import { isFaithMedUrl } from './medical/faithMedRouter';
-import { isEntertainmentUrl } from './entertainment/entertainmentRouter';
-import SearchHome from './SearchHome';
+import { isEntertainmentUrl, parseEntertainmentUrl } from './entertainment/entertainmentRouter';
+import SearchHome, { NetworkPage } from './SearchHome';
+import { DIRECTORY_CATEGORIES, PUBLIC_DIRECTORY } from './verseNetDirectory';
 import { WindowTitlebarContent } from '../../components/ui/WindowChrome';
-import BrowserTabGroups from './BrowserTabGroups';
+import VerseNetLibrary, { type LibrarySection } from './VerseNetLibrary';
+import type { Navigate } from './VerseNetNavigation';
 import { NEWS_SITE, isMeridianHost } from './news/newsSite';
 import { SOCIAL_REGISTER_SITE } from './publications/socialRegisterModel';
 import { BROWSER_HOME, MAX_BROWSER_TABS, resolveBrowserInput, IN_GAME_PORTALS } from './browserModel';
@@ -12,6 +14,7 @@ import { externalWebUrl } from './externalWeb';
 import ExternalWebPage from './ExternalWebPage';
 import OrynvellRecordsSite from './records/OrynvellRecordsSite';
 import '../../styles/apps/versenet-browser.css';
+import '../../styles/apps/versenet-network.css';
 import WebContentPage from './WebContentPage';
 import UniversalSearch, { IndexedArchivePage } from './UniversalSearch';
 import InteractiveSite from './InteractiveSite';
@@ -25,7 +28,7 @@ import {
 import { MaiSpacePortal } from './MaiSpacePortal';
 import { useOSStore } from '../../store/useOSStore';
 import {
-    X, Plus, ChevronLeft, ChevronRight, RotateCw, Globe, Home, Star, History, Bookmark, Search,
+    X, Plus, ChevronLeft, ChevronRight, RotateCw, Globe, Home, Star, PanelRight, Search,
     ShieldCheck, Lock, Sparkles, Terminal, Shield, ArrowUpRight, Briefcase, Folder
 } from 'lucide-react';
 
@@ -33,13 +36,14 @@ const DispatchNewsSite = lazy(() => import('./news/DispatchNewsSite'));
 const SocialRegisterSite = lazy(() => import('./publications/SocialRegisterSite'));
 const EduSiteRouter = lazy(() => import('./edu/EduSiteRouter'));
 const FaithMedSite = lazy(() => import('./medical/FaithMedSite'));
+const BankingWorkspace = lazy(() => import('../banking/BankingWorkspace'));
 const EntertainmentSiteRouter = lazy(() => import('./entertainment/EntertainmentSiteRouter'));
 
-export const QUICK_NAVIGATION_TARGETS = IN_GAME_PORTALS.map(p => ({
+export const QUICK_NAVIGATION_TARGETS = PUBLIC_DIRECTORY.map(p => ({
     domain: p.domain,
     url: p.url,
     title: p.name,
-    category: p.category
+    category: DIRECTORY_CATEGORIES.find(([id]) => id === p.category)?.[1]
 }));
 
 function WorkNetAppNotice({ navigateTab }: { navigateTab: (url: string) => void }) {
@@ -74,19 +78,23 @@ function WorkNetAppNotice({ navigateTab }: { navigateTab: (url: string) => void 
     );
 }
 
-function ContentFrame({ url, openTab, navigateTab, openService }: any) {
-    if (!url) return <SearchHome navigateTab={navigateTab} openTab={openTab} />;
-    if (isMeridianHost(new URL(url).hostname)) return <Suspense fallback={<p role="status">Connecting to The Meridian…</p>}><DispatchNewsSite url={url} navigateTab={navigateTab}/></Suspense>;
-    if ([SOCIAL_REGISTER_SITE.domain, ...SOCIAL_REGISTER_SITE.altDomains].includes(new URL(url).hostname as any)) return <Suspense fallback={<p role="status">Opening The Social Register…</p>}><SocialRegisterSite url={url} navigateTab={navigateTab}/></Suspense>;
+function ContentFrame({ url, openTab, navigateTab, atTabLimit }: {
+    url: string;
+    openTab: Navigate;
+    navigateTab: Navigate;
+    atTabLimit: boolean;
+}) {
+    if (!url) return <SearchHome navigateTab={navigateTab} openTab={openTab} atTabLimit={atTabLimit} />;
+    const { hostname: domain, pathname, search, searchParams } = new URL(url);
+    if (isMeridianHost(domain)) return <Suspense fallback={<p role="status">Connecting to The Meridian…</p>}><DispatchNewsSite url={url} navigateTab={navigateTab}/></Suspense>;
+    if ([SOCIAL_REGISTER_SITE.domain, ...SOCIAL_REGISTER_SITE.altDomains].includes(domain as any)) return <Suspense fallback={<p role="status">Opening The Social Register…</p>}><SocialRegisterSite url={url} navigateTab={navigateTab}/></Suspense>;
     if (isEduUrl(url)) return <Suspense fallback={<p role="status">Loading academic portal…</p>}><EduSiteRouter url={url} navigateTab={navigateTab}/></Suspense>;
     if (isFaithMedUrl(url)) return <Suspense fallback={<p role="status">Connecting to Faith Medical…</p>}><FaithMedSite url={url} navigateTab={navigateTab}/></Suspense>;
     if (isEntertainmentUrl(url)) return <Suspense fallback={<p role="status">Connecting to Meridion Entertainment Network…</p>}><EntertainmentSiteRouter url={url} navigateTab={navigateTab}/></Suspense>;
-    if (new URL(url).hostname === 'firstfederal.aure' && new URL(url).pathname === '/maintenance') return <BroadStreetPublicPage />;
+    if (domain === 'firstfederal.aure' && pathname === '/maintenance') return <BroadStreetPublicPage />;
     if (externalWebUrl(url)) return <ExternalWebPage url={url}/>;
     
-    const stripped = url.replace(/^https?:\/\//, '');
-    const domain = stripped.split('/')[0] || '';
-    const path = stripped.substring(domain.length) || '/';
+    const path = pathname + search;
     const site = INTERACTIVE_SITES.find(site => site.domain === domain);
     if (site) return <InteractiveSite site={site} path={path} navigateTab={navigateTab}/>;
 
@@ -96,13 +104,19 @@ function ContentFrame({ url, openTab, navigateTab, openService }: any) {
     }
 
     if (domain === 'versenet.aure' || domain === 'versenet' || domain === 'search.aure' || domain === '') {
-        if (path.startsWith('/find?')) {
-            const query = new URLSearchParams(path.slice(path.indexOf('?') + 1)).get('q') ?? '';
-            const view = new URLSearchParams(path.slice(path.indexOf('?') + 1)).get('view') || 'All';
-            return <UniversalSearch query={query} view={view} navigateTab={navigateTab} />;
+        if (/^\/find\/?$/.test(pathname)) {
+            const query = searchParams.get('q') ?? '';
+            const view = searchParams.get('view') || 'All';
+            return <UniversalSearch query={query} view={view} navigateTab={navigateTab} openTab={openTab} atTabLimit={atTabLimit} />;
         }
-        return <SearchHome openTab={openTab} navigateTab={navigateTab} />;
+        const page = pathname.replace(/^\/|\/$/g, '');
+        if (page === 'directory' || page === 'culture' || page === 'reading') {
+            return <NetworkPage page={page} params={searchParams} openTab={openTab} navigateTab={navigateTab} atTabLimit={atTabLimit} />;
+        }
+        return <SearchHome openTab={openTab} navigateTab={navigateTab} atTabLimit={atTabLimit} />;
     }
+
+    if (domain === 'bank.aure') return <Suspense fallback={<p role="status">Opening Personal Treasury…</p>}><BankingWorkspace /></Suspense>;
 
     if (domain === 'fieldnotes.aure') {
         if (path.startsWith('/archive/')) return <IndexedArchivePage id={path.split('?')[0].split('/')[2]} navigateTab={navigateTab}/>;
@@ -125,10 +139,10 @@ function ContentFrame({ url, openTab, navigateTab, openService }: any) {
             <h2 className="text-base font-bold mb-1 text-slate-900">This address is not on Versenet</h2>
             <p className="text-xs text-slate-500 font-mono">{domain} has no published page in the current network. Try searching the site directory.</p>
             <button
-                onClick={() => navigateTab(BROWSER_HOME)}
+                onClick={() => navigateTab(BROWSER_HOME + '/directory')}
                 className="mt-4 px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition cursor-pointer"
             >
-                Return to Search Home
+                Browse directory
             </button>
         </div>
     );
@@ -165,7 +179,13 @@ export default function BrowserApp() {
     }, [workspaceRequest, openService, navigateTab, goHome]);
 
     const [addressInput, setAddressInput] = useState('');
-    const [panel, setPanel] = useState<'history' | 'bookmarks' | 'groups' | null>(null);
+    const [panel, setPanel] = useState<LibrarySection | null>(null);
+    const [librarySection, setLibrarySection] = useState<LibrarySection>('bookmarks');
+    const [compact, setCompact] = useState(false);
+    const browserRef = useRef<HTMLDivElement>(null);
+    const libraryRef = useRef<HTMLElement>(null);
+    const libraryToggleRef = useRef<HTMLButtonElement>(null);
+    const libraryCloseRef = useRef<HTMLButtonElement>(null);
     const [filter, setFilter] = useState('');
     const [reload, setReload] = useState(0);
     const [showSuggestions, setShowSuggestions] = useState(false);
@@ -198,7 +218,26 @@ export default function BrowserApp() {
     const history = historyMap[activeTabId];
     const saved = bookmarks.some(item => item.url === activeTab.url);
     const entries = (panel === 'history' ? visits : bookmarks).filter(item => `${item.title} ${item.url}`.toLowerCase().includes(filter.toLowerCase()));
-    const togglePanel = (next: 'history' | 'bookmarks' | 'groups') => { setPanel(panel === next ? null : next); setFilter(''); };
+    const libraryOpen = panel !== null;
+    const closeLibrary = () => {
+        setPanel(null);
+        libraryToggleRef.current?.focus();
+    };
+    const selectLibrary = (section: typeof librarySection) => {
+        setLibrarySection(section);
+        setPanel(section);
+        setFilter('');
+    };
+    useEffect(() => {
+        const browser = browserRef.current;
+        if (!browser) return;
+        const observer = new ResizeObserver(([entry]) => setCompact(entry.contentRect.width <= 1000));
+        observer.observe(browser);
+        return () => observer.disconnect();
+    }, []);
+    useEffect(() => {
+        if (libraryOpen) libraryCloseRef.current?.focus();
+    }, [libraryOpen]);
 
     // Autocomplete filter
     const filteredSuggestions = QUICK_NAVIGATION_TARGETS.filter(target => {
@@ -209,11 +248,38 @@ export default function BrowserApp() {
     useEffect(() => { setSuggestionIndex(-1); }, [addressInput, activeTabId]);
 
     const handleBrowserKey = (event: React.KeyboardEvent) => {
+        if (event.key === 'Escape' && libraryOpen && !event.defaultPrevented) {
+            event.preventDefault();
+            closeLibrary();
+            return;
+        }
+        if (compact && libraryOpen && event.key === 'Tab') {
+            const controls = Array.from(libraryRef.current?.querySelectorAll<HTMLElement>(
+                'button:not(:disabled), a[href], input:not(:disabled)'
+            ) ?? []);
+            const first = controls[0];
+            const last = controls.at(-1);
+            if (!libraryRef.current?.contains(document.activeElement)) {
+                event.preventDefault();
+                first?.focus();
+            } else if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last?.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first?.focus();
+            }
+            return;
+        }
         if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
         if (event.key.toLowerCase() === 'l') {
-            event.preventDefault(); addressRef.current?.focus(); addressRef.current?.select();
+            event.preventDefault();
+            if (compact && libraryOpen) closeLibrary();
+            addressRef.current?.focus(); addressRef.current?.select();
         } else if (event.key.toLowerCase() === 't' && tabs.length < MAX_BROWSER_TABS) {
-            event.preventDefault(); openTab(BROWSER_HOME);
+            event.preventDefault();
+            if (compact && libraryOpen) closeLibrary();
+            openTab(BROWSER_HOME);
             setTimeout(() => { addressRef.current?.focus(); addressRef.current?.select(); }, 0);
         } else if (event.key.toLowerCase() === 'w' && tabs.length > 1) {
             event.preventDefault(); closeTab(activeTabId);
@@ -222,17 +288,27 @@ export default function BrowserApp() {
 
     // Determine security badge for current URL
     const currentUrl = activeTab.url || '';
+    // One mounted site per pilot tab keeps playback and draft controls alive during site navigation.
+    const siteKey = parseEntertainmentUrl(currentUrl)?.site.domain ?? currentUrl;
     const hostname = new URL(currentUrl).hostname;
     const isAureSuite = hostname === 'auresuite.aure';
     const isOnion = hostname.endsWith('.onion') || hostname === 'vectornet.aure';
     const isVerifiedCivic = IN_GAME_PORTALS.some(site => site.domain === hostname && ['GOV', 'SECURE', 'HEALTH', 'ACADEMIC', 'DEEDS', 'ARCHIVE'].includes(site.badge)) || ['dga.gov', 'finance.oryn.gov'].includes(hostname);
 
     return (
-        <div className="versenet-browser" onKeyDown={handleBrowserKey}>
+        <div className="versenet-browser" ref={browserRef} onKeyDown={handleBrowserKey}>
             <WindowTitlebarContent><div className="vn-tabs" role="tablist" aria-label="Browser tabs">
                 {tabs.map(tab => (
                     <div className={`vn-tab ${tab.id === activeTabId ? 'is-active' : ''} ${tab.groupId ? 'is-grouped' : ''}`} key={tab.id}>
-                        <button role="tab" aria-selected={tab.id === activeTabId} aria-controls="vn-page" id={`vn-tab-${tab.id}`} onClick={() => activate(tab.id)} title={tab.url}>
+                        <button role="tab" onKeyDown={event => {
+                            const at = tabs.findIndex(item => item.id === tab.id);
+                            const next = event.key === 'ArrowRight' ? tabs[(at + 1) % tabs.length]
+                                : event.key === 'ArrowLeft' ? tabs[(at + tabs.length - 1) % tabs.length] : undefined;
+                            if (!next) return;
+                            event.preventDefault();
+                            activate(next.id);
+                            document.getElementById('vn-tab-' + next.id)?.focus();
+                        }} aria-selected={tab.id === activeTabId} aria-controls="vn-page" id={`vn-tab-${tab.id}`} onClick={() => activate(tab.id)} title={tab.url}>
                             <Globe size={13}/>
                             <span>{tab.title}</span>
                             {tab.groupId && <span className="vn-tab-group-tag" title="Saved tab group">{state.groups.find(group => group.id === tab.groupId)?.name}</span>}
@@ -264,7 +340,7 @@ export default function BrowserApp() {
                 </button>
 
                 {/* Enhanced Omnibox with Security Badge & Autocomplete Dropdown */}
-                <div ref={addressContainerRef} className="relative flex-1 flex" onBlur={event => {
+                <div ref={addressContainerRef} className="vn-address-wrap" onBlur={event => {
                     if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setShowSuggestions(false);
                 }}>
                     <form 
@@ -294,7 +370,7 @@ export default function BrowserApp() {
                             aria-autocomplete="list"
                             aria-expanded={showSuggestions && filteredSuggestions.length > 0}
                             aria-controls={showSuggestions && filteredSuggestions.length > 0 ? 'vn-address-suggestions' : undefined}
-                            aria-activedescendant={showSuggestions && suggestionIndex >= 0 ? `vn-suggestion-${suggestionIndex}` : undefined}
+                            aria-activedescendant={showSuggestions && filteredSuggestions[suggestionIndex] ? `vn-suggestion-${suggestionIndex}` : undefined}
                             aria-label="Search VerseNet or enter a web address" 
                             value={addressInput} 
                             onChange={event => {
@@ -307,12 +383,12 @@ export default function BrowserApp() {
                             }} 
                             spellCheck={false}
                             onKeyDown={event => {
-                                if (event.key === 'Escape') { event.preventDefault(); setShowSuggestions(false); setSuggestionIndex(-1); }
+                                if (event.key === 'Escape' && showSuggestions) { event.preventDefault(); setShowSuggestions(false); setSuggestionIndex(-1); }
                                 else if (['ArrowDown', 'ArrowUp'].includes(event.key) && filteredSuggestions.length) {
                                     event.preventDefault(); setShowSuggestions(true);
                                     setSuggestionIndex(index => event.key === 'ArrowDown' ? (index + 1) % filteredSuggestions.length : (index <= 0 ? filteredSuggestions.length - 1 : index - 1));
                                 } else if (event.key === 'Enter' && showSuggestions && suggestionIndex >= 0) {
-                                    event.preventDefault(); navigateTab(filteredSuggestions[suggestionIndex].url); setShowSuggestions(false); addressRef.current?.blur();
+                                    event.preventDefault(); const suggestion = filteredSuggestions[suggestionIndex]; if (suggestion) navigateTab(suggestion.url); setShowSuggestions(false); addressRef.current?.blur();
                                 }
                             }}
                         />
@@ -361,84 +437,25 @@ export default function BrowserApp() {
                     )}
                 </div>
 
-                <button className="vn-icon" aria-label="Bookmarks" aria-expanded={panel === 'bookmarks'} onClick={() => togglePanel('bookmarks')}>
-                    <Bookmark size={16}/>
-                </button>
-                <button className="vn-icon" aria-label="Saved tab groups" aria-expanded={panel === 'groups'} onClick={() => togglePanel('groups')}>
-                    <Folder size={16}/>
-                </button>
-                <button className="vn-icon" aria-label="Browsing history" aria-expanded={panel === 'history'} onClick={() => togglePanel('history')}>
-                    <History size={17}/>
+                <button className="vn-icon vn-library-toggle" ref={libraryToggleRef}
+                    aria-label="Browser library" aria-expanded={libraryOpen} aria-controls="vn-library"
+                    onClick={() => libraryOpen ? closeLibrary() : selectLibrary(librarySection)}>
+                    <PanelRight size={18} />
                 </button>
             </div>
 
-            {state.groups.length > 0 && <nav className="vn-groups-bar" aria-label="Saved tab groups">
-                <span>Saved groups</span>{state.groups.map(group => {
-                    const members = tabs.filter(tab => tab.groupId === group.id);
-                    return <button key={group.id} aria-label={`Open ${group.name} group`} aria-pressed={activeTab.groupId === group.id} onClick={() => members.length ? activate(members[0].id) : setPanel('groups')}><Folder size={12} />{group.name}<small>{members.length}</small></button>;
-                })}
-            </nav>}
             <div className="vn-body">
-                <main ref={pageRef} id="vn-page" role="tabpanel" aria-labelledby={`vn-tab-${activeTabId}`} className="vn-page">
-                    <ContentFrame key={`${activeTabId}:${activeTab.url}:${reload}`} url={activeTab.url} openTab={openTab} openService={openService} navigateTab={navigateTab}/>
+                <main ref={pageRef} inert={compact && libraryOpen} id="vn-page" role="tabpanel" aria-labelledby={`vn-tab-${activeTabId}`} className="vn-page">
+                    <ContentFrame key={`${activeTabId}:${siteKey}:${reload}`} url={activeTab.url} openTab={openTab} atTabLimit={tabs.length >= MAX_BROWSER_TABS} navigateTab={navigateTab}/>
                 </main>
                 {panel && (
-                    <aside className="vn-library" aria-label={panel === 'groups' ? 'Saved tab groups panel' : panel === 'history' ? 'Browsing history panel' : 'Bookmarks panel'}>
-                        <header>
-                            <h2>{panel === 'groups' ? 'Saved tab groups' : panel === 'history' ? 'History' : 'Bookmarks'}</h2>
-                            <button className="vn-icon" aria-label="Close browser library" onClick={() => setPanel(null)}>
-                                <X size={16}/>
-                            </button>
-                        </header>
-                        {panel === 'groups' ? <BrowserTabGroups /> : <><p>{panel === 'history' ? 'Recently visited · saved on this device' : 'Your saved corners of the network'}</p>
-                        
-                        {/* In-Game Portals folder inside bookmarks library */}
-                        {panel === 'bookmarks' && (
-                            <div className="p-3 bg-purple-50/70 border border-purple-200 rounded-xl mb-3">
-                                <div className="flex items-center gap-1.5 font-bold text-xs text-purple-950 mb-2">
-                                    <Folder size={14} className="text-purple-700" />
-                                    <span>VerseNet Directory</span>
-                                </div>
-                                <div className="space-y-1">
-                                    {IN_GAME_PORTALS.map(portal => (
-                                        <button
-                                            key={portal.id}
-                                            onClick={() => navigateTab(portal.url)}
-                                            className="w-full text-left px-2 py-1 rounded hover:bg-purple-100/70 transition flex items-center justify-between text-[11px]"
-                                        >
-                                            <span className="font-semibold text-slate-800 truncate">{portal.name}</span>
-                                            <span className="text-[9px] font-mono text-purple-700">{portal.domain}</span>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        <input aria-label="Filter browser library" placeholder="Find a page…" value={filter} onChange={event => setFilter(event.target.value)}/>
-                        {panel === 'history' && visits.length > 0 && (
-                            <button className="vn-text-button" onClick={clearHistory}>Clear browsing history</button>
-                        )}
-                        <div className="vn-library-list">
-                            {entries.map(item => (
-                                <div className="vn-library-item" key={item.url}>
-                                    <button onClick={() => navigateTab(item.url)}>
-                                        <strong>{item.title}</strong>
-                                        <small>{item.url.replace(/^https?:\/\//, '')}</small>
-                                        {'visitedAt' in item && <time>{new Date(Number(item.visitedAt)).toLocaleDateString()}</time>}
-                                    </button>
-                                    {panel === 'bookmarks' && (
-                                        <button className="vn-icon" aria-label={`Remove bookmark ${item.title}`} onClick={() => removeBookmark(item.url)}>
-                                            <X size={13}/>
-                                        </button>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                        {!entries.length && (
-                            <p role="status">{filter ? 'No matching pages.' : panel === 'history' ? 'Your next visit will appear here.' : 'Use the star beside an address to save a page.'}</p>
-                        )}
-                        </>}
-                    </aside>
+                    <div className="vn-library-backdrop" aria-hidden="true" onClick={closeLibrary} />
+                )}
+                {panel && (
+                    <VerseNetLibrary libraryRef={libraryRef} closeRef={libraryCloseRef} section={panel}
+                        compact={compact} filter={filter} setFilter={setFilter} entries={entries}
+                        hasHistory={visits.length > 0} selectSection={selectLibrary} onClose={closeLibrary}
+                        clearHistory={clearHistory} removeBookmark={removeBookmark} onNavigate={navigateTab} />
                 )}
             </div>
             <footer className="vn-status">

@@ -1,75 +1,185 @@
-import React, { useMemo, useState } from 'react';
-import { ArrowRight, ArrowUpRight, Search, Globe, BookOpen, Landmark, Newspaper, Compass } from 'lucide-react';
-import { resolveBrowserInput, IN_GAME_PORTALS, BROWSER_HOME, type InGamePortal } from './browserModel';
+import React, { useState } from 'react';
+import { ArrowRight, ArrowUpRight, Globe, Landmark, Music2, Search } from 'lucide-react';
+import { BROWSER_HOME, resolveBrowserInput } from './browserModel';
+import { ENTERTAINMENT_SITES } from './entertainment/entertainmentRouter';
+import { directoryURL, directoryView, DIRECTORY_CATEGORIES, PUBLIC_DIRECTORY } from './verseNetDirectory';
+import { VerseNetLink, VerseNetNavigation, type Navigate, type VerseNetPage } from './VerseNetNavigation';
 import { useOSStore } from '../../store/useOSStore';
 
-export interface SearchHomeProps {
-  openTab?: (url: string, title?: string) => void;
-  navigateTab: (url: string, title?: string) => void;
+interface PageProps {
+  navigateTab: Navigate;
+  openTab?: Navigate;
+  atTabLimit?: boolean;
 }
-const SECTIONS = ['All websites', 'Education', 'Public services', 'Culture & community', 'Everyday tools'] as const;
-type Section = typeof SECTIONS[number];
-function sectionFor(portal: InGamePortal): Section {
-  if (portal.badge === 'ACADEMIC') return 'Education';
-  if (['GOV', 'DEEDS', 'HEALTH', 'SECURE'].includes(portal.badge)) return 'Public services';
-  if (['NEWS', 'ARCHIVE', 'SOCIAL', 'CIVIC'].includes(portal.badge)) return 'Culture & community';
-  return 'Everyday tools';
+
+const cultureURL = BROWSER_HOME + '/culture';
+const readingURL = BROWSER_HOME + '/reading';
+const cityImage = '/images/wallpapers/aureline-glassline-twilight.png';
+const readingSites = ['meridian.mer', 'socialregister.mer', 'readingroom.aure', 'royalhistory.mer'];
+const cultureGroups = [
+  ['Music and talent', 'Music, Talent & Management'],
+  ['Broadcasting and streaming', 'Broadcasting & Streaming'],
+  ['Fashion and modeling', 'Fashion, Modeling & Visuals'],
+  ['Screen and dance', 'Dance, Screen & Stage'],
+  ['Live events and venues', 'Live Events & Venues'],
+  ['Media and recognition', 'Media & Recognition'],
+  ['Professional services', 'Representation, PR & Rights'],
+] as const;
+
+type LinkedSite = { name: string; domain: string; url: string; description: string };
+
+function SiteRow({ site, navigateTab, openTab, atTabLimit, mark }: PageProps & {
+  site: LinkedSite;
+  mark?: React.ReactNode;
+}) {
+  return <article className="vn-destination-row">
+    <VerseNetLink url={site.url} navigate={navigateTab} openTab={openTab}>
+      {mark}
+      <div className="vn-destination-copy">
+        <strong>{site.name}</strong><small>{site.domain}</small>
+        <p>{site.description}</p>
+      </div>
+    </VerseNetLink>
+    {openTab && <button type="button" className="vn-icon" aria-label={'Open ' + site.name + ' in a new tab'}
+      disabled={atTabLimit} onClick={() => openTab(site.url)}><ArrowUpRight size={16} aria-hidden="true" /></button>}
+  </article>;
 }
-function SectionIcon({ section }: { section: Section }) {
-  const Icon = section === 'Education' ? BookOpen : section === 'Public services' ? Landmark : section === 'Culture & community' ? Newspaper : Globe;
-  return <Icon size={18} strokeWidth={1.5} aria-hidden="true" />;
+
+function SiteLinks({ domains, ...props }: PageProps & { domains: string[] }) {
+  return <div className="vn-site-links">{domains.map(domain => {
+    const site = PUBLIC_DIRECTORY.find(item => item.domain === domain);
+    return site && <SiteRow key={domain} site={site} {...props} />;
+  })}</div>;
 }
-export default function SearchHome({ navigateTab, openTab }: SearchHomeProps) {
+
+export default function SearchHome(props: PageProps) {
+  const { navigateTab, openTab } = props;
   const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState('');
-  const [section, setSection] = useState<Section>('All websites');
+  const [showImage, setShowImage] = useState(true);
   const visits = useOSStore(s => s.browserState.visits);
-  const sites = useMemo(() => IN_GAME_PORTALS.filter(site => site.id !== 'cyacademy'), []);
-  const matches = sites.filter(site => (section === 'All websites' || sectionFor(site) === section)
-    && `${site.name} ${site.domain} ${site.description}`.toLowerCase().includes(filter.trim().toLowerCase()));
-  const recent = visits.filter(visit => visit.url !== BROWSER_HOME && visit.url !== `${BROWSER_HOME}/`).slice(0, 3);
-  const visit = (event: React.MouseEvent<HTMLAnchorElement>, site: { url: string; name: string }) => {
-    event.preventDefault();
-    if ((event.ctrlKey || event.metaKey) && openTab) openTab(site.url, site.name);
-    else navigateTab(site.url, site.name);
-  };
-  return <div className="vn-discovery">
-    <header className="vn-discovery-header">
-      <a href={BROWSER_HOME} className="vn-wordmark" onClick={event => { event.preventDefault(); navigateTab(BROWSER_HOME); }}>
-        <Compass size={23} strokeWidth={1.4} aria-hidden="true" /> versenet<span>Meridion’s public web</span>
-      </a>
-    </header>
-    <section className="vn-discovery-hero" aria-label="Versenet search">
-      <span className="vn-section-label">Explore the network</span><h1>Search Meridion.</h1>
-      <p>Public records, independent publications, universities, and everyday services.</p>
-      <form role="search" onSubmit={event => { event.preventDefault(); if (query.trim()) navigateTab(resolveBrowserInput(query)); }}>
-        <Search size={21} strokeWidth={1.6} aria-hidden="true" />
-        <input type="search" aria-label="Search VerseNet" placeholder="What would you like to find?" value={query} onChange={event => setQuery(event.target.value)} spellCheck={false} />
-        <button type="submit">Search <ArrowRight size={17} aria-hidden="true" /></button>
-      </form>
-      <div className="vn-search-topics"><span>Start with</span>{['Aureline', 'public archives', 'universities'].map(topic => <button key={topic} onClick={() => navigateTab(resolveBrowserInput(topic))}>{topic} <ArrowUpRight size={12} /></button>)}</div>
-    </section>
-    <div className="vn-discovery-layout">
-      <section className="vn-network-directory" aria-labelledby="vn-directory-title">
-        <div className="vn-section-heading"><div><span className="vn-section-label">A place to begin</span><h2 id="vn-directory-title">Around the network</h2></div><span className="vn-result-count" role="status">{matches.length} websites</span></div>
-        <div className="vn-directory-tools">
-          <div className="vn-directory-sections" role="group" aria-label="Website categories">{SECTIONS.map(item => <button key={item} aria-pressed={section === item} onClick={() => setSection(item)}>{item}</button>)}</div>
-          <label className="vn-directory-find"><Search size={15} aria-hidden="true" /><input type="search" aria-label="Find a website" placeholder="Filter by name or subject" value={filter} onChange={event => setFilter(event.target.value)} /></label>
+  const recent = visits.filter(visit => visit.url !== BROWSER_HOME && visit.url !== BROWSER_HOME + '/').slice(0, 4);
+
+  return <div className="vn-network vn-discovery">
+    <VerseNetNavigation page="discover" navigate={navigateTab} openTab={openTab} />
+    <div className="vn-network-inner">
+      <section className="vn-discovery-hero" aria-label="VerseNet search">
+        <h1>Search Meridion.</h1>
+        <p>Meridion’s public web, from neighborhood guides to the arts and archives.</p>
+        <form role="search" onSubmit={event => {
+          event.preventDefault();
+          if (query.trim()) navigateTab(resolveBrowserInput(query));
+        }}>
+          <Search size={20} aria-hidden="true" />
+          <input type="search" aria-label="Search VerseNet" placeholder="Search the network" value={query}
+            maxLength={512} onChange={event => setQuery(event.target.value)} spellCheck={false} />
+          <button type="submit">Search <ArrowRight size={17} aria-hidden="true" /></button>
+        </form>
+        <div className="vn-search-topics" aria-label="Suggested searches">
+          {['Aureline', 'public archives', 'Marlie Records'].map(topic =>
+            <VerseNetLink key={topic} url={resolveBrowserInput(topic)} navigate={navigateTab}>{topic}</VerseNetLink>)}
         </div>
-        <div className="vn-destination-list">{matches.map(site => <article className="vn-destination-row" key={site.id}>
-          <span className="vn-destination-symbol" data-section={sectionFor(site)}><SectionIcon section={sectionFor(site)} /></span>
-          <a href={site.url} onClick={event => visit(event, site)}><span className="vn-destination-domain">{site.domain}</span><h3>{site.name}</h3><p>{site.description}</p></a>
-          <button className="vn-icon" aria-label={`Open ${site.name} in a new tab`} title="Open in a new tab" onClick={() => openTab ? openTab(site.url, site.name) : navigateTab(site.url, site.name)}><ArrowUpRight size={17} /></button>
-        </article>)}</div>
-        {!matches.length && <div className="vn-directory-empty"><h3>No websites match that search.</h3><p>Try a broader subject or browse the full directory.</p><button onClick={() => { setFilter(''); setSection('All websites'); }}>Show all websites <ArrowRight size={14} /></button></div>}
       </section>
-      <aside className="vn-reading-list" aria-label="Network highlights">
-        <span className="vn-section-label">The reading list</span><h2>Worth a visit.</h2>
-        <a href="https://dispatch.mer" onClick={event => visit(event, { url: 'https://dispatch.mer', name: 'The Meridion Dispatch' })}><span>News & perspectives</span><h3>The Meridion Dispatch</h3><p>Reporting on the places, institutions, and people shaping daily life.</p><span className="vn-editorial-link">Read the latest edition <ArrowUpRight size={14} /></span></a>
-        <a href="https://dawn.edu" onClick={event => visit(event, { url: 'https://dawn.edu', name: 'Dawn University' })}><span>Study in Dawnson</span><h3>A university in the city.</h3><p>Explore Dawn University’s courses, faculty, and collegiate community.</p><span className="vn-editorial-link">Visit Dawn University <ArrowUpRight size={14} /></span></a>
-        {recent.length > 0 && <section className="vn-recent-pages"><span className="vn-section-label">Pick up where you left off</span>{recent.map(page => <a key={page.url} href={page.url} onClick={event => visit(event, { url: page.url, name: page.title })}><strong>{page.title}</strong><small>{new URL(page.url).hostname}</small><ArrowUpRight size={14} /></a>)}</section>}
-      </aside>
+
+      <section className="vn-feature-grid" aria-label="Featured destinations">
+        <VerseNetLink className="vn-feature vn-feature-main" url={cultureURL} navigate={navigateTab} openTab={openTab}>
+          {showImage && <img src={cityImage} alt="" onError={() => setShowImage(false)} />}
+          <div><span>Glassline District</span><h2>Explore Meridion’s creative scene</h2>
+            <p>Find the labels, studios, and stages behind the work.</p><ArrowUpRight size={24} aria-hidden="true" /></div>
+        </VerseNetLink>
+        <div className="vn-feature-links">
+          <SiteLinks {...props} domains={['meridian.mer', 'gardenreview.aure']} />
+        </div>
+      </section>
+
+      <section className="vn-home-section">
+        <header><h2>Arts and entertainment</h2><VerseNetLink url={cultureURL} navigate={navigateTab}>Explore arts and culture <ArrowRight size={16} /></VerseNetLink></header>
+        <div className="vn-culture-strip">{['ORG_SONGBIRD', 'ORG_POP_STICKER', 'ORG_LIMELIGHT', 'ORG_MARLIE_RECORDS'].map(id => {
+          const site = ENTERTAINMENT_SITES.find(item => item.orgId === id);
+          return site && <SiteRow key={id} site={site} {...props}
+            mark={<span className="vn-brand-dot" style={{ backgroundColor: site.accentColor }} />} />;
+        })}</div>
+      </section>
+
+      <section className="vn-home-section">
+        <header><h2>Places and everyday services</h2></header>
+        <SiteLinks {...props} domains={['companion.aure', 'civinet.mer', 'bank.aure', 'dawn.edu']} />
+      </section>
+
+      <section className="vn-home-section">
+        <header><h2>Reading across Meridion</h2><VerseNetLink url={readingURL} navigate={navigateTab}>See reading destinations <ArrowRight size={16} /></VerseNetLink></header>
+        <SiteLinks {...props} domains={readingSites.slice(1, 3)} />
+      </section>
+
+      {recent.length > 0 && <section className="vn-home-section">
+        <header><h2>Recently visited</h2></header>
+        <ul className="vn-recent-links">{recent.map(item => <li key={item.url}><VerseNetLink url={item.url}
+          navigate={navigateTab} openTab={openTab}>{item.title}</VerseNetLink></li>)}</ul>
+      </section>}
+      <footer className="vn-discover-footer"><VerseNetLink url={directoryURL()} navigate={navigateTab}>
+        Browse the full directory <ArrowRight size={18} aria-hidden="true" />
+      </VerseNetLink></footer>
     </div>
-    <footer className="vn-discovery-footer"><span>VerseNet · The public web of Meridion</span></footer>
+  </div>;
+}
+
+export function NetworkPage({ page, params, ...props }: PageProps & {
+  page: Exclude<VerseNetPage, 'discover' | 'search'>;
+  params: URLSearchParams;
+}) {
+  const { navigateTab, openTab } = props;
+  const { category, filter, matches } = directoryView(params);
+  const [draft, setDraft] = useState(filter);
+  const title = page === 'directory' ? 'Website directory' : page === 'culture' ? 'Arts and culture' : 'Reading across Meridion';
+  return <div className="vn-network">
+    <VerseNetNavigation page={page} navigate={navigateTab} openTab={openTab} />
+    <div className="vn-network-inner vn-index">
+      <h1>{title}</h1>
+      {page === 'directory' && <div className="vn-index-layout">
+        <nav className="vn-directory-sections" aria-label="Website categories">
+          {DIRECTORY_CATEGORIES.map(([id, label]) => <VerseNetLink key={id} url={directoryURL(id, filter)}
+            current={category === id} navigate={navigateTab}>{label}</VerseNetLink>)}
+        </nav>
+        <section className="vn-directory-results" aria-label="Directory results">
+          <form className="vn-directory-find" role="search" onSubmit={event => {
+            event.preventDefault();
+            navigateTab(directoryURL(category, draft));
+          }}>
+            <Search size={17} aria-hidden="true" /><input type="search" aria-label="Find a website" placeholder="Filter by name, domain, or subject"
+              maxLength={200} value={draft} onChange={event => setDraft(event.target.value)} />
+            <button type="submit">Filter</button>
+          </form>
+          <p role="status" className="vn-result-count">{matches.length} {matches.length === 1 ? 'website' : 'websites'}</p>
+          {matches.map(site => <SiteRow key={site.domain} site={site} {...props}
+            mark={<span className="vn-destination-symbol" aria-hidden="true">{site.category === 'arts' ? <Music2 size={16} /> :
+              site.category === 'services' ? <Landmark size={16} /> : <Globe size={16} />}</span>} />)}
+          {!matches.length && <div className="vn-directory-empty"><h2>No websites match that search.</h2>
+            <p>Try a broader subject or browse the full directory.</p>
+            <VerseNetLink url={directoryURL()} navigate={navigateTab}>Show all websites <ArrowRight size={15} /></VerseNetLink>
+          </div>}
+        </section>
+      </div>}
+      {page === 'culture' && <><p className="vn-index-intro">Explore the people and organizations behind music, fashion, film, and live performance.</p>
+        {cultureGroups.map(([label, sector]) => <section className="vn-home-section" key={sector}>
+          <header><h2>{label}</h2></header>
+          <div className="vn-culture-grid">{ENTERTAINMENT_SITES.filter(site => site.sector === sector).map(site =>
+            <SiteRow key={site.orgId} site={site} {...props}
+              mark={<span className="vn-brand-dot" style={{ backgroundColor: site.accentColor }} />} />)}</div>
+        </section>)}</>}
+      {page === 'reading' && <><p className="vn-index-intro">Newspapers, magazines, and public collections.</p>
+        <div className="vn-reading-features">
+          {[
+            ['meridian.mer', '/media/brands/meridian-masthead.svg'],
+            ['socialregister.mer', '/media/brands/social-register-masthead.svg'],
+          ].map(([domain, asset]) => {
+            const site = PUBLIC_DIRECTORY.find(item => item.domain === domain);
+            return site && <SiteRow key={domain} site={site} {...props}
+              mark={<img src={asset} alt="" onError={event => { event.currentTarget.hidden = true; }} />} />;
+          })}
+        </div>
+        <section className="vn-home-section"><header><h2>Public collections</h2></header>
+          <SiteLinks {...props} domains={readingSites.slice(2)} />
+          <p className="vn-archive-link"><VerseNetLink url={BROWSER_HOME + '/find?q=archives&view=Archives'} navigate={navigateTab}>Search archive records <ArrowRight size={16} /></VerseNetLink></p>
+        </section></>}
+    </div>
   </div>;
 }

@@ -18,8 +18,9 @@ async function openApp(page: Page, code: string) {
 }
 
 async function saveCurrentTab(browser: Locator, name: string) {
-  await browser.getByRole('button', { name: 'Saved tab groups', exact: true }).click();
-  const panel = browser.getByRole('complementary', { name: 'Saved tab groups panel', exact: true });
+  await browser.getByRole('button', { name: 'Browser library', exact: true }).click();
+  const panel = browser.locator('.vn-library');
+  await panel.getByRole('button', { name: 'Saved groups', exact: true }).click();
   await panel.getByRole('textbox', { name: 'New group name', exact: true }).fill(name);
   await panel.getByRole('button', { name: 'Create group and save this tab', exact: true }).click();
   await panel.getByRole('button', { name: 'Close browser library', exact: true }).click();
@@ -58,8 +59,9 @@ test('browser opens its homepage after reopening and reload while retaining book
   await expect(address).toHaveValue('https://versenet.aure');
   await page.reload(); await openApp(page, 'VERSENET');
   await expect(address).toHaveValue('https://versenet.aure');
-  await browser.getByRole('button', { name: 'Bookmarks', exact: true }).click();
-  const library = browser.getByRole('complementary', { name: 'Bookmarks panel', exact: true });
+  await browser.getByRole('button', { name: 'Browser library', exact: true }).click();
+  const library = browser.locator('.vn-library');
+  await library.getByRole('button', { name: 'Bookmarks', exact: true }).click();
   await expect(library.locator('.vn-library-item')).toHaveCount(1);
   await library.locator('.vn-library-item>button').first().click();
   await expect(address).toHaveValue('https://firstfederal.aure/maintenance');
@@ -90,7 +92,10 @@ test('PULSE opens the Dispatch website and preserves reading across reload', asy
   await saveCurrentTab(browser, 'News reading');
   await page.reload(); await openApp(page, 'VERSENET');
   await expect(address).toHaveValue('https://versenet.aure');
-  await browser.getByRole('button', { name: 'Open News reading group', exact: true }).click();
+  await browser.getByRole('button', { name: 'Browser library', exact: true }).click();
+  const library = browser.locator('.vn-library');
+  await library.getByRole('button', { name: 'Saved groups', exact: true }).click();
+  await library.getByRole('region', { name: 'Saved group News reading' }).getByRole('button', { name: /Article/ }).click();
   await expect(news.getByRole('article', { name: 'Before your next shift, read the terms', exact: true })).toBeVisible();
   await news.getByRole('button', { name: 'Back to edition', exact: true }).click();
   await expect(news.getByText('Read', { exact: true })).toBeVisible();

@@ -24,6 +24,7 @@ import {
 } from '../game-content/worldAssetLibrary';
 import {
   MEDIA_TEMPLATES,
+  STYLE_VARIANTS_BY_TEMPLATE,
   validateMediaArtifactInput,
   type MediaChannel,
   type PublishedMediaArtifact,
@@ -94,6 +95,7 @@ export default function CreativeStudioApp() {
   const [channel, setChannel] = useState<MediaChannel>('social');
   const templates = useMemo(() => MEDIA_TEMPLATES.filter(t => t.channel === channel), [channel]);
   const [templateId, setTemplateId] = useState<string>('tpl-social-article-promo');
+  const [styleVariant, setStyleVariant] = useState<string>('');
   const [brandKitId, setBrandKitId] = useState<string>('the-social-register');
   const [tier, setTier] = useState<VerificationTier>('personal_perspective');
   const [kicker, setKicker] = useState('SOCIETY & CULTURE');
@@ -141,6 +143,7 @@ export default function CreativeStudioApp() {
             : undefined,
       },
       tokenOverrides: accentOverride ? { accentPrimary: accentOverride } : undefined,
+      ...(styleVariant ? { styleVariant } : {}),
       entityRefs: selectedEntityId ? [selectedEntityId] : [],
       authorId: 'you',
       authorName: player?.name || 'Citizen Creator',
@@ -153,7 +156,7 @@ export default function CreativeStudioApp() {
       publishedCycle: cycle,
       createdAt: new Date().toISOString(),
     }),
-    [templates, templateId, brandKitId, channel, perms, tier, kicker, headline, subhead, pullQuote, body, cycle, selectedAssetId, selectedEntityId, accentOverride, player?.name],
+    [templates, templateId, styleVariant, brandKitId, channel, perms, tier, kicker, headline, subhead, pullQuote, body, cycle, selectedAssetId, selectedEntityId, accentOverride, player?.name],
   );
 
   const handlePublishPlayerWork = () => {
@@ -284,13 +287,36 @@ export default function CreativeStudioApp() {
               </label>
               <label className="space-y-1 font-semibold">
                 <span>Reusable Template</span>
-                <select value={previewArtifact.templateId} onChange={e => setTemplateId(e.target.value)} className="w-full p-2 rounded border border-slate-300 bg-white">
+                <select
+                  value={previewArtifact.templateId}
+                  onChange={e => {
+                    setTemplateId(e.target.value);
+                    setStyleVariant('');
+                  }}
+                  className="w-full p-2 rounded border border-slate-300 bg-white"
+                >
                   {templates.map(t => (
                     <option key={t.id} value={t.id}>{t.name}</option>
                   ))}
                 </select>
               </label>
             </div>
+
+            {(STYLE_VARIANTS_BY_TEMPLATE[previewArtifact.templateId] || []).length > 0 && (
+              <label className="block space-y-1 text-xs font-semibold">
+                <span>Template Style Variant</span>
+                <select
+                  value={styleVariant}
+                  onChange={e => setStyleVariant(e.target.value)}
+                  className="w-full p-2 rounded border border-slate-300 bg-white capitalize"
+                >
+                  <option value="">Default Layout Variant</option>
+                  {(STYLE_VARIANTS_BY_TEMPLATE[previewArtifact.templateId] || []).map(v => (
+                    <option key={v.id} value={v.id}>{v.label}</option>
+                  ))}
+                </select>
+              </label>
+            )}
 
             <div className="grid grid-cols-2 gap-3 text-xs">
               <label className="space-y-1 font-semibold">
@@ -599,7 +625,13 @@ export default function CreativeStudioApp() {
                   <input type="number" min={0} max={2000} value={prjBudget} onChange={e => setPrjBudget(Number(e.target.value))} className="w-full p-2 rounded border border-slate-300" />
                 </label>
               </div>
-              <SongbirdAudioPlayer audioUrl={prjAudio} title={prjTitle || 'Studio Stem Preview'} artistName={playerArtist?.stageName || stageNameDraft} compact />
+              <SongbirdAudioPlayer
+                audioUrl={prjAudio}
+                coverArtUrl={SHIPPED_AUDIO_ASSETS.find(a => a.audioUrl === prjAudio)?.coverArtUrl}
+                title={prjTitle || 'Studio Stem Preview'}
+                artistName={playerArtist?.stageName || stageNameDraft}
+                compact
+              />
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -627,6 +659,7 @@ export default function CreativeStudioApp() {
                         title: prjTitle,
                         format: prjKind === 'album' ? 'Album' : 'Single',
                         audioUrl: prjAudio,
+                        coverArtUrl: SHIPPED_AUDIO_ASSETS.find(a => a.audioUrl === prjAudio)?.coverArtUrl,
                         collaboratorArtistId: prjCollab || undefined,
                       }).message,
                     )
@@ -766,34 +799,133 @@ export default function CreativeStudioApp() {
         </section>
       )}
 
-      {/* TAB 3: BRAND KITS & 5 COLOR REFERENCE COLLECTIONS */}
+      {/* TAB 3: BRAND KITS, 8 UNIVERSAL DESIGN FAMILIES & STYLE GUIDES */}
       {tab === 'palettes' && (
-        <section className="bg-white p-5 rounded-xl border border-slate-200 space-y-5">
-          <h2 className="text-base font-bold text-[#141214]">Approved Miraverse Color Collections & Brand Systems</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {Object.entries(COLOR_PALETTES).map(([key, pal]) => (
-              <div key={key} className="p-4 rounded-xl border border-slate-200 space-y-2.5">
-                <strong className="text-sm">{pal.name}</strong>
-                <div className="flex flex-wrap gap-2">
-                  {Object.entries(pal.swatches).map(([swatchName, hex]) => (
-                    <button
-                      key={swatchName}
-                      type="button"
-                      onClick={() => {
-                        setAccentOverride(hex);
-                        setTab('composer');
-                        setNotice(`Applied ${pal.name} swatch ${swatchName} (${hex}) as accent override.`);
-                      }}
-                      className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs cursor-pointer"
-                    >
-                      <span style={{ width: 16, height: 16, borderRadius: 4, background: hex, border: '1px solid rgba(0,0,0,0.2)' }} />
-                      <span>{swatchName}</span>
-                      <code className="text-[10px] text-slate-500">{hex}</code>
-                    </button>
-                  ))}
+        <section className="bg-white p-5 rounded-xl border border-slate-200 space-y-6">
+          <div className="space-y-3">
+            <div>
+              <h2 className="text-base font-bold text-[#141214]">8 Universal Creative Asset Design Families</h2>
+              <p className="text-xs text-slate-600">
+                Apply any canonical design family in one click to restyle your Composer canvas, brand typography, and palette tokens.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+              {Object.values(BRAND_KITS)
+                .filter(k => k.id.startsWith('family-'))
+                .map(kit => (
+                  <article
+                    key={kit.id}
+                    className="p-3.5 rounded-xl border flex flex-col justify-between gap-2.5"
+                    style={{
+                      background: kit.tokens.bgSurface,
+                      color: kit.tokens.textPrimary,
+                      borderColor: kit.tokens.borderOrnament,
+                    }}
+                  >
+                    <div className="space-y-1">
+                      <strong className="text-sm block" style={{ fontFamily: kit.tokens.fontDisplay }}>
+                        {kit.name}
+                      </strong>
+                      <p className="text-[11px] opacity-85" style={{ color: kit.tokens.textSecondary }}>
+                        {kit.tokens.fontDisplay.split(',')[0]} · {kit.tokens.fontBody.split(',')[0]}
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1">
+                        {[kit.tokens.bgSurface, kit.tokens.bgSecondary, kit.tokens.accentPrimary, kit.tokens.accentSecondary].map((hex, i) => (
+                          <span
+                            key={`${kit.id}-${i}`}
+                            title={hex}
+                            style={{ width: 14, height: 14, borderRadius: 4, background: hex, border: '1px solid rgba(0,0,0,0.22)' }}
+                          />
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setBrandKitId(kit.id);
+                          setAccentOverride('');
+                          setTab('composer');
+                          setNotice(`Applied Design Family "${kit.name}" to Composer.`);
+                        }}
+                        className="px-2.5 py-1 rounded text-[11px] font-bold cursor-pointer"
+                        style={{ background: kit.tokens.accentPrimary, color: kit.tokens.textInverse }}
+                      >
+                        Apply Family
+                      </button>
+                    </div>
+                  </article>
+                ))}
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-4 border-t border-slate-200">
+            <h2 className="text-base font-bold text-[#141214]">Approved Miraverse Color Collections & Brand Systems</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.entries(COLOR_PALETTES).map(([key, pal]) => (
+                <div key={key} className="p-4 rounded-xl border border-slate-200 space-y-2.5">
+                  <strong className="text-sm">{pal.name}</strong>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(pal.swatches).map(([swatchName, hex]) => (
+                      <button
+                        key={swatchName}
+                        type="button"
+                        onClick={() => {
+                          setAccentOverride(hex);
+                          setTab('composer');
+                          setNotice(`Applied ${pal.name} swatch ${swatchName} (${hex}) as accent override.`);
+                        }}
+                        className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs cursor-pointer"
+                      >
+                        <span style={{ width: 16, height: 16, borderRadius: 4, background: hex, border: '1px solid rgba(0,0,0,0.2)' }} />
+                        <span>{swatchName}</span>
+                        <code className="text-[10px] text-slate-500">{hex}</code>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-4 border-t border-slate-200">
+            <div>
+              <h2 className="text-base font-bold text-[#141214]">Reference Style Guides & Visual Template Sheets (7)</h2>
+              <p className="text-xs text-slate-600">
+                Canonical Miraverse brand identity and creative layout specifications registered in the Media Manifest.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {allAssets
+                .filter(a => a.slotRole === 'media.styleguide')
+                .map(guide => (
+                  <figure key={guide.id} className="rounded-xl border border-slate-200 overflow-hidden bg-slate-50 flex flex-col">
+                    <img
+                      src={guide.src}
+                      alt={guide.caption}
+                      loading="lazy"
+                      className="w-full aspect-video object-cover border-b border-slate-200 bg-white"
+                    />
+                    <figcaption className="p-3 text-xs space-y-1.5 flex-1 flex flex-col justify-between">
+                      <div>
+                        <strong className="block text-[#141214]">{guide.caption}</strong>
+                        <code className="text-[10px] text-slate-500">{guide.id}</code>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedAssetId(guide.id);
+                          setTab('composer');
+                          setNotice(`Loaded style guide "${guide.caption}" into active Composer visual slot.`);
+                        }}
+                        className="self-start text-[11px] font-bold text-[#48293D] underline cursor-pointer"
+                      >
+                        Use in Composer →
+                      </button>
+                    </figcaption>
+                  </figure>
+                ))}
+            </div>
           </div>
         </section>
       )}

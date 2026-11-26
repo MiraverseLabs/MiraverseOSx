@@ -166,8 +166,6 @@ export function MediaTemplateRenderer({
   const kit = getBrandKit(artifact.brandKitId);
   const cssVars = brandKitCssVariables(artifact.brandKitId, artifact.tokenOverrides) as React.CSSProperties;
   const { slotValues } = artifact;
-  const dividerAsset = getMediaAssetById(kit.assets.divider);
-
   const hasVisualSlot = Boolean(
     slotValues.imageAssetId ||
       slotValues.primaryEntityId ||
@@ -188,9 +186,19 @@ export function MediaTemplateRenderer({
   const resolvedMedia = candidateMedia?.src && failedMediaSource === candidateMedia.src
     ? { ...candidateMedia, mode: 'typographic_fallback', src: undefined }
     : candidateMedia;
+  const dividerAsset = getMediaAssetById(kit.assets.dividerFiligree || kit.assets.divider);
+  const cornerTlAsset = getMediaAssetById(kit.assets.cornerIllustrated || kit.assets.corner);
+  const floralCrestAsset = getMediaAssetById(kit.assets.floralCrest || kit.assets.crest);
+  const hasDirectVisual = Boolean(resolvedMedia);
+
+  const supportsHas = typeof globalThis.CSS?.supports === 'function' ? globalThis.CSS.supports('selector(:has(*))') : true;
+
   return (
     <div className="mira-tpl-host" data-density={density} style={{ ...cssVars, ['--density' as any]: density }}>
-      <article className={`mira-tpl-card ${adaptiveHorizontal ? 'mira-tpl-adapt' : ''}`}>
+      <article
+        className={`mira-tpl-card ${adaptiveHorizontal ? 'mira-tpl-adapt' : ''} ${!supportsHas && hasDirectVisual ? 'has-image' : ''}`}
+        data-style-variant={artifact.styleVariant || 'default'}
+      >
         {/* Region 1: Media (direct <img> or .media hero per modern card guidelines) */}
         {resolvedMedia &&
           (resolvedMedia.mode === 'exact_slot' || resolvedMedia.mode === 'entity_primary' ? (
@@ -213,8 +221,14 @@ export function MediaTemplateRenderer({
         {/* Region 2: Header */}
         <header>
           <div className="mira-tpl-kicker">
+            {cornerTlAsset && (
+              <img src={cornerTlAsset.src} alt="" aria-hidden="true" style={{ width: 22, height: 22, objectFit: 'contain' }} />
+            )}
             <span className="mira-tpl-kicker-pill">{slotValues.kicker || kit.name}</span>
             {slotValues.issueDate && <span>{slotValues.issueDate}</span>}
+            {floralCrestAsset && (
+              <img src={floralCrestAsset.src} alt="" aria-hidden="true" style={{ width: 28, height: 18, objectFit: 'contain', marginLeft: 'auto' }} />
+            )}
           </div>
           <h3 className="mira-tpl-headline">{slotValues.headline}</h3>
           {slotValues.subhead && <p className="mira-tpl-subhead">{slotValues.subhead}</p>}
@@ -251,6 +265,8 @@ export function MediaTemplateRenderer({
                       <img
                         src={slideMedia.src}
                         alt={slideMedia.caption}
+                        loading="lazy"
+                        fetchPriority="low"
                         style={{ width: '100%', maxHeight: '180px', objectFit: 'cover', borderRadius: '6px', marginBottom: '0.6rem' }}
                       />
                     )}
@@ -358,8 +374,8 @@ export function CollectibleIssueReader({
   useWorldMedia();
   const kit = getBrandKit(issue.brandKitId);
   const cssVars = brandKitCssVariables(issue.brandKitId) as React.CSSProperties;
-  const masthead = getMediaAssetById(kit.assets.masthead);
-  const crest = getMediaAssetById(kit.assets.crest || kit.assets.monogram);
+  const masthead = getMediaAssetById(kit.assets.mastheadIllustrated || kit.assets.masthead);
+  const crest = getMediaAssetById(kit.assets.monogramIllustrated || kit.assets.floralCrest || kit.assets.crest || kit.assets.monogram);
 
   return (
     <div className="mira-tpl-host" style={{ ...cssVars, padding: '1rem', background: 'var(--mk-bg-elevated)', borderRadius: '12px', border: '1px solid var(--mk-border-ornament)' }}>
@@ -384,7 +400,7 @@ export function CollectibleIssueReader({
         label={`${issue.title} ${issue.issueNumber}`}
         slideLabels={issue.pages.map(p => `P.${p.pageNumber} ${p.kicker}`)}
       >
-        {issue.pages.map(page => {
+        {issue.pages.map((page, pageIdx) => {
           const media = resolveEntityMediaSlot({
             assetId: page.assetId,
             entityId: page.entityId,
@@ -412,7 +428,19 @@ export function CollectibleIssueReader({
                   <img
                     src={masthead.src}
                     alt={kit.name}
-                    style={{ width: '100%', maxHeight: '110px', objectFit: 'contain', marginBottom: '0.75rem', filter: issue.publicationId === 'the-social-register' ? 'brightness(1.85)' : 'invert(1) hue-rotate(180deg)' }}
+                    fetchPriority={pageIdx === 0 ? 'high' : 'low'}
+                    style={{
+                      width: '100%',
+                      maxHeight: '110px',
+                      objectFit: 'contain',
+                      marginBottom: '0.75rem',
+                      filter:
+                        issue.publicationId === 'the-social-register' && masthead.src.endsWith('.svg')
+                          ? 'brightness(1.85)'
+                          : issue.publicationId !== 'the-social-register' && masthead.src.endsWith('.svg')
+                            ? 'invert(1) hue-rotate(180deg)'
+                            : undefined,
+                    }}
                   />
                 )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: isCover ? 'var(--mk-accent-secondary)' : 'var(--mk-accent-primary)' }}>
@@ -436,6 +464,8 @@ export function CollectibleIssueReader({
                     <img
                       src={media.src}
                       alt={media.caption}
+                      loading={pageIdx === 0 ? undefined : 'lazy'}
+                      fetchPriority={pageIdx === 0 ? 'high' : 'low'}
                       style={{ width: '100%', maxHeight: '220px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--mk-accent-primary)' }}
                     />
                     <figcaption style={{ fontSize: '0.7rem', marginTop: '0.3rem', opacity: 0.8 }}>{media.caption}</figcaption>

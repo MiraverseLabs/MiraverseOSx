@@ -1,0 +1,124 @@
+.ent-pilot-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  padding: 8px clamp(12px, 3cqw, 38px);
+  border-block-end: 1px solid var(--ent-card-border);
+}
+.ent-pilot-nav a, .ent-seating-options a {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  min-height: 44px;
+  padding: 7px 10px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 650;
+}
+.ent-pilot-nav a svg { flex: none; }
+.ent-pilot-nav a[aria-current=page], .ent-seating-options a[aria-current=page] {
+  background: var(--ent-card);
+  box-shadow: inset 0 -2px var(--ent-home-action);
+}
+.ent-pilot-nav a:hover, .ent-seating-options a:hover, .ent-limelight-reader a:hover { text-decoration: underline; }
+.ent-site-shell[data-pilot] :is(a, summary, select):focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.ent-site-shell[data-pilot] .ent-container-body :is(h2, h3, h4) { color: inherit; }
+.ent-pilot-feature { min-width: 0; color: var(--ent-ink); }
+.ent-pilot-feature h2 { margin: 0 0 12px; color: inherit; font: 600 clamp(21px, 3cqw, 32px)/1.15 var(--ent-home-heading); }
+.ent-pilot-feature p { margin: 8px 0; font-size: 14px; }
+.ent-pilot-feature .ent-pilot-meta, .ent-pilot-meta { font-size: 12px; color: var(--ent-muted); }
+
+.ent-site-shell[data-pilot=library] { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
+[data-pilot=library] .ent-home-masthead { grid-area: 1 / 1 / 2 / -1; }
+[data-pilot=library] .ent-pilot-nav {
+  grid-area: 2 / 1;
+  flex-direction: column;
+  align-content: stretch;
+  border-inline-end: 1px solid var(--ent-card-border);
+  border-block-end: 0;
+  padding: 12px;
+}
+[data-pilot=library] :is(.ent-container-body, .ent-home-body) { grid-area: 2 / 2; min-width: 0; }
+[data-pilot=library] .ent-site-front { grid-template-columns: minmax(0, 1fr); }
+[data-pilot=library] .ent-site-front > section { grid-column: auto; }
+.ent-site-shell[data-pilot=library] { grid-template-columns: minmax(145px, 185px) minmax(0, 1fr); }
+.ent-pilot-player {
+  grid-area: 3 / 1 / 4 / -1;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  padding: 10px clamp(10px, 2cqw, 22px);
+  border-block-start: 1px solid var(--ent-card-border);
+  background: var(--ent-surface);
+  align-self: end;
+}
+.ent-track-credits { margin: 5px 0 0; font-size: 12px; }
+.ent-track-credits summary { cursor: pointer; width: fit-content; }
+.ent-track-credits dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 3px 14px; margin: 5px 0; }
+.ent-track-credits dd { margin: 0; }
+.ent-library-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; }
+.ent-library-filter select {
+  min-height: 40px;
+  padding: 4px 8px;
+  border: 1px solid var(--ent-card-border);
+  border-radius: 4px;
+  background: var(--ent-surface);
+  color: var(--ent-ink);
+}
+
+[data-pilot=editorial] .ent-pilot-nav { justify-content: center; border-block-end: 3px double var(--ent-card-border); }
+[data-pilot=editorial] .ent-pilot-nav a svg { display: none; }
+.ent-limelight-index { grid-column: 1 / -1; }
+.ent-limelight-index ul { list-style: none; padding: 0; margin: 0; border-block-start: 1px solid var(--ent-card-border); }
+.ent-limelight-index li { padding: 12px 0; border-block-end: 1px solid var(--ent-card-border); }
+.ent-limelight-index h3 { color: inherit; font: 600 clamp(18px, 2.6cqw, 26px)/1.15 var(--ent-home-heading); }
+.ent-limelight-index h3 a, .ent-limelight-reader a { color: inherit; }
+.ent-limelight-reader {
+  grid-column: 1 / -1;
+  width: min(720px, 100%);
+  margin: auto;
+  padding: clamp(15px, 3cqw, 34px);
+  border-block: 3px double var(--ent-card-border);
+}
+.ent-limelight-reader a { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px; min-height: 44px; }
+.ent-limelight-reader > p:last-child { font: 19px/1.55 'Crimson Text', Georgia, serif; }
+
+[data-pilot=stadium] .ent-pilot-nav { background: var(--ent-card); }
+.ent-seating-guide { grid-column: 1 / -1; padding: 14px; border: 1px solid var(--ent-card-border); }
+.ent-seating-guide svg { display: block; width: min(100%, 310px); margin: auto; fill: var(--ent-card); stroke: var(--ent-muted); }
+.ent-seating-guide svg path.is-selected { fill: var(--ent-home-action); stroke: var(--ent-ink); stroke-width: 2; }
+.ent-seating-guide svg text { fill: var(--ent-ink); stroke: none; font-size: 12px; }
+.ent-seating-options { display: flex; flex-wrap: wrap; gap: 5px; }
+
+[data-pilot=atelier] .ent-pilot-nav { justify-content: center; border-color: var(--ent-card-border); }
+[data-pilot=atelier] .ent-pilot-nav a { font-family: var(--ent-home-heading); font-size: 16px; }
+.ent-atelier-brief { grid-column: 1 / -1; border-block-end: 1px solid var(--ent-card-border); padding-block-end: 14px; }
+.ent-atelier-brief img { display: block; width: 100%; max-height: 300px; object-fit: cover; object-position: center top; margin-bottom: 12px; }
+.ent-atelier-brief img[hidden] { display: none; }
+.ent-atelier-brief dl, .ent-atelier-brief dd { margin: 0; }
+.ent-atelier-brief dl > div { padding: 8px 0; border-block-start: 1px solid var(--ent-card-border); }
+.ent-atelier-brief dt { font-weight: 700; }
+.ent-atelier-brief dd { font-size: 13px; }
+
+@container ent-portal (min-width: 760px) {
+  [data-pilot=editorial] .ent-limelight-index { grid-column: span 7; }
+  [data-pilot=stadium] .ent-seating-guide { grid-column: 9 / -1; grid-row: 1; }
+  [data-pilot=stadium] .ent-site-front > section { grid-column: 1 / 9; }
+  [data-pilot=stadium] .ent-site-front > section:nth-child(2) { grid-row: 1; }
+  [data-pilot=atelier] .ent-atelier-brief { grid-column: 8 / -1; grid-row: 1 / span 2; }
+  [data-pilot=atelier] .ent-site-front > section { grid-column: 1 / 8; }
+  [data-pilot=atelier] .ent-site-front > section:nth-child(2) { grid-row: 1; }
+}
+@container ent-portal (max-width: 690px) {
+  [data-pilot=library] .ent-pilot-nav { grid-area: auto; flex-direction: row; border-inline-end: 0; }
+  [data-pilot=library] :is(.ent-home-masthead, .ent-container-body, .ent-home-body, .ent-pilot-player) { grid-area: auto; }
+  /* All children span both tracks while the outer site remains the query container. */
+  [data-pilot=library] > :is(header, nav, div) { grid-column: 1 / -1; }
+  [data-pilot=library] .ent-home-masthead { grid-row: 1; }
+  [data-pilot=library] .ent-pilot-nav { grid-row: 2; }
+  [data-pilot=library] :is(.ent-container-body, .ent-home-body) { grid-row: 3; }
+  [data-pilot=library] .ent-pilot-player { grid-row: 4; }
+  .ent-pilot-nav { gap: 3px 6px; }
+}
+

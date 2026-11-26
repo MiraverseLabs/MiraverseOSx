@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import test from 'node:test';
 import { registerHooks } from 'node:module';
+import { fileURLToPath } from 'node:url';
 
 registerHooks({
   resolve(specifier, context, next) {
@@ -15,10 +18,12 @@ registerHooks({
 
 const {
   MEDIA_TEMPLATES,
+  STYLE_VARIANTS_BY_TEMPLATE,
   listTemplatesByChannel,
   validateMediaArtifactInput,
   buildArtifactStandaloneHtml,
 } = await import('../src/components/media/templateModel.ts');
+const { BRAND_KITS, listAllMediaAssets } = await import('../src/game-content/worldAssetLibrary.ts');
 const { NEWS_SITE, parseNewsLocation, newsUrl } = await import('../src/apps/Browser/news/newsSite.ts');
 const { MERIDIAN_DEPARTMENTS, buildMeridianExpandedEdition, buildMeridianCollectibleIssue } = await import('../src/apps/Browser/news/newsModel.ts');
 const {
@@ -80,4 +85,48 @@ test('The Social Register (socialregister.mer) launches all 10 confirmed departm
   assert.equal(parseSocialRegisterLocation(socialRegisterUrl({ view: 'issue-01' })).view, 'issue-01');
   assert.equal(parseSocialRegisterLocation(socialRegisterUrl({ department: 'The Courts' })).department, 'The Courts');
   assert.ok(socialRegisterSearchRecords('Vivienne Rose').length >= 1);
+});
+
+test('8 Universal Design Families, template styleVariant options, and all sliced media pack files exist on disk', () => {
+  const familyIds = [
+    'family-minimalist',
+    'family-retro',
+    'family-streetwear',
+    'family-dreamscape',
+    'family-scrapbook',
+    'family-contemporary-commercial',
+    'family-dark-cinematic',
+    'family-classical-luxury',
+  ];
+  for (const id of familyIds) {
+    assert.ok(BRAND_KITS[id], `Missing Universal Design Family: ${id}`);
+  }
+  assert.ok(Object.keys(BRAND_KITS).length >= 20);
+  assert.ok(STYLE_VARIANTS_BY_TEMPLATE['tpl-social-poll']?.some((v) => v.id === 'playful'));
+
+  const styled = validateMediaArtifactInput({
+    templateId: 'tpl-social-poll',
+    brandKitId: 'family-dreamscape',
+    styleVariant: 'playful',
+    slotValues: {
+      headline: 'Favorite Aureline Twilight District?',
+      pollOptions: ['Glassline Promenade', 'Marlie Pier', 'Rosemont Gardens'],
+    },
+  });
+  assert.equal(styled.ok, true);
+  assert.equal(styled.artifact.styleVariant, 'playful');
+  assert.equal(styled.artifact.brandKitId, 'family-dreamscape');
+
+  const testsDir = path.dirname(fileURLToPath(import.meta.url));
+  const publicDir = path.resolve(testsDir, '..', 'public');
+  const assets = listAllMediaAssets(true);
+  const guideAssets = assets.filter((a) => a.slotRole === 'media.styleguide');
+  assert.equal(guideAssets.length, 7);
+
+  for (const asset of assets) {
+    if (asset.src.startsWith('/media/') || asset.src.startsWith('/images/')) {
+      const fullPath = path.join(publicDir, asset.src.replace(/^\//, ''));
+      assert.equal(fs.existsSync(fullPath), true, `Missing asset file on disk: ${fullPath}`);
+    }
+  }
 });

@@ -29,11 +29,11 @@ import { NEWS_SITE, newsUrl, parseNewsLocation } from './newsSite';
 
 const ARTWORK: Record<string, { src: string; caption: string }> = {
   'prism-watch': { src: '/images/worknet/transit-junction.png', caption: 'Photograph · Aureline transit & grid relay infrastructure' },
-  'civic-network': { src: '/images/wallpapers/aureline-city-beneath-the-heavens.png', caption: 'Photograph · Aureline beneath Radiance and Echo' },
+  'civic-network': { src: '/images/wallpapers/aureline-harbor-twin-moons.jpg', caption: 'Photograph · Aureline Harbor beneath Radiance and Echo' },
   'employment-guide': { src: '/images/worknet/depository.png', caption: 'Photograph · Institutional colonnade in Aureline' },
   'seven-realms': { src: meridionWorld, caption: 'Cartographic Reference · Across Meridion’s Eight Realms' },
   'campus-practice': { src: '/images/wallpapers/aureline-glassline-twilight.png', caption: 'Photograph · Glassline & Academic Vector at dusk' },
-  'meridian-society-concord': { src: '/images/wallpapers/aureline-across-angel-bay.png', caption: 'Photograph · Angel Bay & Crown District' },
+  'meridian-society-concord': { src: '/images/wallpapers/aureline-terraces-twin-moons.jpg', caption: 'Photograph · Aureline Terraces & Crown District beneath Twin Moons' },
 };
 
 const SECTION_ICONS = { Civic: Landmark, Security: Activity, Health: HeartPulse, Economy: Landmark, Culture: GraduationCap };
@@ -89,7 +89,8 @@ export default function DispatchNewsSite({ url, navigateTab }: { url: string; na
   );
 
   const celestial = getCelestialState(gameplay.timeCycleCount ?? 28);
-  const mastheadSvg = getMediaAssetById('canon:brand-meridian-masthead');
+  const mastheadSvg = getMediaAssetById('canon:brand-meridian-masthead-illustrated') || getMediaAssetById('canon:brand-meridian-masthead');
+  const meridianCrest = getMediaAssetById('canon:brand-meridian-laurel-emblem');
 
   const baseArticles = filterNews(edition, section, query, savedOnly, reading.saved);
   const articles = activeDesk === 'All Desks' ? baseArticles : baseArticles.filter(a => a.department === activeDesk);
@@ -249,11 +250,14 @@ export default function DispatchNewsSite({ url, navigateTab }: { url: string; na
           style={{ background: 'transparent', border: 0, cursor: 'pointer', width: '100%' }}
         >
           {mastheadSvg ? (
-            <img className="meridian-masthead-svg" src={mastheadSvg.src} alt="The Meridian — News, Analysis, Perspective" />
+            <img className="meridian-masthead-svg" src={mastheadSvg.src} alt="The Meridian — News, Analysis, Perspective" fetchPriority="high" />
           ) : (
             <strong style={{ fontFamily: 'var(--font-editorial-masthead)', fontSize: '2.4rem' }}>THE MERIDIAN</strong>
           )}
         </button>
+        {meridianCrest && (
+          <img src={meridianCrest.src} alt="" aria-hidden="true" style={{ height: 28, width: 'auto', margin: '0.25rem auto 0', display: 'block', opacity: 0.9 }} />
+        )}
         <div
           style={{
             display: 'flex',

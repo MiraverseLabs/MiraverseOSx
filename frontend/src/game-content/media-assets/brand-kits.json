@@ -85,12 +85,18 @@
       },
       "assets": {
         "masthead": "canon:brand-sr-masthead",
+        "mastheadIllustrated": "canon:brand-sr-masthead-illustrated",
         "monogram": "canon:brand-sr-monogram",
+        "monogramIllustrated": "canon:brand-sr-monogram-illustrated",
         "corner": "canon:ornament-botanical-corner",
+        "cornerIllustrated": "canon:ornament-lily-corner-tl",
+        "cornerIllustratedBr": "canon:ornament-lily-corner-br",
         "divider": "canon:ornament-editorial-divider",
+        "dividerFiligree": "canon:ornament-gold-filigree-divider",
         "star": "canon:ornament-celestial-star",
         "plaque": "canon:ornament-ornate-plaque",
-        "crest": "canon:ornament-floral-crest"
+        "crest": "canon:ornament-floral-crest",
+        "floralCrest": "canon:ornament-lily-crown-crest"
       }
     },
     "the-meridian": {
@@ -117,7 +123,10 @@
       },
       "assets": {
         "masthead": "canon:brand-meridian-masthead",
+        "mastheadIllustrated": "canon:brand-meridian-masthead-illustrated",
         "monogram": "canon:brand-meridian-monogram",
+        "monogramIllustrated": "canon:brand-meridian-laurel-emblem",
+        "shield": "canon:brand-meridian-shield-badge",
         "divider": "canon:ornament-editorial-divider",
         "star": "canon:ornament-celestial-star"
       }
@@ -364,6 +373,180 @@
         "plaque": "canon:ornament-ornate-plaque",
         "star": "canon:ornament-celestial-star",
         "divider": "canon:ornament-editorial-divider"
+      }
+    },
+    "family-minimalist": {
+      "id": "family-minimalist",
+      "name": "Minimalist — Clean · Modern · Versatile",
+      "tokens": {
+        "bgSurface": "#F5F3EF",
+        "bgElevated": "#FFFFFF",
+        "bgHero": "#333C45",
+        "bgSecondary": "#95A5B2",
+        "textPrimary": "#1F262E",
+        "textSecondary": "#525E6B",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#333C45",
+        "accentSecondary": "#95A5B2",
+        "borderOrnament": "#D5D2CD",
+        "fontDisplay": "system-ui, -apple-system, 'Segoe UI', sans-serif",
+        "fontBody": "system-ui, -apple-system, 'Segoe UI', sans-serif",
+        "fontAccent": "system-ui, sans-serif",
+        "fontQuote": "'Crimson Text', Georgia, serif"
+      },
+      "assets": { "star": "canon:ornament-celestial-star" }
+    },
+    "family-retro": {
+      "id": "family-retro",
+      "name": "Retro — Vintage · Nostalgic · Timeless",
+      "tokens": {
+        "bgSurface": "#F4EFE6",
+        "bgElevated": "#FFFBF2",
+        "bgHero": "#1E4E5F",
+        "bgSecondary": "#9B2915",
+        "textPrimary": "#261B16",
+        "textSecondary": "#5E3A2A",
+        "textInverse": "#FFFBF2",
+        "accentPrimary": "#D96B27",
+        "accentSecondary": "#E9B44C",
+        "borderOrnament": "#E9B44C",
+        "fontDisplay": "'DM Serif Display', Georgia, serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Limelight', Georgia, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": { "star": "canon:ornament-celestial-star", "divider": "canon:ornament-gold-filigree-divider" }
+    },
+    "family-streetwear": {
+      "id": "family-streetwear",
+      "name": "Streetwear — Urban · Bold · Expressive",
+      "tokens": {
+        "bgSurface": "#161618",
+        "bgElevated": "#222226",
+        "bgHero": "#09090B",
+        "bgSecondary": "#EC4899",
+        "textPrimary": "#FFFFFF",
+        "textSecondary": "#D4D4D8",
+        "textInverse": "#09090B",
+        "accentPrimary": "#FACC15",
+        "accentSecondary": "#A3E635",
+        "borderOrnament": "#EC4899",
+        "fontDisplay": "'Limelight', system-ui, sans-serif",
+        "fontBody": "system-ui, -apple-system, sans-serif",
+        "fontAccent": "'Limelight', sans-serif",
+        "fontQuote": "system-ui, sans-serif"
+      },
+      "assets": { "star": "canon:ornament-celestial-starburst" }
+    },
+    "family-dreamscape": {
+      "id": "family-dreamscape",
+      "name": "Dreamscape — Ethereal · Surreal · Immersive",
+      "tokens": {
+        "bgSurface": "#1E1638",
+        "bgElevated": "#2A204C",
+        "bgHero": "#4C1D95",
+        "bgSecondary": "#312E81",
+        "textPrimary": "#F5F3FF",
+        "textSecondary": "#DDD6FE",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#C4B5FD",
+        "accentSecondary": "#F472B6",
+        "borderOrnament": "#60A5FA",
+        "fontDisplay": "'DM Serif Display', Georgia, serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Pinyon Script', cursive, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": { "star": "canon:ornament-celestial-starburst", "divider": "canon:ornament-celestial-floral-divider" }
+    },
+    "family-scrapbook": {
+      "id": "family-scrapbook",
+      "name": "Scrapbook — Personal · Playful · Textured",
+      "tokens": {
+        "bgSurface": "#F6EFE2",
+        "bgElevated": "#FFFDF9",
+        "bgHero": "#5C4033",
+        "bgSecondary": "#8FA882",
+        "textPrimary": "#3D2B22",
+        "textSecondary": "#5C4033",
+        "textInverse": "#FFFDF9",
+        "accentPrimary": "#E5B8B0",
+        "accentSecondary": "#8BA3B5",
+        "borderOrnament": "#8FA882",
+        "fontDisplay": "'Italianno', 'Crimson Text', cursive",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Italianno', cursive",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": { "crest": "canon:ornament-lily-crown-crest", "divider": "canon:ornament-celestial-floral-divider" }
+    },
+    "family-contemporary-commercial": {
+      "id": "family-contemporary-commercial",
+      "name": "Contemporary Commercial — Sleek · High-Impact · Brand-Ready",
+      "tokens": {
+        "bgSurface": "#FAF6F4",
+        "bgElevated": "#FFFFFF",
+        "bgHero": "#221D1C",
+        "bgSecondary": "#8C5346",
+        "textPrimary": "#221D1C",
+        "textSecondary": "#5D4037",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#B84A39",
+        "accentSecondary": "#E8C5B8",
+        "borderOrnament": "#E8C5B8",
+        "fontDisplay": "system-ui, -apple-system, 'Segoe UI', sans-serif",
+        "fontBody": "system-ui, -apple-system, 'Segoe UI', sans-serif",
+        "fontAccent": "'DM Serif Display', Georgia, serif",
+        "fontQuote": "'Crimson Text', Georgia, serif"
+      },
+      "assets": { "divider": "canon:ornament-gold-filigree-divider" }
+    },
+    "family-dark-cinematic": {
+      "id": "family-dark-cinematic",
+      "name": "Dark Cinematic — Intense · Dramatic · Story-Driven",
+      "tokens": {
+        "bgSurface": "#0B1319",
+        "bgElevated": "#142029",
+        "bgHero": "#0F3D4C",
+        "bgSecondary": "#7F1D1D",
+        "textPrimary": "#F1F5F9",
+        "textSecondary": "#CBD5E1",
+        "textInverse": "#FFFFFF",
+        "accentPrimary": "#B4925A",
+        "accentSecondary": "#7F1D1D",
+        "borderOrnament": "#B4925A",
+        "fontDisplay": "'DM Serif Display', Georgia, serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Limelight', Georgia, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": { "plaque": "canon:ornament-title-plaque-illustrated", "star": "canon:ornament-celestial-starburst" }
+    },
+    "family-classical-luxury": {
+      "id": "family-classical-luxury",
+      "name": "Classical Luxury — Refined · Opulent · Heritage",
+      "tokens": {
+        "bgSurface": "#1F1114",
+        "bgElevated": "#2C181C",
+        "bgHero": "#5E1924",
+        "bgSecondary": "#2C3E2D",
+        "textPrimary": "#FAF3E4",
+        "textSecondary": "#E6D3A7",
+        "textInverse": "#FAF3E4",
+        "accentPrimary": "#C89D54",
+        "accentSecondary": "#E6D3A7",
+        "borderOrnament": "#C89D54",
+        "fontDisplay": "'DM Serif Display', Georgia, serif",
+        "fontBody": "'Crimson Text', Georgia, serif",
+        "fontAccent": "'Pinyon Script', cursive, serif",
+        "fontQuote": "'Amiri', Georgia, serif"
+      },
+      "assets": {
+        "cornerIllustrated": "canon:ornament-lily-corner-tl",
+        "cornerIllustratedBr": "canon:ornament-lily-corner-br",
+        "floralCrest": "canon:ornament-lily-crown-crest",
+        "dividerFiligree": "canon:ornament-gold-filigree-divider",
+        "plaque": "canon:ornament-title-plaque-illustrated"
       }
     }
   }

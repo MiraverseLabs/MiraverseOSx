@@ -4,6 +4,7 @@ import { getMedia, originalTrack } from '../../apps/social/socialMedia';
 
 interface SongbirdAudioPlayerProps {
   audioUrl: string;
+  coverArtUrl?: string;
   title: string;
   artistName: string;
   onStreamCounted?: () => void;
@@ -12,6 +13,7 @@ interface SongbirdAudioPlayerProps {
 
 export function SongbirdAudioPlayer({
   audioUrl,
+  coverArtUrl,
   title,
   artistName,
   onStreamCounted,
@@ -93,6 +95,14 @@ export function SongbirdAudioPlayer({
       >
         {isPlaying ? <Pause size={14} /> : <Play size={14} />}
       </button>
+      {coverArtUrl && (
+        <img
+          src={coverArtUrl}
+          alt=""
+          loading="lazy"
+          className={`${compact ? 'h-8 w-8' : 'h-10 w-10'} rounded object-cover border border-emerald-400/40 shrink-0`}
+        />
+      )}
       <div className="min-w-0 flex-1">
         <div className="font-bold truncate text-xs text-white">{title}</div>
         <div className="text-[11px] text-emerald-300 truncate flex items-center gap-1">

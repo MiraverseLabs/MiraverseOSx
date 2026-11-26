@@ -30,15 +30,15 @@ export const ENTERTAINMENT_DISCIPLINES = [
 export type EntertainmentDisciplineId = (typeof ENTERTAINMENT_DISCIPLINES)[number]['id'];
 
 export const SHIPPED_AUDIO_ASSETS = [
-  { id: 'audio-chime', label: 'Crystal Harbor Chime (Master WAV)', audioUrl: '/sounds/mixkit-crystal-chime-3108.wav', genre: 'Dream Pop', durationSeconds: 184 },
-  { id: 'audio-stillwater', label: 'Stillwater Evening Loop (Synthesized Master)', audioUrl: 'builtin:stillwater', genre: 'Harbor Folk', durationSeconds: 196 },
-  { id: 'audio-starlight', label: 'Starlight Glassline Sequence (Synthesized Master)', audioUrl: 'builtin:starlight', genre: 'Glassline Synth', durationSeconds: 204 },
-  { id: 'audio-pulse', label: 'Glassline Engine Pulse (Master WAV)', audioUrl: '/sounds/mixkit-futuristic-tech-engine-glitch-2949.wav', genre: 'Glassline Synth', durationSeconds: 212 },
-  { id: 'audio-rewind', label: 'Velvet Rewind Nocturne (Master WAV)', audioUrl: '/sounds/mixkit-glitch-sci-fi-rewind-transition-1093.wav', genre: 'Alt-R&B', durationSeconds: 196 },
-  { id: 'audio-overture', label: 'Promenade Broadcast Overture (Master WAV)', audioUrl: '/sounds/mixkit-intro-text-glitch-2950.wav', genre: 'Electro-Pop', durationSeconds: 175 },
-  { id: 'audio-prism', label: 'Aureline Prism Resonance (Master WAV)', audioUrl: '/sounds/mixkit-sci-fi-high-tech-sounds-860.wav', genre: 'Experimental', durationSeconds: 228 },
-  { id: 'audio-basalt', label: 'Balisya Basalt Sub-Bass (Master WAV)', audioUrl: '/sounds/mixkit-sci-fi-machine-deep-hum-2137.wav', genre: 'Ambient Score', durationSeconds: 242 },
-  { id: 'audio-marlie', label: 'Marlie Sea Tide Signal (Master WAV)', audioUrl: '/sounds/mixkit-water-sci-fi-bleep-902.wav', genre: 'Indie Acoustic', durationSeconds: 190 },
+  { id: 'audio-chime', label: 'Crystal Harbor Chime (Master WAV)', audioUrl: '/sounds/mixkit-crystal-chime-3108.wav', coverArtUrl: '/media/albums/album-marble-lilies.jpg', genre: 'Dream Pop', durationSeconds: 184 },
+  { id: 'audio-stillwater', label: 'Stillwater Evening Loop (Synthesized Master)', audioUrl: 'builtin:stillwater', coverArtUrl: '/media/albums/album-meadow-dusk.jpg', genre: 'Harbor Folk', durationSeconds: 196 },
+  { id: 'audio-starlight', label: 'Starlight Glassline Sequence (Synthesized Master)', audioUrl: 'builtin:starlight', coverArtUrl: '/media/albums/album-prism-eclipse.jpg', genre: 'Glassline Synth', durationSeconds: 204 },
+  { id: 'audio-pulse', label: 'Glassline Engine Pulse (Master WAV)', audioUrl: '/sounds/mixkit-futuristic-tech-engine-glitch-2949.wav', coverArtUrl: '/media/albums/album-neon-starlight.jpg', genre: 'Glassline Synth', durationSeconds: 212 },
+  { id: 'audio-rewind', label: 'Velvet Rewind Nocturne (Master WAV)', audioUrl: '/sounds/mixkit-glitch-sci-fi-rewind-transition-1093.wav', coverArtUrl: '/media/albums/album-amber-silhouette.jpg', genre: 'Alt-R&B', durationSeconds: 196 },
+  { id: 'audio-overture', label: 'Promenade Broadcast Overture (Master WAV)', audioUrl: '/sounds/mixkit-intro-text-glitch-2950.wav', coverArtUrl: '/media/albums/album-neon-starlight.jpg', genre: 'Electro-Pop', durationSeconds: 175 },
+  { id: 'audio-prism', label: 'Aureline Prism Resonance (Master WAV)', audioUrl: '/sounds/mixkit-sci-fi-high-tech-sounds-860.wav', coverArtUrl: '/media/albums/album-prism-eclipse.jpg', genre: 'Experimental', durationSeconds: 228 },
+  { id: 'audio-basalt', label: 'Balisya Basalt Sub-Bass (Master WAV)', audioUrl: '/sounds/mixkit-sci-fi-machine-deep-hum-2137.wav', coverArtUrl: '/media/albums/album-chamber-violin.jpg', genre: 'Ambient Score', durationSeconds: 242 },
+  { id: 'audio-marlie', label: 'Marlie Sea Tide Signal (Master WAV)', audioUrl: '/sounds/mixkit-water-sci-fi-bleep-902.wav', coverArtUrl: '/media/albums/album-marble-lilies.jpg', genre: 'Indie Acoustic', durationSeconds: 190 },
 ] as const;
 
 export const VENUE_CATALOG = [
@@ -102,6 +102,7 @@ export interface EntertainmentTrack {
   genre: string;
   durationSeconds: number;
   audioUrl: string;
+  coverArtUrl?: string;
   producerOrgId: string;
   publisherOrgId: string;
   collaboratorArtistIds: string[];
@@ -156,6 +157,7 @@ export interface EntertainmentAudition {
   title: string;
   orgId: string;
   productionOrgId: string;
+  posterUrl?: string;
   discipline: EntertainmentDisciplineId;
   openToUnrepresented: boolean;
   minCredibility: number;
@@ -545,6 +547,7 @@ export function initialEntertainmentState(cycle = 28): EntertainmentState {
       genre: 'Electro-Pop',
       durationSeconds: 175,
       audioUrl: '/sounds/mixkit-intro-text-glitch-2950.wav',
+      coverArtUrl: '/media/albums/album-neon-starlight.jpg',
       producerOrgId: 'ORG_STARSTRUCK',
       publisherOrgId: 'ORG_KAJI_PUBLISHING',
       collaboratorArtistIds: ['ART-SORA'],
@@ -565,6 +568,7 @@ export function initialEntertainmentState(cycle = 28): EntertainmentState {
       genre: 'Harbor Folk',
       durationSeconds: 196,
       audioUrl: 'builtin:stillwater',
+      coverArtUrl: '/media/albums/album-meadow-dusk.jpg',
       producerOrgId: 'ORG_MARLIE_RECORDS',
       publisherOrgId: 'ORG_KAJI_PUBLISHING',
       collaboratorArtistIds: [],
@@ -585,6 +589,7 @@ export function initialEntertainmentState(cycle = 28): EntertainmentState {
       genre: 'Glassline Synth',
       durationSeconds: 204,
       audioUrl: 'builtin:starlight',
+      coverArtUrl: '/media/albums/album-prism-eclipse.jpg',
       producerOrgId: 'ORG_KAJI_PUBLISHING',
       publisherOrgId: 'ORG_KAJI_PUBLISHING',
       collaboratorArtistIds: ['ART-LYRIC'],
@@ -605,6 +610,7 @@ export function initialEntertainmentState(cycle = 28): EntertainmentState {
       genre: 'Ambient Score',
       durationSeconds: 242,
       audioUrl: '/sounds/mixkit-sci-fi-machine-deep-hum-2137.wav',
+      coverArtUrl: '/media/albums/album-chamber-violin.jpg',
       producerOrgId: 'ORG_KAJI_PUBLISHING',
       publisherOrgId: 'ORG_KAJI_PUBLISHING',
       collaboratorArtistIds: [],
@@ -625,6 +631,7 @@ export function initialEntertainmentState(cycle = 28): EntertainmentState {
       genre: 'Dream Pop',
       durationSeconds: 184,
       audioUrl: '/sounds/mixkit-crystal-chime-3108.wav',
+      coverArtUrl: '/media/albums/album-marble-lilies.jpg',
       producerOrgId: 'ORG_STARSTRUCK',
       publisherOrgId: 'ORG_KAJI_PUBLISHING',
       collaboratorArtistIds: [],
@@ -724,6 +731,7 @@ export function initialEntertainmentState(cycle = 28): EntertainmentState {
       orgId: 'ORG_OPEN_CALL',
       productionOrgId: 'ORG_MIRRORA_STUDIOS',
       discipline: 'acting',
+      posterUrl: '/media/posters/poster-last-witness-noir.jpg',
       openToUnrepresented: true,
       minCredibility: 10,
       stipendCredits: 320,
@@ -738,6 +746,7 @@ export function initialEntertainmentState(cycle = 28): EntertainmentState {
       orgId: 'ORG_LOOKING_GLASS',
       productionOrgId: 'ORG_MARLIE_RECORDS',
       discipline: 'music',
+      posterUrl: '/media/posters/poster-coastal-escapade.jpg',
       openToUnrepresented: true,
       minCredibility: 5,
       stipendCredits: 185,
@@ -752,6 +761,7 @@ export function initialEntertainmentState(cycle = 28): EntertainmentState {
       orgId: 'ORG_WONDER_WIND',
       productionOrgId: 'ORG_MARIGOLD_THEATRE',
       discipline: 'dance',
+      posterUrl: '/media/posters/poster-wind-archive-collage.jpg',
       openToUnrepresented: true,
       minCredibility: 14,
       stipendCredits: 290,
@@ -766,6 +776,7 @@ export function initialEntertainmentState(cycle = 28): EntertainmentState {
       orgId: 'ORG_WILLOW_WHISPER',
       productionOrgId: 'ORG_AMRIELLE',
       discipline: 'modeling',
+      posterUrl: '/media/posters/poster-promenade-sunset.jpg',
       openToUnrepresented: false,
       minCredibility: 24,
       stipendCredits: 540,
@@ -780,6 +791,7 @@ export function initialEntertainmentState(cycle = 28): EntertainmentState {
       orgId: 'ORG_OPEN_CALL',
       productionOrgId: 'ORG_STORYLOOM_STUDIOS',
       discipline: 'acting',
+      posterUrl: '/media/posters/poster-citadel-of-echoes.jpg',
       openToUnrepresented: true,
       minCredibility: 12,
       stipendCredits: 360,

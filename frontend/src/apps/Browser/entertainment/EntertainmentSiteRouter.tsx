@@ -29,8 +29,10 @@ import {
   type EntertainmentDisciplineId,
 } from '../../../gameplay/EntertainmentEcosystem';
 import { SongbirdAudioPlayer } from '../../../components/media/SongbirdAudioPlayer';
-import { ENTERTAINMENT_SITES, matchEntertainmentSite } from './entertainmentRouter';
+import { ENTERTAINMENT_SITES, entertainmentUrl, matchEntertainmentSite, parseEntertainmentUrl, type EntertainmentView } from './entertainmentRouter';
 import './entertainment-sites.css';
+import { EntertainmentSiteLink, LimelightStories, PilotNavigation, StadiumSections } from './EntertainmentPilotViews';
+import { EntertainmentHomepage, EntertainmentMasthead, entertainmentHomeStyle, getEntertainmentHomeDesign } from './EntertainmentHomepage';
 
 interface EntertainmentSiteRouterProps {
   url: string;
@@ -48,7 +50,13 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
     [ent],
   );
 
-  const [activeTab, setActiveTab] = useState<'front' | 'workspace' | 'directory' | 'about'>('front');
+  const design = site && getEntertainmentHomeDesign(site.orgId);
+  const route = parseEntertainmentUrl(url);
+  const [legacyView, setLegacyView] = useState<EntertainmentView>(design ? 'home' : 'front');
+  const activeTab = route ? route.view : legacyView;
+  const frontTabRef = useRef<HTMLButtonElement>(null);
+  const homeTabId = useId();
+  const mainRef = useRef<HTMLDivElement>(null);
   const [feedback, setFeedback] = useState<string>('');
   const [activeTrackId, setActiveTrackId] = useState<string>(ent.tracks[0]?.trackId || '');
 
@@ -89,11 +97,24 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
     );
   }
 
+  function openView(view: EntertainmentView) {
+    if (route) {
+      navigateTab(entertainmentUrl(route.site, view));
+      mainRef.current?.focus({ preventScroll: true });
+    } else {
+      setLegacyView(view);
+    }
+  }
+
   const activeTrack = ent.tracks.find((t) => t.trackId === activeTrackId) || ent.tracks[0];
   const stageNameInvalid = stageNameTouched && stageNameInput.trim().length < 2;
   const trackTitleInvalid = trackTitleTouched && trackTitleInput.trim().length < 2;
 
   const topTracks = [...ent.tracks].sort((a, b) => b.streams + b.radioSpins * 10 - (a.streams + a.radioSpins * 10));
+  const genres = [...new Set(topTracks.map(track => track.genre))].sort();
+  const requestedGenre = route?.params.get('genre') ?? '';
+  const genre = genres.includes(requestedGenre) ? requestedGenre : '';
+  const visibleTracks = genre ? topTracks.filter(track => track.genre === genre) : topTracks;
   const rankedArtists = [...ent.artists].sort(
     (a, b) =>
       b.recognition * 0.4 +
@@ -117,120 +138,84 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
     dialogRef.current?.showModal();
   };
 
-  const ornamentPath =
-    site.archetype === 'limelight'
-      ? '/media/ornaments/editorial-divider.svg'
-      : site.archetype === 'awards'
-        ? '/media/ornaments/celestial-star.svg'
-        : site.archetype === 'fashion_beauty'
-          ? '/media/ornaments/floral-crest.svg'
-          : '/media/ornaments/ornate-plaque.svg';
-
-  const heroBanner =
-    site.archetype === 'venue' || site.archetype === 'awards'
-      ? '/images/wallpapers/aureline-glassline-twilight.png'
-      : site.archetype === 'songbird' || site.archetype === 'popsticker'
-        ? '/images/wallpapers/aureline-city-beneath-the-heavens.png'
-        : '/images/wallpapers/aureline-across-angel-bay.png';
-
-  const tabLabels: Record<typeof activeTab, string> = {
-    front:
-      site.archetype === 'songbird'
-        ? 'Listen & Top Charts'
-        : site.archetype === 'limelight'
-          ? 'Cover Stories & Rankings'
-          : site.archetype === 'popsticker'
-            ? 'Live Booth & Stickers'
-            : site.archetype === 'venue'
-              ? 'Box Office & Calendar'
-              : site.archetype === 'casting'
-                ? 'Open Call Breakdowns'
-                : site.archetype === 'awards'
-                  ? 'Official Ballot & Honors'
-                  : 'Featured Roster & Services',
-    workspace:
-      site.archetype === 'songbird'
-        ? 'Artist Upload & Royalties'
-        : site.archetype === 'limelight'
-          ? 'Press Desk & Interviews'
-          : site.archetype === 'venue'
-            ? 'Book This Venue'
-            : site.archetype === 'pr_guild_rights'
-              ? 'Client & Rights Console'
-              : 'Talent & Creator Desk',
-    directory: 'Meridion Industry Directory (25)',
-    about: 'Departments & Governance',
+  const frontLabels: Record<typeof site.archetype, string> = {
+    songbird: 'Listen & Top Charts',
+    limelight: 'Cover Stories & Rankings',
+    popsticker: 'Live Booth & Stickers',
+    venue: 'Box Office & Calendar',
+    casting: 'Open Call Breakdowns',
+    awards: 'Official Ballot & Honors',
+    agency_label: 'Roster & Agreements',
+    screen_dance: 'Productions & Casting',
+    fashion_beauty: 'Commissions & Campaigns',
+    pr_guild_rights: 'Member & Client Services',
+  };
+  const workspaceLabels: Partial<Record<typeof site.archetype, string>> = {
+    songbird: 'Artist Upload & Royalties',
+    limelight: 'Press Desk & Interviews',
+    venue: 'Book This Venue',
+    pr_guild_rights: 'Client & Rights Console',
+  };
+  const tabLabels: Record<EntertainmentView, string> = {
+    home: 'Home',
+    front: site.orgId === 'ORG_WILLOW_WHISPER' ? 'Modeling Calls & Representation' : frontLabels[site.archetype],
+    workspace: workspaceLabels[site.archetype] ?? 'Creative Workspace',
+    directory: 'Industry Directory',
+    about: 'About',
   };
 
   return (
     <div
       className="ent-site-shell"
       data-archetype={site.archetype}
+      data-composition={design?.composition}
+      data-pilot={route?.pilot.layout}
+      data-ent-view={activeTab}
+      data-home-type={design?.typeface}
+      data-home-active={activeTab === 'home' || undefined}
       style={
         {
           '--ent-accent': site.accentColor,
           '--ent-secondary': site.secondaryColor,
-          '--ent-hero-bg': site.bgHero,
+          ...entertainmentHomeStyle(design),
         } as React.CSSProperties
       }
     >
-      {/* Branded Institutional Masthead */}
-      <header className="ent-hero">
-        <img src={heroBanner} alt="" aria-hidden="true" className="ent-hero-banner-media" />
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-1 max-w-2xl">
-            <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest opacity-90">
-              <img src={ornamentPath} alt="" aria-hidden="true" className="ent-ornament-divider" />
-              <span>{site.sector}</span>
-              <span>·</span>
-              <span>{site.realm}</span>
-            </div>
-            <h1
-              className="text-2xl md:text-3xl font-extrabold tracking-tight"
-              style={site.archetype === 'limelight' ? { fontFamily: 'Limelight, Georgia, serif' } : undefined}
-            >
-              {site.name}
-            </h1>
-            <p className="text-sm opacity-95 font-medium">“{site.tagline}”</p>
-            <p className="text-xs opacity-80">{site.seat}</p>
-          </div>
-
-          <div className="flex flex-col items-end gap-2 text-xs">
-            <div className="px-3 py-1.5 rounded-lg bg-black/35 border border-white/20 font-mono">
-              Wallet: <strong>{(gameplay.player?.credits ?? 0).toLocaleString()} ₢</strong> · Cycle {cycle}
-            </div>
-            {playerArtist ? (
-              <div className="px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px]">
-                Signed in as <strong>{playerArtist.stageName}</strong> ({playerArtist.tier})
-              </div>
-            ) : (
-              <span className="text-[11px] opacity-80">Browsing as Citizen Listener / Audience Member</span>
-            )}
-          </div>
-        </div>
-      </header>
+      <EntertainmentMasthead site={site} action={activeTab === 'home' ? design?.action : undefined}
+        onAction={() => {
+          openView('front');
+          if (!route) frontTabRef.current?.focus();
+        }} />
 
       {/* Accessible Single-Row Horizontal Tabbar with Shape Indicator */}
+      {route ? <PilotNavigation route={route} homeId={homeTabId} navigate={navigateTab} /> :
       <div role="tablist" aria-label={`${site.name} workspace views`} className="ent-tablist">
-        {(['front', 'workspace', 'directory', 'about'] as const).map((tabKey) => (
+        {Object.entries(tabLabels).filter(([key]) => design || key !== 'home').map(([tabKey, label]) => (
           <button
             key={tabKey}
             type="button"
             role="tab"
             aria-selected={activeTab === tabKey}
-            onClick={() => setActiveTab(tabKey)}
+            id={tabKey === 'home' ? homeTabId : undefined}
+            ref={tabKey === 'front' ? frontTabRef : undefined}
+            onClick={() => openView(tabKey as EntertainmentView)}
             className="ent-tab"
           >
-            {tabLabels[tabKey]}
+            {label}
           </button>
         ))}
-      </div>
+      </div>}
 
       {/* Persistent Songbird / Pop Sticker Playable Audio Bar */}
       {(site.archetype === 'songbird' || site.archetype === 'popsticker') && activeTrack && (
-        <div className="px-6 pt-3">
+        <div className={route?.pilot.layout === 'library' ? 'ent-pilot-player' : 'px-6 pt-3'}>
           <SongbirdAudioPlayer
+            key={activeTrack.trackId}
             audioUrl={activeTrack.audioUrl}
+            coverArtUrl={
+              activeTrack.coverArtUrl ||
+              SHIPPED_AUDIO_ASSETS.find((x) => x.audioUrl === activeTrack.audioUrl)?.coverArtUrl
+            }
             title={`${activeTrack.title} (${activeTrack.genre})`}
             artistName={`${activeTrack.stageName} · ${activeTrack.streams.toLocaleString()} streams · ${activeTrack.radioSpins} spins`}
             onStreamCounted={() => {
@@ -238,10 +223,22 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
               setFeedback(res.message);
             }}
           />
+          {route?.pilot.layout === 'library' && <details className="ent-track-credits">
+            <summary>Track credits</summary>
+            <dl><dt>Artist</dt><dd>{activeTrack.stageName}</dd>
+              <dt>Master</dt><dd>{activeTrack.masterOwnedByArtist ? 'Artist-owned' : 'Label-controlled'}</dd>
+              <dt>MMRS</dt><dd>{activeTrack.mmrsRegistered ? 'Registered' : 'No registration listed'}</dd></dl>
+          </details>}
         </div>
       )}
 
-      <div className="ent-container-body">
+      <div ref={mainRef} tabIndex={route ? -1 : undefined}
+        className={activeTab === 'home' ? 'ent-home-body' : 'ent-container-body'}>
+        {route && !activeTab && <section className="ent-pilot-feature">
+          <h2>Page unavailable</h2>
+          <p>This address does not point to a page on {site.name}.</p>
+          <EntertainmentSiteLink href={entertainmentUrl(site, 'home')} navigate={navigateTab}>Return to {site.name}</EntertainmentSiteLink>
+        </section>}
         {feedback && (
           <div role="status" className="ent-card flex items-center justify-between gap-3 py-2.5 border-l-4" style={{ borderLeftColor: site.accentColor }}>
             <span className="text-xs font-semibold flex items-center gap-2">
@@ -254,41 +251,14 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
           </div>
         )}
 
-        {/* KPI Telemetry Row Derived Live from Simulation & Store */}
-        <div className="ent-kpi-row">
-          <div className="ent-card">
-            <div className="text-[11px] uppercase font-mono ent-muted">Active Artists</div>
-            <div className="text-xl font-extrabold mt-0.5">{ent.artists.length}</div>
-            <div className="text-[11px] ent-muted">{ent.contracts.filter((c) => c.status === 'active').length} active contracts</div>
-          </div>
-          <div className="ent-card">
-            <div className="text-[11px] uppercase font-mono ent-muted">Catalog & Streams</div>
-            <div className="text-xl font-extrabold mt-0.5">
-              {ent.tracks.reduce((acc, t) => acc + t.streams, 0).toLocaleString()}
-            </div>
-            <div className="text-[11px] ent-muted">{ent.tracks.length} playable master tracks</div>
-          </div>
-          <div className="ent-card">
-            <div className="text-[11px] uppercase font-mono ent-muted">Live Box Office</div>
-            <div className="text-xl font-extrabold mt-0.5">
-              {ent.concerts.filter((c) => c.status === 'scheduled').length} Upcoming
-            </div>
-            <div className="text-[11px] ent-muted">{ent.tickets.length} citizen ticket receipts</div>
-          </div>
-          <div className="ent-card">
-            <div className="text-[11px] uppercase font-mono ent-muted">Open Auditions</div>
-            <div className="text-xl font-extrabold mt-0.5">
-              {ent.auditions.filter((a) => a.status === 'open').length} Calls
-            </div>
-            <div className="text-[11px] ent-muted">Cycle {cycle} casting board</div>
-          </div>
-        </div>
+        {activeTab === 'home' && design && <EntertainmentHomepage
+          design={design} site={site} state={ent} cycle={cycle} organization={org} labelledBy={homeTabId} isRouted={!!route} onSelectTrack={setActiveTrackId} />}
 
         {/* ================================================================
             TAB 1: ARCHETYPE-SPECIFIC FRONT PORTAL
             ================================================================ */}
         {activeTab === 'front' && (
-          <div className="ent-grid-main">
+          <div className="ent-grid-main ent-site-front">
             {/* SONGBIRD STREAMING PLATFORM */}
             {site.archetype === 'songbird' && (
               <>
@@ -299,6 +269,16 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
                     </h2>
                     <span className="text-xs ent-muted">Click Play to stream real audio</span>
                   </div>
+                  {route && <label className="ent-library-filter">Genre
+                    <select aria-label="Genre" value={genre} onChange={event => {
+                      const params = new URLSearchParams();
+                      if (event.target.value) params.set('genre', event.target.value);
+                      navigateTab(entertainmentUrl(site, 'front', params));
+                    }}>
+                      <option value="">All genres</option>
+                      {genres.map(value => <option key={value}>{value}</option>)}
+                    </select>
+                  </label>}
                   <div className="ent-table-region" tabIndex={0} role="region" aria-labelledby={captionChartId}>
                     <table className="ent-table">
                       <caption id={captionChartId}>Top Recorded Tracks Across All Eight Realms</caption>
@@ -312,12 +292,28 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
                         </tr>
                       </thead>
                       <tbody>
-                        {topTracks.map((trk, idx) => (
+                        {visibleTracks.map((trk, idx) => {
+                          const coverUrl =
+                            trk.coverArtUrl ||
+                            SHIPPED_AUDIO_ASSETS.find((x) => x.audioUrl === trk.audioUrl)?.coverArtUrl;
+                          return (
                           <tr key={trk.trackId}>
                             <td data-label="Rank" className="font-mono font-bold">{idx + 1}</td>
                             <td data-label="Track">
-                              <div className="font-bold">{trk.title}</div>
-                              <div className="text-[11px] ent-muted">{trk.stageName}</div>
+                              <div className="flex items-center gap-2.5">
+                                {coverUrl && (
+                                  <img
+                                    src={coverUrl}
+                                    alt=""
+                                    loading="lazy"
+                                    className="h-10 w-10 rounded object-cover border border-white/15 shrink-0"
+                                  />
+                                )}
+                                <div>
+                                  <div className="font-bold">{trk.title}</div>
+                                  <div className="text-[11px] ent-muted">{trk.stageName}</div>
+                                </div>
+                              </div>
                             </td>
                             <td data-label="Genre">{trk.genre}</td>
                             <td data-label="Streams" className="font-mono">{trk.streams.toLocaleString()}</td>
@@ -326,15 +322,16 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
                                 type="button"
                                 onClick={() => {
                                   setActiveTrackId(trk.trackId);
-                                  setFeedback(useOSStore.getState().streamSongbirdTrack(trk.trackId).message);
+                                  if (!route) setFeedback(useOSStore.getState().streamSongbirdTrack(trk.trackId).message);
                                 }}
                                 className="px-2.5 py-1 rounded bg-emerald-500 text-slate-950 font-bold text-xs cursor-pointer"
                               >
-                                ▶ Stream
+                                {route ? 'Cue track' : '▶ Stream'}
                               </button>
                             </td>
                           </tr>
-                        ))}
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -391,27 +388,8 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
             {/* LIMELIGHT ENTERTAINMENT MAGAZINE */}
             {site.archetype === 'limelight' && (
               <>
-                <section className="ent-card ent-col-7 space-y-3">
-                  <div className="flex items-center justify-between gap-2 border-b pb-2" style={{ borderColor: 'var(--ent-card-border)' }}>
-                    <h2 className="text-lg font-bold" style={{ fontFamily: 'Limelight, Georgia, serif' }}>
-                      <Newspaper size={17} className="inline mr-1.5" /> The Greenroom & Cover Dispatch
-                    </h2>
-                    <span className="text-xs font-mono ent-muted">29 Quay Arcade · Cycle {cycle} Edition</span>
-                  </div>
-                  <div className="space-y-3">
-                    {ent.mediaItems.slice(0, 8).map((item) => (
-                      <article key={item.mediaId} className="p-3.5 rounded-lg border" style={{ borderColor: 'var(--ent-card-border)' }}>
-                        <div className="flex items-center justify-between text-[11px] font-mono uppercase ent-muted">
-                          <span>{item.outletName} · {item.kind}</span>
-                          <span>Cycle {item.cycle} · {item.sentiment}</span>
-                        </div>
-                        <h3 className="text-sm font-bold mt-1">{item.headline}</h3>
-                        <p className="text-xs ent-muted mt-1">{item.summary}</p>
-                      </article>
-                    ))}
-                  </div>
-                </section>
-
+                {route && <LimelightStories route={route} stories={ent.mediaItems} navigate={navigateTab} />}
+                {!route?.params.has('story') &&
                 <section className="ent-card ent-col-5 space-y-3">
                   <h2 className="text-base font-bold flex items-center gap-2">
                     <Star size={17} /> Limelight 8-Axis Fame Power Index
@@ -444,7 +422,7 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
                       </tbody>
                     </table>
                   </div>
-                </section>
+                </section>}
               </>
             )}
 
@@ -467,12 +445,28 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
                         </tr>
                       </thead>
                       <tbody>
-                        {[...ent.tracks].sort((a, b) => b.radioSpins - a.radioSpins).map((trk) => (
+                        {[...ent.tracks].sort((a, b) => b.radioSpins - a.radioSpins).map((trk) => {
+                          const coverUrl =
+                            trk.coverArtUrl ||
+                            SHIPPED_AUDIO_ASSETS.find((x) => x.audioUrl === trk.audioUrl)?.coverArtUrl;
+                          return (
                           <tr key={trk.trackId}>
                             <td data-label="Spins" className="font-mono font-bold">{trk.radioSpins}</td>
                             <td data-label="Track">
-                              <strong>{trk.title}</strong>
-                              <div className="text-[11px] ent-muted">{trk.stageName}</div>
+                              <div className="flex items-center gap-2">
+                                {coverUrl && (
+                                  <img
+                                    src={coverUrl}
+                                    alt=""
+                                    loading="lazy"
+                                    className="h-9 w-9 rounded object-cover border border-white/15 shrink-0"
+                                  />
+                                )}
+                                <div>
+                                  <strong>{trk.title}</strong>
+                                  <div className="text-[11px] ent-muted">{trk.stageName}</div>
+                                </div>
+                              </div>
                             </td>
                             <td data-label="Sticker" className="text-xs">{trk.stickerEdition || 'Standard Rotation'}</td>
                             <td data-label="Action">
@@ -494,7 +488,8 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
                               </div>
                             </td>
                           </tr>
-                        ))}
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -522,6 +517,7 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
             {/* VENUES & LIVE PROMOTION (Looking Glass, Marigold Theatre, Silverleaf Stadium, VelCur) */}
             {site.archetype === 'venue' && (
               <>
+                {route?.pilot.layout === 'stadium' && <StadiumSections route={route} navigate={navigateTab} />}
                 <section className="ent-card ent-col-8 space-y-3">
                   <h2 className="text-base font-bold flex items-center gap-2">
                     <Ticket size={17} /> Live Box Office & Performance Calendar
@@ -539,7 +535,7 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
                         </tr>
                       </thead>
                       <tbody>
-                        {ent.concerts.map((con) => {
+                        {ent.concerts.filter(con => route?.pilot.layout !== 'stadium' || con.venueOrgId === site.orgId).map((con) => {
                           const qty = ticketQtyMap[con.concertId] || 1;
                           const isPlayerShow = playerArtist && con.artistId === playerArtist.artistId && con.status === 'scheduled';
                           return (
@@ -630,8 +626,37 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
             )}
 
             {/* CASTING & SCREEN/DANCE STUDIOS */}
-            {(site.archetype === 'casting' || site.archetype === 'screen_dance') && (
+            {(site.archetype === 'casting' || site.archetype === 'screen_dance' || site.orgId === 'ORG_WILLOW_WHISPER') && (
               <>
+                {site.orgId !== 'ORG_WILLOW_WHISPER' && <section className="ent-card ent-col-12 space-y-2.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <h2 className="text-sm font-bold uppercase tracking-wider">Featured Film, Theatre & Studio Key Art</h2>
+                    <span className="text-[11px] font-mono ent-muted">2:5 Showcase Posters · Mirrora, Marigold & Storyloom</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    {[
+                      { src: '/media/posters/poster-last-witness-noir.jpg', title: 'The Last Witness', studio: 'Mirrora Studios' },
+                      { src: '/media/posters/poster-promenade-sunset.jpg', title: 'Golden Promenade', studio: 'Amrielle × Willow' },
+                      { src: '/media/posters/poster-citadel-of-echoes.jpg', title: 'Citadel of Echoes', studio: 'Storyloom Studios' },
+                      { src: '/media/posters/poster-wind-archive-collage.jpg', title: 'Wind Archive', studio: 'Wonder-Wind × Marigold' },
+                      { src: '/media/posters/poster-coastal-escapade.jpg', title: 'Coastal Escapade', studio: 'The Looking Glass' },
+                    ].map((poster) => (
+                      <figure key={poster.src} className="rounded-lg overflow-hidden border border-white/15 bg-black/20">
+                        <img
+                          src={poster.src}
+                          alt={`${poster.title} (${poster.studio})`}
+                          loading="lazy"
+                          className="w-full aspect-[2/5] object-cover"
+                        />
+                        <figcaption className="p-2 text-[11px]">
+                          <div className="font-bold truncate">{poster.title}</div>
+                          <div className="ent-muted truncate">{poster.studio}</div>
+                        </figcaption>
+                      </figure>
+                    ))}
+                  </div>
+                </section>}
+
                 <section className="ent-card ent-col-8 space-y-3">
                   <h2 className="text-base font-bold flex items-center gap-2">
                     <Mic2 size={17} /> Active Audition Breakdowns & Casting Calls
@@ -649,12 +674,25 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
                         </tr>
                       </thead>
                       <tbody>
-                        {ent.auditions.map((aud) => (
+                        {ent.auditions.filter(aud => site.orgId !== 'ORG_WILLOW_WHISPER'
+                          || aud.orgId === site.orgId || aud.productionOrgId === site.orgId).map((aud) => (
                           <tr key={aud.auditionId}>
                             <td data-label="Role">
-                              <strong>{aud.title}</strong>
-                              <div className="text-[11px] ent-muted">
-                                Min Credibility {aud.minCredibility} · Closes Cycle {aud.deadlineCycle}
+                              <div className="flex items-center gap-2.5">
+                                {aud.posterUrl && (
+                                  <img
+                                    src={aud.posterUrl}
+                                    alt=""
+                                    loading="lazy"
+                                    className="w-8 h-14 rounded object-cover border border-white/15 shrink-0"
+                                  />
+                                )}
+                                <div>
+                                  <strong>{aud.title}</strong>
+                                  <div className="text-[11px] ent-muted">
+                                    Min Credibility {aud.minCredibility} · Closes Cycle {aud.deadlineCycle}
+                                  </div>
+                                </div>
                               </div>
                             </td>
                             <td data-label="Discipline" className="capitalize">{aud.discipline}</td>
@@ -692,7 +730,7 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
                   </div>
                   <button
                     type="button"
-                    onClick={() => setActiveTab('workspace')}
+                    onClick={() => openView('workspace')}
                     className="w-full py-2 rounded-lg text-white font-bold text-xs cursor-pointer"
                     style={{ background: site.accentColor }}
                   >
@@ -766,6 +804,13 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
             {/* FASHION, BEAUTY & PORTRAITURE */}
             {site.archetype === 'fashion_beauty' && (
               <>
+                {route?.pilot.layout === 'atelier' && <aside className="ent-atelier-brief ent-pilot-feature">
+                  {design?.feature && <img src={design.feature.src} alt={design.feature.alt}
+                    onError={event => { event.currentTarget.hidden = true; }} />}
+                  <h2>Atelier brief</h2>
+                  <dl>{org.departments.map((department: { id: string; name: string; focus: string }) =>
+                    <div key={department.id}><dt>{department.name}</dt><dd>{department.focus}</dd></div>)}</dl>
+                </aside>}
                 <section className="ent-card ent-col-7 space-y-3">
                   <h2 className="text-base font-bold flex items-center gap-2">
                     <Sparkles size={17} /> Endorsements, Stage Wardrobe & Editorial Sittings
@@ -810,7 +855,7 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
 
                 <section className="ent-card ent-col-5 space-y-2.5">
                   <h2 className="text-base font-bold">Active Brand Campaigns</h2>
-                  {ent.sponsorships.map((sp) => (
+                  {ent.sponsorships.filter(sp => route?.pilot.layout !== 'atelier' || sp.sponsorOrgId === site.orgId).map((sp) => (
                     <div key={sp.sponsorshipId} className="p-3 rounded-lg border text-xs" style={{ borderColor: 'var(--ent-card-border)' }}>
                       <strong>{sp.campaignTitle}</strong>
                       <div className="ent-muted">{sp.stageName} × {sp.sponsorName} · {sp.feeCredits.toLocaleString()} ₢</div>
@@ -1020,7 +1065,41 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
         {/* ================================================================
             TAB 2: CREATOR, BOOKING & STAFF WORKSPACE
             ================================================================ */}
-        {activeTab === 'workspace' && (
+        {activeTab === 'workspace' && <>
+          <p className="text-xs ent-muted">
+            Wallet: {(gameplay.player?.credits ?? 0).toLocaleString()} ₢ · Cycle {cycle}
+            {playerArtist && ' · ' + playerArtist.stageName}
+          </p>
+        {/* KPI Telemetry Row Derived Live from Simulation & Store */}
+        {!route && <div className="ent-kpi-row">
+          <div className="ent-card">
+            <div className="text-[11px] uppercase font-mono ent-muted">Active Artists</div>
+            <div className="text-xl font-extrabold mt-0.5">{ent.artists.length}</div>
+            <div className="text-[11px] ent-muted">{ent.contracts.filter((c) => c.status === 'active').length} active contracts</div>
+          </div>
+          <div className="ent-card">
+            <div className="text-[11px] uppercase font-mono ent-muted">Catalog & Streams</div>
+            <div className="text-xl font-extrabold mt-0.5">
+              {ent.tracks.reduce((acc, t) => acc + t.streams, 0).toLocaleString()}
+            </div>
+            <div className="text-[11px] ent-muted">{ent.tracks.length} playable master tracks</div>
+          </div>
+          <div className="ent-card">
+            <div className="text-[11px] uppercase font-mono ent-muted">Live Box Office</div>
+            <div className="text-xl font-extrabold mt-0.5">
+              {ent.concerts.filter((c) => c.status === 'scheduled').length} Upcoming
+            </div>
+            <div className="text-[11px] ent-muted">{ent.tickets.length} citizen ticket receipts</div>
+          </div>
+          <div className="ent-card">
+            <div className="text-[11px] uppercase font-mono ent-muted">Open Auditions</div>
+            <div className="text-xl font-extrabold mt-0.5">
+              {ent.auditions.filter((a) => a.status === 'open').length} Calls
+            </div>
+            <div className="text-[11px] ent-muted">Cycle {cycle} casting board</div>
+          </div>
+        </div>}
+
           <div className="ent-grid-main">
             <section className="ent-card ent-col-6 space-y-3.5">
               <h2 className="text-base font-bold">Performer / Professional Registration & Quick Release</h2>
@@ -1253,7 +1332,7 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
               </div>
             </section>
           </div>
-        )}
+        </>}
 
         {/* ================================================================
             TAB 3: ALL 25 SECTION XIX ENTERTAINMENT ORGANIZATIONS DIRECTORY
@@ -1281,7 +1360,7 @@ export default function EntertainmentSiteRouter({ url, navigateTab }: Entertainm
                   <button
                     type="button"
                     onClick={() => {
-                      setActiveTab('front');
+                      if (!route) setLegacyView('front');
                       navigateTab(entry.url);
                     }}
                     className="text-xs font-bold underline cursor-pointer"

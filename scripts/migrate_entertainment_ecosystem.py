@@ -24,16 +24,19 @@ def migrate_entertainment(root: Path = ROOT, database: Path = DEFAULT_DB) -> dic
     orgs_rel = "frontend/src/game-content/organizations/organizations.json"
     places_rel = "frontend/src/game-content/places/places.json"
     brands_rel = "frontend/src/game-content/media-assets/brand-kits.json"
+    manifest_rel = "frontend/src/game-content/media-assets/manifest.json"
     missions_rel = "frontend/src/data/missions.json"
 
     orgs_bytes = (root / orgs_rel).read_bytes()
     places_bytes = (root / places_rel).read_bytes()
     brands_bytes = (root / brands_rel).read_bytes()
+    manifest_bytes = (root / manifest_rel).read_bytes()
     missions_bytes = (root / missions_rel).read_bytes()
 
     orgs_json = json.loads(orgs_bytes.decode("utf-8-sig"))
     places_json = json.loads(places_bytes.decode("utf-8-sig"))
     brands_json = json.loads(brands_bytes.decode("utf-8-sig"))
+    manifest_json = json.loads(manifest_bytes.decode("utf-8-sig"))
     missions_json = json.loads(missions_bytes.decode("utf-8-sig"))
 
     ent_orgs = orgs_json.get("entertainmentIndustry", [])
@@ -82,6 +85,7 @@ def migrate_entertainment(root: Path = ROOT, database: Path = DEFAULT_DB) -> dic
             (orgs_rel, "organizations", orgs_bytes, orgs_json),
             (places_rel, "places", places_bytes, places_json),
             (brands_rel, "media", brands_bytes, brands_json),
+            (manifest_rel, "media", manifest_bytes, manifest_json),
             (missions_rel, "careers", missions_bytes, missions_json),
         ):
             db.execute(
@@ -198,10 +202,24 @@ def migrate_entertainment(root: Path = ROOT, database: Path = DEFAULT_DB) -> dic
                 (missions_rel, mission["id"], idx, mission.get("title"), mission.get("description"), _packed(mission)),
             )
 
+        for idx, asset in enumerate(manifest_json.get("assets", [])):
+            db.execute(
+                """
+                INSERT INTO WorldRecords (SourcePath, Section, RecordKey, Position, Domain, Name, Description, DataJson)
+                VALUES (?, 'assets', ?, ?, 'media', ?, ?, ?)
+                ON CONFLICT(SourcePath, Section, RecordKey) DO UPDATE SET
+                    Position = excluded.Position,
+                    Name = excluded.Name,
+                    Description = excluded.Description,
+                    DataJson = excluded.DataJson
+                """,
+                (manifest_rel, asset["id"], idx, asset.get("caption", asset["id"]), asset.get("slotRole"), _packed(asset)),
+            )
+
         db.execute(
             """
             INSERT OR REPLACE INTO ContentMigrations (Version, Description)
-            VALUES (3, 'Section XIX entertainment organizations, venues, brand kits, and WORKNET commissions')
+            VALUES (4, 'Section XIX organizations, venues, 8 creative design families, and sliced artwork catalog')
             """
         )
 

@@ -53,6 +53,11 @@ export const BRAND_MARKS = {
   meridianMonogram: '/media/brands/meridian-monogram.svg',
   socialRegisterMasthead: '/media/brands/social-register-masthead.svg',
   socialRegisterMonogram: '/media/brands/social-register-monogram.svg',
+  socialRegisterMastheadIllustrated: '/media/brands/social-register-masthead-illustrated.png',
+  socialRegisterMonogramIllustrated: '/media/brands/social-register-monogram-illustrated.png',
+  meridianMastheadIllustrated: '/media/brands/meridian-masthead-illustrated.png',
+  meridianLaurelEmblem: '/media/brands/meridian-laurel-emblem.png',
+  meridianShieldBadge: '/media/brands/meridian-shield-badge.png',
 };
 
 export function iconAssetFor(appId: string): string | undefined {
@@ -73,6 +78,8 @@ export const WALLPAPER_ASSETS: AssetEntry[] = [
   { key: 'wallpaper-aureline-city', src: '/images/wallpapers/aureline-city-beneath-the-heavens.png', category: 'wallpaper', label: 'City beneath the heavens' },
   { key: 'wallpaper-angel-bay', src: '/images/wallpapers/aureline-across-angel-bay.png', category: 'wallpaper', label: 'Across Angel Bay' },
   { key: 'wallpaper-glassline', src: '/images/wallpapers/aureline-glassline-twilight.png', category: 'wallpaper', label: 'Glassline twilight' },
+  { key: 'wallpaper-harbor-twin-moons', src: '/images/wallpapers/aureline-harbor-twin-moons.jpg', category: 'wallpaper', label: 'Aureline Harbor under Twin Moons' },
+  { key: 'wallpaper-terraces-twin-moons', src: '/images/wallpapers/aureline-terraces-twin-moons.jpg', category: 'wallpaper', label: 'Aureline Terraces under Twin Moons' },
 ];
 
 // Apps that intentionally keep a Lucide glyph (no shipped art yet).

@@ -65,7 +65,7 @@ test('asset paths are public-root URLs', () => {
 });
 
 test('wallpaper assets and helper aliases resolve', () => {
-  assert.equal(WALLPAPER_ASSETS.length, 3);
+  assert.equal(WALLPAPER_ASSETS.length, 5);
   for (const asset of WALLPAPER_ASSETS) {
     assert.ok(existsSync(resolvePublic(asset.src)), `wallpaper missing: ${asset.src}`);
   }

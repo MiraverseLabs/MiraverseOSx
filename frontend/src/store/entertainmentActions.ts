@@ -65,6 +65,7 @@ export interface EntertainmentActions {
     format?: 'Single' | 'EP' | 'Album' | 'Soundtrack';
     genre?: string;
     audioUrl?: string;
+    coverArtUrl?: string;
     distributorOrgId?: string;
     collaboratorArtistId?: string;
     releaseInCycles?: number;
@@ -756,6 +757,7 @@ export function createEntertainmentActions(set: any, get: any): EntertainmentAct
         genre: input.genre || linkedPrj?.genre || artist.genres[0] || assetMeta.genre,
         durationSeconds: assetMeta.durationSeconds,
         audioUrl,
+        coverArtUrl: input.coverArtUrl || assetMeta.coverArtUrl,
         producerOrgId: artist.publisherOrgId || 'ORG_KAJI_PUBLISHING',
         publisherOrgId: artist.publisherOrgId || 'ORG_MUSIC_RIGHTS_SOCIETY',
         collaboratorArtistIds: input.collaboratorArtistId ? [input.collaboratorArtistId] : [],

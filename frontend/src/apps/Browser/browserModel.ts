@@ -166,6 +166,7 @@ export function browserTitle(url: string): string {
       'dga.gov': 'Directorate of Global Affairs',
       'faithmed.aure': 'Faith Medical Group',
       'worknet.aure': 'WorkNet',
+      'bank.aure': 'Personal Treasury',
       'shipping.aure': 'CargoTrack Logistics',
       'vectornet.aure': 'VectorNet Underground',
       'records.orynvell.gov': 'Orynvell Public Records',
@@ -182,15 +183,15 @@ export function browserTitle(url: string): string {
       return section ? `${section} · ${name}` : name;
     }
     if (parsed.hostname === 'fieldnotes.aure') return parsed.searchParams.get('title')?.slice(0, 200) || 'Fieldnotes · Public reading';
-    if (['versenet.aure', 'search.aure', 'versenet'].includes(parsed.hostname)) return parsed.pathname === '/find' ? `${parsed.searchParams.get('q') || 'Search'} — Versenet` : 'Versenet';
+    if (['versenet.aure', 'search.aure', 'versenet'].includes(parsed.hostname)) return parsed.pathname === '/find' ? `${parsed.searchParams.get('q') || 'Search'} — VerseNet` : ({ '/directory': 'Directory · VerseNet', '/culture': 'Arts and culture · VerseNet', '/reading': 'Reading · VerseNet' }[parsed.pathname.replace(/\/$/, '')] || 'Home');
     const portal = IN_GAME_PORTALS.find(site => site.domain === parsed.hostname);
     return portal?.name || parsed.hostname;
-  } catch { return 'Versenet'; }
+  } catch { return 'VerseNet'; }
 }
 
 export function initialBrowserState(): BrowserState {
   return { 
-    tabs: [{ id: 1, url: BROWSER_HOME, title: 'Versenet' }], 
+    tabs: [{ id: 1, url: BROWSER_HOME, title: browserTitle(BROWSER_HOME) }],
     groups: [],
     activeTabId: 1, 
     nextTabId: 2, 
@@ -211,7 +212,7 @@ export function restartBrowserSession(state: BrowserState): BrowserState {
   const tabs = state.tabs.filter(tab => tab.groupId && groups.some(group => group.id === tab.groupId)).slice(0, MAX_BROWSER_TABS - 1);
   let homeId = 1;
   while (tabs.some(tab => tab.id === homeId)) homeId++;
-  const home: BrowserTab = { id: homeId, url: BROWSER_HOME, title: 'Versenet' };
+  const home: BrowserTab = { id: homeId, url: BROWSER_HOME, title: browserTitle(BROWSER_HOME) };
   const historyMap: Record<number, TabHistory> = { [homeId]: { stack: [BROWSER_HOME], index: 0 } };
   for (const tab of tabs) historyMap[tab.id] = state.historyMap[tab.id] || { stack: [tab.url], index: 0 };
   return { ...state, groups, tabs: [home, ...tabs], activeTabId: homeId, historyMap, nextTabId: Math.max(state.nextTabId, homeId + 1) };
@@ -239,7 +240,11 @@ export function restoreBrowserState(saved: unknown): BrowserState {
   for (const tab of Array.isArray(data.tabs) ? data.tabs : []) {
     if (!tab || !Number.isSafeInteger(tab.id) || tab.id <= 0 || tab.id >= Number.MAX_SAFE_INTEGER - 1 || typeof tab.url !== 'string' || tabs.some(other => other.id === tab.id)) continue;
     const url = resolveBrowserInput(tab.url);
-    tabs.push({ id: tab.id, url, title: typeof tab.title === 'string' && tab.title.trim() ? tab.title.slice(0, 200) : browserTitle(url), ...(groups.some(group => group.id === tab.groupId) ? { groupId: tab.groupId } : {}) });
+    const defaultTitle = browserTitle(url);
+    const title = defaultTitle === 'Home' || typeof tab.title !== 'string' || !tab.title.trim()
+      ? defaultTitle
+      : tab.title.slice(0, 200);
+    tabs.push({ id: tab.id, url, title, ...(groups.some(group => group.id === tab.groupId) ? { groupId: tab.groupId } : {}) });
     if (tabs.length === MAX_BROWSER_TABS) break;
   }
   if (!tabs.length) tabs.push(...defaults.tabs);
