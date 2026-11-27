@@ -24,6 +24,7 @@ import { MaidIdentityService } from '../services/maidIdentityService';
 import { getActiveCitizenContext, openCitizenInApp } from '../integration/citizenBridge';
 import { citizenSelection, subscribeCitizenUpdates } from '../integration/citizenEvents';
 import { authorizeAuraAction, evaluateAuraRecordPermissions, resolveAuraActor } from '../integration/auraPermissions';
+import { generateOfficialDocument, resolveActiveRun } from '../integration/livingWorldLink';
 import { useOSStore } from '../store/useOSStore';
 import { BRAND_KITS, brandKitCssVariables } from '../game-content/worldAssetLibrary';
 import { restoreFyloState } from './files/fyloStore';
@@ -269,6 +270,79 @@ export default function DocumentStudioApp() {
     setTimeout(() => setIssuanceNotice(null), 4000);
   };
 
+  const handleExportOfficialPdf = async () => {
+    if (studioMode === 'civic' && !recordPermissions.allowedDocumentIds.includes(activeDocId)) {
+      setIssuanceNotice('Institutional authorization required to generate an official PDF for this record.');
+      return;
+    }
+    try {
+      const link = useOSStore.getState().gameplay.livingWorldLink || null;
+      const runId = await resolveActiveRun(link);
+      if (!runId) {
+        setIssuanceNotice('Connect or start a Living World run to generate authoritative ReportLab PDFs.');
+        return;
+      }
+      const docInfo = DOCUMENT_TABS.find(d => d.id === activeDocId);
+      const docTypeMap: Record<number, 'government_record' | 'case_documentation' | 'certificate' | 'employment_contract' | 'institutional_report'> = {
+        1: 'government_record',
+        2: 'government_record',
+        3: 'certificate',
+        4: 'case_documentation',
+        5: 'case_documentation',
+        6: 'government_record',
+        7: 'government_record',
+        8: 'institutional_report',
+        9: 'employment_contract',
+      };
+      const title = studioMode === 'civic' ? (docInfo?.title || 'Official Civic Record') : edTitle;
+      const institution = studioMode === 'civic' ? 'Meridion Civic Identity Bureau' : 'Document Studio Editorial';
+      const idKey = selectedCitizen.maid || selectedCitizen.record || 'UNASSIGNED';
+      const bodyLines = studioMode === 'civic'
+        ? [
+            `Subject: ${selectedCitizen.name} (${idKey})`,
+            `Classification: ${docInfo?.subtitle || 'Official Record'}`,
+            `Affiliation: ${selectedCitizen.affiliation || 'Independent'} · Residence: ${selectedCitizen.home || 'Meridion'}`,
+          ]
+        : edBody.split(/\r?\n/).filter(Boolean).slice(0, 30);
+      const { document: generated } = await generateOfficialDocument(runId, {
+        docType: studioMode === 'civic' ? (docTypeMap[activeDocId] || 'government_record') : 'institutional_report',
+        title,
+        institution,
+        recipientName: selectedCitizen.name,
+        recipientId: idKey,
+        bodyLines,
+        tableRows: [
+          ['Field', 'Value'],
+          ['Recipient', selectedCitizen.name],
+          ['Identifier', idKey],
+          ['Document', title],
+        ],
+      });
+      const bytes = Uint8Array.from(atob(generated.pdfBase64), ch => ch.charCodeAt(0));
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = generated.filename;
+      anchor.click();
+      URL.revokeObjectURL(url);
+
+      useOSStore.getState().fyloAction('retainAttachment', {
+        id: `docstudio:pdf:${generated.documentId}`,
+        name: generated.filename,
+        desc: `${title} (Official ReportLab PDF · ${generated.sizeBytes} bytes)`,
+        body: `${title}\nReference: ${generated.documentId}\nRecipient: ${selectedCitizen.name} (${idKey})\nIssued by: ${institution}`,
+        dir: generated.fyloMetadata?.dir || '/documents',
+        publisher: institution,
+        origin: 'document-studio',
+        version: 'v1.0',
+      });
+      setIssuanceNotice(`Generated official PDF (${generated.filename}) and archived reference in Fylo (/documents).`);
+    } catch (error) {
+      setIssuanceNotice(error instanceof Error ? error.message : 'Unable to generate official PDF while Living World API is offline.');
+    }
+  };
+
   const handleFileNoticeToOrynvell = () => {
     const res = useOSStore.getState().orynvellAction('submitRequest', {
       serviceType: 'public-filing',
@@ -399,6 +473,7 @@ export default function DocumentStudioApp() {
             <div className="document-zoom"><button aria-label="Zoom out" onClick={() => setZoomScale(Math.max(60, zoomScale - 10))}>−</button><span>{zoomScale}%</span><button aria-label="Zoom in" onClick={() => setZoomScale(Math.min(140, zoomScale + 10))}>+</button></div>
             <button onClick={handlePrintCurrent}><Printer size={14} /><span>Print</span></button>
             <button onClick={studioMode === 'civic' ? handleSaveCurrentToFylo : handleSaveEditorialDocToFylo}><FileText size={14} /><span>Save to Fylo</span></button>
+            <button onClick={() => void handleExportOfficialPdf()}><Download size={14} /><span>Save PDF</span></button>
             {studioMode === 'civic' && <button onClick={handleDownloadCurrentHtml}><Download size={14} /><span>Save HTML</span></button>}
           </div>
         </header>

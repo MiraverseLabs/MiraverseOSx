@@ -355,3 +355,95 @@ export async function postRunPublicity(
     body: JSON.stringify({ runId, ...body }),
   });
 }
+
+// ---------------------------------------------------------------------------
+// Intelligence, Institutions, Scheduling & Official Document Generation API
+// ---------------------------------------------------------------------------
+
+export async function getSimulationNetwork(runId: string, mutual?: [string, string]): Promise<{ runId: string; network: any }> {
+  const qs = new URLSearchParams({ runId });
+  if (mutual) {
+    qs.set('a', mutual[0]);
+    qs.set('b', mutual[1]);
+  }
+  return call(`/network?${qs.toString()}`);
+}
+
+export async function getCitizenRecommendations(runId: string, characterId: string): Promise<{ runId: string; recommendations: any }> {
+  const qs = new URLSearchParams({ runId, characterId });
+  return call(`/recommendations?${qs.toString()}`);
+}
+
+export async function getSimulationDiagnostics(runId: string): Promise<any> {
+  return call(`/diagnostics?runId=${encodeURIComponent(runId)}`);
+}
+
+export async function listInstitutionalWorkflows(runId: string): Promise<{ runId: string; workflows: any[] }> {
+  return call(`/workflows?runId=${encodeURIComponent(runId)}`);
+}
+
+export async function transitionInstitutionalWorkflow(
+  runId: string,
+  body: {
+    workflowId?: string;
+    domain: 'career' | 'application' | 'mission' | 'contract' | 'request' | 'production';
+    trigger?: string;
+    subjectId?: string;
+    institution?: string;
+    title?: string;
+    actorId?: string;
+  },
+): Promise<{ result: any; revision: number }> {
+  return call('/workflows', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}
+
+export async function optimizeInstitutionalSchedule(
+  runId: string,
+  body: {
+    institution: string;
+    staffIds: string[];
+    slots: { slotId: string; label?: string; day?: number; period?: string; requiredStaff?: number }[];
+    unavailable?: Record<string, string[]>;
+    maxSlotsPerStaff?: number;
+  },
+): Promise<{ result: any; revision: number }> {
+  return call('/schedule/optimize', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}
+
+export async function spawnProceduralCitizens(
+  runId: string,
+  body: { count?: number; realm?: string; seed?: number },
+): Promise<{ created: any[]; totalProcedural: number; revision: number }> {
+  return call('/citizens/procedural', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}
+
+export async function generateOfficialDocument(
+  runId: string,
+  body: {
+    docType: 'employment_contract' | 'institutional_report' | 'official_correspondence' | 'government_record' | 'case_documentation' | 'financial_statement' | 'certificate';
+    title: string;
+    institution: string;
+    recipientName: string;
+    recipientId?: string;
+    bodyLines?: string[];
+    tableRows?: string[][];
+  },
+): Promise<{ document: { documentId: string; filename: string; pdfBase64: string; sizeBytes: number; fyloMetadata: any }; revision: number }> {
+  return call('/documents/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}

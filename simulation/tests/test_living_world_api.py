@@ -5,13 +5,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import copy
 import json
 import tempfile
+import sqlite3
+from contextlib import closing
+from unittest.mock import patch
 import threading
 import unittest
 from pathlib import Path
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-from living_world import RunConflictError
+from living_world import LivingWorldStore, RunConflictError
 from living_world_api import create_server
 from population import PopulationModel
 from test_living_world import _citizens
@@ -21,6 +24,18 @@ class LivingWorldApiTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.database = Path(self.temp.name) / 'runs.db'
+        # Independent canonical fixture: endpoint tests must not require a live DB.
+        source = Path(self.temp.name) / 'source.db'
+        with closing(sqlite3.connect(source)) as conn:
+            conn.execute("""CREATE TABLE EntertainmentOrganizations (
+                OrganizationId TEXT, Name TEXT, ShortName TEXT, Sector TEXT, Kind TEXT,
+                Domain TEXT, Realm TEXT, Seat TEXT, Tagline TEXT, VenueCapacity INTEGER)""")
+            conn.execute("INSERT INTO EntertainmentOrganizations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                ('ORG_TEST', 'Test Studio', 'Test', 'media', 'studio', 'test.aure', 'Orynvell', 'Aureline', 'Test', None))
+            conn.commit()
+        self.source_patch = patch('entertainment.SOURCE_DATABASE', source)
+        self.source_patch.start()
+        self.addCleanup(self.source_patch.stop)
         self.server = create_server(0, self.database, _citizens())
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -136,20 +151,89 @@ class LivingWorldApiTests(unittest.TestCase):
         self.assertEqual(saved['legacy_service_state']['accounts']['UNKNOWN-ID'],9)
         self.assertNotIn('accounts',saved)
 
-
-def test_entertainment_resources_and_projects_are_available(self):
+    def test_entertainment_resources_and_projects_are_available(self):
         orgs = self.get('organizations')['organizations']
-        self.assertEqual(len(orgs), 25)
+        self.assertEqual([org['OrganizationId'] for org in orgs], ['ORG_TEST'])
         artist = self.post('artists', {'characterId': 'TEST-ADA', 'stageName': 'API Echo', 'genres': ['ambient']})
         track = self.post('music', {'artistId': artist['artistId'], 'title': 'API Signal', 'durationSeconds': 180})
         self.post('releases', {'trackId': track['trackId'], 'royaltyRate': 0.1})
         charts = self.get('charts')['charts']
         self.assertTrue(any(entry['trackId'] == track['trackId'] for entry in charts))
-        project = self.post('projects', {'action': 'create', 'title': 'API Feature', 'kind': 'film', 'studioOrgId': 'ORG_MIRRORA_STUDIOS', 'budgetCredits': 5000})
+        project = self.post('projects', {'action': 'create', 'title': 'API Feature', 'kind': 'film', 'studioOrgId': 'ORG_MIRRORA_STUDIOS', 'budget': 5000})
         projects = self.get('projects')['projects']
-        self.assertTrue(any(entry['projectId'] == project['productionId'] for entry in projects))
-        for name in ('rights', 'licensing', 'royalties', 'media', 'memberships', 'bookings', 'tours', 'broadcasting', 'campaigns', 'awards'):
-            self.assertIn(name, self.get(name))
+        self.assertEqual(next(entry for entry in projects if entry['projectId'] == project['productionId'])['budget'], 5000)
+        contracts = {
+            'rights': ('rights',), 'licensing': ('licenses',),
+            'royalties': ('totalsByKind', 'artists', 'entries'), 'media': ('media',),
+            'memberships': ('fanCommunities', 'staff'), 'bookings': ('bookings',),
+            'tours': ('tours',), 'broadcasting': ('broadcasting',),
+            'campaigns': ('campaigns',), 'awards': ('awards',),
+        }
+        for resource, keys in contracts.items():
+            with self.subTest(resource=resource):
+                result = self.get(resource)
+                for key in keys:
+                    self.assertIn(key, result)
+
+
+    def test_derived_rights_revenue_and_awards_are_run_scoped_read_only_and_persistent(self):
+        artist = self.post('artists', {'characterId': 'TEST-ADA', 'stageName': 'Rights Echo'})
+        track = self.post('music', {'artistId': artist['artistId'], 'title': 'Licensed Signal',
+            'durationSeconds': 180, 'publisherOrgId': 'ORG_KAJI_PUBLISHING'})
+        self.post('publicity', {'action': 'stream_track', 'trackId': track['trackId'], 'plays': 10})
+        run = self.server.store.load_run(self.run_id)
+        run['state']['awards'] = [{'awardId': 'test-award', 'status': 'open'}]
+        self.server.store.save_run(self.run_id, run['state'])
+        # The same IDs in another run must not leak into this run's ledger/rights.
+        other = copy.deepcopy(run['state'])
+        other['artists'][0]['totalRoyaltiesEarned'] = 999
+        other['tracks'][0]['publisherOrgId'] = 'ORG_OTHER'
+        self.server.store.create_run('Other run', other)
+        before = self.server.store.load_run(self.run_id)
+        rights = self.get('rights')['rights']
+        self.assertEqual({r['rightCategory'] for r in rights}, {'master', 'publishing'})
+        self.assertEqual({r['workId'] for r in rights}, {track['trackId']})
+        self.assertTrue(all(r['runId'] == self.run_id for r in rights))
+        self.assertEqual(self.get('licensing')['licenses'], rights)
+        royalties = self.get('royalties')
+        earned = before['state']['artists'][0]['totalRoyaltiesEarned']
+        self.assertGreater(earned, 0)
+        self.assertEqual(royalties['totalsByKind'], {'royalty_statement': earned})
+        self.assertEqual(len(royalties['entries']), 1)
+        self.assertEqual(royalties['entries'][0]['netAmount'], earned)
+        self.assertEqual(self.get('awards')['awards'], [{'awardId': 'test-award', 'status': 'open'}])
+        after = self.server.store.load_run(self.run_id)
+        self.assertEqual(after['revision'], before['revision'], 'GETs must not save the run')
+        self.assertEqual(after['state'], before['state'])
+        reloaded = PopulationModel(database=self.database, run_id=self.run_id, characters=_citizens())
+        reloaded.save()
+        restored_rights = self.get('rights')['rights']
+        without_timestamp = lambda rows: [{k: v for k, v in row.items() if k != 'updatedAt'} for row in rows]
+        self.assertEqual(without_timestamp(restored_rights), without_timestamp(rights))
+        self.assertEqual(self.get('royalties')['totalsByKind'], royalties['totalsByKind'])
+
+    def test_server_backfills_existing_runs_when_adding_entertainment_tables(self):
+        database = Path(self.temp.name) / 'legacy-runs.db'
+        store = LivingWorldStore(database)
+        state = self.server.store.load_run(self.run_id)['state']
+        state['artists'] = [{'artistId': 'legacy-artist', 'stageName': 'Legacy', 'totalRoyaltiesEarned': 25}]
+        state['tracks'] = [{'trackId': 'legacy-track', 'artistId': 'legacy-artist'}]
+        run_id = store.create_run('Legacy run', state)
+        before = store.load_run(run_id)
+        server = create_server(0, database, _citizens())
+        try:
+            with closing(sqlite3.connect(database)) as conn:
+                self.assertEqual(conn.execute('SELECT COUNT(*) FROM EntertainmentRights WHERE RunId = ?', (run_id,)).fetchone()[0], 1)
+                self.assertEqual(conn.execute('SELECT SUM(NetAmount) FROM EntertainmentRevenueLedger WHERE RunId = ?', (run_id,)).fetchone()[0], 25)
+            self.assertEqual(store.load_run(run_id), before, 'Projection backfill must not rewrite saved runs')
+        finally:
+            server.server_close()
+
+    def test_empty_entertainment_resources_are_valid_empty_responses(self):
+        self.assertEqual(self.get('rights'), {'rights': []})
+        self.assertEqual(self.get('licensing'), {'licenses': []})
+        self.assertEqual(self.get('royalties'), {'totalsByKind': {}, 'artists': [], 'entries': []})
+        self.assertEqual(self.get('awards'), {'awards': []})
 
 
 if __name__=='__main__': unittest.main()

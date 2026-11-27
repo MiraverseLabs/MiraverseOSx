@@ -235,7 +235,7 @@ export function useEntertainmentPortalData(site: EntertainmentSiteMeta): Enterta
   const [feedback, setFeedback] = useState('');
   const [activeTrackId, setActiveTrackId] = useState<string>(ent.tracks[0]?.trackId || '');
   const runId = useOSStore((s) => s.gameplay.livingWorldLink?.runId || null);
-  const liveCharts = useLiveCharts(runId);
+  const liveCharts = useLiveCharts(runId, ent.tracks);
 
   const topTracks = useMemo(() => {
     if (liveCharts.length > 0) {

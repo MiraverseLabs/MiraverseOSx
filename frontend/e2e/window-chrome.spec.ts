@@ -56,7 +56,7 @@ test('AureMail uses its product name and a functional toolbar without a second t
 test('every installed app has one shared frame and an unboxed top-level surface', async ({page}) => {
   test.setTimeout(180000);
   await start(page);
-  const apps = ['browser','files','mail','post','comms','maispace','passport','housing','finance','pulse','vitals','campus','study','spellforge','lore','jobs','fieldOperations','meridionRegistry','documentStudio','dgaos','process','terminal','settings'];
+  const apps = ['browser','files','mail','post','comms','maispace','passport','housing','finance','vitals','campus','study','spellforge','lore','jobs','fieldOperations','meridionRegistry','documentStudio','dgaos','process','terminal','settings'];
   for (const app of apps) {
     const window = await open(page,app);
     await expect(window.getByRole('heading',{name:'This app could not display its workspace.'})).toHaveCount(0);

@@ -4,6 +4,7 @@ import copy
 import json
 import os
 import threading
+from contextlib import closing
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse, unquote
@@ -12,6 +13,9 @@ from living_world import LivingWorldStore, RunConflictError, WorldClock, validat
 from population import PopulationModel
 import world_services
 import entertainment
+import institutions
+import npc_intelligence
+import reliability
 
 from paths import RUN_DATABASE as DATABASE
 CORE_FIELDS = {'format_version','seed','clock','calendar','playing','random_state','citizens'}
@@ -109,8 +113,8 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
                 'calendar':model.calendar_config,'state':model._export_state()}
 
     def _entertainment(self,name,model,body=None):
-        if name=='organizations' and body is None:
-            return entertainment.list_organizations(model)
+        if name in ('organizations', 'rights', 'licensing', 'royalties') and body is None:
+            return ENT_READ[name](model)
         run=self._envelope(model)
         if body is None: return ENT_READ[name](run)
         body=copy.deepcopy(body)
@@ -171,9 +175,12 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
             name=parts[0]
             if name=='runs' and len(parts) in (2,3):
                 run_id=unquote(parts[1]);operation=parts[2] if len(parts)==3 else 'get'
-            elif name in (*READERS,*ENT_READ,*ENT_WRITE,'schedules','fame') and len(parts)==1:
+            elif name in (*READERS,*ENT_READ,*ENT_WRITE,'schedules','fame','network','recommendations','diagnostics','workflows') and len(parts)==1:
                 run_id=str(body.get('runId') or '') if post else (query.get('runId') or [''])[0]
                 operation=name
+            elif path in ('/schedule/optimize','/citizens/procedural','/documents/generate') and post:
+                run_id=str(body.get('runId') or '')
+                operation=path.lstrip('/')
             else: self._send(404,{'error':'Unknown living-world route'});return
             if not run_id: raise ValueError('runId is required')
             with self.server.run_lock(run_id):
@@ -198,10 +205,86 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
                         self._send(200,{'runId':run_id,'schedules':[{'characterId':c.character_id,'name':c.name,
                             'mode':c.schedule_mode,'minuteOfDay':model.world_clock.minute_of_day,
                             'blocks':copy.deepcopy(c.daily_schedule) if c.eligible_for_living_sim else []} for c in model.agents]});return
+                    if operation=='network':
+                        char_a=(query.get('a') or [''])[0].strip()
+                        char_b=(query.get('b') or [''])[0].strip()
+                        summary=model.social_network.summary()
+                        if char_a and char_b:
+                            summary['mutualConnections']=model.social_network.mutual_connections(char_a,char_b)
+                        self._send(200,{'runId':run_id,'network':summary});return
+                    if operation=='recommendations':
+                        char_id=(query.get('characterId') or [''])[0].strip()
+                        if not char_id and model.living_agents:
+                            char_id=model.living_agents[0].character_id
+                        self._send(200,{'runId':run_id,'recommendations':model.recommender.recommend_for_citizen(model,char_id)});return
+                    if operation=='workflows':
+                        self._send(200,{'runId':run_id,**institutions.list_workflows(model)});return
+                    if operation=='diagnostics':
+                        self._send(200,{
+                            'runId':run_id,
+                            'clock':model.world_clock.to_state(),
+                            'populationStats':npc_intelligence.population_statistics(model),
+                            'network':model.social_network.summary(),
+                            'performance':dict(model._perf_stats),
+                            'validationErrors':copy.deepcopy(model._extensions.get('validation_errors',[])[-20:]),
+                            'stateDiffs':copy.deepcopy(model._extensions.get('state_diffs',[])[-10:]),
+                            'workflowsCount':len(model._extensions.get('institutional_workflows',[])),
+                            'schedulesCount':len(model._extensions.get('institutional_schedules',[])),
+                            'documentsCount':len(model._extensions.get('generated_documents',[])),
+                        });return
                 else:
                     if operation=='advance':
                         model.advance_steps(body.get('steps',1))
                         self._send(200,{'runId':run_id,'revision':model._revision,'clock':model.world_clock.to_state(),'date':model.current_world_date()});return
+                    if operation=='workflows':
+                        validated=reliability.validate_payload(reliability.WorkflowTransitionPayload,body,model,'workflows')
+                        result=institutions.transition_workflow(
+                            model,
+                            workflow_id=validated.workflowId,
+                            domain=validated.domain,
+                            trigger=validated.trigger,
+                            subject_id=validated.subjectId,
+                            institution=validated.institution,
+                            title=validated.title,
+                            actor_id=validated.actorId,
+                        )
+                        model.save()
+                        self._send(200,{'result':result,'revision':model._revision});return
+                    if operation=='schedule/optimize':
+                        validated=reliability.validate_payload(reliability.ScheduleOptimizePayload,body,model,'schedule/optimize')
+                        result=institutions.InstitutionalScheduler.optimize_schedule(
+                            institution=validated.institution,
+                            staff_ids=validated.staffIds,
+                            slots=[s.model_dump() for s in validated.slots],
+                            unavailable=validated.unavailable,
+                            max_slots_per_staff=validated.maxSlotsPerStaff,
+                        )
+                        model._extensions.setdefault('institutional_schedules',[]).append(result)
+                        model.save()
+                        self._send(200,{'result':result,'revision':model._revision});return
+                    if operation=='citizens/procedural':
+                        validated=reliability.validate_payload(reliability.ProceduralCitizenPayload,body,model,'citizens/procedural')
+                        created=model.spawn_procedural_citizens(validated.count,realm=validated.realm,seed=validated.seed)
+                        model.save()
+                        self._send(201,{'created':created,'totalProcedural':len(model._extensions.get('procedural_citizens',[])),'revision':model._revision});return
+                    if operation=='documents/generate':
+                        validated=reliability.validate_payload(reliability.DocumentGeneratePayload,body,model,'documents/generate')
+                        date_info=model.current_world_date()
+                        wdate=f"Year {date_info['year']} {date_info['month']} {date_info['day']} {date_info['time']}"
+                        doc=institutions.generate_official_pdf(
+                            doc_type=validated.docType,
+                            title=validated.title,
+                            institution=validated.institution,
+                            recipient_name=validated.recipientName,
+                            recipient_id=validated.recipientId,
+                            body_lines=validated.bodyLines or None,
+                            table_rows=validated.tableRows or None,
+                            world_date=wdate,
+                        )
+                        meta={k:v for k,v in doc.items() if k!='pdfBase64'}
+                        model._extensions.setdefault('generated_documents',[]).append(meta)
+                        model.save()
+                        self._send(201,{'document':doc,'revision':model._revision});return
                     if operation=='save':
                         if 'expectedRevision' not in body: raise ValueError('expectedRevision is required for snapshot saves')
                         state=body.get('state')
@@ -213,6 +296,12 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
                         model._extensions.update({k:v for k,v in state.items() if k not in CORE_FIELDS});model.save()
                         self._send(200,{'runId':run_id,'revision':model._revision});return
                     if operation in WRITERS or operation in ENT_WRITE:
+                        if operation=='careers':
+                            reliability.validate_payload(reliability.AssignCareerPayload,body,model,'careers')
+                        elif operation=='finances':
+                            reliability.validate_payload(reliability.TransactPayload,body,model,'finances')
+                        elif operation=='relationships':
+                            reliability.validate_payload(reliability.AddRelationshipPayload,body,model,'relationships')
                         result=WRITERS[operation](model,body) if operation in WRITERS else self._entertainment(operation,model,body)
                         if not result.get('alreadyApplied'): model.save()
                         self._send(200,{'result':result,'revision':model._revision});return
@@ -231,6 +320,16 @@ def create_server(port=5010,database=DATABASE,characters=None):
     server=ThreadingHTTPServer(('127.0.0.1',port),LivingWorldHandler)
     server.database=Path(database);server.characters=characters
     server.store=LivingWorldStore(server.database);server.default_calendar=DEFAULT_CALENDAR_CONFIG
+    # Separate run databases need the same projections as the canonical DB.
+    import entertainment_store
+    with closing(server.store._connect()) as conn:
+        had_entertainment = entertainment_store.has_entertainment_tables(conn)
+        entertainment_store.ensure_entertainment_schema(conn)
+        if not had_entertainment:
+            for record in server.store.list_runs():
+                run = server.store.load_run(record['RunId'])
+                entertainment_store.sync_run_entertainment_state(conn, record['RunId'], run['state'])
+        conn.commit()
     server._locks={};server._locks_guard=threading.Lock()
     def lock(run_id):
         with server._locks_guard: return server._locks.setdefault(run_id,threading.RLock())

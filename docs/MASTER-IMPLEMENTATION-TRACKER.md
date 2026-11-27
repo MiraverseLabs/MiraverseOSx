@@ -128,3 +128,39 @@ Created: 2026-11-25
   `CreativeStudioApp.tsx`, `WorknetCareerRecord.tsx`, `SongbirdAudioPlayer.tsx`,
   all 25 VerseNet entertainment portals (`EntertainmentSiteRouter.tsx`), and the
   dedicated `Entertainment & Fame` view in Solara Observatory (`simulation/dashboard.py`).
+
+## Architecture Cleanup, Entertainment Fixes & Simulation Systems — November 27, 2026
+
+- **Circular dependency resolution:** Added late-bound `frontend/src/integration/osHost.ts`
+  (matching `communicationsAccess.ts`) and wired it in `useOSStore.ts`, breaking the
+  `createAcademicActions → usePostalStore → useOSStore` and
+  `syncCyacademyOrCivicUpdate → useOSStore → createAcademicActions` cycles.
+- **Entertainment ecosystem verification & 7 fixes:** Verified 1d / 7d / 30d isolated
+  simulations against temporary copies of `miraverse.db` and resolved duplicate staff
+  onboarding, global concert cap halt, player-linked citizen protection leaks, hybrid
+  release pacing / autonomous radio spins / autonomous productions, backend-to-frontend
+  fame tier alignment, bounded offline catch-up (`PopulationModel.catch_up_offline`),
+  and SQLite ledger-level `LivingWorldTransactions.RequestId` uniqueness.
+- **Knip cleanup:** Removed 9 confirmed obsolete frontend files (legacy entertainment
+  pilots/CSS, `StandaloneWorkspace.tsx`, `DesktopShortcuts.tsx`, `gameplay/index.ts`),
+  declared `esbuild@0.25.12` in `frontend/package.json` `devDependencies`, and verified
+  all 15 `/src/` root-relative imports resolve cleanly.
+- **Simulation systems integration (all 13 Python libraries):** Added
+  `simulation/npc_intelligence.py` (NetworkX asymmetric graph & subjective propagation,
+  py-trees decision trees with interruption/recovery & bounded memory, NumPy personality
+  & population stats, Faker bounded procedural citizens, Scikit-learn recommendations),
+  `simulation/institutions.py` (OR-Tools CP-SAT scheduler, Transitions 6-domain
+  workflows, ReportLab official PDF generation), and `simulation/reliability.py`
+  (Pydantic v2 validation + DeepDiff checkpoint auditing), backed by Hypothesis property
+  tests in `simulation/tests/test_simulation_systems.py`.
+- **Observatory & OS UI wiring:** Added `Systems Diagnostics` to Solara Observatory
+  (`simulation/dashboard.py`), wired ReportLab `Save PDF` + Fylo archiving into
+  `DocumentStudioApp.tsx`, and wired OR-Tools / Transitions / Scikit-learn controls
+  into `WorknetCareerRecord.tsx`.
+- **Playwright E2E catch-up & full verification:** Updated stale selectors in
+  `banking.spec.ts`, `desktop.spec.ts`, `entertainment-routes.spec.ts`,
+  `versenet-design.spec.ts`, and `window-chrome.spec.ts` to match the Wave 1–3
+  redesign and Meridian Dispatch routes. Verified 49/49 Playwright E2E tests,
+  422/422 frontend unit tests, TypeScript typecheck, production Vite build,
+  38/38 Python simulation tests (including Hypothesis invariants), Solara
+  Observatory `import dashboard`, and `miraverse.db` `PRAGMA integrity_check = ok`.

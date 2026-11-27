@@ -31,7 +31,7 @@ test('shared banking settles reviewed moves, persists history, and handles unava
   const browser=await open(page,'browser');
   const address=browser.getByRole('combobox',{name:'Search VerseNet or enter a web address'});
   await address.fill('bank.aure');await address.press('Enter');
-  await expect(browser.getByRole('heading',{name:'Everyday banking.'})).toBeVisible({timeout:20000});
+  await expect(browser.getByRole('heading',{name:'Your money, in view.'})).toBeVisible({timeout:20000});
   await expect(browser.locator('.bank-balances')).toContainText('750');
   await expect(browser.locator('.bank-balances')).toContainText('250');
   await browser.getByRole('button',{name:'Send credits'}).click();

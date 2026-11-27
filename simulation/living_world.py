@@ -431,6 +431,22 @@ class LivingWorldStore:
                         "The living-world database schema is newer than this application"
                     )
                 if MIGRATION_VERSION in applied:
+                    # Idempotently ensure additive RequestId column & unique index exist on existing DBs
+                    cols = {
+                        row["name"]
+                        for row in connection.execute("PRAGMA table_info(LivingWorldTransactions)")
+                    }
+                    if "RequestId" not in cols:
+                        connection.execute("BEGIN IMMEDIATE")
+                        connection.execute("ALTER TABLE LivingWorldTransactions ADD COLUMN RequestId TEXT")
+                        connection.execute(
+                            """
+                            CREATE UNIQUE INDEX IF NOT EXISTS idx_living_world_transactions_run_request
+                            ON LivingWorldTransactions(RunId, RequestId)
+                            WHERE RequestId IS NOT NULL AND RequestId != ''
+                            """
+                        )
+                        connection.commit()
                     return
 
             connection.execute("BEGIN IMMEDIATE")
@@ -477,7 +493,8 @@ class LivingWorldStore:
                     Amount REAL NOT NULL,
                     BalanceAfter REAL NOT NULL,
                     SavingsAfter REAL NOT NULL,
-                    Description TEXT NOT NULL
+                    Description TEXT NOT NULL,
+                    RequestId TEXT
                 )
                 """
             )
@@ -485,6 +502,13 @@ class LivingWorldStore:
                 """
                 CREATE INDEX IF NOT EXISTS idx_living_world_transactions_run
                 ON LivingWorldTransactions(RunId, StepIndex DESC)
+                """
+            )
+            connection.execute(
+                """
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_living_world_transactions_run_request
+                ON LivingWorldTransactions(RunId, RequestId)
+                WHERE RequestId IS NOT NULL AND RequestId != ''
                 """
             )
             if MIGRATION_VERSION not in applied:
@@ -555,12 +579,14 @@ class LivingWorldStore:
             if cursor.rowcount != 1:
                 raise KeyError(f"Living-world run {run_id!r} does not exist")
             for transaction in transactions or []:
+                req_id = transaction.get("request_id") or None
+                insert_verb = "INSERT OR IGNORE" if req_id else "INSERT"
                 connection.execute(
-                    """
-                    INSERT INTO LivingWorldTransactions
+                    f"""
+                    {insert_verb} INTO LivingWorldTransactions
                         (TransactionId, RunId, CharacterId, StepIndex, WorldDate,
-                         Kind, Amount, BalanceAfter, SavingsAfter, Description)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                         Kind, Amount, BalanceAfter, SavingsAfter, Description, RequestId)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         transaction["transaction_id"],
@@ -573,6 +599,7 @@ class LivingWorldStore:
                         transaction["balance_after"],
                         transaction["savings_after"],
                         transaction["description"],
+                        req_id,
                     ),
                 )
             import entertainment_store

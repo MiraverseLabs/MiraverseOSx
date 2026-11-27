@@ -252,7 +252,7 @@ def sync_run_entertainment_state(conn: sqlite3.Connection, run_id: str, state: d
                 str(a.get("origin") or "npc"),
                 str(a.get("careerStatus") or "active"),
                 str(a.get("privacyBoundary") or "guarded"),
-                str(a.get("tier") or "Emerging Newcomer"),
+                str(a.get("tier") or "Unlisted"),
                 1 if a.get("guildMember") else 0,
                 str(a.get("managerOrgId") or ""),
                 str(a.get("labelOrgId") or ""),
@@ -1022,7 +1022,7 @@ def sync_run_entertainment_state(conn: sqlite3.Connection, run_id: str, state: d
                     str(a.get("managerOrgId") or "ORG_PERFORMERS_ASSOC"),
                     cred * 10,
                     max(1, cred // 15 + 1),
-                    str(a.get("tier") or "Emerging Newcomer"),
+                    str(a.get("tier") or "Unlisted"),
                     now,
                 ),
             )

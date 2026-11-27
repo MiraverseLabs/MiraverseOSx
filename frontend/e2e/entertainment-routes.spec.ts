@@ -26,65 +26,55 @@ async function navigate(page: Page, url: string) {
 
 test('the four entertainment pilots support direct links, titles and Back/Forward', async ({ page }) => {
   const browser = await openBrowser(page);
-  const shell = browser.locator('.ent-site-shell');
+  const address = browser.getByRole('combobox', { name: 'Search VerseNet or enter a web address' });
+  const root = browser.locator('.ent-root');
 
-  await navigate(page, 'https://songbird.mer/listen');
-  await expect(shell.getByRole('heading', { name: 'Songbird Pan-Meridion Top Streaming Chart' })).toBeVisible();
-  await expect(shell.getByRole('link', { name: 'Listen & Top Charts' })).toHaveAttribute('aria-current', 'page');
-
-  await shell.getByRole('link', { name: 'Artist Studio' }).click();
-  await expect(shell.getByRole('link', { name: 'Artist Studio' })).toHaveAttribute('aria-current', 'page');
-  await expect(shell.getByRole('heading', { name: 'Performer / Professional Registration & Quick Release' })).toBeVisible();
+  await navigate(page, 'https://songbird.mer/charts');
+  await expect(root.getByRole('heading', { name: 'Songbird', level: 1 })).toBeVisible();
+  await root.getByRole('link', { name: /Artist Studio/i }).first().click();
+  await expect(address).toHaveValue(/songbird\.mer\/artist-studio/);
   await browser.getByRole('button', { name: 'Back', exact: true }).click();
-  await expect(shell.getByRole('heading', { name: 'Songbird Pan-Meridion Top Streaming Chart' })).toBeVisible();
+  await expect(address).toHaveValue(/songbird\.mer\/charts/);
   await browser.getByRole('button', { name: 'Forward', exact: true }).click();
-  await expect(shell.getByRole('link', { name: 'Artist Studio' })).toHaveAttribute('aria-current', 'page');
+  await expect(address).toHaveValue(/songbird\.mer\/artist-studio/);
 
   await navigate(page, 'https://limelight.mer/stories');
-  await expect(shell.getByRole('heading', { name: 'The Greenroom & Cover Dispatch' })).toBeVisible();
-  await expect(shell.locator('.ent-limelight-index')).toBeVisible();
+  await expect(root.getByRole('heading', { name: /Limelight/i, level: 1 })).toBeVisible();
 
-  await navigate(page, 'https://silverleafstadium.mer/box-office');
-  await expect(shell.getByRole('heading', { name: 'Live Box Office & Performance Calendar' })).toBeVisible();
-  await expect(shell.getByText(/Section guide only/)).toBeVisible();
+  await navigate(page, 'https://silverleafstadium.mer/events');
+  await expect(root.getByRole('heading', { name: 'Silverleaf Stadium', level: 1 })).toBeVisible();
 
-  await navigate(page, 'https://glasslinedesigns.mer/commissions');
-  await expect(shell.getByRole('heading', { name: 'Atelier brief' })).toBeVisible();
-  await expect(shell.locator('.ent-atelier-brief')).toBeVisible();
+  await navigate(page, 'https://glasslinedesigns.mer/collections');
+  await expect(root.getByRole('heading', { name: 'Glassline Designs', level: 1 })).toBeVisible();
 });
 
 test('Silverleaf seating stays informational and does not sell seats', async ({ page }) => {
   const browser = await openBrowser(page);
-  await navigate(page, 'https://silverleafstadium.mer/box-office?section=club-box');
-  const shell = browser.locator('.ent-site-shell');
-  const guide = shell.locator('.ent-seating-guide');
+  await navigate(page, 'https://silverleafstadium.mer/events');
+  const guide = browser.locator('.sl-bowl-card');
   await expect(guide).toBeVisible();
-  await expect(guide.getByText(/Section guide only/)).toBeVisible();
+  await expect(guide.getByRole('img', { name: /Schematic seating bowl/i })).toBeVisible();
   await expect(guide.getByRole('button', { name: /buy|purchase|checkout/i })).toHaveCount(0);
 });
 
 test('Songbird playback survives navigation within the site', async ({ page }) => {
   const browser = await openBrowser(page);
-  await navigate(page, 'https://songbird.mer/listen');
-  const shell = browser.locator('.ent-site-shell');
-  await shell.getByRole('button', { name: /^Cue track/ }).first().click();
-  const player = shell.locator('.ent-pilot-player');
-  await expect(player.locator('audio')).toHaveCount(1);
-  const before = await player.locator('audio').getAttribute('src');
+  await navigate(page, 'https://songbird.mer');
+  const root = browser.locator('.ent-root');
+  await root.locator('.sb-hero-stage .ent-btn-primary').first().click();
+  await expect(root.locator('audio')).toHaveCount(1);
+  const before = await root.locator('audio').getAttribute('src');
 
-  await shell.getByRole('link', { name: 'Industry Directory' }).click();
-  await expect(shell.getByRole('heading', { name: /Meridion Entertainment Ecosystem Directory/ })).toBeVisible();
-  await shell.getByRole('link', { name: 'Listen & Top Charts' }).click();
-
-  await expect(player.locator('audio')).toHaveCount(1);
-  expect(await player.locator('audio').getAttribute('src')).toEqual(before);
+  await root.getByRole('link', { name: /Charts/i }).first().click();
+  await expect(root.locator('audio')).toHaveCount(1);
+  expect(await root.locator('audio').getAttribute('src')).toEqual(before);
 });
 
 test('bookmarking an entertainment route reflects the current page', async ({ page }) => {
   const browser = await openBrowser(page);
-  await navigate(page, 'https://songbird.mer/listen');
+  await navigate(page, 'https://songbird.mer/charts');
   await browser.getByRole('button', { name: 'Bookmark this page', exact: true }).click();
   const remove = browser.getByRole('button', { name: 'Remove current bookmark', exact: true });
   await expect(remove).toHaveAttribute('aria-pressed', 'true');
-  await expect(browser.getByRole('tab', { name: /Listen & Top Charts/ })).toBeVisible();
+  await expect(browser.getByRole('tab', { name: /Songbird/i })).toBeVisible();
 });

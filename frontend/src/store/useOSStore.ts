@@ -35,6 +35,7 @@ import {
 import { restoreDesktopPreferences, changeDesktop, type DesktopAction, type DesktopPreferences } from './desktopPreferences';
 import { resolveAppDestination, retiredWindowDestination, type WorkspaceRequest } from './appNavigation';
 import { canAcceptInvitation, invitationForOrganization, membershipSource, organization, registerCommunicationsAuthority } from '../integration/communicationsAccess';
+import { registerOSHost } from '../integration/osHost';
 import { advanceDynamicMedia, restoreMediaStudio } from '../gameplay/MediaStudio';
 import { createMediaStudioActions, type MediaStudioActions } from './mediaStudioActions';
 import { processPublicReactions } from '../gameplay/WorldPublicationFlow';
@@ -2778,6 +2779,25 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
 registerCommunicationsAuthority(() => {
   const state = useOSStore.getState();
   return { player: state.gameplay.player, identity: state.gameplay.identity, isLoggedIn: state.isLoggedIn };
+});
+
+registerOSHost({
+  openAppWorkspace: (appId, section) => {
+    const store = useOSStore.getState();
+    if (typeof store.openAppWorkspace === 'function') {
+      store.openAppWorkspace(appId, section);
+    } else {
+      store.addWindow({ id: appId, title: appId });
+    }
+  },
+  recordWorldEvent: (params) => {
+    useOSStore.getState().recordWorldEvent(params);
+  },
+  grantPlayerRewards: ({ credits, xp }) => {
+    const store = useOSStore.getState();
+    if (credits) store.addCredits(credits);
+    if (xp) store.addXP(xp);
+  },
 });
 
 // Automatically grant full admin credentials on localhost without requiring manual activation.

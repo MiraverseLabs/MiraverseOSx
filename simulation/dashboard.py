@@ -18,6 +18,7 @@ from population import PopulationModel
 from living_world import RunConflictError
 from registry import ACTIVITY_ICONS, CitizenRegistry
 import entertainment
+import npc_intelligence
 
 
 DEFAULT_SEED = 42
@@ -51,6 +52,7 @@ NAV_PAGES: tuple[tuple[str, str], ...] = (
     ("World Overview", "🌐"),
     ("Living World Engine", "🧭"),
     ("Entertainment & Fame", "🎭"),
+    ("Systems Diagnostics", "🧠"),
     ("Citizen Registry", "👥"),
     ("Data Integrity", "🛡️"),
     ("Population Editor", "✎"),
@@ -2546,6 +2548,87 @@ def Layout(children=[]):
 
 
 @solara.component
+def SystemsDiagnostics(model: PopulationModel):
+    """Unified Solara diagnostics for intelligence, networks, institutions, validation, and performance."""
+    update_counter.get()
+    stats = npc_intelligence.population_statistics(model)
+    net = model.social_network.summary() if hasattr(model, "social_network") else {"nodes": 0, "edges": 0, "density": 0.0, "circleCount": 0, "asymmetricPairs": 0, "topInfluencers": []}
+    perf = getattr(model, "_perf_stats", {"lastStepMs": 0.0, "avgStepMs": 0.0, "stepsTimed": 0})
+    workflows = model._extensions.get("institutional_workflows", [])
+    schedules = model._extensions.get("institutional_schedules", [])
+    val_errors = model._extensions.get("validation_errors", [])
+    diffs = model._extensions.get("state_diffs", [])
+    txs = model.store.recent_transactions(model.run_id, 15) if model.run_id else []
+    audit = analyze_population_integrity(model.agents)
+    living = list(model.living_agents)
+
+    with solara.Column(gap="14px"):
+        solara.Markdown("## Systems Diagnostics & Intelligence Observatory")
+        with solara.Row(gap="12px"):
+            solara.Info(
+                f"**Performance:** last {perf.get('lastStepMs', 0):.2f} ms · avg {perf.get('avgStepMs', 0):.2f} ms ({perf.get('stepsTimed', 0)} steps)"
+            )
+            solara.Info(
+                f"**NetworkX Graph:** {net.get('nodes', 0)} nodes · {net.get('edges', 0)} directed edges · "
+                f"{net.get('circleCount', 0)} circles · {net.get('asymmetricPairs', 0)} asymmetric pairs"
+            )
+            solara.Info(
+                f"**Institutions & Integrity:** {len(workflows)} workflows · {len(schedules)} OR-Tools schedules · "
+                f"{len(val_errors)} validation errors · {audit.get('actionable_citizens', 0)} DB integrity flags"
+            )
+
+        pers = stats.get("personalityMeans", {})
+        solara.Markdown(
+            "### Personality Means (NumPy) & Population State\n"
+            f"- **Living Citizens:** {stats['livingCount']} | **Energy Mean:** {stats['energy']['mean']} | "
+            f"**Hunger Mean:** {stats['hunger']['mean']} | **Balance Median:** {stats['balance']['median']} cr\n"
+            + "- **Personality Vector:** "
+            + " · ".join(f"{k}: `{v}`" for k, v in pers.items())
+        )
+
+        # Sample NPC Decisions, Goals, Memory & Subjective Knowledge
+        sample_rows = []
+        for c in living[:12]:
+            goals = ", ".join(g.get("kind", "") for g in getattr(c, "active_goals", [])) or "none"
+            mem_cnt = len(getattr(c, "selective_memory", []))
+            know_cnt = len(getattr(c, "subjective_knowledge", {}))
+            sample_rows.append(
+                f"| {c.name} | {c.activity} | {getattr(c, 'last_decision_reason', '') or '-'} | {goals} | {mem_cnt} mem / {know_cnt} facts | {c.balance:.1f} |"
+            )
+        if sample_rows:
+            solara.Markdown(
+                "### NPC Decisions, Active Goals, Memory & Knowledge\n"
+                "| Citizen | Activity | py-trees Reason | Active Goals | Memory / Knowledge | Balance |\n"
+                "|---|---|---|---|---|---|\n" + "\n".join(sample_rows)
+            )
+
+        if workflows:
+            wf_rows = [f"| {w.get('domain')} | {w.get('title')} | `{w.get('state')}` | {w.get('institution') or '-'} |" for w in workflows[-10:]]
+            solara.Markdown(
+                "### Institutional Lifecycles (Transitions)\n"
+                "| Domain | Title | State | Institution |\n|---|---|---|---|\n" + "\n".join(wf_rows)
+            )
+
+        if txs:
+            tx_rows = [f"| {t.get('world_date', t.get('WorldDate', ''))} | {t.get('character_id', t.get('CharacterId', ''))} | {t.get('kind', t.get('Kind', ''))} | {t.get('amount', t.get('Amount', 0))} |" for t in txs[:10]]
+            solara.Markdown(
+                "### Recent Financial Transactions\n"
+                "| Date | Citizen | Kind | Amount |\n|---|---|---|---|\n" + "\n".join(tx_rows)
+            )
+
+        if val_errors:
+            err_lines = "\n".join(f"- `{e.get('context')}`: {e.get('message')} ({e.get('at')})" for e in val_errors[-8:])
+            solara.Warning(f"**Recent Pydantic Validation Errors ({len(val_errors)}):**\n{err_lines}")
+
+        if diffs:
+            latest = diffs[-1]
+            solara.Markdown(
+                f"### Latest DeepDiff Checkpoint (Ticks {latest.get('fromTick')} → {latest.get('toTick')})\n"
+                f"- Values changed: `{latest.get('valuesChangedCount', 0)}` | Added: `{latest.get('itemsAddedCount', 0)}` | Removed: `{latest.get('itemsRemovedCount', 0)}`"
+            )
+
+
+@solara.component
 def Page():
     """Miraverse Population Observatory responsive Solara shell."""
     solara.Title("Miraverse Population Observatory")
@@ -2769,6 +2852,7 @@ def Page():
                                 "World Overview": f"{living_count}/{len(model.agents)}",
                                 "Living World Engine": f"{len(model.institutions)}",
                                 "Entertainment & Fame": f"{len(model._extensions.get('artists', []))}/{len(entertainment.load_entertainment_organizations())}",
+                                "Systems Diagnostics": f"{len(model._extensions.get('validation_errors', []))} err",
                                 "Citizen Registry": f"{len(model.agents)}",
                                 "Data Integrity": f"{audit_summary['actionable_citizens']}",
                                 "Population Editor": f"{staged_count}",
@@ -2808,6 +2892,8 @@ def Page():
                             model,
                             on_inspect_citizen=handle_inspect_from_integrity,
                         )
+                    elif current_page == "Systems Diagnostics":
+                        SystemsDiagnostics(model)
                     elif current_page == "Citizen Registry":
                         CitizenRegistry(
                             model,

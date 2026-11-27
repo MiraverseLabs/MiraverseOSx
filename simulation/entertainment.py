@@ -3,6 +3,8 @@ from __future__ import annotations
 import copy
 import json
 import math
+import sqlite3
+from contextlib import closing
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -275,22 +277,25 @@ def _date_label(date_info: dict[str, Any]) -> str:
 
 
 def _fame_tier(artist: dict[str, Any]) -> str:
-    rec = float(artist.get("recognition", 0))
-    cred = float(artist.get("artisticCredibility", 0))
-    comm = float(artist.get("commercialInfluence", 0))
-    cult = float(artist.get("culturalInfluence", 0))
-    composite = rec * 0.4 + max(cred, comm) * 0.35 + cult * 0.25
-    if composite >= 78 and rec >= 68:
-        return "Meridion Icon"
-    if composite >= 56 and rec >= 48:
-        return "Realm Headliner"
-    if composite >= 34:
-        return "Established Performer"
-    if composite >= 16:
-        return "Rising Talent"
-    if composite >= 5:
-        return "Local Regular"
-    return "Emerging Newcomer"
+    composite = (
+        float(artist.get("recognition", 0)) * 0.34
+        + float(artist.get("mediaVisibility", 0)) * 0.16
+        + float(artist.get("commercialInfluence", 0)) * 0.16
+        + float(artist.get("artisticCredibility", 0)) * 0.14
+        + float(artist.get("culturalInfluence", 0)) * 0.10
+        + float(artist.get("fanLoyalty", 0)) * 0.10
+    )
+    if composite >= 80:
+        return "Realm Icon"
+    if composite >= 62:
+        return "Headliner"
+    if composite >= 42:
+        return "Established"
+    if composite >= 24:
+        return "Rising"
+    if composite >= 8:
+        return "Local"
+    return "Unlisted"
 
 
 def _ensure_artist_defaults(record: dict[str, Any], day_index: int = 0, step_index: int = 0) -> dict[str, Any]:
@@ -1305,16 +1310,17 @@ def handle_publicity_or_fan_action(run: dict[str, Any], payload: dict[str, Any])
 
 def list_organizations(model: Any) -> dict[str, Any]:
     rows: list[Any] = []
-    for database in (model.database, SOURCE_DATABASE):
+    for database in (model.store.database, SOURCE_DATABASE):
         try:
-            with world_services._connection(database) as conn:
+            with closing(sqlite3.connect(f"file:{Path(database).resolve().as_posix()}?mode=ro", uri=True)) as conn:
+                conn.row_factory = sqlite3.Row
                 rows = conn.execute(
                     "SELECT OrganizationId,Name,ShortName,Sector,Kind,Domain,Realm,Seat,Tagline,VenueCapacity "
                     "FROM EntertainmentOrganizations ORDER BY OrganizationId"
                 ).fetchall()
             if rows:
                 break
-        except Exception:
+        except sqlite3.Error:
             continue
     orgs = [dict(row) for row in rows]
     state = model._extensions
@@ -1347,7 +1353,7 @@ def list_projects(run: dict[str, Any]) -> dict[str, Any]:
                 "leadId": prod.get("directorOrLeadId"),
                 "stage": prod.get("stage"),
                 "progress": prod.get("progress"),
-                "budget": prod.get("budgetCredits"),
+                "budget": prod.get("budget", 0.0),
                 "quality": prod.get("quality"),
                 "status": prod.get("status"),
                 "milestones": prod.get("milestones", []),
@@ -1356,21 +1362,32 @@ def list_projects(run: dict[str, Any]) -> dict[str, Any]:
     return {"projects": projects}
 
 
-def list_rights(run: dict[str, Any]) -> dict[str, Any]:
-    return {"rights": copy.deepcopy(run["state"].get("rights", []))}
+def _run_entertainment_rows(model: Any, query: str) -> list[dict[str, Any]]:
+    """Read normalized run projections without creating or changing a database."""
+    with closing(sqlite3.connect(
+        f"file:{model.store.database.resolve().as_posix()}?mode=ro", uri=True
+    )) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(query, (model.run_id,)).fetchall()
+    return [{key[0].lower() + key[1:]: row[key] for key in row.keys()} for row in rows]
 
 
-def list_licensing(run: dict[str, Any]) -> dict[str, Any]:
-    rights = [r for r in run["state"].get("rights", []) if str(r.get("licenseTerms") or "").strip()]
-    return {"licenses": copy.deepcopy(rights)}
+def list_rights(model: Any) -> dict[str, Any]:
+    return {"rights": _run_entertainment_rows(model,
+        "SELECT * FROM EntertainmentRights WHERE RunId = ? ORDER BY RightId")}
 
 
-def list_royalties(run: dict[str, Any]) -> dict[str, Any]:
-    ledger = run["state"].get("revenueLedger", [])
+def list_licensing(model: Any) -> dict[str, Any]:
+    return {"licenses": [r for r in list_rights(model)["rights"] if r["licenseTerms"].strip()]}
+
+
+def list_royalties(model: Any) -> dict[str, Any]:
+    ledger = _run_entertainment_rows(model,
+        "SELECT * FROM EntertainmentRevenueLedger WHERE RunId = ? ORDER BY DayIndex, CreatedAt, EntryId")
     totals: dict[str, float] = {}
     for entry in ledger:
-        kind = str(entry.get("kind") or "other")
-        totals[kind] = round(totals.get(kind, 0.0) + float(entry.get("netAmount") or 0.0), 2)
+        kind = entry["kind"]
+        totals[kind] = round(totals.get(kind, 0.0) + float(entry["netAmount"]), 2)
     artists = [
         {
             "artistId": a.get("artistId"),
@@ -1378,9 +1395,9 @@ def list_royalties(run: dict[str, Any]) -> dict[str, Any]:
             "totalRoyaltiesEarned": a.get("totalRoyaltiesEarned", 0.0),
             "unclaimedPlayerRoyalties": a.get("unclaimedPlayerRoyalties", 0.0),
         }
-        for a in run["state"].get("artists", [])
+        for a in model._extensions.get("artists", [])
     ]
-    return {"totalsByKind": totals, "artists": artists, "entries": copy.deepcopy(ledger[-100:])}
+    return {"totalsByKind": totals, "artists": artists, "entries": ledger[-100:]}
 
 
 def list_charts(run: dict[str, Any]) -> dict[str, Any]:
@@ -1424,7 +1441,7 @@ def list_campaigns(run: dict[str, Any]) -> dict[str, Any]:
 
 
 def list_awards(run: dict[str, Any]) -> dict[str, Any]:
-    return {"awards": copy.deepcopy(run["state"].get("awardCycles", []))}
+    return {"awards": copy.deepcopy(run["state"].get("awards", []))}
 
 
 def industry_snapshot(run: dict[str, Any]) -> dict[str, Any]:
@@ -1741,12 +1758,20 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
             entry["objective"] = objectives[(clock.day_index + len(str(entry.get("orgId", "")))) % len(objectives)]
 
         # 1. Talent discovery & NPC artist onboarding (scales with eligible population and demand)
-        existing_char_ids = {a.get("characterId") for a in artists if a.get("characterId")}
+        existing_char_ids = {a.get("characterId") for a in artists if a.get("characterId")} | {
+            s.get("characterId") for s in ext.get("entertainmentStaff", []) if s.get("characterId")
+        }
         open_auditions = [a for a in auditions if a.get("status") == "open"]
         target_roster = max(4, min(80, len(living) // 3 + len(open_auditions)))
         recruit_slots = max(0, min(3, target_roster - len(artists)))
         for _ in range(recruit_slots):
-            candidates = [c for c in living if c.character_id not in existing_char_ids and _is_entertainment_candidate(c)]
+            candidates = [
+                c
+                for c in living
+                if c.character_id not in existing_char_ids
+                and not _citizen_is_player_linked(model, c.character_id)
+                and _is_entertainment_candidate(c)
+            ]
             if not candidates:
                 break
             if not any(a.get("origin") == "npc" for a in artists):
@@ -1851,7 +1876,11 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
 
         # 3. Active NPC artists record music, audition, schedule releases & concerts
         active_npc_artists = [
-            a for a in artists if a.get("origin") != "player" and a.get("careerStatus") in ("active", "comeback")
+            a
+            for a in artists
+            if a.get("origin") != "player"
+            and not _citizen_is_player_linked(model, str(a.get("characterId") or ""))
+            and a.get("careerStatus") in ("active", "comeback")
         ]
         if active_npc_artists:
             actor = active_npc_artists[clock.tick_count % len(active_npc_artists)]
@@ -1859,7 +1888,17 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
             artist_tracks = [t for t in tracks if t.get("artistId") == actor["artistId"]]
 
             catalog_target = min(12, 3 + int(float(actor.get("recognition", 0.0)) // 18))
-            if len(artist_tracks) < catalog_target and "music" in actor.get("disciplines", ["music"]):
+            has_pending_release = any(
+                r.get("artistId") == actor["artistId"] and r.get("status") == "scheduled" for r in releases
+            )
+            last_track_day = max((int(t.get("createdDay", -99)) for t in artist_tracks), default=-99)
+            release_ready = len(artist_tracks) == 0 or (clock.day_index - last_track_day) >= 3
+            if (
+                len(artist_tracks) < catalog_target
+                and not has_pending_release
+                and release_ready
+                and "music" in actor.get("disciplines", ["music"])
+            ):
                 titles = ("Glassline Nocturne", "Tidewater Signal", "Balisya Brass", "Echoes Over Angel Bay", "Velvet Static", "Elodia Windward", "Radiance After Midnight")
                 title = f"{titles[(len(tracks) + clock.day_index) % len(titles)]}"
                 new_track = add_track(
@@ -1909,7 +1948,13 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
 
             # Schedule an upcoming live venue performance if none pending for this artist
             has_scheduled_show = any(c.get("artistId") == actor["artistId"] and c.get("status") == "scheduled" for c in concerts)
-            if not has_scheduled_show and len(concerts) < 30:
+            scheduled_concerts_count = sum(1 for c in concerts if c.get("status") == "scheduled")
+            last_concert_day = max(
+                (int(c.get("scheduledDay", -99)) for c in concerts if c.get("artistId") == actor["artistId"]),
+                default=-99,
+            )
+            concert_ready = (clock.day_index - last_concert_day) >= 2
+            if not has_scheduled_show and concert_ready and scheduled_concerts_count < 12:
                 target_day = clock.day_index + 1
                 choices = _venue_choices(actor, concerts, target_day, rng)
                 if choices:
@@ -1963,8 +2008,21 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
                             "royalty",
                             round(royalty, 2),
                             f"Songbird & MMRS streaming royalty: {chosen['title']}",
+                            request_id=f"stream-royalty:{clock.tick_count}:{listener.character_id}:{chosen['trackId']}",
                         )
                     adjust_fame(art, {"recognition": 0.08, "commercialInfluence": 0.06}, clock.day_index, clock.tick_count)
+
+            # Pop Sticker radio airplay rotation for high-quality released tracks
+            radio_eligible = [t for t in playable_tracks if float(t.get("quality", 0.0)) >= 65.0]
+            if radio_eligible:
+                featured = max(
+                    radio_eligible,
+                    key=lambda t: float(t.get("quality", 0.0)) + int(t.get("streams", 0)) * 0.25 + rng.random() * 12.0,
+                )
+                featured["radioSpins"] = int(featured.get("radioSpins") or 0) + 1
+                rad_art = next((a for a in artists if a.get("artistId") == featured.get("artistId")), None)
+                if rad_art is not None:
+                    adjust_fame(rad_art, {"mediaVisibility": 0.35, "recognition": 0.2}, clock.day_index, clock.tick_count)
 
         # Execute scheduled concerts whose day/window has arrived
         settled = ext.setdefault("settled_concert_ids", [])
@@ -1986,13 +2044,25 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
             already_sold = int(concert.get("ticketsSold") or 0)
             draw_factor = min(0.95, 0.18 + (float(art.get("recognition", 10.0)) + float(art.get("fanLoyalty", 15.0))) / 160.0) if art else 0.25
 
-            # Actual living citizens buy tickets if affordable, plus wider realm audience for big rooms
-            eligible_buyers = [c for c in living if c.balance >= price + 20.0 and c.character_id != (art.get("characterId") if art else "")]
+            # Actual living citizens buy tickets if affordable, excluding player-linked citizens
+            eligible_buyers = [
+                c
+                for c in living
+                if c.balance >= price + 20.0
+                and c.character_id != (art.get("characterId") if art else "")
+                and not _citizen_is_player_linked(model, c.character_id)
+            ]
             npc_buyers = eligible_buyers[: min(len(eligible_buyers), max(1, int(len(eligible_buyers) * draw_factor * 0.35)))]
             for buyer in npc_buyers:
                 if int(concert.get("ticketsSold") or 0) >= cap:
                     break
-                model.record_transaction(buyer, "entertainment", -price, f"Ticket: {concert.get('title') or concert.get('venue')}")
+                model.record_transaction(
+                    buyer,
+                    "entertainment",
+                    -price,
+                    f"Ticket: {concert.get('title') or concert.get('venue')}",
+                    request_id=f"concert-ticket:{cid_key}:{buyer.character_id}",
+                )
                 concert["ticketsSold"] = int(concert.get("ticketsSold") or 0) + 1
                 concert.setdefault("attendeeCharacterIds", []).append(buyer.character_id)
 
@@ -2023,6 +2093,7 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
                         "performance",
                         net_payout,
                         f"Box-office settlement: {concert.get('venue')} ({total_sold} tickets)",
+                        request_id=f"concert-payout:{cid_key}",
                     )
                 fill_ratio = total_sold / max(1, cap)
                 adjust_fame(
@@ -2096,12 +2167,47 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
                     if art.get("origin") == "player" or _citizen_is_player_linked(model, char_id):
                         art["unclaimedPlayerRoyalties"] = round(float(art.get("unclaimedPlayerRoyalties") or 0.0) + stipend, 2)
                     elif char_id in citizens_by_id:
-                        model.record_transaction(citizens_by_id[char_id], "commission", stipend, f"Booked role: {aud['title']}")
+                        model.record_transaction(
+                            citizens_by_id[char_id],
+                            "commission",
+                            stipend,
+                            f"Booked role: {aud['title']}",
+                            request_id=f"audition-stipend:{aud['auditionId']}",
+                        )
                     adjust_fame(
                         art,
                         {"industryReputation": 3.5, "artisticCredibility": 2.8, "recognition": 2.2},
                         clock.day_index,
                         clock.tick_count,
+                    )
+                    ext.setdefault("productions", []).append(
+                        {
+                            "productionId": str(uuid.uuid4()),
+                            "title": aud["title"],
+                            "kind": aud.get("discipline", "acting"),
+                            "studioOrgId": aud.get("productionOrgId", aud.get("orgId", "ORG_MIRRORA_STUDIOS")),
+                            "castArtistIds": [art["artistId"]],
+                            "budget": round(stipend * 6.0, 2),
+                            "budgetCredits": round(stipend * 6.0, 2),
+                            "stipendCredits": stipend,
+                            "stage": "production",
+                            "progress": 25.0,
+                            "quality": round(min(96.0, 62.0 + float(art.get("artisticCredibility", 20.0)) * 0.3), 1),
+                            "status": "in_production",
+                            "scheduledDay": clock.day_index + 3,
+                            "createdAt": _now(),
+                        }
+                    )
+
+            # Advance and release due autonomous productions
+            for prod in ext.get("productions", []):
+                if prod.get("status") != "in_production":
+                    continue
+                prod["progress"] = min(100.0, float(prod.get("progress") or 0.0) + 35.0)
+                if int(prod.get("scheduledDay", 0)) <= clock.day_index or prod["progress"] >= 100.0:
+                    create_or_advance_production(
+                        run_env,
+                        {"action": "complete", "productionId": prod["productionId"], "acclaim": prod.get("quality", 74.0)},
                     )
 
             # Expire finished contracts
@@ -2112,20 +2218,24 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
             # Natural fame decay for prolonged inactivity + occasional celebrity relationship or controversy
             for art in artists:
                 _ensure_artist_defaults(art, clock.day_index, clock.tick_count)
+                is_player_art = art.get("origin") == "player" or _citizen_is_player_linked(model, str(art.get("characterId") or ""))
                 idle_days = clock.day_index - int(art.get("lastActiveDay", clock.day_index))
                 if idle_days >= 5 and art.get("careerStatus") == "active":
                     art["mediaVisibility"] = _clamp(float(art["mediaVisibility"]) - 1.5)
                     art["recognition"] = _clamp(float(art["recognition"]) - 0.6)
-                    if idle_days >= 18 and art.get("origin") != "player":
+                    if idle_days >= 18 and not is_player_art:
                         art["careerStatus"] = "hiatus"
-                elif art.get("careerStatus") == "hiatus" and idle_days >= 10 and art.get("origin") != "player" and rng.random() < 0.25:
+                elif art.get("careerStatus") == "hiatus" and idle_days >= 10 and not is_player_art and rng.random() < 0.25:
                     art["careerStatus"] = "comeback"
                     adjust_fame(art, {"mediaVisibility": 6.0, "fanLoyalty": 3.0}, clock.day_index, clock.tick_count)
                 art["tier"] = _fame_tier(art)
 
-            # Occasional controversy or celebrity collaboration
-            if len(artists) >= 2 and clock.day_index % 4 == 0:
-                pair = rng.sample(artists, 2)
+            # Occasional controversy or celebrity collaboration (NPC artists only)
+            npc_pool = [
+                a for a in artists if a.get("origin") != "player" and not _citizen_is_player_linked(model, str(a.get("characterId") or ""))
+            ]
+            if len(npc_pool) >= 2 and clock.day_index % 4 == 0:
+                pair = rng.sample(npc_pool, 2)
                 if rng.random() < 0.65:
                     for member in pair:
                         adjust_fame(member, {"culturalInfluence": 2.0, "fanLoyalty": 1.5, "mediaVisibility": 2.5}, clock.day_index, clock.tick_count)

@@ -11,6 +11,12 @@ import { employed, stationTrack } from '../workplaceModel';
 import { INSTITUTIONAL_REGISTRY } from '../worknetData';
 import type { WorkplaceStationId } from '../../JobWorkstationApp';
 import { ENTERTAINMENT_DISCIPLINES, restoreEntertainmentState } from '../../../gameplay/EntertainmentEcosystem';
+import {
+  getCitizenRecommendations,
+  optimizeInstitutionalSchedule,
+  resolveActiveRun,
+  transitionInstitutionalWorkflow,
+} from '../../../integration/livingWorldLink';
 
 interface WorknetCareerRecordProps {
   activeStation: WorkplaceStationId;
@@ -28,6 +34,78 @@ export default function WorknetCareerRecord({
   onFeedback
 }: WorknetCareerRecordProps) {
   const player = useOSStore(s => s.gameplay.player);
+  const [simOpsNotice, setSimOpsNotice] = useState<string>('');
+  const [simRecs, setSimRecs] = useState<{ careers: any[]; social: any[] } | null>(null);
+  const [simSchedule, setSimSchedule] = useState<any | null>(null);
+  const [simBusy, setSimBusy] = useState(false);
+
+  const handleLoadRecommendations = async () => {
+    setSimBusy(true);
+    try {
+      const link = useOSStore.getState().gameplay.livingWorldLink || null;
+      const runId = await resolveActiveRun(link);
+      if (!runId) { setSimOpsNotice('No active Living World run connected.'); return; }
+      const charId = link?.characterId || '';
+      const res = await getCitizenRecommendations(runId, charId);
+      setSimRecs({
+        careers: res.recommendations?.careerRecommendations || [],
+        social: res.recommendations?.socialRecommendations || [],
+      });
+      setSimOpsNotice(`Loaded Scikit-learn recommendations for ${res.recommendations?.name || 'citizen'}.`);
+    } catch (error) {
+      setSimOpsNotice(error instanceof Error ? error.message : 'Living World recommendations unavailable.');
+    } finally {
+      setSimBusy(false);
+    }
+  };
+
+  const handleOptimizeShifts = async () => {
+    setSimBusy(true);
+    try {
+      const link = useOSStore.getState().gameplay.livingWorldLink || null;
+      const runId = await resolveActiveRun(link);
+      if (!runId) { setSimOpsNotice('No active Living World run connected.'); return; }
+      const instName = INSTITUTIONAL_REGISTRY[activeStation]?.name || String(activeStation);
+      const res = await optimizeInstitutionalSchedule(runId, {
+        institution: instName,
+        staffIds: [link?.characterId || 'PLAYER', 'STAFF-ALPHA', 'STAFF-BETA'],
+        slots: [
+          { slotId: 'am-ops', label: 'Morning Operations', day: 0, period: 'morning', requiredStaff: 1 },
+          { slotId: 'am-desk', label: 'Morning Intake', day: 0, period: 'morning', requiredStaff: 1 },
+          { slotId: 'pm-ops', label: 'Afternoon Shift', day: 0, period: 'afternoon', requiredStaff: 1 },
+        ],
+      });
+      setSimSchedule(res.result);
+      setSimOpsNotice(`OR-Tools solved ${instName} schedule (${res.result?.status || 'ok'}, spread ${res.result?.workloadSpread ?? 0}).`);
+    } catch (error) {
+      setSimOpsNotice(error instanceof Error ? error.message : 'OR-Tools scheduler unavailable.');
+    } finally {
+      setSimBusy(false);
+    }
+  };
+
+  const handleAdvanceCareerWorkflow = async () => {
+    setSimBusy(true);
+    try {
+      const link = useOSStore.getState().gameplay.livingWorldLink || null;
+      const runId = await resolveActiveRun(link);
+      if (!runId) { setSimOpsNotice('No active Living World run connected.'); return; }
+      const instName = INSTITUTIONAL_REGISTRY[activeStation]?.name || String(activeStation);
+      const res = await transitionInstitutionalWorkflow(runId, {
+        domain: 'application',
+        trigger: 'submit',
+        subjectId: link?.characterId || 'PLAYER',
+        institution: instName,
+        title: `${instName} Career Application`,
+        actorId: link?.characterId || 'PLAYER',
+      });
+      setSimOpsNotice(`Transitions workflow ${res.result?.workflowId?.slice(0, 8)} moved to "${res.result?.state}".`);
+    } catch (error) {
+      setSimOpsNotice(error instanceof Error ? error.message : 'Workflow service unavailable.');
+    } finally {
+      setSimBusy(false);
+    }
+  };
   const worknetSim = useOSStore(s => s.worknetSim);
   const currentCycle = useOSStore(s => s.gameplay.timeCycleCount) ?? 0;
   const requestCareerPromotion = useOSStore(s => s.requestCareerPromotion);
@@ -657,6 +735,61 @@ export default function WorknetCareerRecord({
           </section>
         );
       })()}
+
+      {/* Living World Institutional Operations & Recommendations */}
+      <section className="worknet-card mt-4 space-y-3">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <span className="worknet-kicker">Living World Simulation Services</span>
+            <h3 className="text-sm font-bold text-slate-900">
+              Institutional Scheduling, Lifecycles &amp; Career Matching
+            </h3>
+            <p className="text-xs text-slate-600">
+              Run OR-Tools shift optimization, advance Transitions workflows, or fetch Scikit-learn career &amp; social matches for your active run.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" disabled={simBusy} onClick={() => void handleLoadRecommendations()} className="worknet-btn-secondary text-xs">
+              Career &amp; Social Matches
+            </button>
+            <button type="button" disabled={simBusy} onClick={() => void handleOptimizeShifts()} className="worknet-btn-secondary text-xs">
+              Optimize Shifts (OR-Tools)
+            </button>
+            <button type="button" disabled={simBusy} onClick={() => void handleAdvanceCareerWorkflow()} className="worknet-btn-primary text-xs">
+              Submit Workflow
+            </button>
+          </div>
+        </div>
+        {simOpsNotice && <p className="text-xs font-medium text-indigo-800 bg-indigo-50 border border-indigo-200 rounded-md px-3 py-1.5" role="status">{simOpsNotice}</p>}
+        {simRecs && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+              <div className="font-semibold text-slate-900 mb-1">Recommended Careers</div>
+              {simRecs.careers.length ? simRecs.careers.slice(0, 4).map((c: any) => (
+                <div key={c.canonicalId} className="text-slate-700">• {c.name} ({c.archetype}) — {Math.round((c.matchScore || 0) * 100)}%</div>
+              )) : <div className="text-slate-500">No career matches returned.</div>}
+            </div>
+            <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+              <div className="font-semibold text-slate-900 mb-1">Similar Citizens (Network)</div>
+              {simRecs.social.length ? simRecs.social.slice(0, 4).map((s: any) => (
+                <div key={s.characterId} className="text-slate-700">• {s.name} ({s.realm}) — {Math.round((s.similarity || 0) * 100)}%</div>
+              )) : <div className="text-slate-500">No similar citizens returned.</div>}
+            </div>
+          </div>
+        )}
+        {simSchedule && Array.isArray(simSchedule.assignments) && simSchedule.assignments.length > 0 && (
+          <div className="p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/50 text-xs">
+            <div className="font-semibold text-emerald-950 mb-1">
+              Solved Shift Roster — {simSchedule.institution} ({simSchedule.status})
+            </div>
+            {simSchedule.assignments.map((slot: any) => (
+              <div key={slot.slotId} className="text-emerald-900">
+                • {slot.label} ({slot.period}): {(slot.assignedStaff || []).join(', ')}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

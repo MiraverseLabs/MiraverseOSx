@@ -1,0 +1,33 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "index.html",
+    "src/index.tsx",
+    "src/App.tsx",
+    "playwright.config.ts",
+    ".versenet-pilot-review.config.ts",
+    ".storybook/main.ts",
+    ".storybook/preview.tsx",
+    "src/stories/**/*.stories.tsx",
+    "e2e/**/*.spec.ts",
+    "tests/**/*.test.mjs",
+    "scripts/storybook.mjs",
+    "scripts/typecheck-ratchet.mjs",
+    "scripts/verify-glassline.mjs",
+    "scripts/verify-media-studio.mjs"
+  ],
+  "project": [
+    "src/**/*.{ts,tsx,css}",
+    "e2e/**/*.ts",
+    "tests/**/*.mjs",
+    "scripts/**/*.mjs",
+    ".storybook/**/*.{ts,tsx}",
+    "*.config.{ts,js,mjs}",
+    ".versenet-pilot-review.config.ts"
+  ],
+  "ignoreUnresolved": [
+    "^/src/"
+  ],
+  "ignoreExportsUsedInFile": false,
+  "includeEntryExports": false
+}

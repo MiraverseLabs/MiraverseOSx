@@ -2,9 +2,11 @@ import json
 import copy
 import re
 import sqlite3
+import time
 import uuid
 from collections import Counter, defaultdict
 from contextlib import closing
+from datetime import datetime, timezone
 from pathlib import Path
 
 import mesa
@@ -20,6 +22,8 @@ from living_world import (
 from overrides_store import load_all_overrides
 from profiles_normalizer import normalize_character_profile
 import entertainment
+import npc_intelligence
+import reliability
 
 
 from paths import RUN_DATABASE as DATABASE, SOURCE_DATABASE, WORLD_REFERENCE
@@ -162,10 +166,41 @@ class Citizen(mesa.Agent):
         self.sociability = self.random.random()
 
         self.activity = "Resting"
+        self.personality: dict[str, float] = {}
+        self.active_goals: list[dict] = []
+        self.selective_memory: list[dict] = []
+        self.subjective_knowledge: dict[str, dict] = {}
+        self.interrupted_activity: str = ""
+        self.last_decision_reason: str = ""
 
         # Apply context-aware profile normalization + optional staged override
         self.normalized = {}
         self.apply_normalization(staged_override)
+        traits_blob = " ".join(
+            str(x)
+            for x in (
+                self.primary_occupation,
+                self.role,
+                *(self.preferences or []),
+                *(self.motivations or []),
+                *(self.hobbies or []),
+            )
+        )
+        self.personality = npc_intelligence.compute_personality_vector(
+            self.character_id,
+            traits_text=traits_blob,
+            sociability=self.sociability,
+            music_interest=self.music_interest,
+        )
+        if not self.active_goals:
+            goal_kind = (
+                "creative_mastery"
+                if self.character_classification == "Entertainment professional"
+                else "career_growth"
+                if self.primary_occupation
+                else "social_connection"
+            )
+            self.active_goals = [{"kind": goal_kind, "priority": 0.7}]
 
     def get_attribute(self, key):
 
@@ -337,51 +372,37 @@ class Citizen(mesa.Agent):
         scheduled = self.model.scheduled_activity(self)
         if scheduled == "Commuting":
             self.model.advance_travel(self)
-        if scheduled == "Sleeping" or self.energy < 20:
-            self.activity = "Sleeping"
-            self.energy = min(100, self.energy + 12 * update_scale)
-        elif self.hunger >= 70 or scheduled == "Eating":
-            self.activity = "Eating"
-            self.hunger = max(0, self.hunger - 55)
-        elif self.hygiene_need >= 75 or scheduled == "Hygiene":
-            self.activity = "Hygiene"
-            self.hygiene_need = max(0, self.hygiene_need - 65)
-        elif (
-            self.social_need >= 65
-            and self.character_classification != "Investigation subject"
-        ):
-            self.activity = "Socializing"
-            self.social_need = max(0, self.social_need - 25)
-        elif self.exercise_need >= 80 or scheduled == "Exercise":
-            self.activity = "Exercise"
-            self.exercise_need = max(0, self.exercise_need - 65)
-            self.energy = max(0, self.energy - 5)
-        elif self.leisure_need >= 75 or scheduled == "Leisure":
-            self.activity = "Entertainment"
-            self.leisure_need = max(0, self.leisure_need - 60)
-        elif self.energy < 40 or self.behavior_override == "Focus: Rest & Recovery":
-            self.activity = "Resting"
-            self.energy = min(100, self.energy + 6 * update_scale)
-        elif scheduled is not None:
-            self.activity = scheduled
-        elif self.behavior_override == "Focus: Creative & Entertainment":
-            self.activity = self.random.choices(
-                ["Entertainment", "Creative & studio work", "Socializing"],
-                weights=[1.2, 1.0, 0.5],
-                k=1,
-            )[0]
-        elif self.behavior_override == "Focus: Career & Institutional":
-            self.activity = "Civic & professional duties"
-        elif self.behavior_override == "Focus: Social & Community":
-            self.activity = "Socializing"
-            self.social_need = max(0, self.social_need - 15)
-        else:
-            self._choose_autonomous_activity(clock.hour)
+
+        chosen_activity, _ = npc_intelligence.NPCBehaviorController.decide_activity(
+            self,
+            scheduled=scheduled,
+            hour=clock.hour,
+            update_scale=update_scale,
+            day_index=clock.day_index,
+        )
+        self.activity = chosen_activity
 
         if self.activity in ("Entertainment", "Creative & studio work", "Relaxing"):
             self.leisure_need = max(0, self.leisure_need - 20)
         if self.activity == "Socializing":
             self.social_need = max(0, self.social_need - 10)
+            if self.relationship_links and hasattr(self.model, "social_network"):
+                target_edge = self.relationship_links[clock.tick_count % len(self.relationship_links)]
+                target_id = str(target_edge.get("target_id") or "")
+                if target_id:
+                    self.model.social_network.record_interaction(
+                        self.character_id,
+                        target_id,
+                        kind=str(target_edge.get("kind") or "acquaintance"),
+                        day_index=clock.day_index,
+                    )
+        self.personality = npc_intelligence.evolve_personality(
+            self.personality,
+            activity=self.activity,
+            energy=self.energy,
+            social_need=self.social_need,
+            step_scale=update_scale,
+        )
         self.model.process_citizen_activity(self, old_activity)
 
     def _choose_autonomous_activity(self, hour: int) -> None:
@@ -483,6 +504,12 @@ class Citizen(mesa.Agent):
             "schedule_mode",
             "age_years",
             "life_stage",
+            "personality",
+            "active_goals",
+            "selective_memory",
+            "subjective_knowledge",
+            "interrupted_activity",
+            "last_decision_reason",
         )
         return {field: getattr(self, field) for field in fields}
 
@@ -528,7 +555,13 @@ class PopulationModel(mesa.Model):
             DEFAULT_CALENDAR_CONFIG if calendar_config is None else calendar_config
         )
         self._is_playing = False
+        self._was_playing_on_load = bool(saved_state.get("playing")) if saved_state else False
+        self._last_saved_at = str(saved_run.get("updated_at") or "") if saved_run else ""
         self._pending_transactions: list[dict] = []
+        self.social_network = npc_intelligence.SocialNetworkManager()
+        self.recommender = npc_intelligence.PreferenceRecommender()
+        self._perf_stats: dict[str, float | int] = {"lastStepMs": 0.0, "avgStepMs": 0.0, "stepsTimed": 0}
+        self._last_audit_snapshot: dict | None = None
         self.run_id = saved_run["run_id"] if saved_run else ""
         self.run_name = (
             saved_run["name"]
@@ -543,9 +576,16 @@ class PopulationModel(mesa.Model):
 
         overrides = load_all_overrides()
         source_characters = load_characters() if characters is None else characters
+        loaded_ids: set[str] = set()
         for character in source_characters:
             cid = character["CharacterId"]
+            loaded_ids.add(cid)
             Citizen(self, character, staged_override=overrides.get(cid))
+        for proc_char in self._extensions.get("procedural_citizens", []):
+            pcid = proc_char.get("CharacterId")
+            if pcid and pcid not in loaded_ids:
+                loaded_ids.add(pcid)
+                Citizen(self, proc_char, staged_override=None)
 
         self._orphan_citizens = {cid: copy.deepcopy(v) for cid,v in (saved_state or {}).get("citizens", {}).items() if not any(c.character_id == cid for c in self.agents)}
         if saved_state:
@@ -933,6 +973,7 @@ class PopulationModel(mesa.Model):
         description: str,
         *,
         savings: bool = False,
+        request_id: str | None = None,
     ) -> None:
         if savings:
             citizen.savings += amount
@@ -957,6 +998,7 @@ class PopulationModel(mesa.Model):
                 "balance_after": balance_after,
                 "savings_after": savings_after,
                 "description": description,
+                **({"request_id": str(request_id)} if request_id else {}),
             }
         )
 
@@ -1017,6 +1059,11 @@ class PopulationModel(mesa.Model):
             ):
                 citizen.last_rent_day = self.world_clock.day_index
                 self.record_transaction(citizen, "housing", -50.0, "Weekly housing expense")
+        self.social_network.decay_relationships(self.world_clock.day_index)
+        current_snap = reliability.WorldStateAuditor.snapshot_summary(self)
+        if self._last_audit_snapshot is not None:
+            reliability.WorldStateAuditor.record_diff(self, self._last_audit_snapshot, current_snap)
+        self._last_audit_snapshot = current_snap
 
     def _rebuild_world_graph(self) -> None:
         by_name: dict[str, Citizen] = {}
@@ -1169,6 +1216,7 @@ class PopulationModel(mesa.Model):
         self.institutions = sorted(
             institutions.values(), key=lambda institution: institution["name"].casefold()
         )
+        self.social_network.rebuild_from_model(self)
 
     def _export_state(self) -> dict:
         return {
@@ -1259,6 +1307,35 @@ class PopulationModel(mesa.Model):
             self._defer_persistence = False
         self.save()
 
+    def catch_up_offline(
+        self,
+        *,
+        now: datetime | None = None,
+        seconds_per_step: float = 60.0,
+        max_steps: int = 144,
+    ) -> int:
+        """Advance a running simulation for bounded offline wall-clock elapsed time."""
+        if not (self._is_playing or self._was_playing_on_load) or not self._last_saved_at:
+            return 0
+        if seconds_per_step <= 0 or max_steps <= 0:
+            return 0
+        try:
+            last_dt = datetime.fromisoformat(self._last_saved_at)
+        except ValueError:
+            return 0
+        if last_dt.tzinfo is None:
+            last_dt = last_dt.replace(tzinfo=timezone.utc)
+        current_dt = now or datetime.now(timezone.utc)
+        if current_dt.tzinfo is None:
+            current_dt = current_dt.replace(tzinfo=timezone.utc)
+        elapsed = max(0.0, (current_dt - last_dt).total_seconds())
+        steps = min(int(max_steps), 1440, int(elapsed // seconds_per_step))
+        if steps <= 0:
+            return 0
+        self.advance_steps(steps)
+        self._last_saved_at = current_dt.isoformat(timespec="seconds")
+        return steps
+
     def set_playing(self, playing: bool) -> None:
         self._is_playing = bool(playing)
         self.save()
@@ -1294,11 +1371,45 @@ class PopulationModel(mesa.Model):
         self._rebuild_world_graph()
         self.save()
 
+    def spawn_procedural_citizens(
+        self, count: int = 1, *, realm: str | None = None, seed: int | None = None
+    ) -> list[dict]:
+        """Spawn bounded noncanonical Faker background citizens into this run without altering miraverse.db."""
+        existing_proc: list[dict] = self._extensions.setdefault("procedural_citizens", [])
+        remaining_cap = max(0, npc_intelligence.MAX_PROCEDURAL_CITIZENS - len(existing_proc))
+        to_create = min(max(0, int(count)), remaining_cap)
+        existing_ids = {c.character_id for c in self.agents}
+        created: list[dict] = []
+        for idx in range(to_create):
+            char_seed = (int(seed) + idx) if seed is not None else None
+            record = npc_intelligence.generate_background_citizen(
+                seed=char_seed, realm=realm, existing_ids=existing_ids
+            )
+            existing_ids.add(record["CharacterId"])
+            existing_proc.append(record)
+            Citizen(self, record, None)
+            created.append(
+                {
+                    "characterId": record["CharacterId"],
+                    "name": record["Name"],
+                    "realm": record["profiles"][0]["data"]["realm"],
+                    "occupation": record["profiles"][0]["data"]["role"],
+                    "workplace": record["profiles"][0]["data"]["affiliation"],
+                    "canonical": False,
+                }
+            )
+        if created:
+            self._rebuild_world_graph()
+        return created
+
     def step(self):
         if self.run_id and not self._defer_persistence:
             record = next((r for r in self.store.list_runs() if r["RunId"] == self.run_id), None)
             if record is None or record["Revision"] != self._revision:
                 raise RunConflictError("This run changed in another client. Reload it before advancing.")
+        t0 = time.perf_counter()
+        if self._last_audit_snapshot is None:
+            self._last_audit_snapshot = reliability.WorldStateAuditor.snapshot_summary(self)
         previous_year = self.current_world_date()["year"]
         self.agents.shuffle_do("step")
         self.datacollector.collect(self)
@@ -1308,6 +1419,12 @@ class PopulationModel(mesa.Model):
         if day_rolled:
             self._on_new_day(previous_year)
         entertainment.step_entertainment(self, day_rolled=day_rolled, previous_year=previous_year)
+        elapsed_ms = (time.perf_counter() - t0) * 1000.0
+        n = int(self._perf_stats["stepsTimed"]) + 1
+        prev_avg = float(self._perf_stats["avgStepMs"])
+        self._perf_stats["lastStepMs"] = round(elapsed_ms, 3)
+        self._perf_stats["avgStepMs"] = round(prev_avg + (elapsed_ms - prev_avg) / n, 3)
+        self._perf_stats["stepsTimed"] = n
         # Persist immediately on manual steps/scripts; checkpoint daily during high-speed Play (Pause also saves)
         if not self._is_playing or day_rolled:
             self.save()

@@ -10,7 +10,7 @@
  */
 
 import { MaidIdentityService, type CanonicalPerson, type LookupResult } from '../services/maidIdentityService';
-import { useOSStore } from '../store/useOSStore';
+import { openOSAppWorkspace, recordOSWorldEvent } from './osHost';
 
 export interface CitizenRecordRef {
   id: string; // MAID or legacy ID
@@ -157,32 +157,14 @@ export function openCitizenInApp(
   };
   setActiveCitizenContext(ctx);
 
-  try {
-    const store = useOSStore.getState();
-    if (typeof store.openAppWorkspace === 'function') {
-      store.openAppWorkspace(targetAppId, options?.targetTab);
-    } else {
-      store.addWindow({ id: targetAppId, title: targetAppId });
-    }
-  } catch {
-    // Fallback if store not mounted
-  }
+  openOSAppWorkspace(targetAppId, options?.targetTab);
 }
 
 /**
  * Launches or focuses any MiraverseOSx desktop application by its app ID.
  */
 export function launchDesktopApp(targetAppId: string): void {
-  try {
-    const store = useOSStore.getState();
-    if (typeof store.openAppWorkspace === 'function') {
-      store.openAppWorkspace(targetAppId);
-    } else {
-      store.addWindow({ id: targetAppId, title: targetAppId });
-    }
-  } catch {
-    // Fallback if store not mounted
-  }
+  openOSAppWorkspace(targetAppId);
 }
 
 /**
@@ -214,18 +196,14 @@ export async function syncFaithMedicalUpdate(
   });
 
   if (res.success) {
-    try {
-      useOSStore.getState().recordWorldEvent({
-        category: 'medical',
-        institution: 'Faith Medical / CitizenBridge',
-        citizenMaid: p.maid || p.id,
-        title: `Clinical Record Sync: ${p.name}`,
-        summary: `Faith Medical updated ${p.name} (${p.maid || p.id}): ${clinicalUpdate.medicalSummary}.`,
-        tags: ['faith-medical', 'citizen-bridge', p.maid || p.id]
-      });
-    } catch {
-      // ignore if store unmounted
-    }
+    recordOSWorldEvent({
+      category: 'medical',
+      institution: 'Faith Medical / CitizenBridge',
+      citizenMaid: p.maid || p.id,
+      title: `Clinical Record Sync: ${p.name}`,
+      summary: `Faith Medical updated ${p.name} (${p.maid || p.id}): ${clinicalUpdate.medicalSummary}.`,
+      tags: ['faith-medical', 'citizen-bridge', p.maid || p.id]
+    });
   }
   return res;
 }
@@ -266,18 +244,14 @@ export async function syncCyacademyOrCivicUpdate(
   });
 
   if (res.success) {
-    try {
-      useOSStore.getState().recordWorldEvent({
-        category: 'civic',
-        institution: 'CAMPUS / CitizenBridge',
-        citizenMaid: p.maid || p.id,
-        title: `Civic & Academic Sync: ${p.name}`,
-        summary: civicUpdate.academicNote || `Updated civic affiliation/residency for ${p.name} (${p.maid || p.id}).`,
-        tags: ['cyacademy', 'citizen-bridge', p.maid || p.id]
-      });
-    } catch {
-      // ignore
-    }
+    recordOSWorldEvent({
+      category: 'civic',
+      institution: 'CAMPUS / CitizenBridge',
+      citizenMaid: p.maid || p.id,
+      title: `Civic & Academic Sync: ${p.name}`,
+      summary: civicUpdate.academicNote || `Updated civic affiliation/residency for ${p.name} (${p.maid || p.id}).`,
+      tags: ['cyacademy', 'citizen-bridge', p.maid || p.id]
+    });
   }
   return res;
 }
@@ -310,18 +284,14 @@ export async function syncDgaInvestigativeUpdate(
   });
 
   if (res.success) {
-    try {
-      useOSStore.getState().recordWorldEvent({
-        category: 'forensic',
-        institution: 'DGAOS / TRACE',
-        citizenMaid: p.maid || p.id,
-        title: `DGAOS Investigative Sync${caseTag}: ${p.name}`,
-        summary: dgaUpdate.investigativeNote,
-        tags: ['dgaos', 'trace', 'citizen-bridge', p.maid || p.id, ...(dgaUpdate.caseId ? [dgaUpdate.caseId] : [])]
-      });
-    } catch {
-      // ignore
-    }
+    recordOSWorldEvent({
+      category: 'forensic',
+      institution: 'DGAOS / TRACE',
+      citizenMaid: p.maid || p.id,
+      title: `DGAOS Investigative Sync${caseTag}: ${p.name}`,
+      summary: dgaUpdate.investigativeNote,
+      tags: ['dgaos', 'trace', 'citizen-bridge', p.maid || p.id, ...(dgaUpdate.caseId ? [dgaUpdate.caseId] : [])]
+    });
   }
   return res;
 }

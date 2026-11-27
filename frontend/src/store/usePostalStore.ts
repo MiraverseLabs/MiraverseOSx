@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { grantOSPlayerRewards } from '../integration/osHost';
 import {
   FORMATTED_PLAYER_ADDRESS,
   POSTAGE_RATES,
@@ -105,11 +106,7 @@ export const usePostalStore = create<PostalStoreState>()(
         }));
 
         if (shouldReward && reward) {
-          void import('./useOSStore').then(({ useOSStore }) => {
-            const os = useOSStore.getState();
-            if (reward.credits) os.addCredits(reward.credits);
-            if (reward.xp) os.addXP(reward.xp);
-          }).catch(() => {});
+          grantOSPlayerRewards({ credits: reward.credits, xp: reward.xp });
         }
 
         const parts: string[] = [];
