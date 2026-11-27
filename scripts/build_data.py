@@ -72,8 +72,8 @@ def main():
     if not os.path.exists(DB_PATH):
         raise SystemExit(
             f'\n  ✗  {DB_PATH} not found.\n'
-            '     Open DataGrip → connect to miraverse.db → run miraverse_schema.sql\n'
-            '     then populate your tables before running this script.\n'
+            '     Rebuild it from the tracked catalogue sources with:  npm run db:bootstrap\n'
+            '     (or open DataGrip → connect to miraverse.db → run miraverse_schema.sql).\n'
         )
 
     con = sqlite3.connect(f'file:{DB_PATH}?mode=ro', uri=True)

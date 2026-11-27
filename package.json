@@ -14,6 +14,7 @@
     "typecheck": "npm run typecheck --prefix frontend",
     "typecheck:strict": "npm run typecheck:strict --prefix frontend",
     "db:checkpoint": "python scripts/db_checkpoint.py",
+    "db:bootstrap": "python scripts/bootstrap_db.py",
     "test:backend": "node -e \"import { spawnSync, execSync } from 'child_process'; let ps = 'powershell'; try { execSync('pwsh -v', { stdio: 'ignore' }); ps = 'pwsh'; } catch {} process.exit(spawnSync(ps, ['-NoProfile', '-File', 'scripts/test_backend_world.ps1'], { stdio: 'inherit' }).status ?? 1);\"",
     "test:ai-routing": "dotnet run --project tests/AiRoutingTests/AiRoutingTests.csproj",
     "test:ai": "node -e \"import { spawnSync, execSync } from 'child_process'; let ps = 'powershell'; try { execSync('pwsh -v', { stdio: 'ignore' }); ps = 'pwsh'; } catch {} process.exit(spawnSync(ps, ['-NoProfile', '-File', 'scripts/test_backend_ai.ps1'], { stdio: 'inherit' }).status ?? 1);\"",
