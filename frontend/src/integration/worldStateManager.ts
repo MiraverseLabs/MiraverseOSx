@@ -364,8 +364,8 @@ export async function restoreWorldCheckpoint(
         }
         if (restoredOs?.state?.gameplay) {
           restoredOs.state.gameplay.worldEventLog = combinedLog;
-          const restoredMedia = Array.isArray(restoredOs.state.gameplay.publishedMediaArtifacts) ? restoredOs.state.gameplay.publishedMediaArtifacts : [];
-          const canonMedia = (currentOs?.state?.gameplay?.publishedMediaArtifacts || []).filter(a => a.verificationTier === 'canon_official');
+          const restoredMedia: Array<{ id?: string; verificationTier?: string }> = Array.isArray(restoredOs.state.gameplay.publishedMediaArtifacts) ? restoredOs.state.gameplay.publishedMediaArtifacts : [];
+          const canonMedia: Array<{ id?: string; verificationTier?: string }> = (currentOs?.state?.gameplay?.publishedMediaArtifacts || []).filter((a: { verificationTier?: string }) => a.verificationTier === 'canon_official');
           const mediaIds = new Set(restoredMedia.map(a => a.id));
           restoredOs.state.gameplay.publishedMediaArtifacts = [...restoredMedia, ...canonMedia.filter(a => !mediaIds.has(a.id))];
           storage.setItem(OS_PROGRESS_KEY, JSON.stringify(restoredOs));

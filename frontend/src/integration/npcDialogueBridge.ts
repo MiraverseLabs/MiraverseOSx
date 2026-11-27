@@ -8,5 +8,5 @@ export function logNpcDialogue(npcName: string, prompt: string): void {
     const message = JSON.stringify({ action: 'npc_dialogue', payload: entry });
     try { (window as any)?.chrome?.webview?.postMessage?.(message); } catch { /* optional host */ }
     try { (window as any)?.external?.sendMessage?.(message); } catch { /* optional host */ }
-  }).catch(() => undefined);
+  }).catch((): void => undefined);
 }

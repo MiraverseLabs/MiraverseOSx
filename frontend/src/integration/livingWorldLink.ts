@@ -206,7 +206,7 @@ export async function resolveActiveRun(link: LivingWorldLink | null): Promise<st
 // Serialize synchronization work so time and money updates never race.
 let queue: Promise<void> = Promise.resolve();
 export function enqueue(task: () => Promise<void>): Promise<void> {
-  queue = queue.then(task).catch(() => undefined);
+  queue = queue.then(task).catch((): void => undefined);
   return queue;
 }
 
