@@ -71,3 +71,4 @@ miraverse.db-shm
 
 # Local build log
 build.log
+.dyad/
