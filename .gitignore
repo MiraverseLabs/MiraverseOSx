@@ -56,8 +56,10 @@ MiraverseOSx/
 
 # On-demand external reference checkouts are kept outside application source.
 /external/sources/
-wwwroot/assets/RichMailEditor-CAOmTkrJ.js
-wwwroot/assets/RichMailEditor-C7nQq6BK.js
+
+# Generated frontend build output. `vite build` writes here (outDir '../wwwroot')
+# and empties it first, so it is reproducible with `npm run build:frontend`.
+/wwwroot/
 
 # Simulation runtime and test output
 /.venv/
@@ -65,9 +67,23 @@ wwwroot/assets/RichMailEditor-C7nQq6BK.js
 /simulation/output/
 /simulation/state/
 
-# SQLite live sidecars (checkpoint the main DB before committing)
-miraverse.db-wal
-miraverse.db-shm
+# Databases are runtime state, not source. Take a deliberate checkpoint with
+# `npm run db:checkpoint`, which writes a vacuumed copy under backups/db/.
+/miraverse.db
+/miraverse.db-*
+/miraverse.db.*
+*.db.bak
+
+# Local backup and migration checkpoint folders written by project scripts
+/backups/
+
+# Archived conversation exports and one-off research dumps
+/2026-11-25/
+
+# Design sources; master copies are kept outside the repository
+*.psd
+*.psb
+*.ai
 
 # Local build log
 build.log

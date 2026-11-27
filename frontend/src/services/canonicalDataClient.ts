@@ -229,7 +229,7 @@ export async function fetchCanonicalMaids(forceRefresh = false): Promise<{ catal
       // fallback
     }
   }
-  const entries: CanonicalMaidEntry[] = CHARACTER_IDENTITIES.filter(c => c.maid).map(c => {
+  const entries: CanonicalMaidEntry[] = CHARACTER_IDENTITIES.filter(c => c.maid).map((c): CanonicalMaidEntry => {
     const m = c.maid!.match(/^MAID-([A-Z]{2})-(\d{8})$/);
     return {
       maid: c.maid!,

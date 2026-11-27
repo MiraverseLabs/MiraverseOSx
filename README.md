@@ -225,6 +225,16 @@ The following are proposed documentation and engineering review priorities, **no
 5. **Review persistence end to end.** Confirm that backups, restoration, migrations, and long-running NPC or institutional state behave consistently.
 6. **Reconcile design and canon.** Track approved educational details, newer proposals, and mismatched map terminology without silently changing established lore.
 
+## Committing
+
+Keep history readable and the repository light.
+
+**Message format:** `<type>(<scope>): <one line>` — imperative, and specific enough that the line alone explains the change, for example `fix(simulation): keep royalties revenue-aware for non-artist acts`. Types in use are `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, and `perf`. Add a body only when the reason is not obvious from the subject line.
+
+**Never commit generated output or local runtime state.** `wwwroot/` is `vite build` output (regenerate with `npm run build:frontend`), while `backups/`, `2026-11-25/`, and `miraverse.db*` are runtime data. Design sources (`*.psd`, `*.ai`) are kept outside the repository. Take a database snapshot on purpose with `npm run db:checkpoint`, which folds the WAL and writes a vacuumed copy under `backups/db/`; archive that copy where you keep releases rather than on every change.
+
+**Type strictness ratchet.** `frontend/tsconfig.json` still runs with `strict: false`, so enabling `noImplicitAny` globally today would fail on the existing backlog. `npm run typecheck:strict` recompiles with `noImplicitAny` and compares the result against `frontend/tsconfig.strict-baseline.json`, failing only when a file gains new implicit anys. Clear a feature, run `npm run typecheck:strict:update`, and commit the lowered baseline; never raise it to get a change through.
+
 ## Documentation and continuity
 
 The project documentation is divided between gameplay and system implementation, structured data, and broader world references.
