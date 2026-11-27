@@ -137,4 +137,19 @@ class LivingWorldApiTests(unittest.TestCase):
         self.assertNotIn('accounts',saved)
 
 
+def test_entertainment_resources_and_projects_are_available(self):
+        orgs = self.get('organizations')['organizations']
+        self.assertEqual(len(orgs), 25)
+        artist = self.post('artists', {'characterId': 'TEST-ADA', 'stageName': 'API Echo', 'genres': ['ambient']})
+        track = self.post('music', {'artistId': artist['artistId'], 'title': 'API Signal', 'durationSeconds': 180})
+        self.post('releases', {'trackId': track['trackId'], 'royaltyRate': 0.1})
+        charts = self.get('charts')['charts']
+        self.assertTrue(any(entry['trackId'] == track['trackId'] for entry in charts))
+        project = self.post('projects', {'action': 'create', 'title': 'API Feature', 'kind': 'film', 'studioOrgId': 'ORG_MIRRORA_STUDIOS', 'budgetCredits': 5000})
+        projects = self.get('projects')['projects']
+        self.assertTrue(any(entry['projectId'] == project['productionId'] for entry in projects))
+        for name in ('rights', 'licensing', 'royalties', 'media', 'memberships', 'bookings', 'tours', 'broadcasting', 'campaigns', 'awards'):
+            self.assertIn(name, self.get(name))
+
+
 if __name__=='__main__': unittest.main()

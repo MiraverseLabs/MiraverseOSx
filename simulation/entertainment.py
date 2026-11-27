@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from living_world import WorldClock, world_date
+from paths import SOURCE_DATABASE
 
 FAME_AXES: tuple[str, ...] = (
     "recognition",
@@ -1302,6 +1303,130 @@ def handle_publicity_or_fan_action(run: dict[str, Any], payload: dict[str, Any])
     raise ValueError(f"Unsupported publicity/entertainment action: {action!r}")
 
 
+def list_organizations(model: Any) -> dict[str, Any]:
+    rows: list[Any] = []
+    for database in (model.database, SOURCE_DATABASE):
+        try:
+            with world_services._connection(database) as conn:
+                rows = conn.execute(
+                    "SELECT OrganizationId,Name,ShortName,Sector,Kind,Domain,Realm,Seat,Tagline,VenueCapacity "
+                    "FROM EntertainmentOrganizations ORDER BY OrganizationId"
+                ).fetchall()
+            if rows:
+                break
+        except Exception:
+            continue
+    orgs = [dict(row) for row in rows]
+    state = model._extensions
+    artists = state.get("artists", [])
+    staff = state.get("entertainmentStaff", [])
+    productions = state.get("productions", [])
+    concerts = state.get("concerts", [])
+    for org in orgs:
+        oid = org["OrganizationId"]
+        org["artistCount"] = sum(
+            1 for a in artists
+            if oid in (a.get("managerOrgId"), a.get("labelOrgId"), a.get("publisherOrgId"), a.get("prOrgId"), a.get("distributorOrgId"))
+        )
+        org["staffCount"] = sum(1 for s in staff if s.get("employerOrgId") == oid)
+        org["productionCount"] = sum(1 for p in productions if p.get("studioOrgId") == oid)
+        org["concertCount"] = sum(1 for c in concerts if oid in (c.get("venueOrgId"), c.get("promoterOrgId")))
+        org["state"] = copy.deepcopy(state.get("organizationStates", {}).get(oid))
+    return {"organizations": orgs}
+
+
+def list_projects(run: dict[str, Any]) -> dict[str, Any]:
+    projects = []
+    for prod in run["state"].get("productions", []):
+        projects.append(
+            {
+                "projectId": prod.get("productionId"),
+                "title": prod.get("title"),
+                "kind": prod.get("kind"),
+                "studioOrgId": prod.get("studioOrgId"),
+                "leadId": prod.get("directorOrLeadId"),
+                "stage": prod.get("stage"),
+                "progress": prod.get("progress"),
+                "budget": prod.get("budgetCredits"),
+                "quality": prod.get("quality"),
+                "status": prod.get("status"),
+                "milestones": prod.get("milestones", []),
+            }
+        )
+    return {"projects": projects}
+
+
+def list_rights(run: dict[str, Any]) -> dict[str, Any]:
+    return {"rights": copy.deepcopy(run["state"].get("rights", []))}
+
+
+def list_licensing(run: dict[str, Any]) -> dict[str, Any]:
+    rights = [r for r in run["state"].get("rights", []) if str(r.get("licenseTerms") or "").strip()]
+    return {"licenses": copy.deepcopy(rights)}
+
+
+def list_royalties(run: dict[str, Any]) -> dict[str, Any]:
+    ledger = run["state"].get("revenueLedger", [])
+    totals: dict[str, float] = {}
+    for entry in ledger:
+        kind = str(entry.get("kind") or "other")
+        totals[kind] = round(totals.get(kind, 0.0) + float(entry.get("netAmount") or 0.0), 2)
+    artists = [
+        {
+            "artistId": a.get("artistId"),
+            "stageName": a.get("stageName"),
+            "totalRoyaltiesEarned": a.get("totalRoyaltiesEarned", 0.0),
+            "unclaimedPlayerRoyalties": a.get("unclaimedPlayerRoyalties", 0.0),
+        }
+        for a in run["state"].get("artists", [])
+    ]
+    return {"totalsByKind": totals, "artists": artists, "entries": copy.deepcopy(ledger[-100:])}
+
+
+def list_charts(run: dict[str, Any]) -> dict[str, Any]:
+    tracks = sorted(
+        run["state"].get("tracks", []),
+        key=lambda t: (int(t.get("streams") or 0), int(t.get("radioSpins") or 0)),
+        reverse=True,
+    )[:20]
+    return {"charts": [{"trackId": t.get("trackId"), "title": t.get("title"), "artistId": t.get("artistId"), "streams": t.get("streams", 0), "radioSpins": t.get("radioSpins", 0)} for t in tracks]}
+
+
+def list_media(run: dict[str, Any]) -> dict[str, Any]:
+    return {"media": copy.deepcopy(run["state"].get("media_items", []))}
+
+
+def list_memberships(run: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "fanCommunities": copy.deepcopy(run["state"].get("fan_communities", [])),
+        "staff": copy.deepcopy(run["state"].get("entertainmentStaff", [])),
+    }
+
+
+def list_bookings(run: dict[str, Any]) -> dict[str, Any]:
+    return {"bookings": copy.deepcopy(run["state"].get("concerts", []))}
+
+
+def list_tours(run: dict[str, Any]) -> dict[str, Any]:
+    tours: dict[str, list[dict[str, Any]]] = {}
+    for concert in run["state"].get("concerts", []):
+        tours.setdefault(str(concert.get("artistId") or ""), []).append(copy.deepcopy(concert))
+    return {"tours": [{"artistId": artist_id, "bookings": bookings} for artist_id, bookings in tours.items()]}
+
+
+def list_broadcasting(run: dict[str, Any]) -> dict[str, Any]:
+    tracks = [t for t in run["state"].get("tracks", []) if int(t.get("radioSpins") or 0) > 0]
+    return {"broadcasting": [{"trackId": t.get("trackId"), "title": t.get("title"), "radioSpins": t.get("radioSpins", 0)} for t in tracks]}
+
+
+def list_campaigns(run: dict[str, Any]) -> dict[str, Any]:
+    return {"campaigns": copy.deepcopy(run["state"].get("sponsorships", []))}
+
+
+def list_awards(run: dict[str, Any]) -> dict[str, Any]:
+    return {"awards": copy.deepcopy(run["state"].get("awardCycles", []))}
+
+
 def industry_snapshot(run: dict[str, Any]) -> dict[str, Any]:
     state = _state(run)
     artists = [_ensure_artist_defaults(copy.deepcopy(a)) for a in state.get("artists", [])]
@@ -1317,6 +1442,7 @@ def industry_snapshot(run: dict[str, Any]) -> dict[str, Any]:
     awards = copy.deepcopy(state.get("awards", []))
     fan_communities = copy.deepcopy(state.get("fan_communities", []))
     entertainment_staff = copy.deepcopy(state.get("entertainmentStaff", []))
+    organization_states = copy.deepcopy(state.get("organizationStates", {}))
     tickets = copy.deepcopy(state.get("tickets", [])[-60:])
 
     top_tracks = sorted(
@@ -1353,6 +1479,7 @@ def industry_snapshot(run: dict[str, Any]) -> dict[str, Any]:
         "awards": awards,
         "fanCommunities": fan_communities,
         "entertainmentStaff": entertainment_staff,
+        "organizationStates": organization_states,
         "tickets": tickets,
         "charts": {
             "songbirdTopTracks": top_tracks,
@@ -1581,6 +1708,37 @@ def step_entertainment(model: Any, *, day_rolled: bool, previous_year: int) -> N
         contracts = ext.setdefault("entertainment_contracts", [])
         media_items = ext.setdefault("media_items", [])
         fan_communities = ext.setdefault("fan_communities", [])
+
+        # Organizational autonomy: objectives, resources and recovery. Orgs are
+        # never deleted; setbacks reduce activity and can be recovered.
+        org_states = ext.setdefault("organizationStates", {})
+        objectives = (
+            "maintain operations",
+            "develop new work",
+            "recruit professional staff",
+            "restore financial health",
+            "expand regional audiences",
+        )
+        for staff in ext.get("entertainmentStaff", []):
+            org_states.setdefault(str(staff.get("employerOrgId") or "ORG_OPEN_CALL"), {})
+        for production in ext.get("productions", []):
+            org_states.setdefault(str(production.get("studioOrgId") or "ORG_OPEN_CALL"), {})
+        for entry in org_states.values():
+            entry.setdefault("orgId", entry.get("orgId", "ORG_OPEN_CALL"))
+            entry.setdefault("budget", 5000.0)
+            entry.setdefault("status", "active")
+            budget = float(entry.get("budget") or 0.0)
+            if entry.get("status") == "dormant":
+                if budget >= 1000.0:
+                    entry["status"] = "active"
+            elif budget < 100.0:
+                entry["status"] = "dormant"
+            elif budget < 500.0:
+                entry["status"] = "restructuring"
+            else:
+                entry["status"] = "active"
+            entry["budget"] = round(max(0.0, budget + rng.uniform(-50.0, 120.0)), 2)
+            entry["objective"] = objectives[(clock.day_index + len(str(entry.get("orgId", "")))) % len(objectives)]
 
         # 1. Talent discovery & NPC artist onboarding (scales with eligible population and demand)
         existing_char_ids = {a.get("characterId") for a in artists if a.get("characterId")}

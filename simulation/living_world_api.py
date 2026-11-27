@@ -29,6 +29,19 @@ ENT_READ = {
     'productions': entertainment.list_productions,
     'tickets': entertainment.list_tickets,
     'entertainment': entertainment.industry_snapshot,
+    'projects': entertainment.list_projects,
+    'rights': entertainment.list_rights,
+    'licensing': entertainment.list_licensing,
+    'royalties': entertainment.list_royalties,
+    'charts': entertainment.list_charts,
+    'media': entertainment.list_media,
+    'memberships': entertainment.list_memberships,
+    'bookings': entertainment.list_bookings,
+    'tours': entertainment.list_tours,
+    'broadcasting': entertainment.list_broadcasting,
+    'campaigns': entertainment.list_campaigns,
+    'awards': entertainment.list_awards,
+    'organizations': entertainment.list_organizations,
 }
 ENT_WRITE = {
     'artists': entertainment.upsert_artist,
@@ -40,6 +53,7 @@ ENT_WRITE = {
     'productions': entertainment.create_or_advance_production,
     'tickets': entertainment.purchase_ticket,
     'publicity': entertainment.handle_publicity_or_fan_action,
+    'projects': entertainment.create_or_advance_production,
 }
 
 
@@ -95,6 +109,8 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
                 'calendar':model.calendar_config,'state':model._export_state()}
 
     def _entertainment(self,name,model,body=None):
+        if name=='organizations' and body is None:
+            return entertainment.list_organizations(model)
         run=self._envelope(model)
         if body is None: return ENT_READ[name](run)
         body=copy.deepcopy(body)
@@ -191,7 +207,7 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
                         state=body.get('state')
                         if not isinstance(state,dict) or state.get('clock') != model.world_clock.to_state() or state.get('citizens') != model._export_state()['citizens']:
                             raise ValueError('Use simulation and service commands to update clock or citizens')
-                        managed={'careers','relationships','accounts','artists','entertainmentStaff','tracks','releases','concerts','auditions','entertainment_contracts','productions','tickets','sponsorships','media_items','controversies','awards','fan_communities','events','transactions','legacy_service_state'}
+                        managed={'careers','relationships','accounts','artists','entertainmentStaff','organizationStates','tracks','releases','concerts','auditions','entertainment_contracts','productions','tickets','sponsorships','media_items','controversies','awards','fan_communities','events','transactions','legacy_service_state'}
                         if any(state.get(k) != model._extensions.get(k) for k in managed):
                             raise ValueError('Use service commands to update managed collections')
                         model._extensions.update({k:v for k,v in state.items() if k not in CORE_FIELDS});model.save()

@@ -7,6 +7,10 @@ the Section XIX entertainment organizations, places.json for venue locations).
 
 It never overwrites an existing database unless --force is passed.
 
+This seeds industry data only. Population and archived content tables remain
+empty until their separate import workflows run with the required sources.
+Running data:build now exports empty legacy tables, overwriting their JSON files.
+
 Usage:
     npm run db:bootstrap
     python scripts/bootstrap_db.py --out backups/db/fresh.db --force
@@ -122,7 +126,8 @@ def main() -> int:
     summary = bootstrap(ROOT / args.out, force=args.force)
     print()
     print(json.dumps(summary, indent=2))
-    print("\n✅ Canonical database ready. Next: npm run data:build")
+    print("\n✅ Canonical industry database ready; population and archived content are not populated.")
+    print("   data:build exports empty legacy tables too, overwriting their JSON files.")
     return 0
 
 

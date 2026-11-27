@@ -28,6 +28,8 @@ import {
 } from '../entertainmentRouter';
 import brandKits from '../../../../game-content/media-assets/brand-kits.json';
 import manifest from '../../../../game-content/media-assets/manifest.json';
+import { useLiveCharts } from '../../../../integration/useEntertainment';
+import type { ChartEntry } from '../../../../integration/entertainmentApi';
 
 export {
   ENTERTAINMENT_DISCIPLINES,
@@ -155,6 +157,7 @@ export interface EntertainmentPortalData {
   publicArtists: EntertainmentArtist[];
   rankedArtists: EntertainmentArtist[];
   topTracks: EntertainmentTrack[];
+  liveCharts: ChartEntry[];
   activeTrack: EntertainmentTrack | undefined;
   setActiveTrackId: (trackId: string) => void;
   feedback: string;
@@ -231,11 +234,40 @@ export function useEntertainmentPortalData(site: EntertainmentSiteMeta): Enterta
 
   const [feedback, setFeedback] = useState('');
   const [activeTrackId, setActiveTrackId] = useState<string>(ent.tracks[0]?.trackId || '');
+  const runId = useOSStore((s) => s.gameplay.livingWorldLink?.runId || null);
+  const liveCharts = useLiveCharts(runId);
 
-  const topTracks = useMemo(
-    () => [...ent.tracks].sort((a, b) => b.streams + b.radioSpins * 10 - (a.streams + a.radioSpins * 10)),
-    [ent.tracks],
-  );
+  const topTracks = useMemo(() => {
+    if (liveCharts.length > 0) {
+      return liveCharts.map((entry) => {
+        const local = ent.tracks.find((track) => track.trackId === entry.trackId);
+        if (local) return { ...local, streams: entry.streams, radioSpins: entry.radioSpins };
+        return {
+          trackId: entry.trackId,
+          title: entry.title,
+          artistId: entry.artistId,
+          stageName: '',
+          kind: 'single',
+          genre: '',
+          durationSeconds: 180,
+          audioUrl: '',
+          coverArtUrl: '',
+          producerOrgId: '',
+          publisherOrgId: '',
+          mmrsRegistered: false,
+          masterOwnedByArtist: true,
+          quality: 60,
+          streams: entry.streams,
+          radioSpins: entry.radioSpins,
+          createdDay: cycle,
+          createdCycle: cycle,
+          collaboratorArtistIds: [],
+          stickerEdition: '',
+        } as EntertainmentTrack;
+      });
+    }
+    return [...ent.tracks].sort((a, b) => b.streams + b.radioSpins * 10 - (a.streams + a.radioSpins * 10));
+  }, [ent.tracks, liveCharts, cycle]);
 
   const rankedArtists = useMemo(
     () =>
@@ -327,6 +359,7 @@ export function useEntertainmentPortalData(site: EntertainmentSiteMeta): Enterta
     publicArtists,
     rankedArtists,
     topTracks,
+    liveCharts,
     activeTrack,
     setActiveTrackId,
     feedback,
