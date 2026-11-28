@@ -7,6 +7,8 @@ import '../styles/apps/CharacterProfile.css';
 
 export default function CharacterProfileEditor() {
   const stored = useOSStore(state => state.gameplay.characterProfile);
+  const identity = useOSStore(state => state.gameplay.identity);
+  const player = useOSStore(state => state.gameplay.player);
   const name = useOSStore(state => state.gameplay.identity.profileDisplayName || state.gameplay.player.name || '');
   const saved = useMemo(() => {
     const profile = restoreCharacterProfile(stored);
@@ -40,6 +42,12 @@ export default function CharacterProfileEditor() {
 
   return <section className="character-editor" aria-label="My Character editor">
     <header className="character-editor-heading"><span>YOUR LIFE / PERSONAL PROFILE</span><p>Make this space yours. Your personal story and appearance stay separate from issued civic records.</p></header>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '10px', marginBottom: '16px', padding: '12px 14px', borderRadius: '12px', border: '1px solid rgba(148,163,184,0.32)', background: 'rgba(148,163,184,0.08)', fontSize: '12px' }}>
+      <div><div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.7 }}>AURA Identity</div><strong>{identity?.maid || identity?.citizenId || 'Unlinked'}</strong><div style={{ opacity: 0.75 }}>{identity?.declaredRegion || 'Orynvell'}</div></div>
+      <div><div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.7 }}>Registered Residence</div><strong>{player?.residenceLabel || identity?.residenceName || 'Vector House · Suite 4B'}</strong><div style={{ opacity: 0.75 }}>{player?.residenceAddress || identity?.registeredAddress || 'Aureline, Orynvell'}</div></div>
+      <div><div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.7 }}>Finances</div><strong>{(player?.credits ?? 0).toLocaleString()} cr · {(player?.bits ?? 0).toLocaleString()} bits</strong><div style={{ opacity: 0.75 }}>{player?.isAdmin ? 'Administrator Account' : player?.creatorMode ? 'Player Save · Admin Controls On' : 'Player Save'}</div></div>
+      <div><div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.7 }}>Personal Comms</div><strong>@{draft.alias?.replace(/^@/, '') || identity?.profileAlias || 'citizen'}</strong><div style={{ opacity: 0.75 }}>AureMail &amp; MAI Space linked</div></div>
+    </div>
     <form onSubmit={save}>
       <div className="character-editor-layout">
         <aside className="character-preview" aria-label="Character preview">

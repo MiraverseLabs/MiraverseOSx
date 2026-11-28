@@ -1,11 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowUpRight, Bed, BookOpen, Check, Home, Moon, Package, Pin, Plus, ShoppingBag, Sun, X } from 'lucide-react';
+import { ArrowUpRight, Bed, BookOpen, Camera, Check, Home, Moon, Package, Palette, Pin, Plus, ShoppingBag, Sparkles, Sun, X } from 'lucide-react';
 import { useOSStore } from '../store/useOSStore';
 import { usePostalStore } from '../store/usePostalStore';
 import { COURSES, academicCitizenId, type AcademicState } from '../gameplay/Academics';
 import { FORMATTED_PLAYER_ADDRESS } from '../gameplay/Postal';
 import { calculateRestOutcome } from '../gameplay/WorldEventEngine';
-import { HOME_FURNISHINGS, HOME_GUESTS, restoreHomeAmbiance, restoreHomeMemos, type HomeArea, type HomeMemo } from '../gameplay/Housing';
+import {
+  HOME_FURNISHINGS,
+  HOME_GUESTS,
+  HOME_PALETTES,
+  HOME_PLACEMENT_ZONES,
+  restoreHomeAmbiance,
+  restoreHomeMemos,
+  restoreHomePersonalization,
+  type HomeArea,
+  type HomeMemo,
+  type HomePaletteId,
+  type HomePlacementZone,
+} from '../gameplay/Housing';
+import { readCharacterPortrait } from '../gameplay/CharacterProfile';
 import DailyLifePanel from './DailyLifePanel';
 import SuiteRoom from './housing/SuiteRoom';
 import '../styles/apps/myhome.css';
@@ -19,6 +32,7 @@ const SECTIONS = [
   { id: 'room', label: 'Your suite', icon: Home, title: 'A place to come home to.', description: 'Settle in, catch your breath, and make a little space for yourself.' },
   { id: 'life', label: 'Everyday routines', icon: Sun, title: 'The small things, at your pace.', description: 'A meal, a tidy room, a moment with someone. Make the day your own.' },
   { id: 'upgrades', label: 'Furnishings', icon: ShoppingBag, title: 'Make yourself at home.', description: 'Useful additions, considered details, and a room that feels more like you.' },
+  { id: 'personalize', label: 'Palettes & Keepsakes', icon: Palette, title: 'Make the space unmistakably yours.', description: 'Room palettes, furniture placement, framed photos, personal keepsakes, and doorplate details.' },
   { id: 'board', label: 'Pinboard', icon: Pin, title: 'Keep a thought close.', description: 'Notes, plans, and small reminders for the days ahead.' },
   { id: 'dreams', label: 'Dream journal', icon: Moon, title: 'What the night leaves behind.', description: 'A quiet record of the dreams you have experienced while resting.' },
 ] as const;
@@ -34,6 +48,10 @@ export default function HousingApp() {
   const [duration, setDuration] = useState<'short' | 'standard' | 'full'>('full');
   const [ambiance, setAmbiance] = useState(() => restoreHomeAmbiance(saved('miraverse-home-ambiance')));
   const [memos, setMemos] = useState(() => restoreHomeMemos(saved('miraverse-home-memos'), DEFAULT_MEMOS));
+  const [personal, setPersonal] = useState(() => restoreHomePersonalization(saved('miraverse-home-personalization-v1')));
+  const [photoCaption, setPhotoCaption] = useState('');
+  const [keepsakeTitle, setKeepsakeTitle] = useState('');
+  const [keepsakeStory, setKeepsakeStory] = useState('');
   const [memoTitle, setMemoTitle] = useState('');
   const [memoBody, setMemoBody] = useState('');
   const [message, setMessage] = useState('');
@@ -58,6 +76,10 @@ export default function HousingApp() {
   const current = SECTIONS.find(item => item.id === section)!;
   useEffect(() => { try { localStorage.setItem('miraverse-home-ambiance', JSON.stringify(ambiance)); } catch {} }, [ambiance]);
   useEffect(() => { try { localStorage.setItem('miraverse-home-memos', JSON.stringify(memos)); } catch {} }, [memos]);
+  useEffect(() => { try { localStorage.setItem('miraverse-home-personalization-v1', JSON.stringify(personal)); } catch {} }, [personal]);
+  const activePalette = HOME_PALETTES[personal.palette] || HOME_PALETTES.parchment;
+  const activeResidenceAddress = player.residenceAddress || state.gameplay.identity?.registeredAddress || FORMATTED_PLAYER_ADDRESS;
+  const activeResidenceLabel = personal.suiteNickname || player.residenceLabel || state.gameplay.identity?.residenceName || 'Suite 4B';
   useEffect(() => { workspace.current?.scrollTo({ top: 0 }); }, [section]);
   const changeSection = (id: typeof section) => { setSection(id); setMessage(''); };
   const post = () => state.openAppWorkspace('post', 'locker');
@@ -71,10 +93,10 @@ export default function HousingApp() {
       description: `Delivered to Suite 4B: ${item.effect}`, rewards: { xp: 10, itemName: `${item.name} (Suite 4B Fixture)` }, status: 'delivered',
     });
   };
-  return <div ref={workspace} className="myhome-workspace" data-ambiance={ambiance}>
+  return <div ref={workspace} className="myhome-workspace" data-ambiance={ambiance} data-palette={personal.palette} style={{ ['--myhome-accent' as any]: activePalette.accent, ['--myhome-surface' as any]: activePalette.surface }}>
     <aside className="myhome-sidebar">
-      <div className="myhome-wordmark"><Home size={21} /><span>myhome<span>A little space of your own</span></span></div>
-      <div className="myhome-address"><span className="myhome-eyebrow">Vector House</span><strong>Suite 4B<span>04 / B</span></strong><p>Aureline, Meridion</p></div>
+      <div className="myhome-wordmark"><Home size={21} /><span>myhome<span>{personal.doorplateNote || 'A little space of your own'}</span></span></div>
+      <div className="myhome-address"><span className="myhome-eyebrow">Registered Residence</span><strong>{activeResidenceLabel}</strong><p>{activeResidenceAddress}</p></div>
       <nav aria-label="MyHome sections">{SECTIONS.map(item => <button key={item.id} aria-current={section === item.id ? 'page' : undefined} onClick={() => changeSection(item.id)}><item.icon size={17}/>{item.label}{section === item.id && <span className="myhome-nav-dot"/>}</button>)}</nav>
       <div className="myhome-doorstep"><Package size={20}/><strong>{waiting ? `${waiting} waiting at your doorstep` : 'Your doorstep is clear'}</strong><p>Deliveries and collected parcels live in Meridion Post.</p><button onClick={post}>Open your locker <ArrowUpRight size={15}/></button></div>
       <div className="myhome-sidebar-footer">Aureline residential directory<br/>Vector House · fourth floor</div>
@@ -95,6 +117,120 @@ export default function HousingApp() {
       </>}
       {section === 'life' && <DailyLifePanel onShop={() => changeSection('upgrades')}/>}
       {section === 'upgrades' && <><div className="myhome-catalog-header"><p>Each installation adds comfort, up to 100. Prices include installation; your delivery receipt goes to Meridion Post.</p><label>Show<select aria-label="Furnishing category" value={filter} onChange={event => setFilter(event.target.value)}>{['All', 'Rest', 'Academic', 'Social', 'Security'].map(item => <option key={item}>{item}</option>)}</select></label></div><div className="myhome-catalog">{HOME_FURNISHINGS.filter(item => filter === 'All' || item.category === filter).map((item, index) => <article key={item.id} className="myhome-product"><div className={`myhome-product-art item-${item.id}`} aria-hidden="true"><span>{String(index + 1).padStart(2, '0')}</span><span className="myhome-furniture-shape"/></div><div className="myhome-product-copy"><span className="myhome-eyebrow">{item.category}</span><h2>{item.name}</h2><p>{item.effect}</p><footer><strong>{item.cost.toLocaleString()} <small>cr</small></strong>{installed.includes(item.id) ? <span className="myhome-installed"><Check size={15}/> Installed</span> : <button disabled={(player.credits ?? 0) < item.cost} onClick={() => order(item.id)}>{(player.credits ?? 0) < item.cost ? 'More credits needed' : 'Order & install'}</button>}</footer></div></article>)}</div></>}
+      {section === 'personalize' && (
+        <div style={{ display: 'grid', gap: '20px' }}>
+          <section style={{ padding: '18px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.1)', background: activePalette.surface, color: activePalette.ink }}>
+            <span className="myhome-eyebrow">Room Palette</span>
+            <h2 style={{ margin: '4px 0 12px' }}>Choose your suite palette</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '10px' }}>
+              {(Object.entries(HOME_PALETTES) as [HomePaletteId, typeof HOME_PALETTES.parchment][]).map(([id, pal]) => (
+                <button
+                  key={id}
+                  type="button"
+                  aria-pressed={personal.palette === id}
+                  onClick={() => { setPersonal(p => ({ ...p, palette: id })); setMessage(`Room palette set to ${pal.name}.`); }}
+                  style={{ padding: '10px', borderRadius: '10px', border: personal.palette === id ? `2px solid ${pal.accent}` : '1px solid rgba(0,0,0,0.12)', background: 'white', textAlign: 'left', cursor: 'pointer' }}
+                >
+                  <div style={{ display: 'flex', gap: '4px', marginBottom: '6px' }}>
+                    {pal.swatch.map(hex => <span key={hex} style={{ width: '20px', height: '14px', borderRadius: '4px', background: hex, border: '1px solid rgba(0,0,0,0.1)' }} />)}
+                  </div>
+                  <strong style={{ fontSize: '12px', color: pal.ink }}>{pal.name}</strong>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section style={{ padding: '18px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.1)', background: 'white' }}>
+            <span className="myhome-eyebrow">Personal Details</span>
+            <h2 style={{ margin: '4px 0 12px' }}>Doorplate &amp; atmosphere</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+              <label className="myhome-field">Suite nickname<input value={personal.suiteNickname} maxLength={60} placeholder="e.g. The Fourth-Floor Loft" onChange={e => setPersonal(p => ({ ...p, suiteNickname: e.target.value }))} /></label>
+              <label className="myhome-field">Doorplate greeting<input value={personal.doorplateNote} maxLength={100} placeholder="e.g. Kettle is usually on" onChange={e => setPersonal(p => ({ ...p, doorplateNote: e.target.value }))} /></label>
+              <label className="myhome-field">Favorite tea / evening music<input value={personal.favoriteTeaOrMusic} maxLength={100} placeholder="e.g. Bergamot tea & rain radio" onChange={e => setPersonal(p => ({ ...p, favoriteTeaOrMusic: e.target.value }))} /></label>
+            </div>
+          </section>
+
+          <section style={{ padding: '18px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.1)', background: 'white' }}>
+            <span className="myhome-eyebrow">Furniture Placement</span>
+            <h2 style={{ margin: '4px 0 12px' }}>Arrange your installed furnishings</h2>
+            <div style={{ display: 'grid', gap: '8px' }}>
+              {HOME_FURNISHINGS.filter(f => installed.includes(f.id)).map(item => (
+                <div key={item.id} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '10px', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.08)' }}>
+                  <div><strong>{item.name}</strong><div style={{ fontSize: '11px', opacity: 0.7 }}>{item.category}</div></div>
+                  <select
+                    aria-label={`Placement zone for ${item.name}`}
+                    value={personal.placements[item.id] || item.defaultZone || 'Sitting Room'}
+                    onChange={e => {
+                      const zone = e.target.value as HomePlacementZone;
+                      setPersonal(p => ({ ...p, placements: { ...p.placements, [item.id]: zone } }));
+                      setMessage(`Moved ${item.name} to ${zone}.`);
+                    }}
+                    style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.18)', fontSize: '12px' }}
+                  >
+                    {HOME_PLACEMENT_ZONES.map(z => <option key={z} value={z}>{z}</option>)}
+                  </select>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section style={{ padding: '18px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.1)', background: 'white' }}>
+            <span className="myhome-eyebrow"><Camera size={14} /> Framed Photos</span>
+            <h2 style={{ margin: '4px 0 12px' }}>Personal photo shelf ({personal.photos.length}/12)</h2>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'flex-end', marginBottom: '12px' }}>
+              <label className="myhome-field" style={{ flex: '1 1 200px' }}>Caption<input value={photoCaption} maxLength={120} placeholder="e.g. Dusk from the harbor promenade" onChange={e => setPhotoCaption(e.target.value)} /></label>
+              <label className="myhome-primary" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <Camera size={15} /> Add photo
+                <input type="file" accept="image/png,image/jpeg,image/webp" hidden disabled={personal.photos.length >= 12} onChange={async e => {
+                  const file = e.target.files?.[0]; e.target.value = '';
+                  if (!file) return;
+                  try {
+                    const dataUrl = await readCharacterPortrait(file);
+                    setPersonal(p => ({ ...p, photos: [{ id: crypto.randomUUID(), dataUrl, caption: photoCaption.trim() || file.name, addedAt: new Date().toISOString() }, ...p.photos].slice(0, 12) }));
+                    setPhotoCaption('');
+                    setMessage('Framed photo added to your suite.');
+                  } catch (err: any) { setMessage(err?.message || 'Could not load photo.'); }
+                }} />
+              </label>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
+              {personal.photos.map(ph => (
+                <figure key={ph.id} style={{ margin: 0, border: '1px solid rgba(0,0,0,0.1)', borderRadius: '10px', overflow: 'hidden', background: '#faf8f5' }}>
+                  <img src={ph.dataUrl} alt={ph.caption} style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }} />
+                  <figcaption style={{ padding: '8px', fontSize: '11px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px' }}>
+                    <span>{ph.caption}</span>
+                    <button type="button" aria-label={`Remove photo ${ph.caption}`} onClick={() => setPersonal(p => ({ ...p, photos: p.photos.filter(x => x.id !== ph.id) }))}><X size={13} /></button>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
+
+          <section style={{ padding: '18px', borderRadius: '14px', border: '1px solid rgba(0,0,0,0.1)', background: 'white' }}>
+            <span className="myhome-eyebrow"><Sparkles size={14} /> Personal Keepsakes</span>
+            <h2 style={{ margin: '4px 0 12px' }}>Mementos &amp; stories ({personal.customKeepsakes.length}/30)</h2>
+            <form onSubmit={e => {
+              e.preventDefault();
+              if (!keepsakeTitle.trim() || personal.customKeepsakes.length >= 30) return;
+              setPersonal(p => ({ ...p, customKeepsakes: [{ id: crypto.randomUUID(), title: keepsakeTitle.trim(), story: keepsakeStory.trim(), addedAt: new Date().toISOString() }, ...p.customKeepsakes] }));
+              setKeepsakeTitle(''); setKeepsakeStory('');
+              setMessage('Keepsake added to your cabinet.');
+            }} style={{ display: 'grid', gap: '8px', marginBottom: '12px' }}>
+              <label className="myhome-field">Keepsake name<input value={keepsakeTitle} maxLength={80} placeholder="e.g. Pressed Frossian frost-blossom" onChange={e => setKeepsakeTitle(e.target.value)} required /></label>
+              <label className="myhome-field">Memory or story<textarea rows={2} value={keepsakeStory} maxLength={400} placeholder="Where did it come from?" onChange={e => setKeepsakeStory(e.target.value)} /></label>
+              <button className="myhome-primary" type="submit" disabled={!keepsakeTitle.trim()} style={{ justifySelf: 'start' }}><Plus size={15} /> Add keepsake</button>
+            </form>
+            <div style={{ display: 'grid', gap: '8px' }}>
+              {personal.customKeepsakes.map(k => (
+                <article key={k.id} style={{ padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
+                  <div><strong>{k.title}</strong>{k.story && <p style={{ margin: '3px 0 0', fontSize: '12px', opacity: 0.8 }}>{k.story}</p>}</div>
+                  <button type="button" aria-label={`Remove keepsake ${k.title}`} onClick={() => setPersonal(p => ({ ...p, customKeepsakes: p.customKeepsakes.filter(x => x.id !== k.id) }))}><X size={14} /></button>
+                </article>
+              ))}
+            </div>
+          </section>
+        </div>
+      )}
       {section === 'board' && <div className="myhome-board"><form className="myhome-note-form" onSubmit={event => { event.preventDefault(); if (!memoTitle.trim() || !memoBody.trim() || memos.length >= 50) return; setMemos([...memos, { id: crypto.randomUUID(), title: memoTitle.trim(), body: memoBody.trim() }]); setMemoTitle(''); setMemoBody(''); setMessage('Your note is pinned.'); }}><span className="myhome-eyebrow">A new note</span><h2>What's on your mind?</h2><label className="myhome-field">Title<input value={memoTitle} maxLength={80} onChange={event => setMemoTitle(event.target.value)} required/></label><label className="myhome-field">Note<textarea value={memoBody} maxLength={1200} rows={5} onChange={event => setMemoBody(event.target.value)} required/></label><button className="myhome-primary" disabled={memos.length >= 50 || !memoTitle.trim() || !memoBody.trim()}><Plus size={16}/> Pin note</button><p className="myhome-help">{memos.length}/50 notes · saved on this device</p></form><div className="myhome-notes">{memos.map(memo => <article key={memo.id}><Pin size={17}/><h2>{memo.title}</h2><p>{memo.body}</p><button aria-label={`Remove note: ${memo.title}`} onClick={() => { setMemos(memos.filter(item => item.id !== memo.id)); setMessage('Note removed.'); }}><X size={16}/></button></article>)}{!memos.length && <p>Your board is clear. Pin your first thought here.</p>}</div></div>}
       {section === 'dreams' && <div className="myhome-journal">{dreams.length ? dreams.map((dream, index) => <article key={`${index}-${dream}`}><span className="myhome-eyebrow">{index === 0 ? 'Most recent dream' : 'Earlier entry'}</span><p>{dream}</p></article>) : <div className="myhome-empty"><Moon size={32}/><h2>A fresh page.</h2><p>Your journal will begin with your next rest. Come back to see what you remember.</p><button className="myhome-primary" onClick={() => { changeSection('room'); setArea('rest'); }}>Return to the bedroom</button></div>}</div>}
     </main>

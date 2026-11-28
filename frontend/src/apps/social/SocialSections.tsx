@@ -17,6 +17,13 @@ import {
   type SocialStoryItem,
 } from './socialAccountsAndFeed';
 import { useOSStore } from '../../store/useOSStore';
+import {
+  fetchLiveNpcSocialFeed,
+  toggleLiveNpcPostLike,
+  commentOnLiveNpcPost,
+  type LiveNpcSocialPost,
+  type NeighborhoodPulseEntry,
+} from './livingWorldSocialClient';
 const RichTextEditor = lazy(() => import('../../components/editor/RichTextEditor'));
 export function AudienceSelect({ value, onChange, includeGroup = false }: { value: Audience; onChange: (v: Audience) => void; includeGroup?: boolean }) { return <label>Audience<select value={value} onChange={e => onChange(e.target.value as Audience)}><option value="public">Public</option><option value="friends">Friends</option><option value="private">Only me</option>{includeGroup && <option value="group">Group members</option>}</select></label>; }
 export function PersonLink({ id }: { id: string }) { const { visit, player } = useSocial(); return <button className="ms-person-link" onClick={() => visit(id)}>{id === 'you' ? player.maiSpaceProfile?.handle || player.name : PEOPLE.find(p => p.id === id)?.name || 'Citizen'}</button>; }
@@ -226,6 +233,7 @@ export function OfficialAccountsDirectory() {
 export function HomeFeed() {
   const { social, go, act, player } = useSocial();
   const [filter, setFilter] = useState('all');
+  const [realmFilter, setRealmFilter] = useState('');
   const [activeStory, setActiveStory] = useState<SocialStoryItem | null>(null);
   const [composerOpen, setComposerOpen] = useState(false);
   const socialTemplates = listTemplatesByChannel('social');
@@ -235,6 +243,56 @@ export function HomeFeed() {
   const [headline, setHeadline] = useState('');
   const [subhead, setSubhead] = useState('');
   const [entityId, setEntityId] = useState('REG_ORYNVELL');
+
+  // Autonomous Living World NPC feed state
+  const [liveRunId, setLiveRunId] = useState('');
+  const [livePosts, setLivePosts] = useState<LiveNpcSocialPost[]>([]);
+  const [livePulse, setLivePulse] = useState<NeighborhoodPulseEntry[]>([]);
+  const [liveLoading, setLiveLoading] = useState(false);
+  const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
+
+  const refreshLiveFeed = async () => {
+    setLiveLoading(true);
+    const data = await fetchLiveNpcSocialFeed(realmFilter || undefined);
+    if (data) {
+      setLiveRunId(data.runId);
+      setLivePosts(data.posts || []);
+      setLivePulse(data.pulse || []);
+    }
+    setLiveLoading(false);
+  };
+
+  useEffect(() => {
+    void refreshLiveFeed();
+    const timer = window.setInterval(() => {
+      if (!document.hidden) void refreshLiveFeed();
+    }, 45_000);
+    return () => window.clearInterval(timer);
+  }, [realmFilter]);
+
+  const handleLikeLivePost = async (postId: string) => {
+    if (!liveRunId) return;
+    const updated = await toggleLiveNpcPostLike(liveRunId, postId);
+    if (updated) {
+      setLivePosts(prev => prev.map(p => p.id === postId ? updated : p));
+    }
+  };
+
+  const handleCommentLivePost = async (e: React.FormEvent, postId: string) => {
+    e.preventDefault();
+    const text = (commentDrafts[postId] || '').trim();
+    if (!liveRunId || !text) return;
+    const updated = await commentOnLiveNpcPost(
+      liveRunId,
+      postId,
+      text,
+      player?.name || player?.maiSpaceProfile?.handle || 'You',
+    );
+    if (updated) {
+      setLivePosts(prev => prev.map(p => p.id === postId ? updated : p));
+      setCommentDrafts(prev => ({ ...prev, [postId]: '' }));
+    }
+  };
 
   const feed = social.posts
     .filter(p => !p.draft && canSee(social, p.author, p.audience) && !social.muted.includes(p.author) && (filter !== 'friends' || p.author === 'you' || social.friends.includes(p.author)))
@@ -409,20 +467,123 @@ export function HomeFeed() {
       <div className="ms-home-grid">
         <div>
           <div className="ms-feed-heading">
-            <h2>Across the neighborhood</h2>
-            <select aria-label="Feed filter" value={filter} onChange={e => setFilter(e.target.value)}>
-              <option value="all">Everyone & Official Pages · chronological</option>
-              <option value="following">Followed Official Pages</option>
-              <option value="friends">Personal Friends · chronological</option>
-            </select>
+            <div>
+              <h2>Across the neighborhood</h2>
+              <small className="ms-live-pill">
+                <span className="ms-live-dot" aria-hidden="true" />
+                {livePosts.length > 0
+                  ? `Live across the Eight Realms · ${livePosts.length} recent dispatches`
+                  : 'Connected to MAI.SPACE'}
+              </small>
+            </div>
+            <div className="ms-feed-controls">
+              <div className="ms-filter-pills" role="group" aria-label="Feed view">
+                {([
+                  ['all', 'All'],
+                  ['live', 'Citizens'],
+                  ['following', 'Official'],
+                  ['friends', 'Friends'],
+                ] as const).map(([id, label]) => (
+                  <button key={id} type="button" aria-pressed={filter === id} onClick={() => setFilter(id)}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <select aria-label="Filter by realm" value={realmFilter} onChange={e => setRealmFilter(e.target.value)}>
+                <option value="">All 8 Realms</option>
+                {['Orynvell', 'Fross', 'Lumia', 'Marlowe', 'Brisland', 'Kaji', 'Nephele', 'Ve’Raylia'].map(r => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+              <button type="button" onClick={() => void refreshLiveFeed()} disabled={liveLoading}>
+                {liveLoading ? 'Syncing…' : '↻ Refresh'}
+              </button>
+            </div>
           </div>
-          {templateFeed.map(tp => (
+
+          {/* Autonomous Living World NPC Dispatches */}
+          {(filter === 'all' || filter === 'live') && livePosts.map(post => (
+            <article key={post.id} className="ms-post ms-card ms-live-npc-card">
+              <header className="ms-live-npc-header">
+                <div className="ms-live-author">
+                  <span className="ms-avatar-monogram" aria-hidden="true">
+                    {post.authorName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()}
+                  </span>
+                  <div>
+                    <strong>{post.authorName}</strong>
+                    <small>
+                      @{post.handle} · {post.occupation} · {post.employer}
+                    </small>
+                  </div>
+                </div>
+                <div className="ms-live-meta">
+                  <span className="ms-chip ms-chip-realm">{post.realm}</span>
+                  <span className="ms-chip ms-chip-activity">{post.activity}</span>
+                  <small>Day {post.day} · {post.worldTime}</small>
+                </div>
+              </header>
+              <p className="ms-live-body">{post.body}</p>
+              <div className="ms-live-tags">
+                {post.tags.map(tag => <span key={tag}>{tag}</span>)}
+              </div>
+              <div className="ms-actions">
+                <button
+                  type="button"
+                  aria-pressed={post.likedByPlayer}
+                  onClick={() => void handleLikeLivePost(post.id)}
+                >
+                  {post.likedByPlayer ? '♥' : '♡'} {post.likes} {post.likes === 1 ? 'like' : 'likes'}
+                </button>
+                <small>{post.comments.length} {post.comments.length === 1 ? 'reply' : 'replies'}</small>
+              </div>
+              <details className="ms-live-comments">
+                <summary>Replies ({post.comments.length})</summary>
+                {post.comments.map(c => (
+                  <div key={c.id} className="ms-live-comment-item">
+                    <strong>{c.authorName}</strong> <small>{c.worldTime}</small>
+                    <p>{c.text}</p>
+                  </div>
+                ))}
+                <form onSubmit={e => void handleCommentLivePost(e, post.id)} className="ms-live-comment-form">
+                  <input
+                    type="text"
+                    value={commentDrafts[post.id] || ''}
+                    onChange={e => setCommentDrafts(prev => ({ ...prev, [post.id]: e.target.value }))}
+                    placeholder={`Reply to ${post.authorName}…`}
+                    maxLength={500}
+                  />
+                  <button type="submit" className="ms-primary" disabled={!(commentDrafts[post.id] || '').trim()}>
+                    Reply
+                  </button>
+                </form>
+              </details>
+            </article>
+          ))}
+
+          {filter !== 'live' && templateFeed.map(tp => (
             <TemplateFeedPostCard key={tp.id} artifact={tp} />
           ))}
-          {filter !== 'following' && feed.map(p => <PostCard key={p.id} post={p} />)}
-          {!feed.length && !templateFeed.length && <p className="ms-empty">A quiet day. Visit a profile or write a little update.</p>}
+          {filter !== 'following' && filter !== 'live' && feed.map(p => <PostCard key={p.id} post={p} />)}
+          {!feed.length && !templateFeed.length && !livePosts.length && <p className="ms-empty">A quiet day. Visit a profile or write a little update.</p>}
         </div>
         <aside>
+          {livePulse.length > 0 && (
+            <section className="ms-card ms-pulse-card">
+              <h2>Neighborhood Pulse</h2>
+              <p className="ms-help">Active across the realms right now.</p>
+              <ul className="ms-pulse-list">
+                {livePulse.slice(0, 6).map(item => (
+                  <li key={item.characterId}>
+                    <div>
+                      <strong>{item.name}</strong>
+                      <small>{item.occupation} · {item.realm}</small>
+                    </div>
+                    <span className="ms-chip ms-chip-activity">{item.activity}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           <section className="ms-card">
             <h2>Official Pages ({(social.followedAccounts || []).length} followed)</h2>
             <p>Follow The Meridian, The Social Register, royal chanceries, and cultural guilds.</p>
@@ -446,7 +607,7 @@ export function HomeFeed() {
               </button>
             ))}
           </section>
-          <p className="ms-help">This is an NPC social world. Engagement reflects NPC relationships, interests, and world context.</p>
+          <p className="ms-help">Engagement reflects community ties, shared interests, and what is happening across the realms.</p>
         </aside>
       </div>
     </div>
@@ -458,7 +619,7 @@ export function PeopleDirectory({ friendsOnly = false, query = '' }: { friendsOn
   const [search, setSearch] = useState(query), [reply, setReply] = useState<Record<string, string>>({}), [reason, setReason] = useState('');
   const people = PEOPLE.filter(p => (!friendsOnly || social.friends.includes(p.id) || social.requests[p.id] || social.blocked.includes(p.id)) && `${p.name} ${p.handle} ${p.interests}`.toLowerCase().includes(search.toLowerCase()));
   const feature = (id: string) => act({ type: 'top8', ids: social.top8.includes(id) ? social.top8.filter(p => p !== id) : [...social.top8, id] });
-  return <div className="ms-content-width"><div className="ms-section-heading"><div><span className="ms-eyebrow">PEOPLE MAKE A PLACE</span><h1>{friendsOnly ? 'Friends & my Top 8' : 'Browse the neighborhood'}</h1><p>Every page belongs to an NPC citizen. Connections take their own time.</p></div><input type="search" aria-label="Find people" value={search} onChange={e => setSearch(e.target.value)} placeholder="Name, interest, or handle…"/></div>{friendsOnly && <section className="ms-card"><h2>My Top 8</h2>{social.top8.length > 1 && <SortableList label="Top 8 friend order" items={social.top8.map(id => ({ id, label: PEOPLE.find(person => person.id === id)?.name || id }))} onReorder={ids => act({ type: 'top8', ids })}/>}<p>Your choice, not a ranking of relationship points. Removing a featured friend does not end a friendship.</p><ol className="ms-featured-list">{social.top8.map((id, i) => <li key={id}><PersonLink id={id}/><button disabled={i === 0} aria-label={`Move ${id} earlier`} onClick={() => { const ids = [...social.top8]; [ids[i - 1], ids[i]] = [ids[i], ids[i - 1]]; act({ type: 'top8', ids }); }}>↑</button><button disabled={i === social.top8.length - 1} aria-label={`Move ${id} later`} onClick={() => { const ids = [...social.top8]; [ids[i + 1], ids[i]] = [ids[i], ids[i + 1]]; act({ type: 'top8', ids }); }}>↓</button><button onClick={() => feature(id)}>Unfeature</button></li>)}</ol>{!social.top8.length && <p className="ms-empty">Choose an accepted friend below to fill your first slot.</p>}</section>}<div className="ms-people-grid">{people.map(p => { const accepted = social.friends.includes(p.id), blocked = social.blocked.includes(p.id), request = social.requests[p.id]; return <article key={p.id} className={`ms-card ms-person-card ms-person-${p.theme}`}><button className="ms-person-avatar" onClick={() => visit(p.id)}>{p.icon}</button><h2><PersonLink id={p.id}/></h2><small>@{p.handle} · NPC citizen</small><p>{p.interests}</p><div className="ms-actions"><button onClick={() => visit(p.id)}>Visit profile</button>{!blocked && (accepted ? <><button onClick={() => feature(p.id)} disabled={!social.top8.includes(p.id) && social.top8.length >= 8}>{social.top8.includes(p.id) ? 'Featured ♡' : 'Feature in Top 8'}</button><button onClick={() => go(`Mail:${p.id}`)}>Message</button></> : <><button onClick={() => act({ type: 'friend', person: p.id, decision: request === 'pending' ? 'cancel' : 'accept' })}>{request === 'incoming' ? 'Accept request' : request === 'pending' ? 'Cancel pending request' : 'Send friend request'}</button>{request === 'incoming' && <button onClick={() => act({ type: 'friend', person: p.id, decision: 'decline' })}>Decline</button>}</>)}</div>{accepted && !social.memories.includes(`conversation:${p.id}`) && <details><summary>A conversation worth having</summary><p>{p.reply}</p><textarea aria-label={`Reply to ${p.name}`} value={reply[p.id] || ''} onChange={e => setReply({ ...reply, [p.id]: e.target.value })} maxLength={2000}/><button onClick={() => { const comms = useCommsStore.getState(); if (!comms.ensurePersonalThread(p.phone)) return; if (act({ type: 'conversation', person: p.id, text: reply[p.id] })) { comms.sendPhoneMessage(p.phone, reply[p.id], 'You', 'mai.space'); comms.sendPhoneMessage(p.phone, p.response, p.phone, 'mai.space'); setReply({ ...reply, [p.id]: '' }); } }}>Share & listen</button></details>}<details><summary>Boundaries & privacy</summary><div className="ms-actions"><button onClick={() => act({ type: 'block', person: p.id })}>{blocked ? 'Unblock' : 'Block'}</button><button onClick={() => act({ type: 'mute', person: p.id })}>{social.muted.includes(p.id) ? 'Unmute' : 'Mute feed'}</button>{accepted && <button onClick={() => act({ type: 'unfriend', person: p.id })}>End connection</button>}</div><label>Report concern<input value={reason} onChange={e => setReason(e.target.value)} maxLength={500}/></label><button onClick={() => act({ type: 'report', target: `profile:${p.id}`, reason })}>Save local report</button><small>Reports stay on this device; there is no human moderation service.</small></details></article>; })}</div>{!people.length && <p className="ms-empty">No matching citizens.</p>}</div>;
+  return <div className="ms-content-width"><div className="ms-section-heading"><div><span className="ms-eyebrow">PEOPLE MAKE A PLACE</span><h1>{friendsOnly ? 'Friends & my Top 8' : 'Browse the neighborhood'}</h1><p>Every page belongs to a citizen of Meridion. Connections take their own time.</p></div><input type="search" aria-label="Find people" value={search} onChange={e => setSearch(e.target.value)} placeholder="Name, interest, or handle…"/></div>{friendsOnly && <section className="ms-card"><h2>My Top 8</h2>{social.top8.length > 1 && <SortableList label="Top 8 friend order" items={social.top8.map(id => ({ id, label: PEOPLE.find(person => person.id === id)?.name || id }))} onReorder={ids => act({ type: 'top8', ids })}/>}<p>Your choice, not a ranking of relationship points. Removing a featured friend does not end a friendship.</p><ol className="ms-featured-list">{social.top8.map((id, i) => <li key={id}><PersonLink id={id}/><button disabled={i === 0} aria-label={`Move ${id} earlier`} onClick={() => { const ids = [...social.top8]; [ids[i - 1], ids[i]] = [ids[i], ids[i - 1]]; act({ type: 'top8', ids }); }}>↑</button><button disabled={i === social.top8.length - 1} aria-label={`Move ${id} later`} onClick={() => { const ids = [...social.top8]; [ids[i + 1], ids[i]] = [ids[i], ids[i + 1]]; act({ type: 'top8', ids }); }}>↓</button><button onClick={() => feature(id)}>Unfeature</button></li>)}</ol>{!social.top8.length && <p className="ms-empty">Choose an accepted friend below to fill your first slot.</p>}</section>}<div className="ms-people-grid">{people.map(p => { const accepted = social.friends.includes(p.id), blocked = social.blocked.includes(p.id), request = social.requests[p.id]; return <article key={p.id} className={`ms-card ms-person-card ms-person-${p.theme}`}><button className="ms-person-avatar" onClick={() => visit(p.id)}>{p.icon}</button><h2><PersonLink id={p.id}/></h2><small>@{p.handle} · Meridion citizen</small><p>{p.interests}</p><div className="ms-actions"><button onClick={() => visit(p.id)}>Visit profile</button>{!blocked && (accepted ? <><button onClick={() => feature(p.id)} disabled={!social.top8.includes(p.id) && social.top8.length >= 8}>{social.top8.includes(p.id) ? 'Featured ♡' : 'Feature in Top 8'}</button><button onClick={() => go(`Mail:${p.id}`)}>Message</button></> : <><button onClick={() => act({ type: 'friend', person: p.id, decision: request === 'pending' ? 'cancel' : 'accept' })}>{request === 'incoming' ? 'Accept request' : request === 'pending' ? 'Cancel pending request' : 'Send friend request'}</button>{request === 'incoming' && <button onClick={() => act({ type: 'friend', person: p.id, decision: 'decline' })}>Decline</button>}</>)}</div>{accepted && !social.memories.includes(`conversation:${p.id}`) && <details><summary>A conversation worth having</summary><p>{p.reply}</p><textarea aria-label={`Reply to ${p.name}`} value={reply[p.id] || ''} onChange={e => setReply({ ...reply, [p.id]: e.target.value })} maxLength={2000}/><button onClick={() => { const comms = useCommsStore.getState(); if (!comms.ensurePersonalThread(p.phone)) return; if (act({ type: 'conversation', person: p.id, text: reply[p.id] })) { comms.sendPhoneMessage(p.phone, reply[p.id], 'You', 'mai.space'); comms.sendPhoneMessage(p.phone, p.response, p.phone, 'mai.space'); setReply({ ...reply, [p.id]: '' }); } }}>Share & listen</button></details>}<details><summary>Boundaries & privacy</summary><div className="ms-actions"><button onClick={() => act({ type: 'block', person: p.id })}>{blocked ? 'Unblock' : 'Block'}</button><button onClick={() => act({ type: 'mute', person: p.id })}>{social.muted.includes(p.id) ? 'Unmute' : 'Mute feed'}</button>{accepted && <button onClick={() => act({ type: 'unfriend', person: p.id })}>End connection</button>}</div><label>Report concern<input value={reason} onChange={e => setReason(e.target.value)} maxLength={500}/></label><button onClick={() => act({ type: 'report', target: `profile:${p.id}`, reason })}>Save local report</button><small>Reports stay on this device; there is no human moderation service.</small></details></article>; })}</div>{!people.length && <p className="ms-empty">No matching citizens.</p>}</div>;
 }
 
 export function Photos({ initialAlbum = '' }: { initialAlbum?: string }) {
@@ -487,7 +648,7 @@ export function Events({ initialGroup = '' }: { initialGroup?: string }) {
   const { social, act, cycle, go } = useSocial();
   const [groupId, setGroupId] = useState(initialGroup);
   const [title, setTitle] = useState(''), [description, setDescription] = useState(''), [location, setLocation] = useState('Home gathering'), [when, setWhen] = useState(cycle + 1), [invited, invite] = useState<string[]>([]), [aud, setAud] = useState<Audience>('friends');
-  return <div className="ms-content-width"><div className="ms-section-heading"><div><span className="ms-eyebrow">MAKE TIME FOR EACH OTHER</span><h1>Gatherings & little occasions</h1><p>Desktop activities, real shared memories. No quest required.</p></div></div><form className="ms-card" onSubmit={e => { e.preventDefault(); if (act({ type: 'event', title, description, location, cycle: when, invited, audience: aud, groupId: groupId || undefined })) { setTitle(''); invite([]); } }}><h2>Plan a gathering</h2><label>Title<input required value={title} onChange={e => setTitle(e.target.value)} maxLength={100}/></label><label>Description<textarea value={description} onChange={e => setDescription(e.target.value)} maxLength={2000}/></label><div className="ms-settings-grid"><label>Available activity<select value={location} onChange={e => setLocation(e.target.value)}><option>Home gathering</option><option>Photo Circle online room</option></select></label><label>World cycle<input type="number" min={cycle} value={when} onChange={e => setWhen(+e.target.value)}/></label></div><label>Community<select value={groupId} onChange={e => setGroupId(e.target.value)}><option value="">Personal gathering</option>{social.groups.filter(g => g.members.includes('you')).map(g => <option value={g.id} key={g.id}>{g.name}</option>)}</select></label>{groupId ? <p>This event is visible to group members only.</p> : <AudienceSelect value={aud} onChange={setAud}/>}<fieldset><legend>Invite friends</legend>{social.friends.filter(id => !social.blocked.includes(id)).map(id => <label key={id}><input type="checkbox" checked={invited.includes(id)} onChange={e => invite(e.target.checked ? [...invited, id] : invited.filter(p => p !== id))}/>{PEOPLE.find(p => p.id === id)?.name}</label>)}</fieldset><button>Create event</button><small>NPC invitations are answered after world time advances. Attendance is a contextual desktop gathering, not a 3D scene.</small></form>{social.events.filter(e => canSeeRecord(social, e)).map(e => <section className="ms-card" key={e.id}><small>Cycle {e.cycle} · {e.location} · {e.audience}</small><h2>{e.title}</h2><p>{e.description}</p>{e.canceled ? <p>Canceled by host</p> : <><label>Your RSVP<select value={e.rsvp.you || 'maybe'} onChange={v => act({ type: 'rsvp', id: e.id, value: v.target.value })}><option value="going">Going</option><option value="maybe">Maybe</option><option value="declined">Not this time</option></select></label><ul>{e.invited.filter(id => !social.blocked.includes(id)).map(id => <li key={id}>{PEOPLE.find(p => p.id === id)?.name}: {e.rsvp[id] || 'Awaiting a reply'}</li>)}</ul>{e.attendance.includes('you') ? <><p>Memory kept. {e.attendance.length} participant{e.attendance.length > 1 ? 's' : ''} attended this desktop gathering.</p><button onClick={() => go(`Photos:event-album:${e.id}`)}>Open the memory album</button><p className="ms-help">The album starts empty; no photograph or attendance is fabricated.</p></> : <div className="ms-actions"><button disabled={cycle < e.cycle || e.rsvp.you !== 'going'} onClick={() => act({ type: 'attend', id: e.id })}>Attend & share a quiet moment</button>{e.host === 'you' && <button onClick={() => act({ type: 'cancel-event', id: e.id })}>Cancel event</button>}</div>}</>}</section>)}</div>;
+  return <div className="ms-content-width"><div className="ms-section-heading"><div><span className="ms-eyebrow">MAKE TIME FOR EACH OTHER</span><h1>Gatherings & little occasions</h1><p>Desktop activities, real shared memories. No quest required.</p></div></div><form className="ms-card" onSubmit={e => { e.preventDefault(); if (act({ type: 'event', title, description, location, cycle: when, invited, audience: aud, groupId: groupId || undefined })) { setTitle(''); invite([]); } }}><h2>Plan a gathering</h2><label>Title<input required value={title} onChange={e => setTitle(e.target.value)} maxLength={100}/></label><label>Description<textarea value={description} onChange={e => setDescription(e.target.value)} maxLength={2000}/></label><div className="ms-settings-grid"><label>Available activity<select value={location} onChange={e => setLocation(e.target.value)}><option>Home gathering</option><option>Photo Circle online room</option></select></label><label>World cycle<input type="number" min={cycle} value={when} onChange={e => setWhen(+e.target.value)}/></label></div><label>Community<select value={groupId} onChange={e => setGroupId(e.target.value)}><option value="">Personal gathering</option>{social.groups.filter(g => g.members.includes('you')).map(g => <option value={g.id} key={g.id}>{g.name}</option>)}</select></label>{groupId ? <p>This event is visible to group members only.</p> : <AudienceSelect value={aud} onChange={setAud}/>}<fieldset><legend>Invite friends</legend>{social.friends.filter(id => !social.blocked.includes(id)).map(id => <label key={id}><input type="checkbox" checked={invited.includes(id)} onChange={e => invite(e.target.checked ? [...invited, id] : invited.filter(p => p !== id))}/>{PEOPLE.find(p => p.id === id)?.name}</label>)}</fieldset><button>Create event</button><small>Invitations are answered as the day progresses.</small></form>{social.events.filter(e => canSeeRecord(social, e)).map(e => <section className="ms-card" key={e.id}><small>Cycle {e.cycle} · {e.location} · {e.audience}</small><h2>{e.title}</h2><p>{e.description}</p>{e.canceled ? <p>Canceled by host</p> : <><label>Your RSVP<select value={e.rsvp.you || 'maybe'} onChange={v => act({ type: 'rsvp', id: e.id, value: v.target.value })}><option value="going">Going</option><option value="maybe">Maybe</option><option value="declined">Not this time</option></select></label><ul>{e.invited.filter(id => !social.blocked.includes(id)).map(id => <li key={id}>{PEOPLE.find(p => p.id === id)?.name}: {e.rsvp[id] || 'Awaiting a reply'}</li>)}</ul>{e.attendance.includes('you') ? <><p>Memory kept. {e.attendance.length} participant{e.attendance.length > 1 ? 's' : ''} attended this desktop gathering.</p><button onClick={() => go(`Photos:event-album:${e.id}`)}>Open the memory album</button><p className="ms-help">The album starts empty; no photograph or attendance is fabricated.</p></> : <div className="ms-actions"><button disabled={cycle < e.cycle || e.rsvp.you !== 'going'} onClick={() => act({ type: 'attend', id: e.id })}>Attend & share a quiet moment</button>{e.host === 'you' && <button onClick={() => act({ type: 'cancel-event', id: e.id })}>Cancel event</button>}</div>}</>}</section>)}</div>;
 }
 
 export function SocialMail({ initialPerson = '' }: { initialPerson?: string }) {
@@ -498,5 +659,5 @@ export function SocialMail({ initialPerson = '' }: { initialPerson?: string }) {
   const p = PEOPLE.find(p => p.id === person), permitted = p && !social.blocked.includes(p.id);
   const contact = p?.phone || '', messages = threads[contact] || [];
   useEffect(() => { if (permitted) useCommsStore.getState().markPhoneThreadRead(contact); }, [contact, messages.length, permitted]);
-  return <div className="ms-content-width"><div className="ms-section-heading"><div><span className="ms-eyebrow">FROM ONE PERSON TO ANOTHER</span><h1>Personal mail</h1><p>The same personal conversations and drafts as phone Messages. Email stays in AureMail.</p></div></div><div className="ms-photo-layout"><aside className="ms-card">{PEOPLE.map(p => <button className="ms-album-choice" aria-pressed={p.id === person} key={p.id} onClick={() => { select(p.id); useCommsStore.getState().ensurePersonalThread(p.phone); }}>{p.name}{!social.blocked.includes(p.id) && (threads[p.phone] || []).slice(readCounts[p.phone] ?? 0).some(m => m.sender !== 'You') && <small>New personal messages</small>}{social.blocked.includes(p.id) && <small>Blocked</small>}</button>)}</aside><section className="ms-card"><h2>{p?.name}</h2>{permitted ? <><div className="ms-message-history">{messages.map(m => <article key={m.id} className={m.sender === 'You' ? 'ms-my-message' : ''}><small>{m.sender} · {m.source || 'phone'} · {m.time}</small><p>{m.text}</p></article>)}{!messages.length && <p>Start a personal conversation. NPC replies come from supported conversations and activities, not a live person.</p>}</div><form onSubmit={e => { e.preventDefault(); const c = useCommsStore.getState(); if (c.ensurePersonalThread(contact) && c.sendPhoneMessage(contact, drafts[contact] || '', 'You', 'mai.space')) c.setPhoneDraft(contact, ''); }}><textarea aria-label="Personal message" value={drafts[contact] || ''} onChange={e => { const c = useCommsStore.getState(); if (c.ensurePersonalThread(contact)) c.setPhoneDraft(contact, e.target.value); }} maxLength={4000} required/><button>Send message</button></form></> : <p>This contact is blocked. Manage your boundaries in Friends.</p>}</section></div></div>;
+  return <div className="ms-content-width"><div className="ms-section-heading"><div><span className="ms-eyebrow">FROM ONE PERSON TO ANOTHER</span><h1>Personal mail</h1><p>The same personal conversations and drafts as phone Messages. Email stays in AureMail.</p></div></div><div className="ms-photo-layout"><aside className="ms-card">{PEOPLE.map(p => <button className="ms-album-choice" aria-pressed={p.id === person} key={p.id} onClick={() => { select(p.id); useCommsStore.getState().ensurePersonalThread(p.phone); }}>{p.name}{!social.blocked.includes(p.id) && (threads[p.phone] || []).slice(readCounts[p.phone] ?? 0).some(m => m.sender !== 'You') && <small>New personal messages</small>}{social.blocked.includes(p.id) && <small>Blocked</small>}</button>)}</aside><section className="ms-card"><h2>{p?.name}</h2>{permitted ? <><div className="ms-message-history">{messages.map(m => <article key={m.id} className={m.sender === 'You' ? 'ms-my-message' : ''}><small>{m.sender} · {m.source || 'phone'} · {m.time}</small><p>{m.text}</p></article>)}{!messages.length && <p>Start a personal conversation.</p>}</div><form onSubmit={e => { e.preventDefault(); const c = useCommsStore.getState(); if (c.ensurePersonalThread(contact) && c.sendPhoneMessage(contact, drafts[contact] || '', 'You', 'mai.space')) c.setPhoneDraft(contact, ''); }}><textarea aria-label="Personal message" value={drafts[contact] || ''} onChange={e => { const c = useCommsStore.getState(); if (c.ensurePersonalThread(contact)) c.setPhoneDraft(contact, e.target.value); }} maxLength={4000} required/><button>Send message</button></form></> : <p>This contact is blocked. Manage your boundaries in Friends.</p>}</section></div></div>;
 }

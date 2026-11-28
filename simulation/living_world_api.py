@@ -19,6 +19,7 @@ import npc_intelligence
 import reliability
 import realtime_world
 import species_genetics
+import social_feed
 
 from paths import RUN_DATABASE as DATABASE
 CORE_FIELDS = {'format_version','seed','clock','calendar','playing','random_state','citizens'}
@@ -216,6 +217,12 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
             elif path == '/population/summary' and not post:
                 run_id=(query.get('runId') or [''])[0]
                 operation='population/summary'
+            elif path == '/social/feed' and not post:
+                run_id=(query.get('runId') or [''])[0]
+                operation='social/feed'
+            elif path in ('/social/like', '/social/comment') and post:
+                run_id=str(body.get('runId') or '')
+                operation=path.lstrip('/')
             elif path in ('/schedule/optimize','/citizens/procedural','/documents/generate','/population/preview','/population/deficit-preview','/population/commit','/population/demand','/population/config') and post:
                 run_id=str(body.get('runId') or '')
                 operation=path.lstrip('/')
@@ -259,6 +266,21 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
                         self._send(200,{'runId':run_id,**institutions.list_workflows(model)});return
                     if operation=='population/summary':
                         self._send(200,{'runId':run_id,**model.population_summary()});return
+                    if operation=='social/feed':
+                        prev_len = len(model._extensions.get('social_feed') or [])
+                        posts = social_feed.sync_autonomous_posts(model)
+                        if len(posts) != prev_len:
+                            model.save()
+                        realm_filter = (query.get('realm') or [''])[0].strip().lower()
+                        if realm_filter:
+                            posts = [p for p in posts if str(p.get('realm','')).lower() == realm_filter]
+                        self._send(200, {
+                            'runId': run_id,
+                            'elapsedMinutes': model.world_clock.elapsed_minutes,
+                            'worldDate': model.current_world_date(),
+                            'posts': posts,
+                            'pulse': social_feed.neighborhood_pulse(model),
+                        }); return
                     if operation=='diagnostics':
                         self._send(200,{
                             'runId':run_id,
@@ -277,7 +299,22 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
                         if model._extensions.get('realtime'):
                             raise ValueError('The live world follows real time. Use an experimental run for manual stepping.')
                         model.advance_steps(body.get('steps',1))
+                        social_feed.sync_autonomous_posts(model)
+                        model.save()
                         self._send(200,{'runId':run_id,'revision':model._revision,'clock':model.world_clock.to_state(),'date':model.current_world_date()});return
+                    if operation=='social/like':
+                        post = social_feed.toggle_like(model, str(body.get('postId') or ''))
+                        model.save()
+                        self._send(200, {'post': post, 'revision': model._revision}); return
+                    if operation=='social/comment':
+                        post = social_feed.add_comment(
+                            model,
+                            str(body.get('postId') or ''),
+                            str(body.get('text') or ''),
+                            str(body.get('authorName') or 'You'),
+                        )
+                        model.save()
+                        self._send(200, {'post': post, 'revision': model._revision}); return
                     if operation=='workflows':
                         validated=reliability.validate_payload(reliability.WorkflowTransitionPayload,body,model,'workflows')
                         result=institutions.transition_workflow(

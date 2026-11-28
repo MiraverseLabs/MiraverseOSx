@@ -1,10 +1,39 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { SEVEN_REALMS, GEOGRAPHIC_LANDMARKS, RealmDefinition } from '../data/meridionWorld';
-import { Compass, Star, MapPin, Shield, Thermometer, Wind, Sparkles, Mountain, Waves, Sun, Snowflake, Flame, Moon, CloudRain } from 'lucide-react';
+import { Compass, Star, MapPin, Shield, Thermometer, Wind, Sparkles, Mountain, Waves, Sun, Snowflake, Flame, Moon, ZoomIn, ZoomOut, Maximize2, RotateCcw, X } from 'lucide-react';
+
+const REALM_MAP_ASSETS: Record<string, { src: string; subtitle: string }> = {
+  OR: { src: '/media/maps/orynvell.jpg', subtitle: 'Orynvell — The Aetherial Realm' },
+  FR: { src: '/media/maps/fross.jpg', subtitle: 'Fross — The Winter Realm' },
+  LU: { src: '/media/maps/lumia.jpg', subtitle: 'Lumia — The Realm of Summer and Light' },
+  MA: { src: '/media/maps/marlowe.jpg', subtitle: 'Marlowe — The Radiant Water Realm' },
+  BR: { src: '/media/maps/brisland.jpg', subtitle: 'Brisland — The Windlit Realm' },
+  KA: { src: '/media/maps/kaji.jpg', subtitle: 'Kaji — The Volcanic Realm of Pyre' },
+  NE: { src: '/media/maps/nephele.jpg', subtitle: 'Nephele — The Realm of Shadows and the Nether' },
+  VR: { src: '/media/maps/veraylia.jpg', subtitle: 'Ve’Raylia — The Emerald Realm' },
+};
 
 export default function SevenRealmsMapPanel() {
   const [selectedRealmId, setSelectedRealmId] = useState<string>('REG_ORYNVELL');
+  const [zoom, setZoom] = useState<number>(1);
+  const [modalZoom, setModalZoom] = useState<number>(1);
+  const lightboxRef = useRef<HTMLDialogElement>(null);
   const selectedRealm = SEVEN_REALMS.find(r => r.id === selectedRealmId) || SEVEN_REALMS[0];
+  const mapAsset = REALM_MAP_ASSETS[selectedRealm.regionCode] || REALM_MAP_ASSETS.OR;
+
+  const selectRealm = (id: string) => {
+    setSelectedRealmId(id);
+    setZoom(1);
+  };
+
+  const openLightbox = () => {
+    setModalZoom(1);
+    lightboxRef.current?.showModal();
+  };
+
+  const closeLightbox = () => {
+    lightboxRef.current?.close();
+  };
 
   const getElementIcon = (element: string) => {
     if (element.includes('Celestial') || element.includes('Aether')) return <Sparkles size={16} className="text-amber-500" />;
@@ -51,7 +80,7 @@ export default function SevenRealmsMapPanel() {
                 <button
                   type="button"
                   key={realm.id}
-                  onClick={() => setSelectedRealmId(realm.id)}
+                  onClick={() => selectRealm(realm.id)}
                   className={`w-full text-left p-3.5 rounded-xl border transition-all flex items-center justify-between cursor-pointer ${
                     isSelected
                       ? 'bg-white border-indigo-500 shadow-md ring-2 ring-indigo-500/10'
@@ -128,6 +157,120 @@ export default function SevenRealmsMapPanel() {
                 <div className="font-bold text-sm text-[#1e2640]">{selectedRealm.rulingLineage}</div>
               </div>
             </div>
+
+            {/* Illustrated Sovereign Realm Map with Zoom & Fullscreen Lightbox */}
+            <div className="rounded-xl border border-slate-200 bg-slate-950/95 overflow-hidden shadow-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 bg-slate-900 text-slate-100 border-b border-slate-800">
+                <div className="flex items-center gap-2 text-xs font-semibold">
+                  <MapPin size={13} className="text-amber-400" />
+                  <span>{mapAsset.subtitle}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setZoom(z => Math.max(1, Number((z - 0.5).toFixed(2))))}
+                    disabled={zoom <= 1}
+                    className="p-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 cursor-pointer"
+                    aria-label="Zoom out map"
+                    title="Zoom out"
+                  >
+                    <ZoomOut size={14} />
+                  </button>
+                  <span className="text-[11px] font-mono text-slate-300 min-w-[42px] text-center">
+                    {Math.round(zoom * 100)}%
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setZoom(z => Math.min(2.5, Number((z + 0.5).toFixed(2))))}
+                    disabled={zoom >= 2.5}
+                    className="p-1 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 cursor-pointer"
+                    aria-label="Zoom in map"
+                    title="Zoom in"
+                  >
+                    <ZoomIn size={14} />
+                  </button>
+                  {zoom > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setZoom(1)}
+                      className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 cursor-pointer"
+                      aria-label="Reset map zoom"
+                      title="Reset zoom"
+                    >
+                      <RotateCcw size={13} />
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={openLightbox}
+                    className="ml-1 inline-flex items-center gap-1 px-2 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-200 text-[11px] font-semibold cursor-pointer"
+                    title="Inspect full-resolution realm map"
+                  >
+                    <Maximize2 size={12} />
+                    <span>Expand</span>
+                  </button>
+                </div>
+              </div>
+              <div className="overflow-auto max-h-[420px] bg-slate-950">
+                <img
+                  src={mapAsset.src}
+                  alt={mapAsset.subtitle}
+                  onClick={() => setZoom(z => (z >= 2 ? 1 : Number((z + 0.5).toFixed(2))))}
+                  style={{
+                    width: `${zoom * 100}%`,
+                    maxWidth: 'none',
+                    display: 'block',
+                    cursor: zoom >= 2 ? 'zoom-out' : 'zoom-in',
+                    transition: 'width 0.2s ease',
+                  }}
+                />
+              </div>
+              <div className="flex gap-1.5 overflow-x-auto p-2 bg-slate-900/95 border-t border-slate-800" aria-label="Switch realm map">
+                {SEVEN_REALMS.map(r => {
+                  const thumb = REALM_MAP_ASSETS[r.regionCode];
+                  if (!thumb) return null;
+                  const active = r.id === selectedRealm.id;
+                  return (
+                    <button
+                      key={r.id}
+                      type="button"
+                      onClick={() => selectRealm(r.id)}
+                      className={`shrink-0 flex flex-col items-center gap-1 p-1 rounded-lg border transition cursor-pointer ${
+                        active
+                          ? 'border-amber-400 bg-amber-400/15 text-amber-200'
+                          : 'border-slate-700 bg-slate-800/60 text-slate-300 hover:border-slate-500'
+                      }`}
+                    >
+                      <img src={thumb.src} alt="" className="w-16 h-10 object-cover rounded" loading="lazy" />
+                      <span className="text-[10px] font-semibold">{r.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <dialog
+              ref={lightboxRef}
+              onClick={e => { if (e.target === lightboxRef.current) closeLightbox(); }}
+              className="m-auto w-[94vw] max-w-6xl max-h-[92vh] rounded-2xl border border-slate-700 bg-slate-950 text-white p-0 shadow-2xl backdrop:bg-slate-950/80"
+            >
+              <div className="flex items-center justify-between gap-3 px-4 py-3 bg-slate-900 border-b border-slate-800">
+                <strong className="text-sm">{mapAsset.subtitle}</strong>
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={() => setModalZoom(z => Math.max(1, Number((z - 0.5).toFixed(2))))} disabled={modalZoom <= 1} className="px-2 py-1 rounded bg-slate-800 text-xs disabled:opacity-40 cursor-pointer">−</button>
+                  <span className="text-xs font-mono min-w-[44px] text-center">{Math.round(modalZoom * 100)}%</span>
+                  <button type="button" onClick={() => setModalZoom(z => Math.min(3, Number((z + 0.5).toFixed(2))))} disabled={modalZoom >= 3} className="px-2 py-1 rounded bg-slate-800 text-xs disabled:opacity-40 cursor-pointer">+</button>
+                  <button type="button" onClick={closeLightbox} className="ml-2 p-1.5 rounded bg-slate-800 hover:bg-slate-700 cursor-pointer" aria-label="Close expanded map"><X size={15} /></button>
+                </div>
+              </div>
+              <div className="overflow-auto max-h-[82vh] bg-slate-950">
+                <img
+                  src={mapAsset.src}
+                  alt={mapAsset.subtitle}
+                  style={{ width: `${modalZoom * 100}%`, maxWidth: 'none', display: 'block' }}
+                />
+              </div>
+            </dialog>
 
             {/* Anchors & Capital */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

@@ -1,9 +1,16 @@
 // src/components/LoginScreen.jsx
-import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Key, User, ShieldAlert, LogIn, Lock, ArrowRight, Video, Play, Volume2, VolumeX, Eye } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Sparkles, Key, User, ShieldAlert, LogIn, Lock, ArrowRight, UserPlus, Home, Wallet } from 'lucide-react';
 import Button from './button';
 import Input from './input';
+import { useOSStore } from '../../store/useOSStore';
+import { LINEAGE_RECORDS } from '../../game-content/species/registry';
+import {
+  STARTER_BACKGROUNDS,
+  STARTER_RESIDENCES,
+  REALM_REGION_CODES,
+} from '../../gameplay/FreshPlayerSave';
 
 import videoAnomaly from '../../assets/videos/everything_is_great_but_do_not.mp4';
 import videoSurveillance from '../../assets/videos/mixkit-a-woman-monitoring-close-circuit-surveillance-23673-hd-ready.mp4';
@@ -23,11 +30,49 @@ export default function LoginScreen({ onLoginSuccess, initialMode = 'login', onB
   const [mode, setMode] = useState(initialMode); // 'login' | 'register'
   const [username, setUsername] = useState('CY-9021-PLAYER');
   const [password, setPassword] = useState('••••••••');
-  const [assetKey, setAssetKey] = useState('ASSET-AURELINE-88');
   const [statusMsg, setStatusMsg] = useState('');
-  const [activeVideoId, setActiveVideoId] = useState('glitter');
-  const [isMuted, setIsMuted] = useState(true);
+  const [activeVideoId] = useState('glitter');
+  const [isMuted] = useState(true);
   const [isBooting, setIsBooting] = useState(false);
+
+  // Guided Fresh Character Onboarding state
+  const [newName, setNewName] = useState('');
+  const [newAlias, setNewAlias] = useState('');
+  const [newPronouns, setNewPronouns] = useState('');
+  const [newRealm, setNewRealm] = useState('Orynvell');
+  const [newSpeciesId, setNewSpeciesId] = useState('MR-211');
+  const [newResidenceId, setNewResidenceId] = useState(STARTER_RESIDENCES[0].id);
+  const [newBackgroundId, setNewBackgroundId] = useState(STARTER_BACKGROUNDS[0].id);
+
+  const handleCreateFreshCharacter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newName.trim() || isBooting) return;
+    setIsBooting(true);
+    setStatusMsg('⚡ ARCHIVING PRIOR PROGRESS & ALLOCATING FRESH AURA IDENTITY...');
+    try {
+      const result = await useOSStore.getState().startFreshPlayerSave({
+        displayName: newName.trim(),
+        alias: newAlias.trim() || undefined,
+        pronouns: newPronouns.trim() || undefined,
+        homeRealm: newRealm,
+        speciesId: newSpeciesId || undefined,
+        residenceId: newResidenceId,
+        backgroundId: newBackgroundId,
+      });
+      setStatusMsg(`✓ ${result.message}`);
+      setTimeout(() => {
+        onLoginSuccess?.({
+          name: newName.trim(),
+          isAdmin: false,
+          freshSave: true,
+          maid: result.maid,
+        });
+      }, 600);
+    } catch (err: any) {
+      setStatusMsg(err?.message || 'Could not initialize fresh character save.');
+      setIsBooting(false);
+    }
+  };
 
   const activeVideo = VIDEO_FEEDS.find((v) => v.id === activeVideoId) || VIDEO_FEEDS[0];
 
@@ -120,14 +165,81 @@ export default function LoginScreen({ onLoginSuccess, initialMode = 'login', onB
             Sign In
           </button>
           <button
+            type="button"
             onClick={() => setMode('register')}
             className={`py-2 rounded-lg transition ${mode === 'register' ? 'bg-[#E5C370] text-[#0E1A33] font-bold shadow-md' : 'text-white/70 hover:text-white'}`}
           >
-            Register Asset
+            New Character (Fresh Save)
           </button>
         </div>
 
-        {/* Login / Register Form */}
+        {mode === 'register' ? (
+          <form onSubmit={handleCreateFreshCharacter} className="space-y-3 max-h-[58vh] overflow-y-auto pr-1">
+            <p className="text-[11px] text-[#D5E2F5] leading-relaxed bg-[#142850]/70 border border-white/15 rounded-xl p-2.5">
+              Archives any current Administrator or prior save safely, issues one AURA MAID, registers your residence, initializes starting finances, and opens personal comms.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <label className="text-[10px] text-[#FBE6AB] uppercase font-bold">Character Name *</label>
+                <Input type="text" required value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Lyra Solis" className="bg-[#142850]/85 border-[#315D9E] text-white text-xs" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-[#FBE6AB] uppercase font-bold">Comms Alias</label>
+                <Input type="text" value={newAlias} onChange={(e) => setNewAlias(e.target.value)} placeholder="@lyra.solis" className="bg-[#142850]/85 border-[#315D9E] text-white text-xs" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <label className="text-[10px] text-[#FBE6AB] uppercase font-bold">Home Realm</label>
+                <select value={newRealm} onChange={(e) => setNewRealm(e.target.value)} className="w-full rounded-lg bg-[#142850] border border-[#315D9E] text-white text-xs px-2.5 py-2">
+                  {Object.keys(REALM_REGION_CODES).map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-[#FBE6AB] uppercase font-bold">Pronouns</label>
+                <Input type="text" value={newPronouns} onChange={(e) => setNewPronouns(e.target.value)} placeholder="Optional" className="bg-[#142850]/85 border-[#315D9E] text-white text-xs" />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] text-[#FBE6AB] uppercase font-bold">Species / Lineage</label>
+              <select value={newSpeciesId} onChange={(e) => setNewSpeciesId(e.target.value)} className="w-full rounded-lg bg-[#142850] border border-[#315D9E] text-white text-xs px-2.5 py-2">
+                <option value="">Choose later in My Character</option>
+                {LINEAGE_RECORDS.slice(0, 60).map(sp => (
+                  <option key={sp.id} value={sp.id}>{sp.name} · {sp.realm} ({sp.category})</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] text-[#FBE6AB] uppercase font-bold flex items-center gap-1"><Home size={11} /> Starter Residence</label>
+              <select value={newResidenceId} onChange={(e) => setNewResidenceId(e.target.value)} className="w-full rounded-lg bg-[#142850] border border-[#315D9E] text-white text-xs px-2.5 py-2">
+                {STARTER_RESIDENCES.map(res => (
+                  <option key={res.id} value={res.id}>{res.name} ({res.city})</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] text-[#FBE6AB] uppercase font-bold flex items-center gap-1"><Wallet size={11} /> Starting Background &amp; Finances</label>
+              <select value={newBackgroundId} onChange={(e) => setNewBackgroundId(e.target.value)} className="w-full rounded-lg bg-[#142850] border border-[#315D9E] text-white text-xs px-2.5 py-2">
+                {STARTER_BACKGROUNDS.map(bg => (
+                  <option key={bg.id} value={bg.id}>{bg.label} — {bg.credits} cr / {bg.bits} bits</option>
+                ))}
+              </select>
+            </div>
+            {statusMsg && (
+              <div className="rounded-xl bg-cyan-500/20 border border-cyan-400/50 p-2.5 text-center text-xs text-cyan-200 font-mono">
+                {statusMsg}
+              </div>
+            )}
+            <Button
+              type="submit"
+              disabled={isBooting || !newName.trim()}
+              className="w-full py-3 bg-gradient-to-r from-emerald-400 to-cyan-500 font-bold text-xs text-[#0B1426] hover:from-emerald-300 hover:to-cyan-400 transition flex items-center justify-center gap-2"
+            >
+              <UserPlus size={15} /> Archive Prior Save &amp; Start Fresh Character
+            </Button>
+          </form>
+        ) : (
+        /* Login Form */
         <form onSubmit={handleStandardLogin} className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-[10px] font-ui text-[#FBE6AB] uppercase tracking-wider flex items-center gap-1 font-bold">
@@ -157,21 +269,6 @@ export default function LoginScreen({ onLoginSuccess, initialMode = 'login', onB
             />
           </div>
 
-          {mode === 'register' && (
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-mono text-cyan-300/80 uppercase tracking-wider flex items-center gap-1">
-                <Key size={12} /> Registration Key
-              </label>
-              <Input
-                type="text"
-                value={assetKey}
-                onChange={(e) => setAssetKey(e.target.value)}
-                placeholder="Enter provisional registration key..."
-                className="bg-black/60 border-cyan-500/30 text-cyan-200 placeholder:text-white/30 text-xs"
-              />
-            </div>
-          )}
-
           <div className="space-y-1.5">
             <label className="text-[10px] font-mono text-cyan-300/80 uppercase tracking-wider flex items-center gap-1">
               <Lock size={12} /> Access Password
@@ -196,9 +293,10 @@ export default function LoginScreen({ onLoginSuccess, initialMode = 'login', onB
             disabled={isBooting}
             className="w-full py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 font-bold text-xs text-black hover:from-cyan-400 hover:to-indigo-500 transition shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2"
           >
-            <LogIn size={15} /> {mode === 'login' ? 'START LOGIN BOOT' : 'Initialize Asset Record'}
+            <LogIn size={15} /> START LOGIN BOOT
           </Button>
         </form>
+        )}
 
         {/* Divider */}
         <div className="relative my-6 flex items-center justify-center">

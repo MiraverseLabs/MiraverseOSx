@@ -3,10 +3,19 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { INTERFACE_STORAGE_KEY, normalizeInterfacePreferences, readInterfacePreferences, saveInterfacePreferences, resolveInterfaceAppearance, subscribeInterfacePreferences } from '../src/store/interfacePreferences.ts';
 
+const COMFORT_DEFAULTS = {
+  textScale: 'default',
+  reducedMotion: 'system',
+  transparency: 'full',
+  musicVolume: 45,
+  effectsVolume: 70,
+  notifications: 'all',
+};
+
 test('interface defaults are compact and system; invalid or older records are safely normalized', () => {
   for (const value of [null, undefined, [], 'light', {appearance:'broken',density:'tiny'}])
-    assert.deepEqual(normalizeInterfacePreferences(value), {appearance:'system',density:'compact'});
-  assert.deepEqual(normalizeInterfacePreferences({appearance:'dark',density:'comfortable',player:{credits:100}}), {appearance:'dark',density:'comfortable'});
+    assert.deepEqual(normalizeInterfacePreferences(value), {appearance:'system',density:'compact',...COMFORT_DEFAULTS});
+  assert.deepEqual(normalizeInterfacePreferences({appearance:'dark',density:'comfortable',player:{credits:100}}), {appearance:'dark',density:'comfortable',...COMFORT_DEFAULTS});
 });
 test('appearance and density survive storage reload without touching gameplay records', () => {
   const original = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
@@ -14,12 +23,12 @@ test('appearance and density survive storage reload without touching gameplay re
   Object.defineProperty(globalThis,'localStorage',{configurable:true,value:{getItem:key=>entries.get(key)||null,setItem:(key,value)=>entries.set(key,value)}});
   try {
     saveInterfacePreferences({appearance:'dark',density:'comfortable'});
-    assert.deepEqual(readInterfacePreferences(),{appearance:'dark',density:'comfortable'});
+    assert.deepEqual(readInterfacePreferences(),{appearance:'dark',density:'comfortable',...COMFORT_DEFAULTS});
     assert.equal(entries.get('player-save'),'{"credits":321}');
     entries.set(INTERFACE_STORAGE_KEY,'bad json');
-    assert.deepEqual(readInterfacePreferences(),{appearance:'system',density:'compact'});
+    assert.deepEqual(readInterfacePreferences(),{appearance:'system',density:'compact',...COMFORT_DEFAULTS});
     Object.defineProperty(globalThis,'localStorage',{configurable:true,get(){throw new Error('Unavailable');}});
-    assert.deepEqual(readInterfacePreferences(),{appearance:'system',density:'compact'});
+    assert.deepEqual(readInterfacePreferences(),{appearance:'system',density:'compact',...COMFORT_DEFAULTS});
     assert.doesNotThrow(()=>saveInterfacePreferences({appearance:'light',density:'compact'}));
   } finally { if(original) Object.defineProperty(globalThis,'localStorage',original); else delete globalThis.localStorage; }
 });
@@ -37,11 +46,11 @@ test('open tabs synchronize appearance only, handle resets and unsubscribe clean
   handler({key:'player-save',newValue:'{"credits":999}'});
   assert.equal(received.length,0);
   handler({key:INTERFACE_STORAGE_KEY,newValue:'{"appearance":"dark","density":"comfortable"}'});
-  assert.deepEqual(received.at(-1),{appearance:'dark',density:'comfortable'});
+  assert.deepEqual(received.at(-1),{appearance:'dark',density:'comfortable',...COMFORT_DEFAULTS});
   handler({key:INTERFACE_STORAGE_KEY,newValue:'broken'});
-  assert.deepEqual(received.at(-1),{appearance:'system',density:'compact'});
+  assert.deepEqual(received.at(-1),{appearance:'system',density:'compact',...COMFORT_DEFAULTS});
   handler({key:null,newValue:null});
-  assert.deepEqual(received.at(-1),{appearance:'system',density:'compact'});
+  assert.deepEqual(received.at(-1),{appearance:'system',density:'compact',...COMFORT_DEFAULTS});
   unsubscribe();
   assert.equal(handler,null);
 });

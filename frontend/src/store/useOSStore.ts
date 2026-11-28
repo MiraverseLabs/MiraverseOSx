@@ -1,4 +1,10 @@
 import { restoreCharacterProfile, validateCharacterProfile } from '../gameplay/CharacterProfile';
+import {
+  allocateFreshMaid,
+  archiveCurrentWorld,
+  buildFreshGameplayPatch,
+  type FreshCharacterOnboardingInput,
+} from '../gameplay/FreshPlayerSave';
 import { clockMinutes, clockSegments, initialClock, validClock, type RealTimeClock } from '../gameplay/RealTimeClock';
 import { CAREER_REGISTRY, canonicalCareerId } from '../gameplay/CareerRegistry';
 import { restoreWorknetPlayer } from '../gameplay/WorknetPersistence';
@@ -216,6 +222,7 @@ export interface OSStoreState extends MediaStudioActions, BankingActions, Proces
   removeBrowserTabGroup: (id: string) => void;
 
   saveCharacterProfile: (value: unknown) => { ok: boolean; message: string };
+  startFreshPlayerSave: (input: FreshCharacterOnboardingInput) => Promise<{ ok: boolean; maid: string; archivedLabel?: string; message: string }>;
   setCreatorMode: (enabled: boolean) => { ok: boolean; message: string };
   loginUser: (userData: any) => void;
   grantLocalFullAccess: () => { ok: boolean; message: string };
@@ -882,6 +889,61 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     if (result.ok === false) return { ok: false, message: result.message };
     set(state => ({ gameplay: { ...state.gameplay, characterProfile: result.profile } }));
     return { ok: true, message: 'Personal profile saved.' };
+  },
+  startFreshPlayerSave: async (input) => {
+    const current = get();
+    const prevName = current.gameplay?.player?.name || 'Previous Session';
+    const wasAdmin = Boolean(current.gameplay?.player?.isAdmin);
+    const archiveLabel = wasAdmin
+      ? `Administrator Archive (${new Date().toLocaleDateString()})`
+      : `${prevName} Archive (${new Date().toLocaleDateString()})`;
+    const archived = typeof localStorage !== 'undefined'
+      ? archiveCurrentWorld(archiveLabel, prevName, wasAdmin, localStorage)
+      : null;
+
+    const maid = await allocateFreshMaid(input.homeRealm || 'Orynvell');
+    const fresh = buildFreshGameplayPatch(input, maid);
+    const localHost = isLocalWorld(globalThis.location?.hostname || '');
+
+    set((state) => ({
+      isLoggedIn: true,
+      gameplay: {
+        ...state.gameplay,
+        academics: emptyAcademics(),
+        sessions: {},
+        activeGameId: null,
+        claimedComms: [],
+        onboardingPhase: 1,
+        characterProfile: fresh.characterProfile,
+        identity: fresh.identity,
+        player: {
+          ...fresh.player,
+          creatorAccess: localHost,
+          creatorMode: localHost,
+        },
+        worldEventLog: [fresh.welcomeEvent],
+      },
+    }));
+
+    // Seed personal welcome dispatch in Comms store without failing if unavailable
+    try {
+      const commsMod = await import('./useCommsStore');
+      const commsState = commsMod.useCommsStore.getState() as any;
+      if (typeof commsState.receiveEmail === 'function') {
+        commsState.receiveEmail(fresh.welcomeEmail);
+      }
+    } catch {
+      // Optional comms welcome dispatch
+    }
+
+    return {
+      ok: true,
+      maid,
+      archivedLabel: archived?.label,
+      message: archived
+        ? `Archived ${prevName} and started fresh citizen save ${fresh.player.name} (${maid}).`
+        : `Started fresh citizen save ${fresh.player.name} (${maid}).`,
+    };
   },
   setCreatorMode: (enabled) => {
     const state = get();

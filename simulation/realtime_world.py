@@ -40,6 +40,11 @@ def sync_model(model, now_ms=None):
         model.world_clock.set_step_minutes(interval)
         model._defer_persistence = False
         model._realtime_catchup = False
+    try:
+        import social_feed
+        social_feed.sync_autonomous_posts(model)
+    except Exception:
+        pass
     model.save()
     return True
 

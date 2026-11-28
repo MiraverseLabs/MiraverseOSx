@@ -128,3 +128,286 @@
 .ms-unread-pill { display:inline-block;padding:1px 6px;border-radius:10px;background:#ec4899;color:#ffffff;font:bold 10px 'Times New Roman',Times,Georgia,serif;margin-left:4px; }
 .ms-widget-edit-box { padding:8px;background:#f8f6fb;border:1px solid #dcd5e7;margin-top:6px;border-radius:3px; }
 
+
+
+/* ─── Refreshed Modern-Editorial MAI.SPACE Theme & Live NPC Feed ──────── */
+.mai-space-root {
+  --ms-ink: #241d31;
+  --ms-muted: #675b78;
+  --ms-purple: #5b3b7c;
+  --ms-gold: #c9a66b;
+  --ms-line: #e4dce9;
+  --ms-surface: #ffffff;
+  --ms-canvas: #f5f2f8;
+  --ms-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ms-serif: Georgia, 'Times New Roman', serif;
+  background: var(--ms-canvas);
+  color: var(--ms-ink);
+  font: 14px/1.6 var(--ms-sans);
+}
+.mai-space-root * { font-family: var(--ms-sans); }
+.mai-space-root :is(h1, h2, .ms-prose, .ms-welcome h1, .ms-wordmark) { font-family: var(--ms-serif); }
+
+/* Refined Header & Navigation */
+.mai-space-root .ms-network-header {
+  background: linear-gradient(135deg, #271b39 0%, #3d2856 60%, #4b3163 100%);
+  color: #ffffff;
+  padding: 16px 26px;
+  border-bottom: 1px solid rgba(201, 166, 107, 0.35);
+}
+.mai-space-root .ms-wordmark {
+  color: #ffffff;
+  font: 700 28px/1 var(--ms-serif);
+  letter-spacing: -0.02em;
+}
+.mai-space-root .ms-wordmark > span { color: var(--ms-gold); font-size: 32px; }
+.mai-space-root .ms-wordmark small { color: #dfd4ea; font: 500 10px/1.5 var(--ms-sans); letter-spacing: 0.12em; text-transform: uppercase; }
+.mai-space-root .ms-account-nav button {
+  color: #f4eef9;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 6px 13px;
+  font-size: 12px;
+  transition: background-color 0.15s ease;
+}
+.mai-space-root .ms-account-nav button:hover { background: rgba(255, 255, 255, 0.18); }
+.mai-space-root .ms-account-nav .ms-studio-link {
+  background: var(--ms-gold);
+  color: #21162e;
+  border-color: var(--ms-gold);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.mai-space-root .ms-primary-nav {
+  background: #ffffff;
+  color: var(--ms-ink);
+  padding: 8px 22px;
+  gap: 6px;
+  border-bottom: 1px solid var(--ms-line);
+}
+.mai-space-root .ms-primary-nav button {
+  color: #4f4263;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font: 600 12.5px/1.3 var(--ms-sans);
+}
+.mai-space-root .ms-primary-nav button:hover { background: #f2ecf7; color: #2b1d3d; }
+.mai-space-root .ms-primary-nav button[aria-current=page] {
+  background: #ece3f5;
+  color: #452866;
+  text-decoration: none;
+  font-weight: 700;
+}
+.mai-space-root .ms-secondary-nav {
+  background: #faf8fc;
+  padding: 6px 26px;
+  gap: 16px;
+  border-bottom: 1px solid var(--ms-line);
+}
+.mai-space-root .ms-secondary-nav button { color: #67587a; font-size: 11.5px; }
+
+/* Modernized Workspace, Welcome Banner & Cards */
+.mai-space-root .ms-main { padding: 20px 26px; }
+.mai-space-root .ms-home,
+.mai-space-root .ms-content-width { max-width: 1180px; margin: 0 auto; }
+
+.mai-space-root .ms-welcome {
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 20px;
+  background: linear-gradient(125deg, #ffffff 0%, #f5eefb 58%, #f8f2e8 100%);
+  border: 1px solid #dfd3e9;
+  box-shadow: 0 4px 18px rgba(45, 28, 66, 0.05);
+}
+.mai-space-root .ms-welcome h1 { font-size: clamp(24px, 3cqw, 34px); color: #2b1d3d; margin: 6px 0 8px; }
+.mai-space-root .ms-welcome p { color: var(--ms-muted); font-size: 13.5px; }
+
+.mai-space-root .ms-card {
+  background: var(--ms-surface);
+  border: 1px solid var(--ms-line);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 10px rgba(36, 29, 49, 0.04);
+}
+.mai-space-root .ms-card > h2:first-child {
+  background: transparent;
+  color: var(--ms-ink);
+  padding: 0 0 10px;
+  margin: 0 0 12px;
+  border-bottom: 1px solid #efe9f4;
+  font: 700 16px/1.3 var(--ms-serif);
+}
+.mai-space-root button {
+  border-radius: 8px;
+  padding: 7px 13px;
+  font: 600 12px/1.3 var(--ms-sans);
+  border: 1px solid #d9cde3;
+  background: #f7f3fb;
+  color: #4a3166;
+}
+.mai-space-root button:hover:not(:disabled) { background: #ede4f5; }
+.mai-space-root button[aria-pressed=true],
+.mai-space-root .ms-primary {
+  background: #5b3b7c;
+  border-color: #5b3b7c;
+  color: #ffffff;
+}
+.mai-space-root :is(input:not([type=checkbox]):not([type=range]):not([type=color]), select, textarea) {
+  border-radius: 8px;
+  border: 1px solid #d8cce2;
+  padding: 8px 11px;
+  font: 13px/1.4 var(--ms-sans);
+}
+
+/* Home Feed Header & Controls */
+.mai-space-root .ms-home-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 22px;
+  align-items: start;
+}
+.mai-space-root .ms-feed-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.mai-space-root .ms-feed-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.mai-space-root .ms-feed-controls select { width: auto; min-width: 135px; }
+.mai-space-root .ms-filter-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+.mai-space-root .ms-filter-pills button { border-radius: 999px; padding: 5px 11px; font-size: 11.5px; }
+
+.mai-space-root .ms-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: #4f6b56;
+  font-weight: 600;
+}
+.mai-space-root .ms-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+/* Autonomous Live NPC Post Cards */
+.mai-space-root .ms-live-npc-card {
+  border-left: 3px solid #6e4a94;
+}
+.mai-space-root .ms-live-npc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.mai-space-root .ms-live-author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mai-space-root .ms-avatar-monogram {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #4b2f69, #755098);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid var(--ms-gold);
+  flex: none;
+}
+.mai-space-root .ms-live-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.mai-space-root .ms-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+.mai-space-root .ms-chip-realm { background: #ebe4f6; color: #4a2d6b; }
+.mai-space-root .ms-chip-activity { background: #e8f3ee; color: #245741; }
+.mai-space-root .ms-live-body {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #261f33;
+  margin: 0 0 10px;
+}
+.mai-space-root .ms-live-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+  font-size: 11.5px;
+  color: #6b4b8e;
+  font-weight: 600;
+}
+.mai-space-root .ms-live-comments { margin: 8px 0 0; }
+.mai-space-root .ms-live-comment-item {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f8f5fb;
+  margin-bottom: 6px;
+  font-size: 12.5px;
+}
+.mai-space-root .ms-live-comment-item p { margin: 3px 0 0; }
+.mai-space-root .ms-live-comment-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.mai-space-root .ms-live-comment-form input { flex: 1; }
+
+/* Live Neighborhood Pulse Sidebar */
+.mai-space-root .ms-pulse-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.mai-space-root .ms-pulse-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border-radius: 9px;
+  background: #f8f5fb;
+}
+.mai-space-root .ms-pulse-list strong { font-size: 12.5px; }
+
+.mai-space-root .ms-network-footer {
+  background: #ffffff;
+  border-top: 1px solid var(--ms-line);
+  padding: 12px 26px;
+  color: var(--ms-muted);
+}
+
+@container (max-width: 860px) {
+  .mai-space-root .ms-home-grid { grid-template-columns: minmax(0, 1fr); }
+}

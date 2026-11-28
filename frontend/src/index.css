@@ -124,3 +124,30 @@ body {
 .celestial-divider:not(:empty)::after {
   margin-left: 1em;
 }
+
+
+/* ─── MiraverseOSx Global Comfort Settings ─────────────────────────────── */
+:root {
+  --mira-text-scale: 1;
+}
+html[data-mira-text-scale="small"] { font-size: 14.75px; }
+html[data-mira-text-scale="default"] { font-size: 16px; }
+html[data-mira-text-scale="large"] { font-size: 17.75px; }
+html[data-mira-text-scale="xlarge"] { font-size: 19.5px; }
+
+html[data-mira-reduced-motion="reduce"] *,
+html[data-mira-reduced-motion="reduce"] *::before,
+html[data-mira-reduced-motion="reduce"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-mira-transparency="reduced"] * {
+  backdrop-filter: blur(4px) !important;
+}
+html[data-mira-transparency="solid"] * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}

@@ -3,6 +3,12 @@ import { CheckCircle2, CloudOff, RefreshCw } from 'lucide-react';
 import { worldConnection, restoreWorldEntries } from '../backend/worldConnection';
 import { createWorldBackup, parseWorldBackup } from '../backend/worldBackup';
 import type { WorldEntries } from '../backend/worldSync';
+import {
+  listArchivedSaves,
+  readArchivedSavePayload,
+  deleteArchivedSave,
+  type ArchivedWorldSummary,
+} from '../gameplay/FreshPlayerSave';
 import '../styles/apps/WorldSaveSettings.css';
 
 export default function WorldSaveSettings() {
@@ -13,6 +19,7 @@ export default function WorldSaveSettings() {
   const [backup, setBackup] = useState<WorldEntries | null>(null);
   const [backupMessage, setBackupMessage] = useState('');
   const [restoring, setRestoring] = useState(false);
+  const [archives, setArchives] = useState<ArchivedWorldSummary[]>(() => listArchivedSaves());
   const download = () => {
     try {
       const snapshot = createWorldBackup(localStorage);
@@ -50,5 +57,48 @@ export default function WorldSaveSettings() {
       catch (error) { setBackupMessage(error instanceof Error ? error.message : 'Could not restore this backup.'); setRestoring(false); }
     }}>{restoring ? 'Restoring…' : 'Restore selected backup'}</button><button disabled={restoring} onClick={() => { setBackup(null); setBackupMessage(''); }}>Cancel restore</button></div>}
     {backupMessage && <p role="status">{backupMessage}</p>}
+    <h3>Archived worlds &amp; Administrator saves</h3>
+    <p>When you start a fresh player save, your prior Administrator or citizen world is archived here so you can return to it anytime.</p>
+    {archives.length === 0 ? (
+      <p>No archived worlds on this device yet.</p>
+    ) : (
+      <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: '8px' }}>
+        {archives.map(item => (
+          <li key={item.archiveId} style={{ border: '1px solid rgba(148,163,184,0.35)', borderRadius: '10px', padding: '10px 12px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+            <div>
+              <strong>{item.label}</strong>
+              <div style={{ fontSize: '12px', opacity: 0.78 }}>
+                {item.characterName}{item.wasAdmin ? ' · Administrator' : ''} · {new Date(item.archivedAt).toLocaleString()} · {item.storeCount} stores
+              </div>
+            </div>
+            <div className="world-save-actions">
+              <button
+                type="button"
+                disabled={restoring}
+                onClick={async () => {
+                  const payload = readArchivedSavePayload(item.storageKey);
+                  if (!payload) { setBackupMessage('Archive payload could not be read.'); return; }
+                  setRestoring(true);
+                  try { await restoreWorldEntries(payload.entries); location.reload(); }
+                  catch (error) { setBackupMessage(error instanceof Error ? error.message : 'Restore failed.'); setRestoring(false); }
+                }}
+              >
+                Restore archive
+              </button>
+              <button
+                type="button"
+                disabled={restoring}
+                onClick={() => {
+                  setArchives(deleteArchivedSave(item.archiveId));
+                  setBackupMessage(`Removed archive "${item.label}".`);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    )}
   </section>;
 }

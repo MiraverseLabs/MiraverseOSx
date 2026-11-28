@@ -13,8 +13,11 @@ declare global {
 class SoundEngine {
   ctx: AudioContext | null = null;
   isMuted: boolean = false;
+  musicVolume: number = 0.45;
+  effectsVolume: number = 0.7;
   masterGain: GainNode | null = null;
   ambientOsc: OscillatorNode | null = null;
+  ambientGain: GainNode | null = null;
 
   init(): void {
     if (this.ctx) return;
@@ -52,12 +55,27 @@ class SoundEngine {
     return this.isMuted;
   }
 
+  setVolumes(music: number, effects: number): void {
+    this.musicVolume = Math.max(0, Math.min(1, Number.isFinite(music) ? music : 0.45));
+    this.effectsVolume = Math.max(0, Math.min(1, Number.isFinite(effects) ? effects : 0.7));
+    if (this.masterGain && this.ctx) {
+      try {
+        this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.2 * this.effectsVolume, this.ctx.currentTime);
+      } catch (e) { /* ignore */ }
+    }
+    if (this.ambientGain && this.ctx) {
+      try {
+        this.ambientGain.gain.setValueAtTime(this.isMuted ? 0 : 0.12 * this.musicVolume, this.ctx.currentTime);
+      } catch (e) { /* ignore */ }
+    }
+  }
+
   // Helper to play WAV audio file from public/sounds/
   playAudioFile(filename: string, volume: number = 0.4): void {
-    if (this.isMuted) return;
+    if (this.isMuted || this.effectsVolume <= 0) return;
     try {
       const audio = new Audio(`/sounds/${filename}`);
-      audio.volume = volume;
+      audio.volume = Math.max(0, Math.min(1, volume * this.effectsVolume));
       audio.play().catch(() => { });
     } catch (e) {
       // Fallback silently if audio fails
