@@ -3,7 +3,7 @@
   "name": "Professor Oryn Westmere",
   "kind": "person",
   "aliases": [],
-  "status": "document-only",
+  "status": "existing",
   "notes": [],
   "legacyIds": [],
   "references": [
@@ -13,7 +13,7 @@
       "file": "people/oryn/story.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-MA-00481988",
   "legacyMaids": [],
   "folder": "oryn",
   "firstName": "Oryn",

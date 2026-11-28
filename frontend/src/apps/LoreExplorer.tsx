@@ -1,3 +1,4 @@
+import SpeciesRegistry from './library/SpeciesRegistry';
 import AcademicProjectDesk from './academic/AcademicProjectDesk';
 import React, { useEffect, useState } from 'react';
 import { miraverseDb } from '../db/miraverseDb';
@@ -38,7 +39,7 @@ import {
 import '../styles/apps/RoyalLibrary.css';
 
 type PortalTab = 'dashboard' | 'catalog' | 'guides' | 'card' | 'collections';
-type CollectionSubTab = 'realms' | 'chronology' | 'exploration' | 'factions' | 'locations' | 'npcs' | 'academic-projects';
+type CollectionSubTab = 'realms' | 'chronology' | 'exploration' | 'factions' | 'locations' | 'npcs' | 'academic-projects' | 'species';
 type GuideFilterMode = 'all' | 'subject' | 'type' | 'curator';
 
 export default function LoreExplorer() {
@@ -110,7 +111,7 @@ export default function LoreExplorer() {
 
   useEffect(() => {
     if (workspaceRequest?.section) {
-      if (['realms', 'chronology', 'exploration', 'factions', 'locations', 'npcs', 'academic-projects'].includes(workspaceRequest.section)) {
+      if (['realms', 'chronology', 'exploration', 'factions', 'locations', 'npcs', 'academic-projects', 'species'].includes(workspaceRequest.section)) {
         setPortalTab('collections');
         setActiveCollection(workspaceRequest.section as CollectionSubTab);
       } else if (['dashboard', 'catalog', 'guides', 'card'].includes(workspaceRequest.section)) {
@@ -798,6 +799,7 @@ export default function LoreExplorer() {
           <div>
             <div className="rl-collections-bar" role="group" aria-label="Archive collections">
               {([
+                ['species', 'Species Registry'],
                 ['academic-projects', 'Academic Reading'],
                 ['realms', 'Seven Realms Atlas'],
                 ['chronology', 'Twin Moons & Chronology'],
@@ -812,6 +814,7 @@ export default function LoreExplorer() {
               ))}
             </div>
 
+            {activeCollection === 'species' && <SpeciesRegistry />}
             {activeCollection === 'academic-projects' && <AcademicProjectDesk workspace="archive" />}
             {activeCollection === 'realms' && <SevenRealmsMapPanel />}
             {activeCollection === 'chronology' && <CelestialChronologyPanel />}

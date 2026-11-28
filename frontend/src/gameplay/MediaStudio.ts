@@ -1,3 +1,4 @@
+import { gameDate } from './RealTimeClock';
 import { validateMediaArtifactInput, type PublishedMediaArtifact } from '../components/media/templateModel';
 import { evaluateCreativeStudioPermissions, validateStudioPublishPermission } from './creativeStudioModel';
 import { getMediaAssetById } from '../game-content/worldAssetLibrary';
@@ -138,7 +139,7 @@ export function advanceDynamicMedia(game: any): any {
   // The public-service desk prioritizes fresh institutional service releases over general notices.
   const score = (s: EditorialSource) => s.cycle * 10 + (s.institution === 'WORKNET' ? 3 : 0);
   const sources = publicEditorialSources(game).filter(s => !state.editorialReceipts.includes(s.id)).sort((a,b) => score(b)-score(a) || a.id.localeCompare(b.id)).slice(0,2);
-  const celestial = getCelestialState(cycle);
+  const celestial = getCelestialState(cycle, game.realTimeClock ? gameDate(game) : undefined);
   const ambient: EditorialSource = { id: `celestial:${cycle}`, headline: 'Under Radiance and Echo',
     summary: `Cycle ${cycle}: Radiance is ${celestial.radiance.phaseName}; Echo is ${celestial.echo.phaseName}. ${celestial.alignment}.`, cycle, institution: 'The Meridian · Life Desk' };
   const generated: PublishedMediaArtifact[] = [];

@@ -3,11 +3,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run: localhost:3000 + backend:5000",
+      "name": "Run: MiraverseOSx + Living World + Observatory",
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:3000",
-      "preLaunchTask": "Start Full Stack (Backend + Frontend)",
+      "preLaunchTask": "Start MiraverseOSx (All Services)",
       "webRoot": "${workspaceFolder}/frontend",
       "runtimeArgs": ["--disable-extensions"]
     },

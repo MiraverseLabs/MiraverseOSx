@@ -3,7 +3,7 @@
   "name": "Instructor Lyse Marivelle",
   "kind": "person",
   "aliases": [],
-  "status": "document-only",
+  "status": "existing",
   "notes": [],
   "legacyIds": [],
   "references": [
@@ -13,7 +13,7 @@
       "file": "people/lyse/story.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-MA-00481986",
   "legacyMaids": [],
   "folder": "lyse",
   "firstName": "Lyse",

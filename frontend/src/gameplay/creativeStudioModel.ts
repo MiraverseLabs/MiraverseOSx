@@ -1,3 +1,4 @@
+import { hasCreatorAccess } from './localCredentials';
 import type { MediaChannel, VerificationTier } from '../components/media/templateModel';
 
 export interface CreativeStudioPermissions {
@@ -13,7 +14,7 @@ export interface CreativeStudioPermissions {
 export function evaluateCreativeStudioPermissions(player: any, isLoggedIn: boolean): CreativeStudioPermissions {
   if (!isLoggedIn) return { isAdmin: false, hasPressContract: false, hasArtistContract: false, hasInstitutionalCommsRole: false,
     allowedChannels: [], allowedVerificationTiers: [], roleSummary: 'Sign in to publish creative work.' };
-  const isAdmin = Boolean(isLoggedIn && player?.isAdmin);
+  const isAdmin = Boolean(isLoggedIn && hasCreatorAccess(player));
   const contracts = player?.employmentContracts || {};
   const hasPressContract = Boolean(contracts.press);
   const hasArtistContract = Boolean(contracts.artist);

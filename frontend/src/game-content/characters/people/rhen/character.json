@@ -3,7 +3,7 @@
   "name": "Coach Rhen Calder",
   "kind": "person",
   "aliases": [],
-  "status": "document-only",
+  "status": "existing",
   "notes": [],
   "legacyIds": [],
   "references": [
@@ -13,7 +13,7 @@
       "file": "people/rhen/story.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-BR-00481982",
   "legacyMaids": [],
   "folder": "rhen",
   "firstName": "Rhen",

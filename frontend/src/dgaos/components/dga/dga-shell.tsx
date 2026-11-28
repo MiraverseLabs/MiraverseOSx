@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import ProcessMonitorApp from '../../../apps/ProcessMonitorApp';
 import { PROCESS_INCIDENT } from '../../../gameplay/ProcessMonitor';
-import { isLocalWorld } from '../../../gameplay/localCredentials';
+import { isLocalWorld, hasCreatorAccess } from '../../../gameplay/localCredentials';
 import {
   Shield,
   LayoutDashboard,
@@ -347,13 +347,13 @@ export function DgaShell({ traceWorkbenchNode, onOpenCaseNotebook }: DgaShellPro
 
         {/* Right Operator Clearance & Lock Tools */}
         <div className="dga-operator-tools flex items-center gap-1.5 shrink-0">
-          {isLocalWorld(location.hostname) && !osPlayer.isAdmin && (
+          {isLocalWorld(location.hostname) && !hasCreatorAccess(osPlayer) && (
             <button
               type="button"
               className="dga-notebook-launch"
               onClick={() => setAccessNotice(useOSStore.getState().grantLocalFullAccess().message)}
             >
-              Enable full access
+              Enable creator tools
             </button>
           )}
           <button type="button" className="dga-notebook-launch" onClick={() => { handleNavigateTab('investigation'); setProcessOpen(true); }}><Cpu size={13}/>Process Diagnostics</button>

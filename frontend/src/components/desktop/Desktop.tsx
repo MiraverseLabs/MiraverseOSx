@@ -1,3 +1,5 @@
+import { hasCreatorAccess } from '../../gameplay/localCredentials';
+import { gameDate } from '../../gameplay/RealTimeClock';
 import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useOSStore } from '../../store/useOSStore';
@@ -51,7 +53,7 @@ export default function Desktop() {
   };
   const {soundEnabled,toggleSound}=useSystemStore();
   const incomingCalls=useOSStore(state=>Object.values(state.gameplay.player.assignmentJournal?.dispatches||{}).filter((d:any)=>d.channel==='phone'&&!d.heardAt).length);
-  const celestial = getCelestialState(gameplay?.timeCycleCount ?? 28);
+  const celestial = getCelestialState(gameplay?.timeCycleCount ?? 28, gameplay.realTimeClock ? gameDate(gameplay) : undefined);
   const themeId = useOSStore(state => state.desktopPreferences.themeId);
   const appWorkspaceRef = useRef(null);
   const [authMode, setAuthMode] = useState(null);
@@ -59,7 +61,8 @@ export default function Desktop() {
   const phoneRequest = useCommsStore(s => s.phoneRequest);
   useEffect(() => { if (phoneRequest) setIsPhoneOpen(true); }, [phoneRequest]);
   const [isLauncherOpen, setIsLauncherOpen] = useState(false);
-  const [now, setNow] = useState(() => new Date());
+  const [wallNow, setNow] = useState(() => new Date());
+  const now = gameDate(gameplay, wallNow);
   const [pageVisible, setPageVisible] = useState(() => !document.hidden);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   useEffect(() => {
@@ -99,6 +102,7 @@ export default function Desktop() {
       <header className="desktop-menubar">
         <div className="desktop-wordmark"><img src={logoIcon} alt="" /><strong>MiraverseOSx</strong><span className="desktop-menu-divider" /><span className="desktop-location">{editing ? 'Editing widgets' : 'Aureline'}</span></div>
         <div className="desktop-menubar-right">
+          {hasCreatorAccess(gameplay.player) && <button className="desktop-creator-badge" title="Open creator tools settings" onClick={() => useOSStore.getState().openAppWorkspace('settings', 'credentials')}>{gameplay.player.isAdmin ? 'Administrator' : 'Creator tools on'}</button>}
           <button
             type="button"
             className="desktop-celestial-badge"

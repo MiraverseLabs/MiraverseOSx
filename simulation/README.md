@@ -42,6 +42,19 @@ simulation workflow; the Observatory shows the resulting event and career.
 
 ## Running
 
+From the repository root, `npm start` (or `npm run dev`) builds the backend and
+starts the game at `http://localhost:3000`, the backend on port 5000, the Living
+World API on port 5010, and the Observatory at `http://127.0.0.1:8768` together.
+On Windows, double-click `run.bat` for the same command, or choose
+`Run: MiraverseOSx + Living World + Observatory` in VS Code's Run and Debug menu.
+Press Ctrl+C in the launch terminal to stop the services. If one service exits,
+the launcher stops the others so a failed startup does not leave a partial stack.
+Stop separately started services before launching the combined stack to avoid
+port conflicts. `npm run observatory` remains available to start only the
+Observatory using the local Python environment.
+For a direct API health check, use `http://127.0.0.1:5010/health`; the game also
+proxies it at `http://localhost:3000/api/livingworld/health`.
+
 From the repository root, create the local environment and install dependencies:
 
 ```powershell

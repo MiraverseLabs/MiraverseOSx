@@ -1,3 +1,4 @@
+import { hasCreatorAccess } from '../gameplay/localCredentials';
 import React, { useEffect, useState } from 'react';
 import { ArrowUpRight, Award, BookOpen, FileText, Globe, GraduationCap, ShieldCheck } from 'lucide-react';
 import {
@@ -276,7 +277,7 @@ function RegistrarDesk() {
             ))}
         </select>
       </label>
-      {state.gameplay.player.isAdmin && (
+      {hasCreatorAccess(state.gameplay.player) && (
         <button
           disabled={!citizen || busy}
           onClick={async () => {

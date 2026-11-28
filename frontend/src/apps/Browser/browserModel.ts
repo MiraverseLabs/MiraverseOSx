@@ -85,6 +85,15 @@ export const IN_GAME_PORTALS: InGamePortal[] = [
     badge: 'ARCHIVE' 
   },
   { 
+    id: 'speciesregistry', 
+    name: 'Meridion Species Registry', 
+    domain: 'species.mer', 
+    url: 'https://species.mer', 
+    category: 'Natural & Supernatural Archive', 
+    description: 'Illustrated Eight Realms encyclopedia of biological species, elemental humans, angelic choirs, magical disciplines, and wildlife.', 
+    badge: 'ARCHIVE' 
+  },
+  { 
     id: 'maispace', 
     name: 'MAI Space Social', 
     domain: 'mai.space', 
@@ -174,6 +183,8 @@ export function browserTitle(url: string): string {
       'vectornet.aure': 'VectorNet Underground',
       'records.orynvell.gov': 'Orynvell Public Records',
       'royalhistory.mer': 'Royal Historic Society',
+      'species.mer': 'Meridion Species Registry',
+      'species.aure': 'Meridion Species Registry',
       'mai.space': 'MAI Space Social',
       'civinet.mer': 'Citizen Hub',
       'civinet.aure': 'Citizen Hub'

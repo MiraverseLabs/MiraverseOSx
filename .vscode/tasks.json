@@ -63,7 +63,7 @@
 			"group": "none"
 		},
 		{
-			"label": "Start Full Stack (Backend + Frontend)",
+			"label": "Start MiraverseOSx (All Services)",
 			"type": "shell",
 			"command": "npm",
 			"problemMatcher": {

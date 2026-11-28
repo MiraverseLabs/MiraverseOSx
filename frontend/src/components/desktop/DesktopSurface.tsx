@@ -1,3 +1,4 @@
+import { gameDate } from '../../gameplay/RealTimeClock';
 import React, { useState } from 'react';
 import { DndContext, PointerSensor, KeyboardSensor, useSensor, useSensors, useDroppable, closestCenter } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
@@ -17,14 +18,15 @@ import { visibleFileCatalog, fileDestination, folderDestination } from '../../ap
 import { DesktopMusicWidget } from './DesktopMusic';
 
 function ClockCalendar() {
- const [now,setNow]=useState(()=>new Date()); const [offset,setOffset]=useState(0);
+ const [wallNow,setNow]=useState(()=>new Date()); const [offset,setOffset]=useState(0);
  React.useEffect(()=>{const timer=setInterval(()=>setNow(new Date()),30000);return()=>clearInterval(timer);},[]);
+ const game = useOSStore(s => s.gameplay); const now = gameDate(game, wallNow);
  const month=new Date(now.getFullYear(),now.getMonth()+offset,1),days=new Date(month.getFullYear(),month.getMonth()+1,0).getDate();
  return <div className="desktop-clock"><time dateTime={now.toISOString()}>{now.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'})}</time><p>{now.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})}</p><div className="desktop-calendar-title"><button aria-label="Previous calendar month" onClick={()=>setOffset(n=>n-1)}>‹</button><button aria-label="Calendar today" onClick={()=>setOffset(0)}>{month.toLocaleDateString(undefined,{month:'long',year:'numeric'})}</button><button aria-label="Next calendar month" onClick={()=>setOffset(n=>n+1)}>›</button></div><div className="desktop-calendar" aria-label={month.toLocaleDateString(undefined,{month:'long',year:'numeric'})}>{['S','M','T','W','T','F','S'].map((d,i)=><small key={`h${i}`}>{d}</small>)}{Array.from({length:month.getDay()},(_,i)=><span key={`b${i}`}/>)}{Array.from({length:days},(_,i)=><span key={i} aria-current={offset===0&&i+1===now.getDate()?'date':undefined}>{i+1}</span>)}</div></div>;
 }
 function DesktopWidget({id}:{id:string}) {
  const state=useOSStore(),p=state.desktopPreferences,comms=useCommsStore(); const [entry,setEntry]=useState('');
- const weather=weatherForCycle(state.gameplay.timeCycleCount??28);const celestial=getCelestialState(state.gameplay.timeCycleCount??28);
+ const weather=weatherForCycle(state.gameplay.timeCycleCount??28);const celestial=getCelestialState(state.gameplay.timeCycleCount??28, state.gameplay.realTimeClock ? gameDate(state.gameplay) : undefined);
  if(id==='clock')return <ClockCalendar/>;
  if(id==='notes')return <textarea className="desktop-note" aria-label="Desktop sticky note" placeholder="Keep a thought here…" value={p.note} onChange={e=>state.desktopAction({type:'note',text:e.target.value})}/>;
  if(id==='checklist')return <div className="desktop-checklist">{p.checklist.length? p.checklist.map(item=><div key={item.id}><label><input type="checkbox" checked={item.done} onChange={()=>state.desktopAction({type:'check-toggle',id:item.id})}/><span className={item.done?'is-done':''}>{item.text}</span></label><button aria-label={`Delete checklist item ${item.text}`} onClick={()=>state.desktopAction({type:'check-remove',id:item.id})}><X size={12}/></button></div>):<p className="desktop-empty">A little room for your next steps.</p>}<form onSubmit={e=>{e.preventDefault();state.desktopAction({type:'check-add',text:entry});setEntry('');}}><input aria-label="New desktop checklist item" value={entry} onChange={e=>setEntry(e.target.value)} placeholder="Add a task…" required/><button aria-label="Add checklist item"><Plus size={15}/></button></form></div>;

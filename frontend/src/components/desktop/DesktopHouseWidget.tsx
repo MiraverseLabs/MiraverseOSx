@@ -89,7 +89,7 @@ export default function DesktopHouseWidget() {
       {napNote && <div className="desktop-house-toast" role="status">{napNote}</div>}
 
       <div className="desktop-house-actions">
-        <button type="button" onClick={handleQuickNap} title="Take a quick nap (+1 segment)">
+        <button type="button" onClick={handleQuickNap} title="Take a quick nap; the world keeps real time">
           <Moon size={12} /> Quick Nap
         </button>
         <button type="button" className="is-primary" onClick={() => launchDesktopApp('housing')}>

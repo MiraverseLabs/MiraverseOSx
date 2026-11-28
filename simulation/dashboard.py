@@ -1,4 +1,5 @@
 from __future__ import annotations
+import realtime_world
 
 import html
 import json
@@ -18,6 +19,7 @@ from population import PopulationModel
 from living_world import RunConflictError
 from registry import ACTIVITY_ICONS, CitizenRegistry
 import entertainment
+import dynamic_population
 import npc_intelligence
 
 
@@ -52,6 +54,7 @@ NAV_PAGES: tuple[tuple[str, str], ...] = (
     ("World Overview", "🌐"),
     ("Living World Engine", "🧭"),
     ("Entertainment & Fame", "🎭"),
+    ("Population Management", "🧬"),
     ("Systems Diagnostics", "🧠"),
     ("Citizen Registry", "👥"),
     ("Data Integrity", "🛡️"),
@@ -2548,6 +2551,217 @@ def Layout(children=[]):
 
 
 @solara.component
+def PopulationManagement(model: PopulationModel):
+    """Solara Observatory view for Dynamic Population preview, validation, commit, demand fulfillment, and diagnostics."""
+    update_counter.get()
+    realm_choice, set_realm_choice = solara.use_state("All Realms (Balanced)")
+    batch_count, set_batch_count = solara.use_state(5)
+    residency_type, set_residency_type = solara.use_state("permanent")
+    naming_style, set_naming_style = solara.use_state("mixed")
+    sector_choice, set_sector_choice = solara.use_state("mixed")
+    depth_choice, set_depth_choice = solara.use_state("Standard")
+    seed_text, set_seed_text = solara.use_state("")
+    preview_data, set_preview_data = solara.use_state(None)
+    status_msg, set_status_msg = solara.use_state("")
+    error_msg, set_error_msg = solara.use_state("")
+
+    demand_sector, set_demand_sector = solara.use_state("retail_hospitality")
+    demand_count, set_demand_count = solara.use_state(2)
+    demand_result, set_demand_result = solara.use_state(None)
+
+    summary = model.population_summary()
+    realm_options = ["All Realms (Balanced)"] + [r["name"] for r in dynamic_population.REALM_METADATA]
+
+    def _parse_seed() -> int | None:
+        raw = str(seed_text or "").strip()
+        return int(raw) if raw else None
+
+    def handle_preview():
+        set_error_msg("")
+        set_status_msg("")
+        try:
+            req = dynamic_population.PopulationBatchRequest(
+                count=int(batch_count),
+                realm=None if realm_choice == "All Realms (Balanced)" else realm_choice,
+                residencyType=residency_type,
+                namingStyle=naming_style,
+                sector=sector_choice,
+                simulationDepth=depth_choice,
+                seed=_parse_seed(),
+            )
+            res = model.preview_population_batch(req)
+            set_preview_data(res)
+            set_status_msg(
+                f"Previewed and validated {res['previewCount']} citizens (Batch {res['batchId']}). Not yet committed to database."
+            )
+        except Exception as exc:
+            set_error_msg(str(exc))
+
+    def handle_preview_deficits():
+        set_error_msg("")
+        set_status_msg("")
+        try:
+            res = model.preview_deficit_fill(
+                residency_type=residency_type,
+                naming_style=naming_style,
+                simulation_depth=depth_choice,
+                seed=_parse_seed() or 42,
+            )
+            set_preview_data(res)
+            set_status_msg(
+                f"Previewed {res['previewCount']} {residency_type} citizens to fill dynamic deficits across all 8 realms (Batch {res['batchId']}). Not yet committed."
+            )
+        except Exception as exc:
+            set_error_msg(str(exc))
+
+    def handle_commit():
+        if not preview_data or not preview_data.get("records"):
+            return
+        set_error_msg("")
+        try:
+            committed = model.commit_population_batch(
+                preview_data["records"],
+                batch_id=preview_data["batchId"],
+                trigger_kind="manual",
+                seed=_parse_seed(),
+                persist_to_db=True,
+            )
+            set_preview_data(None)
+            set_status_msg(
+                f"Committed {committed['committedCount']} citizens (Batch {committed['batchId']}) to miraverse.db, MaidRegistry, and Mesa simulation."
+            )
+            force_update()
+        except Exception as exc:
+            set_error_msg(str(exc))
+
+    def handle_demand():
+        set_error_msg("")
+        set_status_msg("")
+        try:
+            req = dynamic_population.DemandFulfillmentRequest(
+                sector=demand_sector,
+                neededCount=int(demand_count),
+                realm=None if realm_choice == "All Realms (Balanced)" else realm_choice,
+                residencyType=residency_type,
+                namingStyle=naming_style,
+                simulationDepth=depth_choice,
+                commitToDb=True,
+                seed=_parse_seed(),
+            )
+            res = model.fulfill_population_demand(req)
+            set_demand_result(res)
+            set_status_msg(
+                f"Demand check ({res['sector']} / {res['realm']}): {res['existingEligibleCount']} existing eligible, "
+                f"shortfall {res['shortfall']}, generated {res['generatedCount']}."
+            )
+            force_update()
+        except Exception as exc:
+            set_error_msg(str(exc))
+
+    with solara.Column(gap="14px"):
+        solara.Markdown("## Dynamic Population Management & Diagnostics")
+        with solara.Row(gap="12px"):
+            solara.Info(
+                f"**Canonical Characters:** {summary['canonicalCount']} (protected) · "
+                f"**Generated Permanent:** {summary['generatedPermanentCount']} · "
+                f"**Visitors:** {summary['generatedVisitorCount']}"
+            )
+            solara.Info(
+                f"**Total Simulated:** {summary['totalSimulatedCitizens']} ({summary['livingCitizensCount']} living) · "
+                f"**Global Generated Cap:** {summary['globalGeneratedCap']}"
+            )
+            solara.Info(
+                f"**Abstract Background Population (8 Realms):** {summary['totalAbstractBackgroundPopulation']:,}"
+            )
+
+        if error_msg:
+            solara.Error(error_msg)
+        if status_msg:
+            solara.Success(status_msg)
+
+        solara.Markdown("### Batch Generator (Preview → Validate → Commit)")
+        with solara.Row(gap="10px"):
+            solara.Select(label="Realm", value=realm_choice, values=realm_options, on_value=set_realm_choice)
+            solara.InputInt(label="Count (1-50)", value=batch_count, on_value=set_batch_count)
+            solara.Select(label="Residency", value=residency_type, values=list(dynamic_population.RESIDENCY_TYPES), on_value=set_residency_type)
+            solara.Select(label="Naming Style", value=naming_style, values=list(dynamic_population.NAMING_STYLES), on_value=set_naming_style)
+        with solara.Row(gap="10px"):
+            solara.Select(label="Sector", value=sector_choice, values=["mixed", *dynamic_population.DEMAND_SECTORS], on_value=set_sector_choice)
+            solara.Select(label="Simulation Depth", value=depth_choice, values=list(dynamic_population.SIMULATION_DEPTHS), on_value=set_depth_choice)
+            solara.InputText(label="Optional Seed", value=seed_text, on_value=set_seed_text)
+        with solara.Row(gap="10px"):
+            solara.Button("Preview & Validate Batch", color="primary", on_click=handle_preview)
+            solara.Button("Preview Deficit Fill (All 8 Realms)", color="primary", outlined=True, on_click=handle_preview_deficits)
+            solara.Button(
+                "Commit Batch to DB & Mesa",
+                color="success",
+                disabled=not (preview_data and preview_data.get("records")),
+                on_click=handle_commit,
+            )
+            solara.Button(
+                "Clear Preview",
+                outlined=True,
+                disabled=preview_data is None,
+                on_click=lambda: set_preview_data(None),
+            )
+
+        if preview_data and preview_data.get("records"):
+            if preview_data.get("warnings"):
+                solara.Warning(" · ".join(preview_data["warnings"]))
+            prev_rows = [
+                f"| {r['name']} | `{r['maid']}` | {r['namingStyle']} | {r['age']} ({r['gender']}) | {r['currentRealm']} ({r['residencyType']}) | {r['occupation']} · {r['employer']} | {r['initialBalance']:.0f} cr | {r['simulationDepth']} |"
+                for r in preview_data["records"][:25]
+            ]
+            solara.Markdown(
+                f"#### Preview Batch `{preview_data['batchId']}` ({preview_data['previewCount']} validated citizens)\n"
+                "| Name | Preview MAID | Naming | Age/Gender | Realm | Occupation & Employer | Balance | Depth |\n"
+                "|---|---|---|---|---|---|---|---|\n" + "\n".join(prev_rows)
+            )
+
+        solara.Markdown("### Demand-Based Generation (Evaluates Existing Eligible Citizens First)")
+        with solara.Row(gap="10px"):
+            solara.Select(label="Demand Sector", value=demand_sector, values=list(dynamic_population.DEMAND_SECTORS), on_value=set_demand_sector)
+            solara.InputInt(label="Needed Citizens", value=demand_count, on_value=set_demand_count)
+            solara.Button("Evaluate & Fulfill Demand", color="primary", outlined=True, on_click=handle_demand)
+        if demand_result:
+            solara.Markdown(
+                f"- **Last Demand Check:** Sector `{demand_result['sector']}` in `{demand_result['realm']}` — "
+                f"Needed `{demand_result['neededCount']}`, Existing Eligible `{demand_result['existingEligibleCount']}`, "
+                f"Shortfall `{demand_result['shortfall']}`, Newly Generated `{demand_result['generatedCount']}`."
+            )
+
+        realm_rows = [
+            f"| {r['realmName']} (`{r['regionCode']}`) | {r['canonical']} | {r['generatedPermanent']} / {r['targetPermanent']} | "
+            f"{r['generatedVisitors']} / {r['targetVisitors']} | {r['abstractBackgroundPopulation']:,} | {r['maxGenerationPerDay']}/day | "
+            f"{'In' if r['allowInMigration'] else '-'}/{'Out' if r['allowOutMigration'] else '-'} |"
+            for r in summary["realmBreakdown"]
+        ]
+        solara.Markdown(
+            "### Realm Residency, Targets & Abstract Background Statistics\n"
+            "| Realm | Canonical | Permanent (Cur/Target) | Visitors (Cur/Target) | Abstract Bg Pop | Daily Limit | Migration |\n"
+            "|---|---|---|---|---|---|---|\n" + "\n".join(realm_rows)
+        )
+
+        depth_summary = " · ".join(f"{k}: `{v}`" for k, v in summary["simulationDepths"].items())
+        occ_rows = [f"| {o['occupation']} | {o['count']} |" for o in summary["topOccupations"][:10]]
+        solara.Markdown(
+            f"### Simulation Depth & Top Occupations\n- **Simulation Depths:** {depth_summary}\n\n"
+            "| Occupation | Citizens |\n|---|---|\n" + "\n".join(occ_rows)
+        )
+
+        if summary["generationHistory"]:
+            hist_rows = [
+                f"| `{h['batchId']}` | {h['triggerKind']} | {h['realm']} | {h['existingEligibleCount']} | {h['generatedCount']}/{h['requestedCount']} | {h['residencyType']} | {h['createdAt']} |"
+                for h in summary["generationHistory"][:12]
+            ]
+            solara.Markdown(
+                "### Generation History\n"
+                "| Batch ID | Trigger | Realm | Existing Eligible | Generated/Req | Residency | Created At |\n"
+                "|---|---|---|---|---|---|---|\n" + "\n".join(hist_rows)
+            )
+
+
+@solara.component
 def SystemsDiagnostics(model: PopulationModel):
     """Unified Solara diagnostics for intelligence, networks, institutions, validation, and performance."""
     update_counter.get()
@@ -2638,7 +2852,7 @@ def Page():
     dark_effective = solara.lab.use_dark_effective()
     is_dark = bool(dark_effective) if theme_pref is None else bool(theme_pref)
 
-    initial_model = solara.use_memo(lambda: PopulationModel(seed=DEFAULT_SEED), [])
+    initial_model = solara.use_memo(realtime_world.load_live_or_experiment, [])
     model, set_model = solara.use_state(initial_model)
 
     nav_state, set_nav_state = solara.use_state(("World Overview", None))
@@ -2705,22 +2919,41 @@ def Page():
     )
 
     def handle_toggle_play():
+        if model_ref.current._extensions.get('realtime'):
+            return
         next_state = not playing_ref.current
         playing_ref.current = next_state
         set_playing(next_state)
         run_model_action(lambda: model_ref.current.set_playing(next_state))
 
     def handle_step():
+        if model_ref.current._extensions.get('realtime'):
+            return
         if playing_ref.current:
             return
         with step_lock:
             run_model_action(model_ref.current.step)
         force_update()
 
+    def live_worker(cancel: threading.Event):
+        while not cancel.wait(10):
+            active = model_ref.current
+            if active._extensions.get('realtime'):
+                with step_lock:
+                    try:
+                        loaded = PopulationModel(database=active.database, run_id=active.run_id)
+                        realtime_world.sync_model(loaded)
+                        model_ref.current = loaded
+                        set_model(loaded)
+                        force_update()
+                    except RunConflictError:
+                        pass  # The API won this minute; reload its snapshot on the next poll.
+    solara.use_thread(live_worker, dependencies=[reset_generation])
+
     def handle_reset():
         playing_ref.current = False
         set_playing(False)
-        run_model_action(lambda: model_ref.current.set_playing(False))
+        run_model_action(lambda: model_ref.current.set_playing(False)) if not model_ref.current._extensions.get('realtime') else None
         with step_lock:
             fresh_model = PopulationModel(seed=DEFAULT_SEED)
             model_ref.current = fresh_model
@@ -2734,7 +2967,7 @@ def Page():
             return
         playing_ref.current = False
         set_playing(False)
-        run_model_action(lambda: model_ref.current.set_playing(False))
+        run_model_action(lambda: model_ref.current.set_playing(False)) if not model_ref.current._extensions.get('realtime') else None
         with step_lock:
             loaded_model = PopulationModel(seed=DEFAULT_SEED, run_id=run_id)
             model_ref.current = loaded_model
@@ -2790,6 +3023,8 @@ def Page():
                     ),
                 )
 
+            if model._extensions.get('realtime'):
+                solara.Markdown('**Live world · 1 real minute = 1 game minute.** Continues while closed. Play, pause and fast-forward apply only to experimental runs.')
             ToolbarClockStrip(model, playing)
 
             with solara.Div(classes=["obs-toolbar-controls"]):
@@ -2798,14 +3033,14 @@ def Page():
                         label="❚❚ Pause" if playing else "▶ Play",
                         color="primary",
                         on_click=handle_toggle_play,
-                        disabled=not getattr(model, "running", True),
+                        disabled=bool(model._extensions.get("realtime")) or not getattr(model, "running", True),
                         classes=["obs-ctrl-btn"],
                     )
                     solara.Button(
                         label="⏭ Step",
                         outlined=True,
                         on_click=handle_step,
-                        disabled=playing or not getattr(model, "running", True),
+                        disabled=bool(model._extensions.get("realtime")) or playing or not getattr(model, "running", True),
                         classes=["obs-ctrl-btn"],
                     )
                     solara.Button(
@@ -2852,6 +3087,7 @@ def Page():
                                 "World Overview": f"{living_count}/{len(model.agents)}",
                                 "Living World Engine": f"{len(model.institutions)}",
                                 "Entertainment & Fame": f"{len(model._extensions.get('artists', []))}/{len(entertainment.load_entertainment_organizations())}",
+                                "Population Management": f"{sum(1 for a in model.agents if getattr(a, 'record_status', '') in ('generated', 'procedural'))}",
                                 "Systems Diagnostics": f"{len(model._extensions.get('validation_errors', []))} err",
                                 "Citizen Registry": f"{len(model.agents)}",
                                 "Data Integrity": f"{audit_summary['actionable_citizens']}",
@@ -2892,6 +3128,8 @@ def Page():
                             model,
                             on_inspect_citizen=handle_inspect_from_integrity,
                         )
+                    elif current_page == "Population Management":
+                        PopulationManagement(model)
                     elif current_page == "Systems Diagnostics":
                         SystemsDiagnostics(model)
                     elif current_page == "Citizen Registry":

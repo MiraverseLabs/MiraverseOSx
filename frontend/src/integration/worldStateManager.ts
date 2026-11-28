@@ -1,3 +1,4 @@
+import { hasCreatorAccess } from '../gameplay/localCredentials';
 import { WORLD_KEYS, readWorldEntries, type WorldEntries } from '../backend/worldSync';
 import { applyWorldEntries, validWorldEntries } from '../backend/worldRecords';
 import { mirrorWorldEntries } from '../backend/worldMirrors';
@@ -122,27 +123,27 @@ function saveCreatorStudioState(state: CreatorStudioState): boolean {
   }
 }
 
-function requireCreatorAuthorization(actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; name?: string }): {
+function requireCreatorAuthorization(actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; creatorAccess?: boolean; creatorMode?: boolean; name?: string }): {
   authorized: boolean;
   actorName: string;
   reason?: string;
 } {
   if (actorOverride) {
-    if (!actorOverride.isLoggedIn || !actorOverride.isAdmin) {
+    if (!actorOverride.isLoggedIn || !hasCreatorAccess(actorOverride)) {
       return {
         authorized: false,
         actorName: actorOverride.name || 'Unauthorized User',
-        reason: 'Creator Studio state management requires the signed-in World Administrator.',
+        reason: 'World editing requires an administrator or a local player with Creator tools enabled.',
       };
     }
     return { authorized: true, actorName: actorOverride.name || 'World Administrator' };
   }
   const auth = communicationsAuthority();
-  if (!auth.isLoggedIn || !auth.player?.isAdmin) {
+  if (!auth.isLoggedIn || !hasCreatorAccess(auth.player)) {
     return {
       authorized: false,
       actorName: auth.player?.name || 'Citizen',
-      reason: 'Creator Studio state management requires the signed-in World Administrator.',
+      reason: 'World editing requires an administrator or a local player with Creator tools enabled.',
     };
   }
   return { authorized: true, actorName: auth.player.name || 'World Administrator' };
@@ -164,7 +165,7 @@ export function getWorldPauseState(): Pick<CreatorStudioState, 'isPaused' | 'pau
 
 export function pauseWorld(
   reason = 'Creator Studio inspection & draft staging',
-  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; name?: string }
+  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; creatorAccess?: boolean; creatorMode?: boolean; name?: string }
 ): { ok: boolean; isPaused: boolean; checkpoint?: WorldCheckpoint; message: string } {
   const auth = requireCreatorAuthorization(actorOverride);
   if (!auth.authorized) {
@@ -186,7 +187,7 @@ export function pauseWorld(
 }
 
 export function resumeWorld(
-  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; name?: string }
+  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; creatorAccess?: boolean; creatorMode?: boolean; name?: string }
 ): { ok: boolean; isPaused: boolean; message: string } {
   const auth = requireCreatorAuthorization(actorOverride);
   if (!auth.authorized) {
@@ -231,7 +232,7 @@ function captureWorldCheckpointInternal(
 
 export function captureWorldCheckpoint(
   label = 'Manual Creator Checkpoint',
-  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; name?: string }
+  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; creatorAccess?: boolean; creatorMode?: boolean; name?: string }
 ): { ok: boolean; checkpoint?: WorldCheckpoint; message: string } {
   const auth = requireCreatorAuthorization(actorOverride);
   if (!auth.authorized) {
@@ -259,7 +260,7 @@ export function listWorldCheckpoints(): WorldCheckpoint[] {
  */
 export async function restoreWorldCheckpoint(
   checkpointId: string,
-  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; name?: string }
+  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; creatorAccess?: boolean; creatorMode?: boolean; name?: string }
 ): Promise<{ ok: boolean; restoredCheckpoint?: WorldCheckpoint; backupCheckpoint?: WorldCheckpoint; message: string }> {
   const auth = requireCreatorAuthorization(actorOverride);
   if (!auth.authorized) {
@@ -399,7 +400,7 @@ export function saveCreatorDraft(
     category: CreatorDraftCategory;
     payload?: Record<string, any>;
   },
-  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; name?: string }
+  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; creatorAccess?: boolean; creatorMode?: boolean; name?: string }
 ): { ok: boolean; draft?: CreatorDraft; message: string } {
   const auth = requireCreatorAuthorization(actorOverride);
   if (!auth.authorized) {
@@ -473,7 +474,7 @@ export function listCreatorDrafts(filterStatus?: CreatorDraft['status']): Creato
 
 export function discardCreatorDraft(
   draftId: string,
-  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; name?: string }
+  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; creatorAccess?: boolean; creatorMode?: boolean; name?: string }
 ): { ok: boolean; message: string } {
   const auth = requireCreatorAuthorization(actorOverride);
   if (!auth.authorized) {
@@ -494,7 +495,7 @@ export function discardCreatorDraft(
 
 export function validateCreatorDraft(
   draftId: string,
-  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; name?: string }
+  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; creatorAccess?: boolean; creatorMode?: boolean; name?: string }
 ): { ok: boolean; draft?: CreatorDraft; errors: string[]; message: string } {
   const auth = requireCreatorAuthorization(actorOverride);
   if (!auth.authorized) {
@@ -537,7 +538,7 @@ export function validateCreatorDraft(
 
 export function publishCreatorDraft(
   draftId: string,
-  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; name?: string }
+  actorOverride?: { isLoggedIn?: boolean; isAdmin?: boolean; creatorAccess?: boolean; creatorMode?: boolean; name?: string }
 ): {
   ok: boolean;
   publishedRecord?: PublishedRecord;

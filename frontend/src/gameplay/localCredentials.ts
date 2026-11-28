@@ -1,20 +1,15 @@
-import { ORGANIZATIONS } from '../integration/communicationsAccess';
-
 export function isLocalWorld(hostname: string): boolean {
   return ['localhost', '127.0.0.1', '[::1]', '::1'].includes(hostname);
 }
 
-// Change credentials only: retain the character, economy, cases and career progress.
+/** Creator authority is an explicit tool mode, separate from the character's career. */
+export function hasCreatorAccess(player: any): boolean {
+  return player?.isAdmin === true || (player?.creatorAccess === true && player?.creatorMode === true);
+}
+
+// Local ownership enables the tools without issuing civic roles or player rewards.
 export function grantLocalCredentials(gameplay: any, issuedAt: string) {
   const player = gameplay.player;
-  const memberships = { ...player.organizationMemberships };
-  for (const org of ORGANIZATIONS) {
-    if (memberships[org.id]?.status !== 'active') memberships[org.id] = {
-      status: 'active', issuedAt, issuedBy: player.name, via: 'admin',
-    };
-  }
-  return { ...gameplay, lockedApps: [], player: {
-    ...player, isAdmin: true, clearanceLevel: 5, dgaVerified: true,
-    organizationMemberships: memberships,
-  } };
+  if (player.creatorAccess === true) return gameplay;
+  return { ...gameplay, player: { ...player, creatorAccess: true, creatorMode: false, creatorAccessGrantedAt: issuedAt } };
 }

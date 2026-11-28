@@ -13,9 +13,12 @@ from living_world import LivingWorldStore, RunConflictError, WorldClock, validat
 from population import PopulationModel
 import world_services
 import entertainment
+import dynamic_population
 import institutions
 import npc_intelligence
 import reliability
+import realtime_world
+import species_genetics
 
 from paths import RUN_DATABASE as DATABASE
 CORE_FIELDS = {'format_version','seed','clock','calendar','playing','random_state','citizens'}
@@ -59,6 +62,13 @@ ENT_WRITE = {
     'publicity': entertainment.handle_publicity_or_fan_action,
     'projects': entertainment.create_or_advance_production,
 }
+
+
+class LivingWorldServer(ThreadingHTTPServer):
+    def server_close(self):
+        if hasattr(self, 'realtime_stop'):
+            self.realtime_stop.set()
+        super().server_close()
 
 
 class LivingWorldHandler(BaseHTTPRequestHandler):
@@ -105,7 +115,9 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
     def do_POST(self): self._handle(True)
 
     def _model(self,run_id):
-        return PopulationModel(database=self.server.database,run_id=run_id,characters=self.server.characters)
+        model = PopulationModel(database=self.server.database,run_id=run_id,characters=self.server.characters)
+        realtime_world.sync_model(model)
+        return model
 
     @staticmethod
     def _envelope(model):
@@ -152,7 +164,30 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
             path,query=self._route()
             if not post and path=='/health': self._send(200,{'service':'miraverse-living-world','schemaVersion':1});return
             if not post and path=='/runs': self._send(200,{'runs':self.server.store.list_runs()});return
+            if not post and path=='/wildlife':
+                realm_q=(query.get('realm') or [''])[0].strip() or None
+                transport_only=(query.get('transportOnly') or [''])[0].strip().lower()=='true'
+                self._send(200,species_genetics.list_wildlife_summary(self.server.database,realm=realm_q,transport_only=transport_only));return
+            if not post and path=='/species/genetics-preview':
+                import sqlite3 as _sq
+                import numpy as _np
+                realm_q=(query.get('realm') or ['Orynvell'])[0].strip()
+                seed_q=int((query.get('seed') or ['42'])[0])
+                species_q=(query.get('speciesId') or [''])[0].strip() or None
+                with closing(_sq.connect(str(self.server.database))) as _c:
+                    preview=species_genetics.generate_citizen_genetics(_c,home_realm=realm_q,rng=_np.random.default_rng(seed_q),species_id=species_q)
+                self._send(200,preview);return
             body=self._read_json() if post else None
+            if path == '/clock':
+                initial = body.get('initialMinutes') if post else None
+                if post and (type(initial) is not int or not 0 <= initial <= 5_000_000_000):
+                    raise ValueError('initialMinutes must be a nonnegative integer')
+                if post and body.get('runId') is not None and not isinstance(body['runId'], str):
+                    raise ValueError('runId must be a string')
+                with self.server.clock_lock:
+                    result = realtime_world.clock_record(self.server, initial, body.get('runId') if post else None)
+                self._send(200 if result else 404, result or {'error': 'Real-time clock has not been initialized'})
+                return
             if body and 'expectedRevision' in body and (type(body['expectedRevision']) is not int or body['expectedRevision'] < 0):
                 raise ValueError('expectedRevision must be a nonnegative integer')
             if post and path=='/runs':
@@ -178,7 +213,10 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
             elif name in (*READERS,*ENT_READ,*ENT_WRITE,'schedules','fame','network','recommendations','diagnostics','workflows') and len(parts)==1:
                 run_id=str(body.get('runId') or '') if post else (query.get('runId') or [''])[0]
                 operation=name
-            elif path in ('/schedule/optimize','/citizens/procedural','/documents/generate') and post:
+            elif path == '/population/summary' and not post:
+                run_id=(query.get('runId') or [''])[0]
+                operation='population/summary'
+            elif path in ('/schedule/optimize','/citizens/procedural','/documents/generate','/population/preview','/population/deficit-preview','/population/commit','/population/demand','/population/config') and post:
                 run_id=str(body.get('runId') or '')
                 operation=path.lstrip('/')
             else: self._send(404,{'error':'Unknown living-world route'});return
@@ -219,6 +257,8 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
                         self._send(200,{'runId':run_id,'recommendations':model.recommender.recommend_for_citizen(model,char_id)});return
                     if operation=='workflows':
                         self._send(200,{'runId':run_id,**institutions.list_workflows(model)});return
+                    if operation=='population/summary':
+                        self._send(200,{'runId':run_id,**model.population_summary()});return
                     if operation=='diagnostics':
                         self._send(200,{
                             'runId':run_id,
@@ -234,6 +274,8 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
                         });return
                 else:
                     if operation=='advance':
+                        if model._extensions.get('realtime'):
+                            raise ValueError('The live world follows real time. Use an experimental run for manual stepping.')
                         model.advance_steps(body.get('steps',1))
                         self._send(200,{'runId':run_id,'revision':model._revision,'clock':model.world_clock.to_state(),'date':model.current_world_date()});return
                     if operation=='workflows':
@@ -267,6 +309,43 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
                         created=model.spawn_procedural_citizens(validated.count,realm=validated.realm,seed=validated.seed)
                         model.save()
                         self._send(201,{'created':created,'totalProcedural':len(model._extensions.get('procedural_citizens',[])),'revision':model._revision});return
+                    if operation=='population/preview':
+                        validated=reliability.validate_payload(dynamic_population.PopulationBatchRequest,body,model,'population/preview')
+                        preview=model.preview_population_batch(validated)
+                        self._send(200,{'runId':run_id,**preview});return
+                    if operation=='population/deficit-preview':
+                        res_type=str(body.get('residencyType') or 'permanent')
+                        if res_type not in dynamic_population.RESIDENCY_TYPES:
+                            raise ValueError('residencyType must be permanent or visitor')
+                        preview=model.preview_deficit_fill(
+                            residency_type=res_type,
+                            naming_style=str(body.get('namingStyle') or 'mixed'),
+                            simulation_depth=str(body.get('simulationDepth') or 'Standard'),
+                            seed=body.get('seed',42),
+                        )
+                        self._send(200,{'runId':run_id,**preview});return
+                    if operation=='population/commit':
+                        recs=body.get('records')
+                        if not isinstance(recs,list) or not recs:
+                            raise ValueError('records must be a non-empty list of validated citizen records')
+                        result=model.commit_population_batch(
+                            recs,
+                            batch_id=body.get('batchId'),
+                            trigger_kind=str(body.get('triggerKind') or 'manual'),
+                            existing_eligible_count=int(body.get('existingEligibleCount') or 0),
+                            demand_details=body.get('demandDetails') if isinstance(body.get('demandDetails'),dict) else None,
+                            seed=body.get('seed'),
+                            persist_to_db=bool(body.get('persistToDb',True)),
+                        )
+                        self._send(201,{'runId':run_id,**result,'revision':model._revision});return
+                    if operation=='population/demand':
+                        validated=reliability.validate_payload(dynamic_population.DemandFulfillmentRequest,body,model,'population/demand')
+                        result=model.fulfill_population_demand(validated)
+                        self._send(200,{'runId':run_id,**result,'revision':model._revision});return
+                    if operation=='population/config':
+                        validated=reliability.validate_payload(dynamic_population.RealmConfigUpdatePayload,body,model,'population/config')
+                        updated=dynamic_population.update_realm_config(model.database,validated)
+                        self._send(200,{'runId':run_id,'config':updated});return
                     if operation=='documents/generate':
                         validated=reliability.validate_payload(reliability.DocumentGeneratePayload,body,model,'documents/generate')
                         date_info=model.current_world_date()
@@ -290,7 +369,7 @@ class LivingWorldHandler(BaseHTTPRequestHandler):
                         state=body.get('state')
                         if not isinstance(state,dict) or state.get('clock') != model.world_clock.to_state() or state.get('citizens') != model._export_state()['citizens']:
                             raise ValueError('Use simulation and service commands to update clock or citizens')
-                        managed={'careers','relationships','accounts','artists','entertainmentStaff','organizationStates','tracks','releases','concerts','auditions','entertainment_contracts','productions','tickets','sponsorships','media_items','controversies','awards','fan_communities','events','transactions','legacy_service_state'}
+                        managed={'realtime','careers','relationships','accounts','artists','entertainmentStaff','organizationStates','tracks','releases','concerts','auditions','entertainment_contracts','productions','tickets','sponsorships','media_items','controversies','awards','fan_communities','events','transactions','legacy_service_state'}
                         if any(state.get(k) != model._extensions.get(k) for k in managed):
                             raise ValueError('Use service commands to update managed collections')
                         model._extensions.update({k:v for k,v in state.items() if k not in CORE_FIELDS});model.save()
@@ -317,7 +396,7 @@ def create_server(port=5010,database=DATABASE,characters=None):
     from paths import SOURCE_DATABASE
     if characters is None and not SOURCE_DATABASE.is_file():
         raise FileNotFoundError(f'Canonical database missing: {SOURCE_DATABASE}. Configure MIRAVERSE_SOURCE_DATABASE.')
-    server=ThreadingHTTPServer(('127.0.0.1',port),LivingWorldHandler)
+    server=LivingWorldServer(('127.0.0.1',port),LivingWorldHandler)
     server.database=Path(database);server.characters=characters
     server.store=LivingWorldStore(server.database);server.default_calendar=DEFAULT_CALENDAR_CONFIG
     # Separate run databases need the same projections as the canonical DB.
@@ -325,6 +404,7 @@ def create_server(port=5010,database=DATABASE,characters=None):
     with closing(server.store._connect()) as conn:
         had_entertainment = entertainment_store.has_entertainment_tables(conn)
         entertainment_store.ensure_entertainment_schema(conn)
+        dynamic_population.ensure_population_schema(conn)
         if not had_entertainment:
             for record in server.store.list_runs():
                 run = server.store.load_run(record['RunId'])
@@ -334,6 +414,8 @@ def create_server(port=5010,database=DATABASE,characters=None):
     def lock(run_id):
         with server._locks_guard: return server._locks.setdefault(run_id,threading.RLock())
     server.run_lock=lock
+    server.clock_lock=threading.RLock()
+    realtime_world.start_worker(server)
     return server
 
 

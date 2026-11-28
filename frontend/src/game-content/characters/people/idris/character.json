@@ -3,7 +3,7 @@
   "name": "Professor Idris Aurelian",
   "kind": "person",
   "aliases": [],
-  "status": "document-only",
+  "status": "existing",
   "notes": [],
   "legacyIds": [],
   "references": [
@@ -13,7 +13,7 @@
       "file": "people/idris/story.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-LU-00481987",
   "legacyMaids": [],
   "folder": "idris",
   "firstName": "Idris",

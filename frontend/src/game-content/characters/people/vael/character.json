@@ -3,7 +3,7 @@
   "name": "Headmistress Serena Vael",
   "kind": "person",
   "aliases": [],
-  "status": "document-only",
+  "status": "existing",
   "notes": [],
   "legacyIds": [],
   "references": [
@@ -13,7 +13,7 @@
       "file": "people/vael/story.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-LU-00481985",
   "legacyMaids": [],
   "folder": "vael",
   "firstName": "Serena",

@@ -88,7 +88,7 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 /**
  * Calculates real-time celestial and lunar states for Radiance and Echo based on game cycle count.
  */
-export function getCelestialState(cycle: number = 28): CelestialState {
+export function getCelestialState(cycle: number = 28, liveDate?: Date): CelestialState {
   // Radiance: Outer Moon (Larger, distant, 28-day orbital resonance)
   const radianceIndex = Math.floor(cycle) % 8;
   const radiancePhase = LUNAR_PHASES[radianceIndex];
@@ -110,8 +110,9 @@ export function getCelestialState(cycle: number = 28): CelestialState {
     }
     runningDays -= daysInMonths[m];
   }
-  const dayOfMonth = Math.floor(runningDays) + 1;
-  const weekday = WEEKDAYS[Math.floor(cycle) % 7];
+  if (liveDate) monthIndex = liveDate.getMonth();
+  const dayOfMonth = liveDate ? liveDate.getDate() : Math.floor(runningDays) + 1;
+  const weekday = liveDate ? WEEKDAYS[(liveDate.getDay() + 6) % 7] : WEEKDAYS[Math.floor(cycle) % 7];
   const isFoundingDay = monthIndex === 2 && dayOfMonth === 6; // March 6
 
   let alignment = 'Harmonic Divergence';

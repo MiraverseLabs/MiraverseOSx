@@ -1,3 +1,4 @@
+import { hasCreatorAccess } from '../gameplay/localCredentials';
 import React, { useEffect, useRef, useState } from 'react';
 import { useOSStore } from '../store/useOSStore';
 import { useCommsStore } from '../store/useCommsStore';
@@ -13,7 +14,7 @@ export default function CommunicationsAccessPanel({ onClose }: { onClose: () => 
   const [institutionId, setInstitutionId] = useState<string>('cyacademy');
   const [localName, setLocalName] = useState('');
   const institution = organization(institutionId)!;
-  const canAdminister = Boolean(player.isAdmin && isLoggedIn);
+  const canAdminister = Boolean(hasCreatorAccess(player) && isLoggedIn);
   return <dialog ref={dialog} onCancel={event => { event.preventDefault(); onClose(); }} aria-labelledby="communications-access-title" className="communications-access-panel">
     <header><div><span className="workspace-kicker">Current player / communications</span><h1 id="communications-access-title">Accounts & memberships</h1></div><button aria-label="Close accounts and memberships" onClick={onClose}>Close</button></header>
     <p>Organization membership opens its Comms channels. An institutional email address must be issued separately.</p>

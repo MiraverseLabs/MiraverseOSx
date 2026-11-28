@@ -696,8 +696,8 @@
       "occupation": "School Administrator",
       "homeRealm": "Lumia",
       "kind": "person",
-      "status": "document-only",
-      "maid": null,
+      "status": "existing",
+      "maid": "MAID-LU-00481985",
       "folder": "vael",
       "files": [
         "people/vael/story.json"
@@ -712,8 +712,8 @@
       "occupation": "Professor",
       "homeRealm": "Lumia",
       "kind": "person",
-      "status": "document-only",
-      "maid": null,
+      "status": "existing",
+      "maid": "MAID-LU-00481987",
       "folder": "idris",
       "files": [
         "people/idris/story.json"
@@ -728,8 +728,8 @@
       "occupation": "Coach",
       "homeRealm": "Brisland",
       "kind": "person",
-      "status": "document-only",
-      "maid": null,
+      "status": "existing",
+      "maid": "MAID-BR-00481982",
       "folder": "rhen",
       "files": [
         "people/rhen/story.json"
@@ -744,8 +744,8 @@
       "occupation": "Instructor",
       "homeRealm": "Marlowe",
       "kind": "person",
-      "status": "document-only",
-      "maid": null,
+      "status": "existing",
+      "maid": "MAID-MA-00481986",
       "folder": "lyse",
       "files": [
         "people/lyse/story.json"
@@ -760,8 +760,8 @@
       "occupation": "Professor",
       "homeRealm": "Marlowe",
       "kind": "person",
-      "status": "document-only",
-      "maid": null,
+      "status": "existing",
+      "maid": "MAID-MA-00481988",
       "folder": "oryn",
       "files": [
         "people/oryn/story.json"
@@ -810,8 +810,8 @@
       "occupation": "Computer Scientist",
       "homeRealm": "Orynvell",
       "kind": "person",
-      "status": "document-only",
-      "maid": null,
+      "status": "existing",
+      "maid": "MAID-OR-00481984",
       "folder": "franz-hopper",
       "files": [
         "people/franz-hopper/story.json"
@@ -826,8 +826,8 @@
       "occupation": "Communications Specialist",
       "homeRealm": "Nephele",
       "kind": "person",
-      "status": "document-only",
-      "maid": null,
+      "status": "existing",
+      "maid": "MAID-NE-00481983",
       "folder": "echo-neket",
       "files": [
         "people/echo-neket/story.json"
@@ -842,8 +842,8 @@
       "occupation": "Cultural Historian",
       "homeRealm": "Kaji",
       "kind": "person",
-      "status": "document-only",
-      "maid": null,
+      "status": "existing",
+      "maid": "MAID-KA-00481989",
       "folder": "solis-agni",
       "files": [
         "people/solis-agni/story.json"

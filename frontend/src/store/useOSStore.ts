@@ -1,3 +1,5 @@
+import { restoreCharacterProfile, validateCharacterProfile } from '../gameplay/CharacterProfile';
+import { clockMinutes, clockSegments, initialClock, validClock, type RealTimeClock } from '../gameplay/RealTimeClock';
 import { CAREER_REGISTRY, canonicalCareerId } from '../gameplay/CareerRegistry';
 import { restoreWorknetPlayer } from '../gameplay/WorknetPersistence';
 import { WORK_PAY_RULES } from '../gameplay/WorkRewards';
@@ -10,7 +12,7 @@ import { emptyAcademics } from '../gameplay/Academics';
 import { HOME_FURNISHINGS, HOME_GUESTS } from '../gameplay/Housing';
 import { createBrowserActions } from './browserActions';
 import { createSocialActions, type SocialActions } from './socialActions';
-import { grantLocalCredentials, isLocalWorld } from '../gameplay/localCredentials';
+import { grantLocalCredentials, isLocalWorld, hasCreatorAccess } from '../gameplay/localCredentials';
 import { createSiteActions, type SiteActions } from './siteActions';
 import { emptyVersenetSites, restoreVersenetSites, type VersenetSites } from '../apps/Browser/interactiveSites';
 import { createVersenetActions, type VersenetActions } from './versenetActions';
@@ -213,6 +215,8 @@ export interface OSStoreState extends MediaStudioActions, BankingActions, Proces
   renameBrowserTabGroup: (id: string, name: string) => { ok: boolean; message: string };
   removeBrowserTabGroup: (id: string) => void;
 
+  saveCharacterProfile: (value: unknown) => { ok: boolean; message: string };
+  setCreatorMode: (enabled: boolean) => { ok: boolean; message: string };
   loginUser: (userData: any) => void;
   grantLocalFullAccess: () => { ok: boolean; message: string };
   logoutUser: () => void;
@@ -224,6 +228,8 @@ export interface OSStoreState extends MediaStudioActions, BankingActions, Proces
   bumpCreditMirrorRevision: () => void;
   reconcileLivingWorldLink: () => Promise<void>;
 
+  tickRealTimeClock: (now?: number) => void;
+  syncRealTimeClock: () => Promise<void>;
   advanceTime: () => void;
   restInDorm: (duration?: SleepDuration) => {
     ok: boolean;
@@ -373,7 +379,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   workspaceRequestSequence: 0,
   setOrganizationMembership: (id, status) => {
     const current = get();
-    if (!current.isLoggedIn || !current.gameplay.player.isAdmin) return { ok: false, message: 'Membership changes require the signed-in world administrator.' };
+    if (!current.isLoggedIn || !hasCreatorAccess(current.gameplay.player)) return { ok: false, message: 'Membership changes require an administrator or enabled Creator tools.' };
     const institution = organization(id);
     if (!institution || !['active', 'suspended', 'revoked'].includes(status)) return { ok: false, message: 'Unknown organization or membership status.' };
     set(s => ({ gameplay: { ...s.gameplay, player: { ...s.gameplay.player, organizationMemberships: {
@@ -384,7 +390,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   },
   inviteToOrganization: (id, note) => {
     const current = get();
-    if (!current.isLoggedIn || !current.gameplay.player.isAdmin) return { ok: false, message: 'Organization invitations require the signed-in world administrator.' };
+    if (!current.isLoggedIn || !hasCreatorAccess(current.gameplay.player)) return { ok: false, message: 'Organization invitations require an administrator or enabled Creator tools.' };
     const institution = organization(id);
     if (!institution) return { ok: false, message: 'Unknown organization.' };
     if (membershipSource(current.gameplay.player, id)) return { ok: false, message: `${institution.name} membership is already active.` };
@@ -464,7 +470,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   },
   removeOrganizationMembership: (id, reason) => {
     const current = get();
-    if (!current.isLoggedIn || !current.gameplay.player.isAdmin) return { ok: false, message: 'Removing a member from an organization requires the signed-in world administrator.' };
+    if (!current.isLoggedIn || !hasCreatorAccess(current.gameplay.player)) return { ok: false, message: 'Removing a member requires an administrator or enabled Creator tools.' };
     const institution = organization(id);
     if (!institution) return { ok: false, message: 'Unknown organization.' };
     const now = new Date().toISOString();
@@ -511,14 +517,14 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   },
   linkCitizenHubIdentity: async (id) => {
     const before = get();
-    if (!before.isLoggedIn || !before.gameplay.player.isAdmin) return { ok: false, message: 'Only the signed-in world administrator can link a player to an AURA identity.' };
+    if (!before.isLoggedIn || !hasCreatorAccess(before.gameplay.player)) return { ok: false, message: 'Linking an AURA identity requires an administrator or enabled Creator tools.' };
     const { MaidIdentityService } = await import('../services/maidIdentityService');
     const persons = await MaidIdentityService.readExistingPersons();
     const matches = persons.filter(candidate => candidate && typeof candidate.id === 'string' && candidate.id === id && !candidate.isRestricted);
     const person = matches.length === 1 ? matches[0] : undefined;
     if (!person) return { ok: false, message: 'Choose an existing unrestricted AURA identity.' };
     const current = get();
-    if (!current.isLoggedIn || !current.gameplay.player.isAdmin || current.gameplay.identity !== before.gameplay.identity || current.gameplay.player.name !== before.gameplay.player.name) {
+    if (!current.isLoggedIn || !hasCreatorAccess(current.gameplay.player) || current.gameplay.identity !== before.gameplay.identity || current.gameplay.player.name !== before.gameplay.player.name) {
       return { ok: false, message: 'The player identity changed. Review the link again.' };
     }
     set(s => ({ gameplay: { ...s.gameplay, identity: { ...s.gameplay.identity, canonicalPersonId: person.id } } }));
@@ -870,12 +876,23 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   ...createSocialActions(set, get),
   ...createMediaStudioActions(set, get),
 
-  grantLocalFullAccess: () => {
-    const current = get();
-    if (!current.isLoggedIn || !isLocalWorld(globalThis.location?.hostname || '')) return { ok: false, message: 'Full-access credentials are available in your signed-in local world.' };
-    set(s => ({ gameplay: grantLocalCredentials(s.gameplay, new Date().toISOString()) }));
-    return { ok: true, message: 'Full access enabled. Clearance 5, all institutions, DGAOS and TRACE are available. Your progress is preserved.' };
+  saveCharacterProfile: (value) => {
+    if (!get().isLoggedIn) return { ok: false, message: 'Sign in before editing your character.' };
+    const result = validateCharacterProfile(value);
+    if (result.ok === false) return { ok: false, message: result.message };
+    set(state => ({ gameplay: { ...state.gameplay, characterProfile: result.profile } }));
+    return { ok: true, message: 'Personal profile saved.' };
   },
+  setCreatorMode: (enabled) => {
+    const state = get();
+    if (!state.isLoggedIn || !isLocalWorld(globalThis.location?.hostname || '')) return { ok: false, message: 'Creator tools are available to the signed-in owner of this local world.' };
+    set(current => {
+      const game = grantLocalCredentials(current.gameplay, new Date().toISOString());
+      return { gameplay: { ...game, player: { ...game.player, creatorMode: Boolean(enabled) } } };
+    });
+    return { ok: true, message: enabled ? 'Creator tools enabled. Your character’s earned progress is unchanged.' : 'Creator tools disabled. Your player identity and progress are unchanged.' };
+  },
+  grantLocalFullAccess: () => get().setCreatorMode(true),
   loginUser: (userData) =>
     set((s) => {
       const localHost = isLocalWorld(globalThis.location?.hostname || '');
@@ -887,10 +904,8 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
         };
       }
       const isAdmin = !!(
-        localHost ||
         userData.isAdmin ||
-        userData.name?.toLowerCase().includes('admin') ||
-        (userData.clearance && userData.clearance >= 4)
+        ['admin', 'administrator', 'root'].includes(userData.name?.trim().toLowerCase())
       );
 
       if (isAdmin) {
@@ -988,6 +1003,9 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
           player: {
             ...s.gameplay.player,
             name: userData.name || s.gameplay.player.name,
+            isAdmin: false,
+            creatorAccess: localHost || s.gameplay.player.creatorAccess === true,
+            creatorMode: false,
             clearanceLevel: userData.clearance || 1,
             credits: userData.credits !== undefined ? userData.credits : s.gameplay.player.credits,
             bits: userData.bits !== undefined ? userData.bits : s.gameplay.player.bits,
@@ -1000,7 +1018,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   logoutUser: () => set(state => {
     const workspaceRequests = { ...state.workspaceRequests };
     delete workspaceRequests.browser;
-    return { isLoggedIn: false, browserState: restartBrowserSession(state.browserState), browserUrl: BROWSER_HOME, workspaceRequests };
+    return { isLoggedIn: false, gameplay: { ...state.gameplay, player: { ...state.gameplay.player, creatorMode: false } }, browserState: restartBrowserSession(state.browserState), browserUrl: BROWSER_HOME, workspaceRequests };
   }),
 
   // ------------------------------------------------------------------
@@ -1029,6 +1047,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     ],
     timeSegmentIndex: 2, // 0: Morning, 1: Afternoon, 2: Evening, 3: Night
     timeCycleCount: 28,
+    characterProfile: restoreCharacterProfile(null),
     livingWorldLink: null as LivingWorldLink | null,
     onboardingPhase: 1, // 1: Boot, 2: Emails Read, 3: Identity Verified, 4: Comms Unlocked, 6: Completed
     lockedApps: ['passport', 'comms'], // Apps locked until onboarding steps are completed
@@ -1174,6 +1193,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
   linkLivingWorldCitizen: async (runId, characterId, displayName) => {
     const state = get();
     if (!state.isLoggedIn) return { ok: false, message: 'Sign in before linking a Living World citizen.' };
+    if (state.gameplay.realTimeClock?.runId && state.gameplay.realTimeClock.runId !== runId) return { ok: false, message: 'Choose the live real-time world. Experimental runs have independent clocks.' };
     try {
       const snapshot = await getRun(runId);
       const citizen = snapshot.run.state?.citizens?.[characterId];
@@ -1212,6 +1232,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     });
   },
   reconcileLivingWorldLink: async () => {
+    if (get().gameplay.realTimeClock) { await get().syncRealTimeClock(); return; }
     const link = get().gameplay.livingWorldLink;
     if (!link) return;
     try {
@@ -1250,7 +1271,45 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
     }
   },
 
+  tickRealTimeClock: (now = Date.now()) => {
+    if (!get().isLoggedIn || isWorldPaused()) return;
+    set(state => {
+      const game = state.gameplay;
+      const clock: RealTimeClock = validClock(game.realTimeClock) ? game.realTimeClock : initialClock(game, now);
+      const elapsedMinutes = clockMinutes(clock, now);
+      if (game.realTimeClock && elapsedMinutes === clock.elapsedMinutes) return {};
+      const segments = clockSegments(elapsedMinutes);
+      const nextTick = segments.timeCycleCount * 4 + segments.timeSegmentIndex;
+      return {
+        worknetSim: advanceWorknetSimulation(state.worknetSim, nextTick),
+        orynvellRecords: advanceOrynvellRequests(state.orynvellRecords, nextTick),
+        gameplay: { ...game, ...segments, realTimeClock: { ...clock, elapsedMinutes },
+          entertainment: game.livingWorldLink?.runId ? game.entertainment : advanceEntertainmentCycle(game.entertainment, segments.timeCycleCount) },
+      };
+    });
+  },
+  syncRealTimeClock: async () => {
+    const initial = get();
+    if (!initial.isLoggedIn || isWorldPaused()) return;
+    const local = validClock(initial.gameplay.realTimeClock) ? initial.gameplay.realTimeClock : initialClock(initial.gameplay);
+    try {
+      const response = await fetch('/api/livingworld/clock', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initialMinutes: clockMinutes(local), runId: initial.gameplay.livingWorldLink?.runId }),
+      });
+      if (!response.ok) throw new Error('Real-time world unavailable');
+      const clock = await response.json();
+      if (!validClock(clock) || typeof clock.runId !== 'string') throw new Error('Invalid world clock');
+      if (!get().isLoggedIn || isWorldPaused()) return;
+      set(state => ({ gameplay: { ...state.gameplay, realTimeClock: clock, ...clockSegments(clock.elapsedMinutes) } }));
+      if (get().gameplay.livingWorldLink) await get().syncEntertainmentFromLivingWorld();
+    } catch {
+      // The persisted anchor keeps time while offline. The server catches NPCs up on reconnect.
+    }
+  },
+
   advanceTime: () => {
+    if (get().gameplay.realTimeClock) { get().tickRealTimeClock(); return; }
     const previous = get().gameplay;
     const previousTotal = (previous.timeCycleCount ?? 0) * 4 + (previous.timeSegmentIndex ?? 0);
     set((state) => {
@@ -2765,7 +2824,7 @@ export const useOSStore = create<OSStoreState>()(persist((rawSet, get) => {
       browserUrl: browserState.tabs.find(tab => tab.id === browserState.activeTabId)!.url,
       gameplay: (() => {
         const merged = mergeSavedProgress(current.gameplay, saved?.gameplay);
-        const restored = { ...merged, mediaStudio: restoreMediaStudio(merged.mediaStudio, merged.timeCycleCount), worldPublications: restoreWorldPublications(merged.worldPublications), entertainment: restoreEntertainmentState(merged.entertainment, merged.timeCycleCount), player: { ...restoreWorknetPlayer(merged.player, workTick(merged)), banking: restoreBanking(merged.player.banking), processMonitor: restoreProcessMonitor(merged.player.processMonitor) } };
+        const restored = { ...merged, characterProfile: restoreCharacterProfile(merged.characterProfile), mediaStudio: restoreMediaStudio(merged.mediaStudio, merged.timeCycleCount), worldPublications: restoreWorldPublications(merged.worldPublications), entertainment: restoreEntertainmentState(merged.entertainment, merged.timeCycleCount), player: { ...restoreWorknetPlayer(merged.player, workTick(merged)), banking: restoreBanking(merged.player.banking), processMonitor: restoreProcessMonitor(merged.player.processMonitor) } };
         return isLocalWorld(globalThis.location?.hostname || '')
           ? grantLocalCredentials(restored, new Date().toISOString())
           : restored;
@@ -2800,10 +2859,10 @@ registerOSHost({
   },
 });
 
-// Automatically grant full admin credentials on localhost without requiring manual activation.
+// Local ownership enables optional creator tools without promoting the character.
 if (isLocalWorld(globalThis.location?.hostname || '')) {
   const current = useOSStore.getState();
-  if (!current.gameplay.player.isAdmin || (current.gameplay.player.clearanceLevel ?? 1) < 5) {
+  if (!current.gameplay.player.creatorAccess) {
     useOSStore.setState({ gameplay: grantLocalCredentials(current.gameplay, new Date().toISOString()) });
   }
 }

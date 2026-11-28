@@ -236,7 +236,7 @@ export function DGAPortal() {
         { name: 'Jeremie Belpois', maid: 'MAID-OR-00481935', dept: 'Cyberium Academy Compiler Lab 4', clearance: 'Tier 2 (Academic Auth)', status: 'DIAGNOSTIC ADVISOR' },
         { name: 'Aelita Hopper', maid: 'MAID-OR-00481945', dept: 'Cyberium Academy Research / Node Liaison', clearance: 'Tier 2 (Academic Auth)', status: 'SUBTERRANEAN CONTACT' },
         { name: 'Dr. Sharon Voss', maid: 'MAID-FR-00481974', dept: 'Faith Medical & Deep Telemetry', clearance: 'Tier 2 (Clinical Auth)', status: 'PRISM CHIEF RESEARCHER' },
-        { name: 'Franz Hopper', maid: 'DOCUMENT-ONLY', dept: 'Pre-Collapse Network Architect', clearance: 'Tier 3 (Classified)', status: 'HISTORICAL ARCHIVE SEAL' },
+        { name: 'Franz Hopper', maid: 'MAID-OR-00481984', dept: 'Pre-Collapse Network Architect', clearance: 'Tier 3 (Classified)', status: 'HISTORICAL ARCHIVE SEAL' },
     ];
 
     const handleSearchCitizen = (e: React.FormEvent) => {

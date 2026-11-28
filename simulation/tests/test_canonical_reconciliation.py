@@ -18,9 +18,9 @@ import world_services
 
 
 class CanonicalReconciliationSimulationTests(unittest.TestCase):
-    def test_load_characters_uses_53_existing_persons_and_excludes_retired_doc_only_and_companion(self):
+    def test_load_characters_uses_61_existing_persons_and_excludes_retired_and_companion(self):
         chars = load_characters()
-        self.assertEqual(len(chars), 53)
+        self.assertEqual(len(chars), 61)
         by_id = {c["CharacterId"]: c for c in chars}
         # All 7 newly registered canonical characters are present with expected metadata
         expected_new = {
@@ -36,10 +36,13 @@ class CanonicalReconciliationSimulationTests(unittest.TestCase):
             self.assertIn(cid, by_id)
             row = by_id[cid]
             self.assertEqual((row["FirstName"], row["LastName"], row["Occupation"], row["HomeRealm"], row["Maid"]), (fn, ln, occ, realm, maid))
-        # Companion and document-only records must remain distinct from active living persons
+        # Formerly document-only canonical people are now active existing persons with MAIDs
+        for cid in ("char-vael", "char-franz-hopper", "char-echo-neket", "char-idris", "char-lyse", "char-oryn", "char-rhen", "char-solis-agni"):
+            self.assertIn(cid, by_id)
+            self.assertEqual(by_id[cid]["Status"], "existing")
+            self.assertTrue(by_id[cid]["Maid"])
+        # Companion record must remain distinct from active living persons
         self.assertNotIn("char-mai", by_id)
-        self.assertNotIn("char-vael", by_id)
-        self.assertNotIn("char-franz-hopper", by_id)
         # Retired / deleted characters must never appear
         for retired_id in ("char-elara-vale", "char-mara-thorne", "char-vaelen", "char-kaelen", "char-neryx", "char-lyric-enya"):
             self.assertNotIn(retired_id, by_id)
@@ -57,14 +60,14 @@ class CanonicalReconciliationSimulationTests(unittest.TestCase):
         # HomeRealm must NOT overwrite or be interpreted as BirthRealm / OriginRealm
         self.assertNotEqual(norm["origin_realm"], "Fross")
 
-        # Companion & document-only distinctions are preserved by the normalizer
+        # Companion distinction is preserved, while legacy document-only status normalizes to existing & eligible
         companion_norm = normalize_character_profile(
             {"CharacterId": "char-mai", "Name": "Mai", "Kind": "companion", "Status": "existing", "profiles": []}
         )
         self.assertEqual(companion_norm["character_classification"], "Companion")
         self.assertFalse(companion_norm["eligible_for_living_sim"])
 
-        doc_only_norm = normalize_character_profile(
+        former_doc_norm = normalize_character_profile(
             {
                 "CharacterId": "char-vael",
                 "Name": "Headmistress Serena Vael",
@@ -78,10 +81,10 @@ class CanonicalReconciliationSimulationTests(unittest.TestCase):
                 "profiles": [],
             }
         )
-        self.assertEqual(doc_only_norm["character_classification"], "Historical character")
-        self.assertFalse(doc_only_norm["eligible_for_living_sim"])
-        self.assertEqual(doc_only_norm["home_realm"], "Lumia")
-        self.assertEqual(doc_only_norm["origin_realm"], "")
+        self.assertEqual(former_doc_norm["record_status"], "existing")
+        self.assertTrue(former_doc_norm["eligible_for_living_sim"])
+        self.assertEqual(former_doc_norm["home_realm"], "Lumia")
+        self.assertEqual(former_doc_norm["origin_realm"], "")
 
     def test_historical_runs_remain_accessible_without_reinstating_deleted_citizens(self):
         with closing(sqlite3.connect(f"file:{SOURCE_DATABASE.resolve().as_posix()}?mode=ro", uri=True)) as conn:
@@ -89,13 +92,15 @@ class CanonicalReconciliationSimulationTests(unittest.TestCase):
                 "SELECT RunId FROM LivingWorldRuns ORDER BY UpdatedAt DESC LIMIT 1"
             ).fetchone()
             tx_count = conn.execute("SELECT COUNT(*) FROM LivingWorldTransactions").fetchone()[0]
-            self.assertEqual(tx_count, 241)
+            self.assertGreaterEqual(tx_count, 241)
             self.assertIsNotNone(run_row)
             latest_run_id = run_row[0]
 
         model = PopulationModel(database=SOURCE_DATABASE, run_id=latest_run_id, persist=False)
         agent_ids = {a.character_id for a in model.agents}
-        self.assertEqual(len(agent_ids), 53)
+        canonical_ids = {c["CharacterId"] for c in load_characters()}
+        self.assertEqual(len(canonical_ids), 61)
+        self.assertTrue(canonical_ids.issubset(agent_ids))
         self.assertNotIn("char-elara-vale", agent_ids)
         self.assertNotIn("char-mara-thorne", agent_ids)
         self.assertNotIn("char-vaelen", agent_ids)

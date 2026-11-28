@@ -1,19 +1,21 @@
 @echo off
 title MiraverseOSx Launcher
 echo ========================================================
-echo   Starting MiraverseOSx (Backend Port 5000 + Frontend Port 3000)
+echo   Starting MiraverseOSx + Living World + Observatory
 echo ========================================================
 echo.
 
 cd /d "%~dp0"
 
-echo The backend will be built before both servers start.
+echo The backend will be built before all services start.
 echo Open http://localhost:3000 when Vite reports that it is ready.
-echo Press Ctrl+C here to stop the game servers.
+echo Observatory: http://127.0.0.1:8768
+echo Living World API: http://127.0.0.1:5010
+echo Press Ctrl+C here to stop all services started by this launcher.
 echo.
 
 :: Use the shared startup command so a failed build stops startup and
-:: both servers remain attached to this launcher instead of orphaned windows.
+:: all services remain attached to this launcher instead of orphaned windows.
 call npm start
 if errorlevel 1 (
     echo.

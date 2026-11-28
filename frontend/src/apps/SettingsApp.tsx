@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import LocalCredentials from './LocalCredentials';
-import { Check, ChevronRight, HardDrive, Image as ImageIcon, Info, Palette, Settings2, Volume2 } from 'lucide-react';
+import { Check, ChevronRight, HardDrive, Image as ImageIcon, Info, Palette, Settings2, Volume2, UserRound } from 'lucide-react';
 import { useOSStore } from '../store/useOSStore';
 import { useSystemStore } from '../store/useSystemStore';
 import { SoundFX } from '../utils/audio';
@@ -11,11 +11,14 @@ import '../styles/apps/Settings.css';
 import { DESKTOP_THEMES, desktopThemeStyle } from '../store/desktopThemes';
 import { ASSETS, type AssetCategory } from '../data/designAssets';
 
+const CharacterProfileEditor = React.lazy(() => import('./CharacterProfileEditor'));
+
 const sections = [
+  { id: 'character', title: 'My Character', detail: 'Your story & personal profile', icon: UserRound },
   { id: 'appearance', title: 'Appearance', detail: 'Make it your space', icon: Palette },
   { id: 'sound', title: 'Sound', detail: 'System audio', icon: Volume2 },
   { id: 'save', title: 'Save & sync', detail: 'Progress & recovery', icon: HardDrive },
-  { id: 'credentials', title: 'Credentials', detail: 'Player access & institutions', icon: Settings2 },
+  { id: 'credentials', title: 'Creator tools', detail: 'World editing & maintenance', icon: Settings2 },
   { id: 'assets', title: 'Design assets', detail: 'Icon & ornament library', icon: ImageIcon },
   { id: 'about', title: 'About', detail: 'Your Miraverse system', icon: Info },
 ] as const;
@@ -23,6 +26,13 @@ const sections = [
 
 export default function SettingsApp() {
   const [selected, setSelected] = useState<typeof sections[number]['id']>('appearance');
+  const request = useOSStore(state => state.workspaceRequests.settings);
+  useEffect(() => {
+    if (!request) return;
+    const target = sections.find(section => section.id === request.section);
+    if (target) setSelected(target.id);
+    useOSStore.getState().consumeWorkspaceRequest('settings', request.revision);
+  }, [request]);
   const [assetCategory, setAssetCategory] = useState<'all' | AssetCategory>('all');
   const wallpaper = useOSStore(state => state.wallpaper);
   const setWallpaper = useOSStore(state => state.setWallpaper);
@@ -43,7 +53,8 @@ export default function SettingsApp() {
         <footer><span className="settings-orbit-dot" />MIRAVERSE OS x<span>Personal system preferences</span></footer>
       </aside>
       <main key={selected} className="settings-content" id="settings-content" aria-labelledby="settings-section-title">
-        <header className="settings-page-heading"><p>SYSTEM / {section.title.toUpperCase()}</p><h2 id="settings-section-title">{section.title}</h2><span>{selected === 'appearance' ? 'A familiar space, with your own point of view.' : selected === 'sound' ? 'Choose how your desktop sounds.' : selected === 'save' ? 'Keep your world ready for the next visit.' : selected === 'assets' ? 'The shipped icon, ornament and brand library.' : 'One desktop. A connected world.'}</span></header>
+        <header className="settings-page-heading"><p>SYSTEM / {section.title.toUpperCase()}</p><h2 id="settings-section-title">{section.title}</h2><span>{selected === 'character' ? 'Your character, in your own words.' : selected === 'credentials' ? 'World editing alongside your personal life.' : selected === 'appearance' ? 'A familiar space, with your own point of view.' : selected === 'sound' ? 'Choose how your desktop sounds.' : selected === 'save' ? 'Keep your world ready for the next visit.' : selected === 'assets' ? 'The shipped icon, ornament and brand library.' : 'One desktop. A connected world.'}</span></header>
+        {selected === 'character' && <React.Suspense fallback={<p role="status">Opening your character profile…</p>}><CharacterProfileEditor /></React.Suspense>}
         {selected === 'appearance' && <>
           <section className="settings-group mira-interface-settings" aria-labelledby="interface-preferences-heading">
             <h3 id="interface-preferences-heading">Interface & reading</h3>

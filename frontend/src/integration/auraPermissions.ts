@@ -1,3 +1,4 @@
+import { hasCreatorAccess } from '../gameplay/localCredentials';
 import { communicationsAuthority, membershipSource } from './communicationsAccess';
 import type { CanonicalPerson } from '../services/maidIdentityService';
 
@@ -65,7 +66,7 @@ export function resolveAuraActor(override?: { player?: any; identity?: any; isLo
   const player = auth.player || {};
   const identity = auth.identity || {};
   const isLoggedIn = Boolean(auth.isLoggedIn);
-  const isAdmin = Boolean(isLoggedIn && player.isAdmin);
+  const isAdmin = Boolean(isLoggedIn && hasCreatorAccess(player));
   const clearanceLevel = typeof player.clearanceLevel === 'number' ? player.clearanceLevel : 1;
   const dgaVerified = Boolean(player.dgaVerified);
 
@@ -136,7 +137,7 @@ export function resolveAuraActor(override?: { player?: any; identity?: any; isLo
     citizenId: identity.citizenId || null,
     roles,
     primaryRole,
-    roleLabel: roleLabels[primaryRole],
+    roleLabel: isLoggedIn && !player.isAdmin && hasCreatorAccess(player) ? 'Creator tools' : roleLabels[primaryRole],
   };
 }
 

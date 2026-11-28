@@ -197,7 +197,8 @@ def normalize_character_profile(
     canonical_occupation = _clean_str(character.get("Occupation"))
     canonical_home_realm = _clean_str(character.get("HomeRealm"))
     canonical_kind = _clean_str(character.get("Kind")) or "person"
-    canonical_status = _clean_str(character.get("Status")) or "existing"
+    raw_status = _clean_str(character.get("Status")) or "existing"
+    canonical_status = "existing" if raw_status.lower() == "document-only" else raw_status
     profiles: list[dict[str, Any]] = list(character.get("profiles") or [])
 
     collections_present = {str(p.get("collection", "")) for p in profiles}
@@ -756,12 +757,6 @@ def _classify_character(
             False,
             "Canonical companion record; handled separately from autonomous living citizens.",
         )
-    if canonical_status.lower() == "document-only":
-        return (
-            "Historical character",
-            False,
-            "Document-only character record; preserved as reference lore and excluded from living citizen loop.",
-        )
     combined_roles = " ".join(
         [primary_occupation]
         + secondary_occupations
@@ -849,12 +844,12 @@ def _classify_character(
             "Named story/world NPC with expanded multi-faceted profile.",
         )
 
-    # 7. Unprofiled placeholder check
-    if not collections_present:
+    # 7. Unprofiled placeholder check (only when neither source profiles nor canonical occupation exist)
+    if not collections_present and not primary_occupation:
         return (
             "Historical character",
             False,
-            "Unprofiled character stub (0 source profiles); held inactive until profile details are authored.",
+            "Unprofiled character stub (0 source profiles and no occupation); held inactive until profile details are authored.",
         )
 
     # 8. Ordinary Citizen

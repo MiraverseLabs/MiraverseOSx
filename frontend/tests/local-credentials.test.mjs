@@ -10,22 +10,26 @@ const { useOSStore: os } = await import('../src/store/useOSStore.ts');
 const { ORGANIZATIONS, membershipSource } = await import('../src/integration/communicationsAccess.ts');
 const { resolveDGAAuthority } = await import('../src/dgaos/lib/dga-permissions.ts');
 
-test('local full access persists credentials without resetting the character or issuing rewards', async () => {
+test('local creator tools persist independently from player clearance, memberships and rewards', async () => {
   os.getState().loginUser({ name: 'Local Player', clearance: 1, credits: 500 });
   const before = structuredClone(os.getState().gameplay.player);
   assert.equal(os.getState().grantLocalFullAccess().ok, true);
   const player = os.getState().gameplay.player;
-  for (const key of Object.keys(before).filter(key => !['isAdmin', 'clearanceLevel', 'dgaVerified', 'organizationMemberships'].includes(key))) assert.deepEqual(player[key], before[key], key);
-  assert.equal(player.clearanceLevel, 5);
-  assert.ok(ORGANIZATIONS.every(org => membershipSource(player, org.id)));
+  for (const key of Object.keys(before).filter(key => key !== 'creatorMode')) assert.deepEqual(player[key], before[key], key);
+  assert.equal(player.isAdmin, false);
+  assert.equal(player.clearanceLevel, 1);
+  assert.ok(ORGANIZATIONS.every(org => !membershipSource(player, org.id)));
   assert.equal(resolveDGAAuthority({ player, isLoggedIn: true }).canAccessTrace, true);
   assert.equal(resolveDGAAuthority({ player, isLoggedIn: true }).canTransmitTraceFindings, true);
-  assert.equal(os.getState().broadStreetEligible(), true);
+  assert.equal(os.getState().broadStreetEligible(), false);
   os.getState().grantLocalFullAccess();
   assert.deepEqual(os.getState().gameplay.player, player);
   const restored = (await import('../src/store/useOSStore.ts?credentials-reload')).useOSStore;
-  assert.equal(restored.getState().gameplay.player.isAdmin, true);
-  assert.equal(restored.getState().gameplay.player.clearanceLevel, 5);
+  assert.equal(restored.getState().gameplay.player.isAdmin, false);
+  assert.equal(restored.getState().gameplay.player.creatorMode, true);
+  assert.equal(restored.getState().gameplay.player.clearanceLevel, 1);
+  assert.equal(restored.getState().setCreatorMode(false).ok, true);
+  assert.equal(resolveDGAAuthority({ player: restored.getState().gameplay.player, isLoggedIn: true }).canManageAgencyWorld, false);
 });
 
 test('the explicit local credential grant is unavailable on remote hosts and when signed out', () => {

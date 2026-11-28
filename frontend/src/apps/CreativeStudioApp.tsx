@@ -1,3 +1,4 @@
+import { hasCreatorAccess } from '../gameplay/localCredentials';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Sparkles, Shield, Layers, Upload, CheckCircle2, Pause, Play,
@@ -70,6 +71,7 @@ export default function CreativeStudioApp() {
   useEffect(() => {
     if (!workspaceReq) return;
     if (workspaceReq.section === 'entertainment') setTab('entertainment');
+    else if (workspaceReq.section === 'admin' && hasCreatorAccess(player)) setTab('admin');
     useOSStore.getState().consumeWorkspaceRequest('creativeStudio', workspaceReq.revision);
   }, [workspaceReq]);
 
@@ -194,7 +196,7 @@ export default function CreativeStudioApp() {
   const adminDrafts = useMemo(() => listCreatorDrafts(), [adminRefresh]);
   const checkpoints = useMemo(() => listWorldCheckpoints(), [adminRefresh]);
   const publishedHistory = useMemo(() => getPublishedHistory(), [adminRefresh]);
-  const actorOverride = { isLoggedIn, isAdmin: Boolean(player?.isAdmin), name: player?.name || 'World Administrator' };
+  const actorOverride = { isLoggedIn, isAdmin: hasCreatorAccess(player), name: player?.name || 'World Administrator' };
 
   const allAssets = listAllMediaAssets(perms.isAdmin);
   const domainEntities = useMemo(() => listWorldLibraryByDomain(activeDomain), [activeDomain]);

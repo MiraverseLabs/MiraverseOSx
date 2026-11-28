@@ -3,7 +3,7 @@
   "name": "Franz Hopper",
   "kind": "person",
   "aliases": [],
-  "status": "document-only",
+  "status": "existing",
   "notes": [],
   "legacyIds": [],
   "references": [
@@ -13,7 +13,7 @@
       "file": "people/franz-hopper/story.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-OR-00481984",
   "legacyMaids": [],
   "folder": "franz-hopper",
   "firstName": "Franz",

@@ -1,3 +1,4 @@
+import { hasCreatorAccess } from '../../gameplay/localCredentials';
 import type { DGAAgentProfile, Classification, DGACase } from './dga-types';
 import { communicationsAuthority, membershipSource } from '../../integration/communicationsAccess';
 
@@ -214,7 +215,7 @@ export function resolveDGAAuthority(options?: {
     };
   }
 
-  const isAdmin = Boolean(player?.isAdmin);
+  const isAdmin = hasCreatorAccess(player);
   const hasDgaMembership = Boolean(membershipSource(player, 'dga'));
   const hasMedicalMembership = Boolean(membershipSource(player, 'medical'));
   const hasDiplomatMembership = Boolean(membershipSource(player, 'diplomat'));

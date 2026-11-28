@@ -118,7 +118,8 @@ def collect(root):
         person = load(relative, 'character-identity')
         if (person['id'], person['name'], person['folder']) != (item['id'], item['name'], item['folder']):
             raise ValueError(f'Manifest disagrees with {relative}')
-        rows['Characters'].append((person['id'], person['name'], person['kind'], person['status'],
+        normalized_status = 'existing' if str(person.get('status') or '').lower() == 'document-only' else (person.get('status') or 'existing')
+        rows['Characters'].append((person['id'], person['name'], person['kind'], normalized_status,
             person['folder'], person.get('maid'), packed(person.get('notes', [])), relative,
             person.get('firstName'), person.get('lastName'), person.get('title'),
             person.get('occupation'), person.get('homeRealm')))

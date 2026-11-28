@@ -626,6 +626,11 @@ export function calculateRestOutcome(
     baseAura = 45;
   }
 
+  if (gameplay?.realTimeClock) {
+    nextTimeSegmentIndex = currentSegment;
+    nextTimeCycleCount = currentCycle;
+  }
+
   const upgradeStaminaBonus = (hasMattress ? 20 : 0) + comfortBonus;
   const upgradeAuraBonus = (hasAuraLamp ? 25 : 0) + comfortBonus;
   const conditionPenalty = hasUntreatedCondition && !hasAuraLamp ? 15 : 0;

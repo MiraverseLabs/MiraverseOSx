@@ -1,3 +1,7 @@
+import { hasCreatorAccess } from '../gameplay/localCredentials';
+import SpeciesRegistry from './library/SpeciesRegistry';
+import CanonicalSpeciesReviewPanel from './library/CanonicalSpeciesReviewPanel';
+import { LINEAGE_RECORDS, findSpeciesRecord } from '../game-content/species/registry';
 import { subscribeCitizenUpdates } from '../integration/citizenEvents';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
@@ -80,13 +84,13 @@ const OFFICIAL_DOC_CARDS = [
 ];
 
 export default function RegistryWorkspaceApp() {
-  const isWorldAdmin = useOSStore(s => Boolean(s.gameplay.player.isAdmin));
+  const isWorldAdmin = useOSStore(s => hasCreatorAccess(s.gameplay.player));
   const osPlayer = useOSStore(s => s.gameplay.player);
   const osIdentity = useOSStore(s => s.gameplay.identity);
   const isLoggedIn = useOSStore(s => s.isLoggedIn);
   const auraActor = useMemo(() => resolveAuraActor({ player: osPlayer, identity: osIdentity, isLoggedIn }), [osPlayer, osIdentity, isLoggedIn]);
   const [linkingCitizen, setLinkingCitizen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'lookup' | 'add' | 'ecosystem' | 'migration'>('lookup');
+  const [activeTab, setActiveTab] = useState<'lookup' | 'add' | 'ecosystem' | 'migration' | 'species'>('lookup');
   const [dossierSection, setDossierSection] = useState<'overview' | 'ancestry' | 'institutions' | 'relationships' | 'documents' | 'edit'>('overview');
 
   // Population & Search State
@@ -545,6 +549,7 @@ export default function RegistryWorkspaceApp() {
           <nav className="registry-workflows" aria-label="Registry workflows">
             <button aria-pressed={activeTab === 'lookup'} onClick={() => setActiveTab('lookup')}><Search size={15} />Population directory</button>
             <button aria-pressed={activeTab === 'add'} onClick={() => setActiveTab('add')}><UserPlus size={15} />Register a person</button>
+            <button aria-pressed={activeTab === 'species'} onClick={() => setActiveTab('species')}><Globe size={15} />Species Registry</button>
             <details><summary>Registry services</summary><button aria-pressed={activeTab === 'ecosystem'} onClick={() => setActiveTab('ecosystem')}><Layers size={14} />Institutional connections</button><button aria-pressed={activeTab === 'migration'} onClick={() => setActiveTab('migration')}><Database size={14} />Ledger integrity</button></details>
           </nav>
           <div className="p-3.5 border-b border-slate-200 space-y-2.5 bg-slate-100/70">
@@ -594,13 +599,7 @@ export default function RegistryWorkspaceApp() {
                   className="w-full rounded-lg bg-white border border-slate-300 px-2 py-1 text-[11px] text-slate-800 focus:outline-none focus:border-amber-500"
                 >
                   <option value="ALL">All Species</option>
-                  <option value="Frostborn">Frostborn</option>
-                  <option value="Lightborn">Lightborn</option>
-                  <option value="Luminary">Luminary</option>
-                  <option value="Emberborn">Emberborn</option>
-                  <option value="Shadowborn">Shadowborn</option>
-                  <option value="Merfolk">Merfolk</option>
-                  <option value="Humanoid">Humanoid</option>
+                  {[...new Set([...LINEAGE_RECORDS.map(record => record.name), ...persons.map(person => person.species)])].sort().map(name => <option key={name} value={name}>{name}</option>)}
                 </select>
               </div>
             </div>
@@ -677,6 +676,12 @@ export default function RegistryWorkspaceApp() {
           {/* =====================================================================
               TAB 1: LOOK UP MAID & COMPREHENSIVE CITIZEN DOSSIER
              ===================================================================== */}
+          {activeTab === 'species' && (
+            <div className="space-y-6 p-4">
+              <CanonicalSpeciesReviewPanel />
+              <SpeciesRegistry publicMode={!isWorldAdmin} />
+            </div>
+          )}
           {activeTab === 'lookup' && (
             <div className="max-w-5xl mx-auto space-y-5">
               {/* Search Bar */}
@@ -1688,11 +1693,15 @@ export default function RegistryWorkspaceApp() {
                         </label>
                         <input
                           id="add-species"
+                          list="canonical-species-options"
                           type="text"
                           value={formData.species}
                           onChange={(e) => setFormData({ ...formData, species: e.target.value })}
                           className="w-full rounded-lg bg-white border border-slate-300 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-amber-500"
                         />
+                        <datalist id="canonical-species-options">{LINEAGE_RECORDS.map(record => <option key={record.id} value={record.name}>{record.realm} · {record.family}</option>)}</datalist>
+                        <p className="text-xs text-slate-500 mt-2">Choose a recorded lineage or describe mixed ancestry. Practices and statuses are listed separately in the Species Registry.</p>
+                        {findSpeciesRecord(formData.species) && <p className="text-xs text-slate-600 mt-2">{findSpeciesRecord(formData.species)!.category === 'Practices & statuses' ? 'This is a practice or status, rather than a biological species. Choose the character’s underlying lineage here.' : findSpeciesRecord(formData.species)!.physiology}</p>}
                       </div>
 
                       <div>

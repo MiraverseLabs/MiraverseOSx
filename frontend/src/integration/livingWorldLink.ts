@@ -447,3 +447,85 @@ export async function generateOfficialDocument(
     body: JSON.stringify({ runId, ...body }),
   });
 }
+
+// ---------------------------------------------------------------------------
+// Dynamic Population System API (AureMail, MAI.SPACE, WORKNET, Observatory)
+// ---------------------------------------------------------------------------
+
+export async function getPopulationSummary(runId: string): Promise<any> {
+  return call(`/population/summary?runId=${encodeURIComponent(runId)}`);
+}
+
+export async function previewPopulationBatch(
+  runId: string,
+  body: {
+    count?: number;
+    realm?: string;
+    residencyType?: 'permanent' | 'visitor';
+    namingStyle?: 'mixed' | 'contemporary' | 'culturally_diverse' | 'realm_fictional';
+    sector?: string;
+    occupation?: string;
+    simulationDepth?: 'Minimal' | 'Standard' | 'Expanded';
+    seed?: number;
+    authorizedSeeding?: boolean;
+  },
+): Promise<any> {
+  return call('/population/preview', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}
+
+export async function previewPopulationDeficits(
+  runId: string,
+  body: {
+    residencyType?: 'permanent' | 'visitor';
+    namingStyle?: 'mixed' | 'contemporary' | 'culturally_diverse' | 'realm_fictional';
+    simulationDepth?: 'Minimal' | 'Standard' | 'Expanded';
+    seed?: number;
+  } = {},
+): Promise<any> {
+  return call('/population/deficit-preview', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}
+
+export async function commitPopulationBatch(
+  runId: string,
+  body: {
+    batchId?: string;
+    records: Record<string, unknown>[];
+    triggerKind?: string;
+    seed?: number;
+    persistToDb?: boolean;
+  },
+): Promise<{ batchId: string; committedCount: number; citizens: any[]; revision: number }> {
+  return call('/population/commit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}
+
+export async function fulfillPopulationDemand(
+  runId: string,
+  body: {
+    sector: string;
+    neededCount?: number;
+    realm?: string;
+    role?: string;
+    employer?: string;
+    residencyType?: 'permanent' | 'visitor';
+    commitToDb?: boolean;
+    seed?: number;
+  },
+): Promise<any> {
+  return call('/population/demand', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ runId, ...body }),
+  });
+}

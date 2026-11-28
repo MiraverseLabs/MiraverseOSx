@@ -3,7 +3,7 @@
   "name": "Solis Agni",
   "kind": "person",
   "aliases": [],
-  "status": "document-only",
+  "status": "existing",
   "notes": [],
   "legacyIds": [],
   "references": [
@@ -13,7 +13,7 @@
       "file": "people/solis-agni/story.json"
     }
   ],
-  "maid": null,
+  "maid": "MAID-KA-00481989",
   "legacyMaids": [],
   "folder": "solis-agni",
   "firstName": "Solis",

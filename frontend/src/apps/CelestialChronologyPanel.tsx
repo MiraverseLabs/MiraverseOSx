@@ -1,3 +1,4 @@
+import { gameDate } from '../gameplay/RealTimeClock';
 import React from 'react';
 import { useOSStore } from '../store/useOSStore';
 import { getCelestialState, HISTORICAL_CHRONOLOGY } from '../data/meridionWorld';
@@ -5,7 +6,8 @@ import { Moon, Sun, Sparkles, Calendar, Clock, Crown, Compass, ShieldAlert, Awar
 
 export default function CelestialChronologyPanel() {
   const timeCycleCount = useOSStore((s) => s.gameplay?.timeCycleCount ?? 28);
-  const celestial = getCelestialState(timeCycleCount);
+  const game = useOSStore(s => s.gameplay);
+  const celestial = getCelestialState(timeCycleCount, game.realTimeClock ? gameDate(game) : undefined);
 
   return (
     <div className="space-y-6">

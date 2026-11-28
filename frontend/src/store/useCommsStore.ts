@@ -1,3 +1,4 @@
+import { hasCreatorAccess } from '../gameplay/localCredentials';
 import { createMailOrganizationActions, restoreMailOrganization, type MailOrganizationActions } from '../apps/mail/mailOrganization';
 import { sanitizeMailHtml, escapeMailText } from '../apps/mail/richText';
 import { channelAccess, senderAccess, communicationsAuthority, membershipSource, organization, restoreMailAccounts } from '../integration/communicationsAccess';
@@ -525,7 +526,7 @@ export const useCommsStore = create<CommsState>()(
 
       updateAccountStatus: (address, status) => {
         const authority = communicationsAuthority();
-        if (!authority.isLoggedIn || !authority.player.isAdmin || !['active', 'provisional', 'suspended', 'revoked'].includes(status)) return;
+        if (!authority.isLoggedIn || !hasCreatorAccess(authority.player) || !['active', 'provisional', 'suspended', 'revoked'].includes(status)) return;
         set((s) => ({
           playerAccounts: s.playerAccounts.map((acc) =>
             acc.address.toLowerCase() === address.toLowerCase()
@@ -537,7 +538,7 @@ export const useCommsStore = create<CommsState>()(
 
       revokeInstitutionalAccount: (address) => {
         const authority = communicationsAuthority();
-        if (!authority.isLoggedIn || !authority.player.isAdmin) {
+        if (!authority.isLoggedIn || !hasCreatorAccess(authority.player)) {
           return { ok: false, message: 'Revoking an institutional email account requires the signed-in world administrator.' };
         }
         const target = get().playerAccounts.find((acc) => acc.address.toLowerCase() === (address || '').toLowerCase());
@@ -563,7 +564,7 @@ export const useCommsStore = create<CommsState>()(
         if (!account || typeof account !== 'object') return { ok: false, message: 'Choose an institution and address.' };
         const authority = communicationsAuthority();
         const institution = organization(account.organizationId);
-        if (!authority.isLoggedIn || !authority.player.isAdmin) return { ok: false, message: 'Issuance requires the signed-in world administrator.' };
+        if (!authority.isLoggedIn || !hasCreatorAccess(authority.player)) return { ok: false, message: 'Issuance requires the signed-in world administrator.' };
         if (!institution || !membershipSource(authority.player, institution.id)) return { ok: false, message: 'An active membership is required before email issuance.' };
         if (typeof account.address !== 'string' || !new RegExp(`^[a-z0-9._+-]+@${institution.domain.replaceAll('.', '\\.')}$`, 'i').test(account.address)) return { ok: false, message: 'Use a valid address at the selected institution.' };
         const existing = get().playerAccounts.find(item => item.address.toLowerCase() === account.address.toLowerCase());

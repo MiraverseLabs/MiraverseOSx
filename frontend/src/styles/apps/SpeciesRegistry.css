@@ -1,0 +1,123 @@
+.species-registry{color:#302a35;background:#fbf9f6;padding:clamp(16px,3vw,32px);font-family:inherit;min-width:0;overflow-wrap:anywhere;user-select:text}
+.species-registry-hero{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:20px;align-items:center;margin-bottom:20px;padding:18px;border:1px solid #e2dce1;border-radius:14px;background:white}
+.species-cover-art{width:100%;height:140px;object-fit:cover;border-radius:10px;border:1px solid #e2dce1}
+.species-registry-heading>span,.species-record-id{font-size:10px;letter-spacing:.13em;color:#766176;font-weight:700;text-transform:uppercase}
+.species-registry-heading h2{font-family:Georgia,serif;font-size:clamp(24px,3vw,36px);font-weight:400;margin:8px 0}
+.species-registry-heading p{font-size:13px;line-height:1.6;max-width:720px;color:#6e6570;margin:0}
+
+/* Eight Realms Illustrated Plate Strip */
+.species-realm-strip{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px;margin:16px 0 20px}
+.species-realm-plate{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px;border:1px solid #e2dce1;border-radius:10px;background:white;color:#302a35;cursor:pointer;transition:border-color .15s,background-color .15s}
+.species-realm-plate img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:6px}
+.species-realm-plate span{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.species-realm-plate[aria-pressed=true]{border-color:#7c4d8a;background:#f0e8f2}
+
+/* Accessible Single-Row Horizontal Scrolling Tablist */
+.species-tablist{display:flex;gap:4px;overflow-x:auto;scroll-snap-type:inline proximity;border-bottom:1px solid #dfd7df;margin-bottom:18px;scrollbar-width:none}
+.species-tablist::-webkit-scrollbar{display:none}
+.species-tablist [role="tab"]{position:relative;flex:none;scroll-snap-align:start;padding:11px 16px;border:0;background:transparent;color:#5e5363;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.species-tablist [role="tab"][aria-selected="true"]{color:#3f234a}
+.species-tablist [role="tab"][aria-selected="true"]::after{content:"";position:absolute;inset:auto 0 0;border-block-end:3px solid #7c4d8a}
+.species-panel-inner{padding-top:4px}
+
+/* Filters */
+.species-filters{display:grid;grid-template-columns:2fr repeat(5,minmax(120px,1fr));gap:10px;margin-top:8px}
+.species-filters label{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:600;min-width:0}
+.species-filters input,.species-filters select,.species-wildlife-controls select{width:100%;min-width:0;border:1px solid #d8ced8;border-radius:8px;background:white;color:#302a35;padding:9px 10px;font-size:12px}
+.species-results-summary{display:flex;align-items:center;justify-content:space-between;margin:14px 0;font-size:12px;color:#6e6570}
+.species-results-summary button{border:1px solid #d8ced8;padding:6px 12px;border-radius:6px;background:white;color:#57415d;cursor:pointer}
+
+/* Master-Detail Workspace */
+.species-workspace{display:grid;grid-template-columns:minmax(180px,260px) minmax(0,1fr);align-items:start;gap:22px}
+.species-results{display:flex;flex-direction:column;gap:7px;max-height:760px;overflow:auto;padding:2px}
+.species-results>button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px;border:1px solid #e2dce1;border-radius:9px;background:white;text-align:left;color:#302a35;cursor:pointer}
+.species-results>button[aria-pressed=true]{border-color:#98769e;background:#f0e8f2;box-shadow:inset 3px 0 #98769e}
+.species-results small{font-size:10px;color:#766176}.species-results strong{font-size:13px}.species-results span{font-size:10px;color:#756d76}
+
+/* Profile Card */
+.species-profile{padding:clamp(16px,2vw,28px);border:1px solid #e2dce1;border-radius:12px;background:white;min-width:0}
+.species-badges{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.species-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;background:#f0e8f2;color:#593966}
+.species-badge-realm{background:#e9f1f5;color:#2e5568}
+.species-badge-fauna{background:#eef4e8;color:#35592a}
+.species-badge-sapient{background:#f7efe4;color:#6b4a1e}
+.species-profile h3{font-family:Georgia,serif;font-size:28px;font-weight:400;margin:8px 0}
+.species-profile p{font-size:12px;line-height:1.8;color:#615764}
+
+/* Artwork inside Profile */
+.species-artwork-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:16px 0}
+.species-figure{margin:0;border:1px solid #e6dfe6;border-radius:10px;overflow:hidden;background:#faf7fa}
+.species-figure img{width:100%;max-height:280px;object-fit:cover;display:block}
+.species-figure figcaption{padding:8px 10px;font-size:11px;color:#665869}
+
+.species-facts{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px 0;margin:18px 0;border-top:1px solid #ece6ec;border-bottom:1px solid #ece6ec}
+.species-facts dt{font-size:10px;text-transform:uppercase;color:#827285;letter-spacing:.06em}
+.species-facts dd{font-size:12px;margin:4px 0 0}
+.species-regional-box{padding:14px;margin:16px 0;border:1px solid #dfd2e3;border-radius:10px;background:#faf6fb}
+.species-regional-box h4{margin:0 0 8px;font-size:12px;color:#4e3656}
+.species-regional-box dl{margin:0;display:grid;gap:8px}
+.species-regional-box dt{font-size:11px;font-weight:700;color:#5c3f66}
+.species-regional-box dd{margin:2px 0 0;font-size:12px;line-height:1.6;color:#584e5b}
+
+.species-power-sections{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.species-power-sections h4{font-size:12px;font-weight:700;margin:0 0 5px;color:#4e3656}
+.species-power-sections p{margin:0}
+.species-profile .species-practice-note,.species-profile .species-power-note,.species-panel-inner .species-practice-note{padding:12px;background:#f6f1f7;border-radius:8px;color:#694b70;font-size:11px;line-height:1.6}
+.species-power-note{margin-top:20px}
+
+/* Related Species Navigation */
+.species-related{margin-top:20px;padding-top:16px;border-top:1px solid #ece6ec}
+.species-related h4{margin:0 0 10px;font-size:12px;color:#4e3656}
+.species-related-chips{display:flex;flex-wrap:wrap;gap:8px}
+.species-related-chips button{display:flex;flex-direction:column;align-items:flex-start;padding:7px 11px;border:1px solid #dfd5e2;border-radius:8px;background:#faf8fb;color:#3d2b44;cursor:pointer;text-align:left}
+.species-related-chips button:hover{border-color:#8d6499;background:#f1e8f4}
+.species-related-chips strong{font-size:12px}
+.species-related-chips small{font-size:10px;color:#766176}
+
+/* Source & Provenance */
+.species-source-notes{margin-top:20px;font-size:11px;color:#6e6570}
+.species-source-notes summary{cursor:pointer;color:#5c4264;font-weight:600}
+.species-source-notes dt{font-weight:600;margin-top:10px}
+.species-source-notes dd{margin-top:3px;line-height:1.7}
+.species-source-notes ul{padding-left:18px}
+.species-source-notes li{margin:8px 0}
+.species-source-notes li small{display:block;margin-top:2px}
+.species-source-notes a{text-decoration:underline;color:#724a83}
+
+/* Specialized Tabs: Choirs, Disciplines, Wildlife, Gallery */
+.species-section-title{font-family:Georgia,serif;font-size:20px;font-weight:400;margin:20px 0 12px;color:#3b2743}
+.species-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.species-mini-card{display:flex;flex-direction:column;gap:6px;padding:14px;border:1px solid #e2dce1;border-radius:10px;background:white}
+.species-mini-card h4{margin:2px 0;font-family:Georgia,serif;font-size:16px;font-weight:500;color:#2f2235}
+.species-mini-card p{margin:0;font-size:11.5px;line-height:1.6;color:#5f5563;flex:1}
+.species-mini-card button{align-self:flex-start;margin-top:6px;padding:6px 10px;border:1px solid #d5c7d9;border-radius:6px;background:#faf6fb;color:#52375c;font-size:11px;font-weight:600;cursor:pointer}
+.species-wildlife-controls{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;margin-bottom:12px}
+.species-wildlife-controls label{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:600}
+.species-checkbox-label{flex-direction:row!important;align-items:center;gap:8px!important;padding-bottom:8px;cursor:pointer}
+
+.species-comparative-plate{margin:0 0 20px;border:1px solid #e2dce1;border-radius:12px;overflow:hidden;background:white}
+.species-comparative-plate img{width:100%;max-height:420px;object-fit:contain;background:#f7f4f1;display:block}
+.species-comparative-plate figcaption{padding:10px 14px;font-size:12px;font-weight:600;color:#4f3c57}
+.species-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.species-gallery-card{margin:0;border:1px solid #e2dce1;border-radius:10px;overflow:hidden;background:white;display:flex;flex-direction:column}
+.species-gallery-card img{width:100%;height:170px;object-fit:cover;display:block}
+.species-gallery-card figcaption{padding:10px;display:flex;flex-direction:column;gap:4px;font-size:11px}
+.species-gallery-card button{align-self:flex-start;margin-top:4px;padding:4px 9px;border:1px solid #d5c7d9;border-radius:6px;background:#faf6fb;color:#52375c;font-size:11px;font-weight:600;cursor:pointer}
+
+.species-empty{padding:32px;text-align:center;border:1px dashed #cbbdce;border-radius:10px}
+.species-registry button:focus-visible,.species-registry input:focus-visible,.species-registry select:focus-visible,.species-registry summary:focus-visible{outline:3px solid #9763ad;outline-offset:2px}
+
+@container (max-width:860px){
+  .species-filters{grid-template-columns:1fr 1fr 1fr}
+  .species-realm-strip{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .species-workspace{grid-template-columns:190px minmax(0,1fr)}
+  .species-power-sections{grid-template-columns:1fr}
+}
+@media(max-width:780px){
+  .species-registry-hero{grid-template-columns:1fr}
+  .species-realm-strip{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .species-filters{grid-template-columns:1fr 1fr}
+  .species-workspace{grid-template-columns:1fr}
+  .species-results{max-height:240px}
+  .species-power-sections{grid-template-columns:1fr}
+}

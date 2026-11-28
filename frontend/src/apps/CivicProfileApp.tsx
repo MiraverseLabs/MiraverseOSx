@@ -1,3 +1,5 @@
+import { personalDisplayName, restoreCharacterProfile } from '../gameplay/CharacterProfile';
+import { hasCreatorAccess } from '../gameplay/localCredentials';
 import React, { useState, useEffect } from 'react';
 import Form from 'react-bootstrap/Form';
 import { useOSStore } from '../store/useOSStore';
@@ -12,6 +14,8 @@ import { resolvePersonalCitizen, personalIssuanceHistory } from '../integration/
 import CitizenServices from './CitizenServices';
 import LivingWorldLinkPanel from './LivingWorldLinkPanel';
 import { MaidIdentityService, type CanonicalPerson } from '../services/maidIdentityService';
+
+const CharacterProfileEditor = React.lazy(() => import('./CharacterProfileEditor'));
 
 const SKILL_ICONS = {
   Programming: Code,
@@ -86,6 +90,9 @@ export default function CivicProfileApp() {
 
   const player = useOSStore((s) => s.gameplay.player);
   const identity = useOSStore((s) => s.gameplay.identity);
+  const personalProfile = useOSStore(state => state.gameplay.characterProfile);
+  const personalName = personalDisplayName({ player, identity, characterProfile: personalProfile });
+  const personalPortrait = restoreCharacterProfile(personalProfile).portrait;
   const dgaVerified = player?.dgaVerified || player?.isAdmin || false;
   const completeIdentityScan = useOSStore((s) => s.completeIdentityScan);
   const restInDorm = useOSStore((s) => s.restInDorm);
@@ -96,7 +103,7 @@ export default function CivicProfileApp() {
   useEffect(() => {
     if (!workspaceRequest) return;
     const section = workspaceRequest.section;
-    const allowed = dgaVerified ? ['record', 'inventory', 'skills', 'clubs', 'housing', 'loops', 'documents', 'services'] : ['record', 'documents', 'services'];
+    const allowed = dgaVerified ? ['character', 'record', 'inventory', 'skills', 'clubs', 'housing', 'loops', 'documents', 'services'] : ['character', 'record', 'documents', 'services'];
     setActiveTab(allowed.includes(section) ? section : 'record');
     useOSStore.getState().consumeWorkspaceRequest('passport', workspaceRequest.revision);
   }, [workspaceRequest]);
@@ -200,6 +207,7 @@ export default function CivicProfileApp() {
   ];
 
   const recordSections = [
+    { id: 'character', label: 'My Character', icon: User },
     { id: 'record', label: 'My profile', icon: User }, { id: 'services', label: 'Citizen services', icon: Globe },
     { id: 'documents', label: 'Personal documents', icon: FileText }, { id: 'inventory', label: 'Personal vault', icon: Package },
     { id: 'skills', label: 'Skills & experience', icon: Activity }, { id: 'clubs', label: 'Associations', icon: Users },
@@ -208,12 +216,13 @@ export default function CivicProfileApp() {
   return (
     <div className="civic-workspace">
       <aside className="civic-index" aria-label="Personal record navigation">
-        <span className="workspace-kicker">Citizen Hub / personal workspace</span><div className="civic-monogram">{(identity.profileDisplayName || player?.name || 'Citizen').slice(0, 1)}</div><strong>{identity.profileDisplayName || player?.name || 'Provisional citizen'}</strong><span className="civic-record-status">{dgaVerified ? 'Profile ready' : 'Profile setup available'}</span>
-        <nav>{recordSections.filter(item => dgaVerified || ['record', 'documents', 'services'].includes(item.id)).map(item => { const Icon = item.icon; return <button key={item.id} aria-label={item.label} aria-pressed={activeTab === item.id} onClick={() => setActiveTab(item.id as typeof activeTab)}><Icon size={15} />{item.label}</button>; })}</nav>
+        <span className="workspace-kicker">Citizen Hub / personal workspace</span><div className="civic-monogram">{personalPortrait ? <img src={personalPortrait} alt="Your personal portrait" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} /> : personalName.slice(0, 1)}</div><strong>{personalName}</strong><span className="civic-record-status">{dgaVerified ? 'Profile ready' : 'Profile setup available'}</span>
+        <nav>{recordSections.filter(item => dgaVerified || ['character', 'record', 'documents', 'services'].includes(item.id)).map(item => { const Icon = item.icon; return <button key={item.id} aria-label={item.label} aria-pressed={activeTab === item.id} onClick={() => setActiveTab(item.id as typeof activeTab)}><Icon size={15} />{item.label}</button>; })}</nav>
         <p className="civic-index-note">Your life and civic services. AURA keeps the official identity record.</p>
       </aside>
       <main className="civic-content">
         <header className="civic-heading"><span className="workspace-kicker">Citizen Hub</span><h1>{!dgaVerified && activeTab === 'record' ? 'Set up your profile' : recordSections.find(item => item.id === activeTab)?.label}</h1></header>
+      {activeTab === 'character' && <React.Suspense fallback={<p role="status">Opening your character profile…</p>}><CharacterProfileEditor /></React.Suspense>}
       {/* ── STEP-BY-STEP DEEPENED BIOMETRIC IDENTITY SETUP SCANNER ── */}
       {!dgaVerified && activeTab === 'record' ? (
         <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
@@ -481,18 +490,19 @@ export default function CivicProfileApp() {
           {/* TAB 1: CITIZEN RECORD */}
           {activeTab === 'record' && (
             <div className="space-y-4">
+              <button type="button" className="character-text-button" onClick={() => setActiveTab('character')}>Edit personal profile</button>
               <div className="citizen-record-source">
                 <Shield size={20}/>
                 <div><strong>{selectedMaidPerson ? 'Linked to your AURA record' : 'Personal gameplay profile'}</strong>
                   <p>{selectedMaidPerson ? `${selectedMaidPerson.name} · ${selectedMaidPerson.maid || selectedMaidPerson.legacyRecord}` : recordStatus}</p>
                   <p>Official identity details are read-only here. Browsing another citizen in AURA or DGAOS does not change your profile.</p>
                 </div>
-                {player.isAdmin && <button onClick={() => useOSStore.getState().openAppWorkspace('meridionRegistry')}>Open AURA administration <ExternalLink size={13}/></button>}
+                {hasCreatorAccess(player) && <button onClick={() => useOSStore.getState().openAppWorkspace('meridionRegistry')}>Open AURA administration <ExternalLink size={13}/></button>}
               </div>
 
               {/* Interactive Front & Back Citizen ID Card */}
               <div className="flex justify-center">
-                <div className="w-full max-w-md cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
+                <div className="w-full max-w-md cursor-pointer" role="button" tabIndex={0} aria-label="Flip personal ID card" aria-pressed={isFlipped} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setIsFlipped(value => !value); } }} onClick={() => setIsFlipped(!isFlipped)}>
                   {!isFlipped ? (
                     <div className="relative overflow-hidden rounded-3xl border border-white/90 bg-white/95 p-6 shadow-lg space-y-4">
                       <div className="flex items-center justify-between border-b border-slate-200 pb-3">
@@ -501,14 +511,14 @@ export default function CivicProfileApp() {
                             {(selectedMaidPerson?.name || identity.profileDisplayName || player?.name || 'P').charAt(0)}
                           </div>
                           <div>
-                            <div className="font-bold text-sm text-[#1d2650]">{selectedMaidPerson?.name || identity.profileDisplayName || player?.name || 'Provisional Citizen'}</div>
+                            <div className="font-bold text-sm text-[#1d2650]">{selectedMaidPerson?.name || personalName}</div>
                             <div className="text-[10px] text-slate-500 font-mono">
                               {selectedMaidPerson?.maid ? 'MAID' : 'Citizen ID'}: {selectedMaidPerson?.maid || selectedMaidPerson?.legacyRecord || identity?.citizenId || 'Not issued'}
                             </div>
                           </div>
                         </div>
                         <span className="rounded-full bg-emerald-100 px-2.5 py-1 font-mono text-[10px] font-bold text-emerald-800 flex items-center gap-1">
-                          <CheckCircle2 size={12} /> PROFILE VERIFIED
+                          <CheckCircle2 size={12} /> {selectedMaidPerson?.maid ? 'AURA LINKED' : 'PERSONAL PROFILE'}
                         </span>
                       </div>
 

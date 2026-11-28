@@ -117,7 +117,8 @@ def main() -> None:
         person["occupation"] = db["Occupation"]
         person["homeRealm"] = db["HomeRealm"]
         person["kind"] = db["Kind"]
-        person["status"] = db["Status"]
+        normalized_status = "existing" if str(db["Status"] or "").lower() == "document-only" else (db["Status"] or "existing")
+        person["status"] = normalized_status
         person["folder"] = folder
         person["maid"] = new_maid
         person["aliases"] = aliases_by_char.get(cid, [])
@@ -175,7 +176,7 @@ def main() -> None:
             "occupation": db["Occupation"],
             "homeRealm": db["HomeRealm"],
             "kind": db["Kind"],
-            "status": db["Status"],
+            "status": normalized_status,
             "maid": new_maid,
             "folder": folder,
             "files": prev_item.get("files") or files_seen,
@@ -188,6 +189,8 @@ def main() -> None:
         if not char_json_path.exists():
             continue
         person = load_json(char_json_path)
+        if str(person.get("status") or "").lower() == "document-only":
+            person["status"] = "retired"
         person["retiredFromCanon"] = True
         person["retirementReason"] = rinfo["Reason"]
         save_json(char_json_path, person)
@@ -240,6 +243,27 @@ def main() -> None:
     manifest["order"] = new_order
 
     save_json(manifest_path, manifest)
+
+    people_projection = []
+    for item in new_characters:
+        cid = item["id"]
+        db = db_chars[cid]
+        people_projection.append({
+            "id": cid,
+            "name": item["name"],
+            "firstName": item["firstName"],
+            "lastName": item["lastName"],
+            "title": item["title"],
+            "occupation": item["occupation"],
+            "homeRealm": item["homeRealm"],
+            "maid": item["maid"],
+            "kind": item["kind"],
+            "aliases": aliases_by_char.get(cid, []),
+            "status": item["status"],
+            "notes": json.loads(db["NotesJson"]) if db["NotesJson"] else [],
+            "legacyIds": legacy_by_char.get(cid, []),
+        })
+    save_json(CHAR_DIR / "people.json", people_projection)
 
     print(json.dumps({
         "canonicalCharacters": len(new_characters),

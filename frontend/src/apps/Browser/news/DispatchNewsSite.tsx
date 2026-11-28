@@ -1,3 +1,4 @@
+import { gameDate } from '../../../gameplay/RealTimeClock';
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { useWorldMedia } from '../../../components/media/useWorldMedia';
 import { useOSStore } from '../../../store/useOSStore';
@@ -88,7 +89,7 @@ export default function DispatchNewsSite({ url, navigateTab }: { url: string; na
     [gameplay.timeCycleCount, gameplay.prismCorruptionLevel, gameplay.worldPublications],
   );
 
-  const celestial = getCelestialState(gameplay.timeCycleCount ?? 28);
+  const celestial = getCelestialState(gameplay.timeCycleCount ?? 28, gameplay.realTimeClock ? gameDate(gameplay) : undefined);
   const mastheadSvg = getMediaAssetById('canon:brand-meridian-masthead-illustrated') || getMediaAssetById('canon:brand-meridian-masthead');
   const meridianCrest = getMediaAssetById('canon:brand-meridian-laurel-emblem');
 

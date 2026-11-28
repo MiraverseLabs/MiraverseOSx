@@ -38,6 +38,7 @@ const EduSiteRouter = lazy(() => import('./edu/EduSiteRouter'));
 const FaithMedSite = lazy(() => import('./medical/FaithMedSite'));
 const BankingWorkspace = lazy(() => import('../banking/BankingWorkspace'));
 const EntertainmentSiteRouter = lazy(() => import('./entertainment/EntertainmentSiteRouter'));
+const SpeciesRegistry = lazy(() => import('../library/SpeciesRegistry'));
 
 export const QUICK_NAVIGATION_TARGETS = PUBLIC_DIRECTORY.map(p => ({
     domain: p.domain,
@@ -126,6 +127,10 @@ function ContentFrame({ url, openTab, navigateTab, atTabLimit }: {
     if (domain === 'civinet.mer' || domain === 'civinet.aure' || domain === 'civinet') return <CivinetPortal />;
     if (domain === 'questnotice.mer' || domain === 'questnotice.aure' || domain === 'questnotice') return <QuestNoticePortal />;
     if (domain === 'royalhistory.mer' || domain === 'royalhistory.aure' || domain === 'royalhistory') return <RoyalHistoryPortalView url={url} navigateTab={navigateTab} />;
+    if (domain === 'species.mer' || domain === 'species.aure' || domain === 'species') {
+        const focusId = searchParams.get('id') || undefined;
+        return <Suspense fallback={<p role="status">Loading Meridion Species Registry…</p>}><SpeciesRegistry publicMode={true} initialSpeciesId={focusId} /></Suspense>;
+    }
     if (domain === 'dga.gov' || domain === 'dga.gov.aure') return <DgaPortalView url={url} navigateTab={navigateTab} />;
     if (domain === 'records.orynvell.gov') return <OrynvellRecordsSite />;
     if (domain === 'shipping.aure' || domain === 'cargotrack.aure') return <ShippingPortalView url={url} navigateTab={navigateTab} />;

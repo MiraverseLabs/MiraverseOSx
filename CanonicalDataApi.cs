@@ -20,6 +20,7 @@ internal sealed class CanonicalDataApi
 {
     private const string Prefix = "api/canonical/";
     private readonly string dbPath;
+    private readonly SpeciesRegistryApi speciesApi = new();
 
     private static readonly Regex MaidRegex = new(@"^MAID-(OR|FR|LU|MA|BR|KA|NE|VR)-(\d{8})$", RegexOptions.Compiled);
 
@@ -156,6 +157,16 @@ internal sealed class CanonicalDataApi
                 await HandleListEntertainmentVenues(response);
                 return true;
             }
+            if (route.Equals("species", StringComparison.OrdinalIgnoreCase))
+            {
+                await speciesApi.HandleRoute(context, "");
+                return true;
+            }
+            if (route.StartsWith("species/", StringComparison.OrdinalIgnoreCase))
+            {
+                await speciesApi.HandleRoute(context, route["species/".Length..]);
+                return true;
+            }
 
             await WorldSaveApi.Reply(response, 404, new { error = $"Unknown canonical API route: {route}" });
             return true;
@@ -181,7 +192,10 @@ internal sealed class CanonicalDataApi
             "Characters", "RetiredCharacters", "MaidRegistry", "MaidRetiredSerials",
             "Careers", "CareerProgression", "Missions", "MissionCatalogMeta",
             "EntertainmentOrganizations", "EntertainmentVenues", "CharacterProfiles",
-            "LivingWorldRuns", "LivingWorldTransactions"
+            "LivingWorldRuns", "LivingWorldTransactions",
+            "Species", "SpeciesFamilies", "SpeciesAbilities", "SpeciesAssets",
+            "AngelicChoirs", "MagicalDisciplines", "WitchTraditions",
+            "WildlifePopulations", "CharacterSpeciesProfiles"
         })
         {
             try

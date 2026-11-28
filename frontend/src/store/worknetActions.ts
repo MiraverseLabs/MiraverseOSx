@@ -1,3 +1,4 @@
+import { hasCreatorAccess } from '../gameplay/localCredentials';
 import { releaseAcceptedWork } from '../gameplay/WorldPublicationFlow';
 import { INSTITUTIONAL_REGISTRY } from '../gameplay/WorkplaceDefinitions';
 import { CAREER_REGISTRY, canonicalCareerId, careerStation, contractSalary } from '../gameplay/CareerRegistry';
@@ -236,7 +237,7 @@ export function createWorknetActions(set: (update: (state: OSStoreState) => Part
     },
 
     resetWorknetMissionsAdmin: () => {
-      if (!get().gameplay.player.isAdmin) return;
+      if (!hasCreatorAccess(get().gameplay.player)) return;
       // Payout receipts and saved outputs survive administrative panel resets.
       updatePlayer(player => ({ ...player, worknetMissionProgress: {} }));
     },

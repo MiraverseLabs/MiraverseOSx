@@ -22,6 +22,7 @@ from living_world import (
 from overrides_store import load_all_overrides
 from profiles_normalizer import normalize_character_profile
 import entertainment
+import dynamic_population
 import npc_intelligence
 import reliability
 
@@ -90,7 +91,7 @@ def load_characters():
             SELECT *
             FROM Characters
             WHERE Kind = 'person'
-            AND Status = 'existing'
+            AND Status IN ('existing', 'document-only')
             ORDER BY CharacterId
             """
         ).fetchall()
@@ -172,10 +173,36 @@ class Citizen(mesa.Agent):
         self.subjective_knowledge: dict[str, dict] = {}
         self.interrupted_activity: str = ""
         self.last_decision_reason: str = ""
+        self.residency_type: str = "permanent"
+        self.naming_style: str = "canonical"
+        self.background_history: str = ""
+        self.education_level: str = ""
+        self.alma_mater: str = ""
+        self.sector: str = "civic"
 
         # Apply context-aware profile normalization + optional staged override
         self.normalized = {}
         self.apply_normalization(staged_override)
+        gen_meta = character.get("generated_meta") if isinstance(character, dict) else None
+        if isinstance(gen_meta, dict):
+            self.maid = gen_meta.get("maid") or self.maid
+            self.residency_type = str(gen_meta.get("residencyType") or "permanent")
+            if gen_meta.get("homeRealm"):
+                self.home_realm = str(gen_meta["homeRealm"])
+            if gen_meta.get("currentRealm"):
+                self.realm = str(gen_meta["currentRealm"])
+            self.naming_style = str(gen_meta.get("namingStyle") or "contemporary")
+            self.simulation_depth = str(gen_meta.get("simulationDepth") or self.simulation_depth)
+            self.background_history = str(gen_meta.get("backgroundHistory") or "")
+            self.education_level = str(gen_meta.get("educationLevel") or "")
+            self.alma_mater = str(gen_meta.get("almaMater") or "")
+            self.sector = str(gen_meta.get("sector") or "civic")
+            if gen_meta.get("initialBalance") is not None:
+                self.balance = float(gen_meta["initialBalance"])
+            if isinstance(gen_meta.get("personality"), dict) and gen_meta["personality"]:
+                self.personality = copy.deepcopy(gen_meta["personality"])
+            if isinstance(gen_meta.get("goals"), list) and gen_meta["goals"]:
+                self.active_goals = copy.deepcopy(gen_meta["goals"])
         traits_blob = " ".join(
             str(x)
             for x in (
@@ -186,12 +213,13 @@ class Citizen(mesa.Agent):
                 *(self.hobbies or []),
             )
         )
-        self.personality = npc_intelligence.compute_personality_vector(
-            self.character_id,
-            traits_text=traits_blob,
-            sociability=self.sociability,
-            music_interest=self.music_interest,
-        )
+        if not self.personality:
+            self.personality = npc_intelligence.compute_personality_vector(
+                self.character_id,
+                traits_text=traits_blob,
+                sociability=self.sociability,
+                music_interest=self.music_interest,
+            )
         if not self.active_goals:
             goal_kind = (
                 "creative_mastery"
@@ -510,6 +538,13 @@ class Citizen(mesa.Agent):
             "subjective_knowledge",
             "interrupted_activity",
             "last_decision_reason",
+            "simulation_depth",
+            "residency_type",
+            "naming_style",
+            "background_history",
+            "education_level",
+            "alma_mater",
+            "sector",
         )
         return {field: getattr(self, field) for field in fields}
 
@@ -531,6 +566,7 @@ class PopulationModel(mesa.Model):
         characters: list[dict] | None = None,
         persist: bool = True,
     ):
+        self.database = Path(database)
         self.store = LivingWorldStore(database)
         saved_run = self.store.load_run(run_id) if run_id else None
         saved_state = saved_run["state"] if saved_run else None
@@ -540,6 +576,14 @@ class PopulationModel(mesa.Model):
             calendar_config = saved_run["calendar"]
 
         super().__init__(seed=seed)
+        mesa_step = self.step
+        def paced_step():
+            # Reject before entering Mesa's scheduled event generator: exceptions
+            # inside its event callback would cancel future scheduled steps.
+            if self._extensions.get('realtime') and not getattr(self, '_realtime_catchup', False):
+                raise ValueError('The live world follows real time; manual stepping is available in experiments.')
+            mesa_step()
+        self.step = paced_step
         self._revision = saved_run["revision"] if saved_run else 0
         self._defer_persistence = False
         self._extensions = copy.deepcopy(saved_state or {})
@@ -581,6 +625,11 @@ class PopulationModel(mesa.Model):
             cid = character["CharacterId"]
             loaded_ids.add(cid)
             Citizen(self, character, staged_override=overrides.get(cid))
+        for proc_char in dynamic_population.load_generated_citizens(self.database):
+            pcid = proc_char.get("CharacterId")
+            if pcid and pcid not in loaded_ids:
+                loaded_ids.add(pcid)
+                Citizen(self, proc_char, staged_override=None)
         for proc_char in self._extensions.get("procedural_citizens", []):
             pcid = proc_char.get("CharacterId")
             if pcid and pcid not in loaded_ids:
@@ -1060,6 +1109,7 @@ class PopulationModel(mesa.Model):
                 citizen.last_rent_day = self.world_clock.day_index
                 self.record_transaction(citizen, "housing", -50.0, "Weekly housing expense")
         self.social_network.decay_relationships(self.world_clock.day_index)
+        dynamic_population.DynamicPopulationManager.step_daily_population(self)
         current_snap = reliability.WorldStateAuditor.snapshot_summary(self)
         if self._last_audit_snapshot is not None:
             reliability.WorldStateAuditor.record_diff(self, self._last_audit_snapshot, current_snap)
@@ -1337,10 +1387,14 @@ class PopulationModel(mesa.Model):
         return steps
 
     def set_playing(self, playing: bool) -> None:
+        if self._extensions.get('realtime'):
+            raise ValueError('The live world follows real time, including while closed. Use an experiment for Play/Pause.')
         self._is_playing = bool(playing)
         self.save()
 
     def set_step_minutes(self, minutes: int) -> None:
+        if self._extensions.get('realtime'):
+            raise ValueError('The live world pace is one game minute per real minute.')
         self.world_clock.set_step_minutes(minutes)
         self.save()
 
@@ -1401,6 +1455,72 @@ class PopulationModel(mesa.Model):
         if created:
             self._rebuild_world_graph()
         return created
+
+    def preview_population_batch(self, request: dynamic_population.PopulationBatchRequest | dict) -> dict:
+        req = (
+            request
+            if isinstance(request, dynamic_population.PopulationBatchRequest)
+            else dynamic_population.PopulationBatchRequest.model_validate(request)
+        )
+        return dynamic_population.DynamicPopulationManager.preview_batch(self, req)
+
+    def commit_population_batch(
+        self,
+        records: list[dict],
+        *,
+        batch_id: str | None = None,
+        trigger_kind: str = "manual",
+        existing_eligible_count: int = 0,
+        demand_details: dict | None = None,
+        seed: int | None = None,
+        persist_to_db: bool = True,
+    ) -> dict:
+        result = dynamic_population.DynamicPopulationManager.commit_batch(
+            self,
+            records,
+            batch_id=batch_id,
+            trigger_kind=trigger_kind,
+            existing_eligible_count=existing_eligible_count,
+            demand_details=demand_details,
+            seed=seed,
+            persist_to_db=persist_to_db,
+        )
+        if result["committedCount"] > 0 and self.run_id:
+            self.save()
+        return result
+
+    def fulfill_population_demand(self, request: dynamic_population.DemandFulfillmentRequest | dict) -> dict:
+        req = (
+            request
+            if isinstance(request, dynamic_population.DemandFulfillmentRequest)
+            else dynamic_population.DemandFulfillmentRequest.model_validate(request)
+        )
+        result = dynamic_population.DynamicPopulationManager.evaluate_and_fulfill_demand(self, req)
+        if result["generatedCount"] > 0 and self.run_id:
+            self.save()
+        return result
+
+    def population_summary(self) -> dict:
+        return dynamic_population.DynamicPopulationManager.population_summary(self)
+
+    def calculate_population_deficits(self) -> dict:
+        return dynamic_population.calculate_population_deficits(self)
+
+    def preview_deficit_fill(
+        self,
+        *,
+        residency_type: str = "permanent",
+        naming_style: str = "mixed",
+        simulation_depth: str = "Standard",
+        seed: int | None = 42,
+    ) -> dict:
+        return dynamic_population.DynamicPopulationManager.preview_deficit_fill(
+            self,
+            residency_type=residency_type,  # type: ignore[arg-type]
+            naming_style=naming_style,  # type: ignore[arg-type]
+            simulation_depth=simulation_depth,  # type: ignore[arg-type]
+            seed=seed,
+        )
 
     def step(self):
         if self.run_id and not self._defer_persistence:

@@ -1,3 +1,5 @@
+import { gameDate } from '../../gameplay/RealTimeClock';
+import { useOSStore } from '../../store/useOSStore';
 import React, { useEffect, useState } from "react";
 import { BatteryFull, Palette, Signal } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -134,11 +136,13 @@ export function PhoneAppButton({
 }
 
 export function PhoneStatusBar() {
-  const [now, setNow] = useState(() => new Date());
+  const gameplay = useOSStore(s => s.gameplay);
+  const [wallNow, setNow] = useState(() => new Date());
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 30000);
     return () => window.clearInterval(timer);
   }, []);
+  const now = gameDate(gameplay, wallNow);
   return (
     <div className="phone-status">
       <time dateTime={now.toISOString()}>

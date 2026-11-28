@@ -37,17 +37,17 @@ const {
 const read = name => JSON.parse(readFileSync(new URL(name, import.meta.url), 'utf8'));
 const manifest = read('../src/game-content/characters/manifest.json');
 
-test('reconciled canonical roster has 62 characters, 53 registered MAIDs across 8 realms, 8 document-only, 1 companion', () => {
+test('reconciled canonical roster has 62 characters, 61 registered MAIDs across 8 realms, 0 document-only, 1 companion', () => {
   assert.equal(CHARACTER_IDENTITIES.length, 62);
   assert.equal(manifest.characters.length, 62);
   assert.equal(RETIRED_CHARACTERS.length, 20);
 
   const activePersons = getActiveRegisteredCitizens();
-  const docOnly = CHARACTER_IDENTITIES.filter(p => p.kind === 'person' && p.status === 'document-only');
+  const docOnly = CHARACTER_IDENTITIES.filter(p => p.status === 'document-only');
   const companions = CHARACTER_IDENTITIES.filter(p => p.kind === 'companion');
 
-  assert.equal(activePersons.length, 53);
-  assert.equal(docOnly.length, 8);
+  assert.equal(activePersons.length, 61);
+  assert.equal(docOnly.length, 0);
   assert.equal(companions.length, 1);
   assert.equal(companions[0].id, 'char-mai');
 
@@ -67,7 +67,7 @@ test('reconciled canonical roster has 62 characters, 53 registered MAIDs across 
     seenMaids.add(person.maid.toUpperCase());
     assert.equal(getCharacterByMaid(person.maid)?.id, person.id);
   }
-  assert.equal(seenMaids.size, 53);
+  assert.equal(seenMaids.size, 61);
 
   // Verify the 7 newly registered canonical characters and their assigned regional MAIDs
   for (const [id, name, occ, realm, maid] of [
@@ -151,7 +151,8 @@ test('name variants merge under document names and updated canonical names are r
   // Verify updated canonical names from miraverse.db
   assert.equal(getCharacterById('char-rowan')?.name, 'Archivist Rowan Alderwick');
   assert.equal(getCharacterById('char-vael')?.name, 'Headmistress Serena Vael');
-  assert.equal(getCharacterById('char-vael')?.status, 'document-only');
+  assert.equal(getCharacterById('char-vael')?.status, 'existing');
+  assert.equal(getCharacterById('char-vael')?.maid, 'MAID-LU-00481985');
   assert.equal(getCharacterById('char-unidentified-driver-p404')?.name, 'Adrian Locke');
   assert.equal(getCharacterById('char-nerya')?.name, 'Nerya Solenne');
   assert.equal(findCharactersByName('Aelita Schaeffer')[0].id, 'char-aelita-hopper');

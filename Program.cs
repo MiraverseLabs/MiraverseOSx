@@ -41,8 +41,9 @@ namespace MiraverseOSx
         private static MediaAssetApi? _mediaApi;
     private static LivingWorldApi? _livingWorldApi;
     private static Process? _livingWorldProcess;
-    private static ObservatoryApi? _observatoryApi;
-    private static CanonicalDataApi? _canonicalDataApi;
+        private static ObservatoryApi? _observatoryApi;
+        private static CanonicalDataApi? _canonicalDataApi;
+        private static SpeciesRegistryApi? _speciesRegistryApi;
         private static AiHttpHandler? _aiHttpHandler;
         private static readonly HttpClient _httpClient = new HttpClient();
         private static readonly string _externalLaunchToken = Guid.NewGuid().ToString("N");
@@ -78,6 +79,7 @@ namespace MiraverseOSx
             _livingWorldApi = new LivingWorldApi(livingWorldPort);
             _observatoryApi = new ObservatoryApi(dataDirectory);
             _canonicalDataApi = new CanonicalDataApi();
+            _speciesRegistryApi = new SpeciesRegistryApi();
             EnsureLivingWorldService(livingWorldPort);
             var memoryRepo = new NpcMemoryRepository(dataDirectory);
             var costController = new AiCostController(memoryRepo);
@@ -175,6 +177,11 @@ namespace MiraverseOSx
                 if (_livingWorldApi != null && await _livingWorldApi.Handle(context, relPath)) return;
                 if (_observatoryApi != null && await _observatoryApi.Handle(context, relPath)) return;
                 if (_canonicalDataApi != null && await _canonicalDataApi.Handle(context, relPath)) return;
+                if (_speciesRegistryApi != null && (relPath.Equals("api/species", StringComparison.OrdinalIgnoreCase) || relPath.StartsWith("api/species/", StringComparison.OrdinalIgnoreCase)))
+                {
+                    var sub = relPath.Length > "api/species".Length ? relPath["api/species".Length..].TrimStart('/') : "";
+                    if (await _speciesRegistryApi.HandleRoute(context, sub)) return;
+                }
                 if (_aiHttpHandler != null && await _aiHttpHandler.Handle(context, relPath)) return;
 
                 // --- SQLITE API ROUTE INTERCEPTOR ---
